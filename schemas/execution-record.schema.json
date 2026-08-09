@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/vuongdam2k01/AI-SaaS-SDLC/schemas/execution-record.schema.json",
+  "title": "AI SaaS SDLC Execution Record",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "id", "flow_id", "level", "command_id", "command", "cwd", "started_at", "ended_at", "exit_code", "output_hash", "output_file", "git_commit", "source_snapshot_hash"],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "id": { "type": "string", "pattern": "^EXEC-[0-9]{3,}$" },
+    "flow_id": { "type": "string", "pattern": "^FLOW-[0-9]{3,}$" },
+    "level": { "enum": ["unit", "integration", "system"] },
+    "command_id": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$" },
+    "command": { "type": "string", "minLength": 1 },
+    "cwd": { "type": "string", "minLength": 1 },
+    "started_at": { "type": "string", "format": "date-time" },
+    "ended_at": { "type": "string", "format": "date-time" },
+    "exit_code": { "type": "integer" },
+    "output_hash": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "output_file": { "type": "string", "pattern": "^\\.ai-saas-sdlc/executions/EXEC-[0-9]{3,}\\.log$" },
+    "git_commit": { "type": ["string", "null"] },
+    "source_snapshot_hash": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
+  }
+}

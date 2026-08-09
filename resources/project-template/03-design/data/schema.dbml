@@ -1,0 +1,37 @@
+Project project_schema {
+  database_type: 'PostgreSQL'
+  Note: '''
+  Authoritative physical data contract. Tables, columns, types, nullability,
+  defaults, keys, indexes, references, and database-enforced constraints live
+  here. ENT artifacts own domain meaning; API/OpenAPI own wire representations.
+  The empty draft is intentional until active entities require persistence.
+  '''
+}
+
+// Completion contract before a schema-backed feature is active:
+// - Every table and column maps to an ENT attribute/relationship or documented
+//   technical necessity.
+// - Tenant/organization ownership columns, foreign keys, and access-supporting
+//   indexes make the isolation model explicit where applicable.
+// - Requiredness, defaults, uniqueness, referential actions, and constraints
+//   agree with entity states/invariants and write-processing designs.
+// - Sensitive fields are minimized and map to retention/deletion rules.
+// - Indexes name the query/invariant they support; speculative indexes are absent.
+// - Compatibility/backfill consequences are recorded in ENT mapping and ADR when
+//   the physical change has a durable tradeoff.
+
+// Native-comment shape for a future concrete table (guidance, not schema):
+// Table <semantic_plural_name> {
+//   id <database_type> [pk, note: '<ENT-ID>#<attribute-ID>']
+//   <tenant_key> <database_type> [not null]
+//   <attribute> <database_type> [not null, note: '<ENT-ID>#<attribute-ID>']
+//   created_at timestamp [not null]
+//   updated_at timestamp [not null]
+//
+//   indexes {
+//     (<tenant_key>, <attribute>) [name: '<meaningful_index_name>']
+//   }
+//
+//   Note: '<ENT-ID>; writes owned by <API/JOB/SUB-ID>'
+// }
+// Ref: <child_table>.<foreign_key> > <parent_table>.id

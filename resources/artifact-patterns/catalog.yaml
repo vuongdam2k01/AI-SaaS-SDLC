@@ -1,0 +1,284 @@
+version: 1
+patterns:
+  - artifact_type: ideal_customer_profile
+    template: discovery/ideal-customer-profile.pattern.md
+    target: 01-discovery/customer-segments/{{ID}}.md
+    id_pattern: '^ICP-[A-Z0-9][A-Z0-9-]*$'
+    required_headings: [Purpose and boundary, Segment definition, Context and constraints, Needs and outcomes, Evidence and uncertainty, Applicability, Completion contract]
+    required_tables:
+      - {heading: Evidence register, columns: [Local ID, Claim supported, Evidence-ledger IDs, Strength, Counter-evidence, Last observed], min_rows: 1}
+    local_id_patterns:
+      - {namespace: evidence, pattern: '\bEV-[0-9]{2}\b', minimum: 1}
+  - artifact_type: persona
+    template: discovery/persona.pattern.md
+    target: 01-discovery/customer-segments/{{ID}}.md
+    id_pattern: '^PERSONA-[A-Z0-9][A-Z0-9-]*$'
+    required_headings: [Purpose and boundary, Role context, Goals and decisions, Responsibilities and constraints, Evidence and uncertainty, Applicability, Completion contract]
+    required_tables:
+      - {heading: Evidence register, columns: [Local ID, Claim supported, Evidence-ledger IDs, Strength, Counter-evidence, Last observed], min_rows: 1}
+    local_id_patterns:
+      - {namespace: evidence, pattern: '\bEV-[0-9]{2}\b', minimum: 1}
+  - artifact_type: problem
+    template: discovery/problem.pattern.md
+    target: 01-discovery/customer-segments/{{ID}}.md
+    id_pattern: '^PROBLEM-[A-Z0-9][A-Z0-9-]*$'
+    required_headings: [Purpose and boundary, Problem statement, Affected context, Current behavior and impact, Evidence and uncertainty, Boundaries and falsifiers, Completion contract]
+    required_tables:
+      - {heading: Evidence register, columns: [Local ID, Claim supported, Evidence-ledger IDs, Strength, Counter-evidence, Last observed], min_rows: 1}
+    local_id_patterns:
+      - {namespace: evidence, pattern: '\bEV-[0-9]{2}\b', minimum: 1}
+  - artifact_type: competitor
+    template: discovery/competitor.pattern.md
+    target: 01-discovery/competitors/{{ID}}.md
+    id_pattern: '^COMPETITOR-[A-Z0-9][A-Z0-9-]*$'
+    required_headings: [Purpose and boundary, Offering snapshot, Capability comparison, Positioning and commercial signals, Evidence and uncertainty, Implications, Completion contract]
+    required_tables:
+      - {heading: Capability comparison, columns: [Capability or outcome, Observed support, Limitation or qualifier, Relevance to our problem, Evidence IDs], min_rows: 1}
+      - {heading: Evidence register, columns: [Local ID, Claim supported, Evidence-ledger IDs, Strength, Counter-evidence, Freshness risk], min_rows: 1}
+    local_id_patterns:
+      - {namespace: evidence, pattern: '\bEV-[0-9]{2}\b', minimum: 1}
+  - artifact_type: feature
+    template: product/feature.pattern.md
+    target: 02-product/features/{{ID}}.md
+    id_pattern: '^FTR-[A-Z0-9][A-Z0-9-]*$'
+    required_headings: [Purpose and boundary, Outcome and applicability, Observable behavior, Business rules, State and failure model, Acceptance criteria, Traceability, Completion contract]
+    required_tables:
+      - {heading: Observable behavior, columns: [Local ID, Given, When, Then, Applicability], min_rows: 1}
+      - {heading: Business rules, columns: [Local ID, Rule, Applies when, Does not apply when, Authority reference], min_rows: 1}
+      - {heading: Acceptance criteria, columns: [Local ID, Verifiable criterion, Covers behavior or rule IDs, Required test level, Evidence produced], min_rows: 1}
+    local_id_patterns:
+      - {namespace: behavior, pattern: '\bBH-[0-9]{2}\b', minimum: 1}
+      - {namespace: business_rule, pattern: '\bBR-[0-9]{2}\b', minimum: 1}
+      - {namespace: state, pattern: '\bST-[0-9]{2}\b', minimum: 1}
+      - {namespace: failure, pattern: '\bFL-[0-9]{2}\b', minimum: 1}
+      - {namespace: acceptance, pattern: '\bAC-[0-9]{2}\b', minimum: 1}
+  - artifact_type: use_case
+    template: product/use-case.pattern.md
+    target: 02-product/use-cases/{{ID}}.md
+    id_pattern: '^UC-[A-Z0-9][A-Z0-9-]*$'
+    required_headings: [Purpose and boundary, Actors and preconditions, Trigger and guarantees, Main flow, Alternate flows, Error flows, Traceability, Completion contract]
+    required_tables:
+      - {heading: Main flow, columns: [Local ID, Initiator, Action or system behavior, Information used, Resulting state], min_rows: 1}
+      - {heading: Alternate flows, columns: [Local ID, Branches from, Condition, Steps or outcome, Returns to], min_rows: 1}
+      - {heading: Error flows, columns: [Local ID, Origin, Failure condition, Observable response, State guarantee, Recovery], min_rows: 1}
+    local_id_patterns:
+      - {namespace: main, pattern: '\bM-[0-9]{2}\b', minimum: 1}
+      - {namespace: alternate, pattern: '\bA-[0-9]{2}\b', minimum: 1}
+      - {namespace: error, pattern: '\bX-[0-9]{2}\b', minimum: 1}
+  - artifact_type: business_flow
+    template: product/business-flow.pattern.md
+    target: 02-product/flows/{{ID}}.md
+    id_pattern: '^FLOW-[A-Z0-9][A-Z0-9-]*$'
+    required_headings: [Purpose and boundary, Participants and boundary, Entry and exit, Flow steps, Decision points, Alternate and compensation paths, Traceability, Completion contract]
+    required_tables:
+      - {heading: Flow steps, columns: [Local ID, Owner, Activity or referenced use case, Input state, Output state, Evidence or rule], min_rows: 1}
+      - {heading: Decision points, columns: [Local ID, After step, Decision rule, Outcome branches, Rule authority], min_rows: 1}
+      - {heading: Alternate and compensation paths, columns: [Local ID, Type, Origin, Trigger, Path or action, Final state], min_rows: 1}
+    local_id_patterns:
+      - {namespace: step, pattern: '\bS-[0-9]{2}\b', minimum: 1}
+      - {namespace: decision, pattern: '\bD-[0-9]{2}\b', minimum: 1}
+      - {namespace: alternate, pattern: '\bA-[0-9]{2}\b', minimum: 1}
+      - {namespace: compensation, pattern: '\bC-[0-9]{2}\b', minimum: 1}
+  - artifact_type: screen
+    template: design/screen.pattern.md
+    target: 03-design/screens/{{ID}}.md
+    id_pattern: '^SCR-[A-Z0-9][A-Z0-9-]*$'
+    required_headings: [Purpose and boundary, Access and context, Regions, Fields and controls, Actions, Validation, Transitions, Accessibility and rationale, Completion contract]
+    required_tables:
+      - {heading: Regions, columns: [Local ID, Region, Purpose, Visible when, Empty or loading behavior], min_rows: 1}
+      - {heading: Fields and controls, columns: [Local ID, Region, Type, Label, Source, Required, Format or constraints, Default], min_rows: 1}
+      - {heading: Actions, columns: [Local ID, Trigger, Preconditions, Processing reference, Success, Failure], min_rows: 1}
+      - {heading: Validation, columns: [Local ID, Applies to, Rule, Exact response, Timing], min_rows: 1}
+      - {heading: Transitions, columns: [Local ID, From, Trigger, To, Guard or state passed], min_rows: 1}
+    local_id_patterns:
+      - {namespace: region, pattern: '\bA-[0-9]{2}\b', minimum: 1}
+      - {namespace: field, pattern: '\b(?:I|O|B|L)-[0-9]{2}\b', minimum: 1}
+      - {namespace: action, pattern: '\bE-[0-9]{2}\b', minimum: 1}
+      - {namespace: validation, pattern: '\bV-[0-9]{2}\b', minimum: 1}
+      - {namespace: transition, pattern: '\bT-[0-9]{2}\b', minimum: 1}
+  - artifact_type: component
+    template: design/shared-component.pattern.md
+    target: 03-design/components/{{ID}}.md
+    id_pattern: '^CMP-[A-Z0-9][A-Z0-9-]*$'
+    required_headings: [Purpose and reuse boundary, Consumers and variants, Inputs and outputs, States and behavior, Actions and events, Accessibility, Traceability, Completion contract]
+    required_tables:
+      - {heading: Inputs and outputs, columns: [Local ID, Direction, Name, Type, Required, Constraints, Default], min_rows: 1}
+      - {heading: States and behavior, columns: [Local ID, State, Entry condition, Rendering or behavior, Exit], min_rows: 1}
+      - {heading: Actions and events, columns: [Local ID, Trigger, Preconditions, Emitted event or result, Failure behavior], min_rows: 1}
+    local_id_patterns:
+      - {namespace: input, pattern: '\bI-[0-9]{2}\b', minimum: 1}
+      - {namespace: output, pattern: '\bO-[0-9]{2}\b', minimum: 1}
+      - {namespace: state, pattern: '\bST-[0-9]{2}\b', minimum: 1}
+      - {namespace: event, pattern: '\bE-[0-9]{2}\b', minimum: 1}
+  - artifact_type: subsystem
+    template: design/subsystem.pattern.md
+    target: 03-design/subsystems/{{ID}}.md
+    id_pattern: '^SUB-[A-Z0-9][A-Z0-9-]*$'
+    required_headings: [Purpose and boundary, Responsibilities, Interfaces and dependencies, Data ownership, Behavior and collaboration, Failure and observability, Implementation mapping, Completion contract]
+    required_tables:
+      - {heading: Interfaces and dependencies, columns: [Local ID, Direction, Interface or dependency, Contract owner, Failure boundary], min_rows: 1}
+      - {heading: Data ownership, columns: [Local ID, Entity or store, Ownership, Allowed access, Consistency rule], min_rows: 1}
+      - {heading: Implementation mapping, columns: [Responsibility or local ID, Source path, Symbol or module, Verification IDs], min_rows: 1}
+    local_id_patterns:
+      - {namespace: responsibility, pattern: '\bR-[0-9]{2}\b', minimum: 1}
+      - {namespace: interface, pattern: '\bIF-[0-9]{2}\b', minimum: 1}
+      - {namespace: data, pattern: '\bD-[0-9]{2}\b', minimum: 1}
+      - {namespace: failure, pattern: '\bF-[0-9]{2}\b', minimum: 1}
+  - artifact_type: api_processing
+    template: design/api-processing.pattern.md
+    target: 03-design/interfaces/{{ID}}.md
+    id_pattern: '^API-[A-Z0-9][A-Z0-9-]*$'
+    required_headings: [Purpose and boundary, Interface reference, Authorization, Validation and errors, Processing, Transactions and idempotency, Side effects and data access, Implementation mapping, Completion contract]
+    required_tables:
+      - {heading: Validation and errors, columns: [Local ID, Condition, Validation or rule, Error-catalog code, State guarantee], min_rows: 1}
+      - {heading: Processing, columns: [Local ID, Step, Input, Rule or dependency, Output], min_rows: 1}
+      - {heading: Side effects and data access, columns: [Local ID, Type, Target, Operation, Timing, Failure behavior], min_rows: 1}
+      - {heading: Implementation mapping, columns: [Processing or side-effect IDs, Source path, Symbol, Verification IDs], min_rows: 1}
+    local_id_patterns:
+      - {namespace: validation, pattern: '\bV-[0-9]{2}\b', minimum: 1}
+      - {namespace: processing, pattern: '\bP-[0-9]{2}\b', minimum: 1}
+      - {namespace: side_effect, pattern: '\bS-[0-9]{2}\b', minimum: 1}
+  - artifact_type: entity
+    template: design/domain-entity.pattern.md
+    target: 03-design/data/{{ID}}.md
+    id_pattern: '^ENT-[A-Z0-9][A-Z0-9-]*$'
+    required_headings: [Purpose and boundary, Ownership and tenancy, Attributes, States and invariants, Relationships, Retention and deletion, Schema mapping, Completion contract]
+    required_tables:
+      - {heading: Attributes, columns: [Local ID, Name, Meaning, Type, Required, Constraints, Sensitivity], min_rows: 1}
+      - {heading: States and invariants, columns: [Local ID, Type, Rule, Applies when, Enforcement owner], min_rows: 1}
+      - {heading: Schema mapping, columns: [Attribute or relationship ID, DBML table and column, Application symbol, Migration note], min_rows: 1}
+    local_id_patterns:
+      - {namespace: attribute, pattern: '\bA-[0-9]{2}\b', minimum: 1}
+      - {namespace: state, pattern: '\bST-[0-9]{2}\b', minimum: 1}
+      - {namespace: invariant, pattern: '\bINV-[0-9]{2}\b', minimum: 1}
+  - artifact_type: external_integration
+    template: design/external-integration.pattern.md
+    target: 03-design/integrations/{{ID}}.md
+    id_pattern: '^INT-[A-Z0-9][A-Z0-9-]*$'
+    required_headings: [Purpose and boundary, Provider contract, Data mapping, Authentication and secret boundary, Reliability, Failure and reconciliation, Observability, Completion contract]
+    required_tables:
+      - {heading: Data mapping, columns: [Local ID, Direction, Internal field or event, External field or operation, Transformation, Sensitivity], min_rows: 1}
+      - {heading: Failure and reconciliation, columns: [Local ID, Failure condition, Detection, State guarantee, Retry or reconciliation, Error code], min_rows: 1}
+    local_id_patterns:
+      - {namespace: mapping, pattern: '\bM-[0-9]{2}\b', minimum: 1}
+      - {namespace: failure, pattern: '\bF-[0-9]{2}\b', minimum: 1}
+  - artifact_type: job
+    template: design/background-job.pattern.md
+    target: 03-design/jobs/{{ID}}.md
+    id_pattern: '^JOB-[A-Z0-9][A-Z0-9-]*$'
+    required_headings: [Purpose and boundary, Trigger and messages, Inputs and outputs, Processing, Concurrency and idempotency, Retry and failure, Transactions and side effects, Implementation mapping, Completion contract]
+    required_tables:
+      - {heading: Processing, columns: [Local ID, Step, Input state, Rule or dependency, Output state, Commit boundary], min_rows: 1}
+      - {heading: Retry and failure, columns: [Local ID, Failure condition, Retry policy, Exhausted behavior, State guarantee, Error code], min_rows: 1}
+      - {heading: Implementation mapping, columns: [Processing or failure IDs, Source path, Symbol, Verification IDs], min_rows: 1}
+    local_id_patterns:
+      - {namespace: processing, pattern: '\bP-[0-9]{2}\b', minimum: 1}
+      - {namespace: failure, pattern: '\bF-[0-9]{2}\b', minimum: 1}
+  - artifact_type: event
+    template: design/event.pattern.md
+    target: 03-design/events/{{ID}}.md
+    id_pattern: '^EVT-[A-Z0-9][A-Z0-9-]*$'
+    required_headings: [Purpose and boundary, Emission semantics, Envelope and payload, Ordering and delivery, Consumers, Evolution and privacy, Traceability, Completion contract]
+    required_tables:
+      - {heading: Envelope and payload, columns: [Local ID, Field, Meaning, Type, Required, Source, Sensitivity], min_rows: 1}
+      - {heading: Consumers, columns: [Local ID, Consumer, Use, Idempotency key, Failure ownership], min_rows: 1}
+    local_id_patterns:
+      - {namespace: field, pattern: '\bF-[0-9]{2}\b', minimum: 1}
+      - {namespace: consumer, pattern: '\bC-[0-9]{2}\b', minimum: 1}
+  - artifact_type: unit_test_backend
+    template: verification/unit-test-backend.pattern.md
+    target: 04-verification/unit-tests/backend/{{ID}}.md
+    id_pattern: '^UT-API-[A-Z0-9][A-Z0-9-]*$'
+    required_headings: [Purpose and boundary, Target and references, Included behavior, Explicit exclusions, Test data and isolation, Test cases, Implementation mapping, Completion contract]
+    required_tables:
+      - {heading: Test cases, columns: [Local ID, Reference IDs, Setup, Stimulus, Expected result, Unchanged-state assertion], min_rows: 1}
+      - {heading: Implementation mapping, columns: [Case IDs, Test path, Test name or symbol, Production symbol], min_rows: 1}
+    local_id_patterns:
+      - {namespace: test_case, pattern: '\bTC-[0-9]{2}\b', minimum: 1}
+  - artifact_type: unit_test_frontend
+    template: verification/unit-test-frontend.pattern.md
+    target: 04-verification/unit-tests/frontend/{{ID}}.md
+    id_pattern: '^UT-UI-[A-Z0-9][A-Z0-9-]*$'
+    required_headings: [Purpose and boundary, Target and references, Included behavior, Explicit exclusions, Test data and isolation, Test cases, Implementation mapping, Completion contract]
+    required_tables:
+      - {heading: Test cases, columns: [Local ID, Reference IDs, Setup, Stimulus, Expected result, Unchanged-state assertion], min_rows: 1}
+      - {heading: Implementation mapping, columns: [Case IDs, Test path, Test name or symbol, Production symbol], min_rows: 1}
+    local_id_patterns:
+      - {namespace: test_case, pattern: '\bTC-[0-9]{2}\b', minimum: 1}
+  - artifact_type: unit_test_job
+    template: verification/unit-test-job.pattern.md
+    target: 04-verification/unit-tests/jobs/{{ID}}.md
+    id_pattern: '^UT-JOB-[A-Z0-9][A-Z0-9-]*$'
+    required_headings: [Purpose and boundary, Target and references, Included behavior, Explicit exclusions, Test data and isolation, Test cases, Implementation mapping, Completion contract]
+    required_tables:
+      - {heading: Test cases, columns: [Local ID, Reference IDs, Setup, Stimulus, Expected result, Unchanged-state assertion], min_rows: 1}
+      - {heading: Implementation mapping, columns: [Case IDs, Test path, Test name or symbol, Production symbol], min_rows: 1}
+    local_id_patterns:
+      - {namespace: test_case, pattern: '\bTC-[0-9]{2}\b', minimum: 1}
+  - artifact_type: integration_test
+    template: verification/integration-test.pattern.md
+    target: 04-verification/integration-tests/{{ID}}.md
+    id_pattern: '^IT-[A-Z0-9][A-Z0-9-]*$'
+    required_headings: [Purpose and boundary, Integration boundary, References and environment, Data setup and cleanup, Test cases, Failure and unchanged-state checks, Implementation mapping, Completion contract]
+    required_tables:
+      - {heading: Integration boundary, columns: [Participant, Real or controlled, Contract exercised, State observed], min_rows: 2}
+      - {heading: Test cases, columns: [Local ID, Reference IDs, Setup, Stimulus, Expected cross-boundary result, Cleanup], min_rows: 1}
+      - {heading: Implementation mapping, columns: [Case IDs, Test path, Test name or symbol, Exercised boundary], min_rows: 1}
+    local_id_patterns:
+      - {namespace: test_case, pattern: '\bTC-[0-9]{2}\b', minimum: 1}
+  - artifact_type: system_test
+    template: verification/system-test.pattern.md
+    target: 04-verification/system-tests/{{ID}}.md
+    id_pattern: '^ST-[A-Z0-9][A-Z0-9-]*$'
+    required_headings: [Purpose and boundary, Scenario boundary, References and environment, Data setup and cleanup, Test cases, Cross-surface and failure checks, Implementation mapping, Completion contract]
+    required_tables:
+      - {heading: Test cases, columns: [Local ID, Reference IDs, Starting state, Actor actions or event, Observable outcome, Final state], min_rows: 1}
+      - {heading: Implementation mapping, columns: [Case IDs, Test path, Scenario name, Surfaces exercised], min_rows: 1}
+    local_id_patterns:
+      - {namespace: test_case, pattern: '\bTC-[0-9]{2}\b', minimum: 1}
+  - artifact_type: test_result
+    template: verification/test-result.pattern.md
+    target: 04-verification/results/{{ID}}.md
+    id_pattern: '^RESULT-[A-Z0-9][A-Z0-9-]*$'
+    required_headings: [Execution identity, Execution provenance, Aggregate result, Case results, Failures and evidence, Integrity contract]
+    required_tables:
+      - {heading: Aggregate result, columns: [Metric, Value], min_rows: 4}
+    local_id_patterns: []
+  - artifact_type: issue
+    template: control/issue.pattern.md
+    target: 05-control/issues/{{ID}}.md
+    id_pattern: '^ISS-[A-Z0-9][A-Z0-9-]*$'
+    required_headings: [Purpose and boundary, Observation, Expected authority, Impact and affected closure, Resolution, Regression evidence, Lifecycle and closure contract]
+    required_tables:
+      - {heading: Affected artifacts, columns: [Artifact or path, Impact, Required change, Closure evidence], min_rows: 1}
+      - {heading: Regression evidence, columns: [Verification ID and case, Before, After, Result artifact], min_rows: 1}
+    local_id_patterns: []
+  - artifact_type: architectural_decision
+    template: control/architectural-decision.pattern.md
+    target: 05-control/decisions/{{ID}}.md
+    id_pattern: '^ADR-[A-Z0-9][A-Z0-9-]*$'
+    required_headings: [Purpose and boundary, Decision question, Context and drivers, Options considered, Decision, Consequences, Affected scope and verification, Supersession contract]
+    required_tables:
+      - {heading: Options considered, columns: [Local ID, Option, Benefits, Costs or risks, Fit to drivers, Rejection reason], min_rows: 2}
+      - {heading: Affected scope and verification, columns: [Artifact or path, Required consequence, Verification obligation], min_rows: 1}
+    local_id_patterns:
+      - {namespace: option, pattern: '\bOPT-[0-9]{2}\b', minimum: 2}
+
+foundations:
+  - {path: 01-discovery/original-idea.md, artifact_type: original_idea, required_headings: [Original statement, Stated context, Explicit assumptions, Exclusions, Completion contract], required_tables: []}
+  - {path: 01-discovery/idea-definition.md, artifact_type: idea_definition, required_headings: [Defined opportunity, Actors and context, Intended outcome, Assumptions and unknowns, Boundaries, Completion contract], required_tables: []}
+  - {path: 01-discovery/evidence-ledger.md, artifact_type: evidence_ledger, required_headings: [Evidence records, Source quality rules, Claim mapping, Contradictions and aging, Completion contract], required_tables: [{heading: Evidence records, columns: [Evidence ID, Claim or observation, Source, Source type, Observed or published date, Retrieved date, Strength, Applicability], min_rows: 1}]}
+  - {path: 01-discovery/customer-and-problem.md, artifact_type: customer_and_problem, required_headings: [Customer synthesis, Problem synthesis, Evidence and confidence, Scope boundaries, Completion contract], required_tables: []}
+  - {path: 01-discovery/market-landscape.md, artifact_type: market_landscape, required_headings: [Market definition, Category structure, Demand and adoption signals, Constraints and change drivers, Evidence and uncertainty, Completion contract], required_tables: []}
+  - {path: 01-discovery/competitive-and-commercial.md, artifact_type: competitive_and_commercial, required_headings: [Alternative landscape, Comparative position, Commercial model hypotheses, Constraints and uncertainty, Completion contract], required_tables: []}
+  - {path: 01-discovery/feasibility-and-risk.md, artifact_type: feasibility_and_risk, required_headings: [Feasibility dimensions, Risk register, Assumptions and unknowns, Mitigations and constraints, Completion contract], required_tables: [{heading: Risk register, columns: [Risk ID, Risk, Cause, Impact, Likelihood, Evidence, Mitigation or constraint, Residual uncertainty], min_rows: 1}]}
+  - {path: 01-discovery/opportunity-definition.md, artifact_type: opportunity_definition, required_headings: [Opportunity statement, Evidence synthesis, Target boundaries, Value and differentiation, Risks and assumptions, Completion contract], required_tables: []}
+  - {path: 02-product/product-requirements.md, artifact_type: product_requirements, required_headings: [Product scope, Functional requirements, Requirement traceability, Exclusions, Completion contract], required_tables: [{heading: Functional requirements, columns: [Requirement ID, Requirement, Rationale, Applicability, Source, Downstream artifacts], min_rows: 1}]}
+  - {path: 02-product/quality-requirements.md, artifact_type: quality_requirements, required_headings: [Quality scope, Quality requirements, Measurement and evidence, Tradeoffs and boundaries, Completion contract], required_tables: [{heading: Quality requirements, columns: [Quality ID, Attribute, Requirement, Measure, Applicability, Verification], min_rows: 1}]}
+  - {path: 02-product/access-control.md, artifact_type: access_control, required_headings: [Authority boundary, Roles and subjects, Resources and actions, Access rules, Denial behavior, Completion contract], required_tables: [{heading: Access rules, columns: [Access ID, Subject or role, Resource, Action, Condition, Decision, Denial behavior], min_rows: 1}]}
+  - {path: 02-product/system-invariants.md, artifact_type: system_invariants, required_headings: [Authority boundary, Invariants, Enforcement and observation, Failure semantics, Completion contract], required_tables: [{heading: Invariants, columns: [Invariant ID, Statement, Applicability, Enforcement owner, Observable violation, Verification], min_rows: 1}]}
+  - {path: 03-design/architecture-overview.md, artifact_type: architecture_overview, required_headings: [System context, Architectural boundaries, Component responsibilities, Data and control flow, Cross-cutting constraints, Decision references, Completion contract], required_tables: []}
+  - {path: 03-design/ux-rules.md, artifact_type: ux_rules, required_headings: [Authority boundary, Interaction rules, Feedback and error behavior, Accessibility rules, Content rules, Completion contract], required_tables: [{heading: Interaction rules, columns: [UX rule ID, Rule, Applicability, Rationale, Verification], min_rows: 1}]}
+  - {path: 03-design/error-catalog.md, artifact_type: error_catalog, required_headings: [Authority boundary, Error codes, Exposure and logging rules, Recovery semantics, Completion contract], required_tables: [{heading: Error codes, columns: [Error code, Condition, User-safe message, Protocol mapping, Retryable, State guarantee, Owner], min_rows: 1}]}
+  - {path: 04-verification/test-policy.md, artifact_type: test_policy, required_headings: [Authority boundary, Test levels, Test allocation rules, Evidence and result rules, Data and isolation rules, Completion contract], required_tables: [{heading: Test levels, columns: [Level, Boundary, Required coverage, Explicit exclusions, Evidence], min_rows: 3}]}
+  - {path: 05-control/questions.md, artifact_type: question_ledger, required_headings: [Authority boundary, Open questions, Resolution recording, Aging and impact, Completion contract], required_tables: [{heading: Open questions, columns: [Question ID, Question, Why it matters, Affected artifacts, Evidence needed, Resolution artifact, Status], min_rows: 1}]}

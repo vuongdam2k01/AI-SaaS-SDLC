@@ -1,0 +1,134 @@
+import { access, rm } from "node:fs/promises";
+import type { ActiveFlow, ChangeRecord, CurrentState, FlowType } from "./types.js";
+import { FLOW_TYPES } from "./types.js";
+import { SdlcError } from "./errors.js";
+import { formatId, readJson, sha256, stableJson, writeJsonAtomic } from "./utils.js";
+import { assertSafeManagedPath, prepareSafeManagedPath, projectPaths } from "./paths.js";
+import { isActiveFlow, isChangeRecord } from "./record-validation.js";
+import { scanArtifacts } from "./artifacts.js";
+import { withProjectLock } from "./project-lock.js";
+import { implementationSnapshotHash } from "./implementation-snapshot.js";
+
+async function snapshotHash(root: string): Promise<string> {
+  const artifacts = await scanArtifacts(root);
+  return sha256(stableJson(artifacts.map((artifact) => ({ id: artifact.id, file: artifact.file, hash: artifact.hash, status: artifact.status }))));
+}
+
+export async function pathExists(file: string): Promise<boolean> {
+  try {
+    await access(file);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+export async function loadCurrentState(root: string): Promise<CurrentState> {
+  const file = projectPaths(root).current;
+  if (!(await pathExists(file))) throw new SdlcError("Repository is not initialized. Run ai-saas-sdlc init.");
+  await assertSafeManagedPath(root, file);
+  const candidate = await readJson<unknown>(file);
+  if (!candidate || typeof candidate !== "object" || Array.isArray(candidate)) throw new SdlcError(`Invalid state schema: ${file}`);
+  const state = candidate as CurrentState;
+  const valid = Object.keys(state).every((key) => ["schema_version", "project_id", "active_baseline", "evidence_revision", "next_change", "next_flow", "next_execution", "id_registry"].includes(key))
+    && state.schema_version === 1
+    && typeof state.project_id === "string" && /^[a-z0-9][a-z0-9-]*$/.test(state.project_id)
+    && (state.active_baseline === null || /^BL-[0-9]{3,}$/.test(state.active_baseline))
+    && [state.evidence_revision, state.next_change, state.next_flow, state.next_execution].every(Number.isInteger)
+    && state.evidence_revision >= 0 && state.next_change >= 1 && state.next_flow >= 1 && state.next_execution >= 1
+    && Boolean(state.id_registry) && typeof state.id_registry === "object" && !Array.isArray(state.id_registry)
+    && Object.keys(state.id_registry).every((key) => /^[A-Z][A-Z0-9-]*$/.test(key))
+    && Object.values(state.id_registry).every((value) => typeof value === "string");
+  if (!valid) throw new SdlcError(`Invalid state schema: ${file}`);
+  return state;
+}
+
+export async function saveCurrentState(root: string, state: CurrentState): Promise<void> {
+  await prepareSafeManagedPath(root, projectPaths(root).current);
+  await writeJsonAtomic(projectPaths(root).current, state);
+}
+
+export async function loadActiveFlow(root: string): Promise<ActiveFlow | null> {
+  const file = projectPaths(root).activeFlow;
+  if (!(await pathExists(file))) return null;
+  await assertSafeManagedPath(root, file);
+  const flow = await readJson<ActiveFlow>(file);
+  if (!isActiveFlow(flow)) throw new SdlcError(`Invalid active flow schema: ${file}`);
+  return flow;
+}
+
+async function startFlowUnlocked(root: string, type: string, input: string): Promise<ActiveFlow> {
+  if (!FLOW_TYPES.includes(type as FlowType)) throw new SdlcError(`Unsupported flow type: ${type}`);
+  if (await loadActiveFlow(root)) throw new SdlcError("An active flow already exists. Close it before starting another.");
+  const state = await loadCurrentState(root);
+  if (type === "genesis" && state.active_baseline) throw new SdlcError("Genesis is only valid before the first product baseline.");
+  if (type !== "genesis" && !state.active_baseline) throw new SdlcError(`${type} requires an existing product baseline.`);
+  const semantic = type === "evolution" || type === "reconciliation";
+  const changeId = semantic ? formatId("CHG", state.next_change) : null;
+  const flow: ActiveFlow = {
+    schema_version: 1,
+    id: formatId("FLOW", state.next_flow),
+    type: type as FlowType,
+    input,
+    started_at: new Date().toISOString(),
+    base_baseline: state.active_baseline,
+    change_id: changeId,
+    stop_blocked_once: false,
+    start_snapshot_hash: await snapshotHash(root),
+    implementation_snapshot_hash: await implementationSnapshotHash(root)
+  };
+  state.next_flow += 1;
+  if (semantic) state.next_change += 1;
+  await saveCurrentState(root, state);
+  await prepareSafeManagedPath(root, projectPaths(root).activeFlow);
+  await writeJsonAtomic(projectPaths(root).activeFlow, flow);
+  if (changeId) {
+    const changeFile = `${projectPaths(root).changes}/${changeId}.json`;
+    await prepareSafeManagedPath(root, changeFile);
+    await writeJsonAtomic(changeFile, {
+      schema_version: 1,
+      id: changeId,
+      flow_id: flow.id,
+      type,
+      input,
+      status: "active",
+      base_baseline: state.active_baseline,
+      started_at: flow.started_at
+    });
+  }
+  return flow;
+}
+
+export async function startFlow(root: string, type: string, input: string): Promise<ActiveFlow> {
+  return withProjectLock(root, () => startFlowUnlocked(root, type, input));
+}
+
+async function closeFlowUnlocked(root: string): Promise<ActiveFlow> {
+  const flow = await loadActiveFlow(root);
+  if (!flow) throw new SdlcError("No active flow exists.");
+  const snapshot = await import("./project.js").then(({ projectSnapshot }) => projectSnapshot(root));
+  const currentImplementation = await implementationSnapshotHash(root);
+  const cancelled = !flow.baseline_created
+    && await snapshotHash(root) === flow.start_snapshot_hash
+    && currentImplementation === flow.implementation_snapshot_hash;
+  if (!flow.baseline_created && !cancelled) throw new SdlcError(`Flow ${flow.id} has unbaselined changes and cannot close: ${snapshot.impact.direct.join(", ") || "snapshot changed"}`);
+  if (flow.baseline_created && snapshot.impact.direct.length > 0) throw new SdlcError(`Flow ${flow.id} has changes made after baseline ${flow.baseline_created}: ${snapshot.impact.direct.join(", ")}`);
+  if (flow.baseline_created && currentImplementation !== flow.baseline_implementation_snapshot_hash) throw new SdlcError(`Flow ${flow.id} has implementation changes made after baseline ${flow.baseline_created}.`);
+  if (flow.change_id) {
+    const changeFile = `${projectPaths(root).changes}/${flow.change_id}.json`;
+    await assertSafeManagedPath(root, changeFile);
+    const change = await readJson<ChangeRecord>(changeFile);
+    if (!isChangeRecord(change)) throw new SdlcError(`Invalid change record schema: ${changeFile}`);
+    await prepareSafeManagedPath(root, changeFile);
+    await writeJsonAtomic(changeFile, cancelled
+      ? { ...change, status: "cancelled", closed_at: new Date().toISOString() }
+      : { ...change, status: "closed", closed_at: new Date().toISOString() });
+  }
+  await prepareSafeManagedPath(root, projectPaths(root).activeFlow);
+  await rm(projectPaths(root).activeFlow);
+  return flow;
+}
+
+export async function closeFlow(root: string): Promise<ActiveFlow> {
+  return withProjectLock(root, () => closeFlowUnlocked(root));
+}

@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/vuongdam2k01/AI-SaaS-SDLC/schemas/active-flow.schema.json",
+  "title": "AI SaaS SDLC Active Flow",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "id", "type", "input", "started_at", "base_baseline", "change_id", "stop_blocked_once", "start_snapshot_hash", "implementation_snapshot_hash"],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "id": { "type": "string", "pattern": "^FLOW-[0-9]{3,}$" },
+    "type": { "enum": ["genesis", "reassessment", "evolution", "reconciliation"] },
+    "input": { "type": "string" },
+    "started_at": { "type": "string", "format": "date-time" },
+    "base_baseline": { "anyOf": [{ "type": "string", "pattern": "^BL-[0-9]{3,}$" }, { "type": "null" }] },
+    "change_id": { "anyOf": [{ "type": "string", "pattern": "^CHG-[0-9]{3,}$" }, { "type": "null" }] },
+    "stop_blocked_once": { "type": "boolean" },
+    "start_snapshot_hash": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "implementation_snapshot_hash": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "baseline_created": { "type": "string", "pattern": "^BL-[0-9]{3,}$" },
+    "baseline_implementation_snapshot_hash": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
+  },
+  "allOf": [
+    { "if": { "properties": { "type": { "const": "genesis" } } }, "then": { "properties": { "base_baseline": { "type": "null" }, "change_id": { "type": "null" } } } },
+    { "if": { "properties": { "type": { "const": "reassessment" } } }, "then": { "properties": { "base_baseline": { "type": "string" }, "change_id": { "type": "null" } } } },
+    { "if": { "properties": { "type": { "enum": ["evolution", "reconciliation"] } } }, "then": { "properties": { "base_baseline": { "type": "string" }, "change_id": { "type": "string" } } } },
+    { "if": { "required": ["baseline_created"] }, "then": { "required": ["baseline_implementation_snapshot_hash"] }, "else": { "not": { "required": ["baseline_implementation_snapshot_hash"] } } }
+  ]
+}

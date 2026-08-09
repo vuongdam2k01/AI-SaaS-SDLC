@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "AI SaaS SDLC Artifact Frontmatter",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["id", "artifact_type", "title", "status", "created_by_change", "depends_on", "decisions", "supersedes"],
+  "properties": {
+    "id": { "type": "string", "pattern": "^[A-Z][A-Z0-9-]*$" },
+    "artifact_type": { "type": "string", "minLength": 1 },
+    "title": { "type": "string", "minLength": 1 },
+    "status": { "enum": ["draft", "active", "deprecated", "retired", "superseded"] },
+    "created_by_change": { "type": "string", "pattern": "^(INIT|GENESIS|FLOW-[0-9]{3,}|CHG-[0-9]{3,})$" },
+    "depends_on": { "type": "array", "items": { "$ref": "#/$defs/id" }, "uniqueItems": true },
+    "decisions": { "type": "array", "items": { "$ref": "#/$defs/id" }, "uniqueItems": true },
+    "supersedes": { "anyOf": [{ "$ref": "#/$defs/id" }, { "type": "null" }] },
+    "writes_to": { "type": "array", "items": { "$ref": "#/$defs/id" }, "uniqueItems": true },
+    "implementation": { "type": "array", "items": { "type": "string", "minLength": 1 }, "uniqueItems": true },
+    "adr_status": { "enum": ["proposed", "accepted", "deprecated", "superseded"] },
+    "execution_id": { "type": "string", "pattern": "^EXEC-[0-9]{3,}$" }
+  },
+  "$defs": { "id": { "type": "string", "pattern": "^[A-Z][A-Z0-9-]*$" } }
+}

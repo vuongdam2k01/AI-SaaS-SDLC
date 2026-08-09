@@ -1,0 +1,6 @@
+interface:
+  display_name: "AI SaaS Product Evolution"
+  short_description: "Evolve product behavior with impact coverage"
+  default_prompt: "Use $ai-saas-evolve-product to implement this semantic product change with impact-aware specifications and UT/IT/ST."
+policy:
+  allow_implicit_invocation: false

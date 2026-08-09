@@ -1,0 +1,52 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/vuongdam2k01/AI-SaaS-SDLC/schemas/baseline-manifest.schema.json",
+  "title": "AI SaaS SDLC Baseline Manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "id", "evidence_revision", "created_at", "git_commit", "flow_type", "flow_id", "artifacts", "executions", "verification"],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "id": { "type": "string", "pattern": "^BL-[0-9]{3,}$" },
+    "evidence_revision": { "type": "string", "pattern": "^EVR-[0-9]{3,}$" },
+    "created_at": { "type": "string", "format": "date-time" },
+    "git_commit": { "type": ["string", "null"] },
+    "flow_type": { "enum": ["genesis", "reassessment", "evolution", "reconciliation"] },
+    "flow_id": { "type": "string", "pattern": "^FLOW-[0-9]{3,}$" },
+    "artifacts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "title", "file", "hash", "status", "artifact_type", "created_by_change", "depends_on", "decisions", "supersedes", "writes_to", "implementation"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^[A-Z][A-Z0-9-]*$" },
+          "title": { "type": "string", "minLength": 1 },
+          "file": { "type": "string", "minLength": 1, "pattern": "^(?!.*(?:^|/)\\.\\.(?:/|$))(?!/).+$" },
+          "hash": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+          "status": { "enum": ["draft", "active", "deprecated", "retired", "superseded"] },
+          "artifact_type": { "type": "string", "minLength": 1 },
+          "created_by_change": { "type": "string", "pattern": "^(INIT|GENESIS|FLOW-[0-9]{3,}|CHG-[0-9]{3,})$" },
+          "depends_on": { "type": "array", "items": { "type": "string", "pattern": "^[A-Z][A-Z0-9-]*$" }, "uniqueItems": true },
+          "decisions": { "type": "array", "items": { "type": "string", "pattern": "^[A-Z][A-Z0-9-]*$" }, "uniqueItems": true },
+          "supersedes": { "anyOf": [{ "type": "string", "pattern": "^[A-Z][A-Z0-9-]*$" }, { "type": "null" }] },
+          "writes_to": { "type": "array", "items": { "type": "string", "pattern": "^[A-Z][A-Z0-9-]*$" }, "uniqueItems": true },
+          "implementation": { "type": "array", "items": { "type": "string", "minLength": 1 }, "uniqueItems": true },
+          "adr_status": { "enum": ["proposed", "accepted", "deprecated", "superseded"] }
+        }
+      }
+    },
+    "executions": { "type": "array", "items": { "type": "string", "pattern": "^EXEC-[0-9]{3,}$" }, "uniqueItems": true },
+    "verification": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["unit", "integration", "system"],
+      "properties": {
+        "unit": { "$ref": "#/$defs/verdict" },
+        "integration": { "$ref": "#/$defs/verdict" },
+        "system": { "$ref": "#/$defs/verdict" }
+      }
+    }
+  },
+  "$defs": { "verdict": { "enum": ["passed", "failed", "not-configured", "not-run"] } }
+}

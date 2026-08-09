@@ -1,0 +1,29 @@
+{
+  "name": "ai-saas-sdlc",
+  "version": "1.0.0",
+  "description": "Evidence-grounded SaaS discovery, specification, impact analysis, and pre-release verification without procedural gate loops.",
+  "author": {
+    "name": "vuong.dam",
+    "url": "https://github.com/vuongdam2k01"
+  },
+  "homepage": "https://github.com/vuongdam2k01/AI-SaaS-SDLC#readme",
+  "repository": "https://github.com/vuongdam2k01/AI-SaaS-SDLC",
+  "license": "MIT",
+  "keywords": ["saas", "sdlc", "requirements", "architecture", "testing", "research"],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "AI SaaS SDLC",
+    "shortDescription": "Turn SaaS evidence and intent into build-ready specifications.",
+    "longDescription": "Run evidence-grounded SaaS discovery, product evolution, impact-aware reconciliation, and UT/IT/ST specification flows from one versioned documentation repository.",
+    "developerName": "vuong.dam",
+    "category": "Developer Tools",
+    "capabilities": [
+      "Public-web SaaS research",
+      "Product and behavior specification",
+      "Impact-aware design evolution",
+      "UT, IT, and ST derivation",
+      "Execution-backed verification records"
+    ],
+    "defaultPrompt": "Use the AI SaaS SDLC skills to inspect this documentation repository and recommend the next valid flow."
+  }
+}

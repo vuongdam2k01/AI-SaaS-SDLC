@@ -1,0 +1,50 @@
+{
+  "name": "ai-saas-sdlc",
+  "version": "1.0.0",
+  "description": "Evidence-grounded AI SaaS documentation and pre-release SDLC flows for Claude Code and Codex.",
+  "license": "MIT",
+  "author": "vuong.dam",
+  "homepage": "https://github.com/vuongdam2k01/AI-SaaS-SDLC#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vuongdam2k01/AI-SaaS-SDLC.git"
+  },
+  "bugs": {
+    "url": "https://github.com/vuongdam2k01/AI-SaaS-SDLC/issues"
+  },
+  "type": "module",
+  "private": true,
+  "bin": {
+    "ai-saas-sdlc": "bin/ai-saas-sdlc"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint src tests",
+    "pretest": "npm run build",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "package:check": "node scripts/package-check.mjs",
+    "validate:codex": "node scripts/validate-codex-plugin.mjs",
+    "validate:manifests": "node scripts/validate-plugin-manifests.mjs",
+    "check": "npm run typecheck && npm run lint && npm run build && vitest run && npm run validate:codex && npm run package:check"
+  },
+  "dependencies": {
+    "commander": "^14.0.0",
+    "fast-glob": "^3.3.3",
+    "yaml": "^2.8.1"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.32.0",
+    "@types/node": "^24.2.1",
+    "@vitest/coverage-v8": "^3.2.4",
+    "esbuild": "^0.25.8",
+    "eslint": "^9.32.0",
+    "typescript": "^5.9.2",
+    "typescript-eslint": "^8.39.0",
+    "vitest": "^3.2.4"
+  }
+}

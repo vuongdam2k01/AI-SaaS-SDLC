@@ -1,0 +1,6 @@
+interface:
+  display_name: "AI SaaS Reconciliation"
+  short_description: "Repair a concrete SDLC mismatch safely"
+  default_prompt: "Use $ai-saas-reconcile to diagnose and repair this concrete specification, code or test mismatch."
+policy:
+  allow_implicit_invocation: false

@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "cases": {
+    "genesis": {
+      "prompt": "genesis/prompt.md",
+      "grader": "genesis/graders/flow-completeness.md",
+      "required_tools": ["search", "fetch"],
+      "required_files": ["01-discovery/original-idea.md", "01-discovery/evidence-ledger.md", "02-product/product-requirements.md", "generated/baseline-manifest.json"],
+      "required_output_patterns": ["EVD-[A-Z0-9-]+", "EVR-001", "BL-000"],
+      "forbidden_trace_patterns": ["interview", "outreach", "researcher agent", "RESULT-EXEC"]
+    },
+    "research-tools": {
+      "prompt": "research-tools/prompt.md",
+      "grader": "research-tools/graders/tool-grounding.md",
+      "required_tools": ["search", "fetch"],
+      "required_files": ["01-discovery/evidence-ledger.md", "generated/evidence-claim-coverage.md", "generated/baseline-manifest.json"],
+      "required_output_patterns": ["EVD-[A-Z0-9-]+", "EVR-002"],
+      "forbidden_trace_patterns": ["interview", "outreach", "presales", "payment", "researcher agent"]
+    },
+    "evolution": {
+      "prompt": "evolution/prompt.md",
+      "grader": "evolution/graders/impact-and-testing.md",
+      "required_tools": ["read", "write"],
+      "required_files": ["02-product/features/*.md", "02-product/use-cases/*.md", "02-product/flows/*.md", "04-verification/unit-tests/**/*.md", "04-verification/integration-tests/*.md", "04-verification/system-tests/*.md", "generated/acceptance-coverage.md", "generated/stale-artifacts.md"],
+      "required_output_patterns": ["AC-[0-9]{2}", "TC-[0-9]{2}", "FTR-APPROVAL-001", "UT-API-", "IT-", "ST-"],
+      "forbidden_trace_patterns": ["horizontal scale flow", "direct result write", "model review gate"]
+    },
+    "reconciliation": {
+      "prompt": "reconciliation/prompt.md",
+      "grader": "reconciliation/graders/minimal-repair.md",
+      "required_tools": ["read", "execute"],
+      "required_files": ["05-control/issues/*.md", "04-verification/results/RESULT-EXEC-017.md", "04-verification/results/RESULT-EXEC-*.md", "generated/baseline-manifest.json"],
+      "required_output_patterns": ["RESULT-EXEC-017", "Before", "After", "Root cause"],
+      "forbidden_trace_patterns": ["delete RESULT-EXEC-017", "overwrite RESULT-EXEC-017", "edit accepted ADR", "write passing result"]
+    },
+    "anti-procedure": {
+      "prompt": "anti-procedure/prompt.md",
+      "grader": "anti-procedure/graders/editorial-bypass.md",
+      "required_tools": ["read", "edit"],
+      "required_files": ["02-product/features/FTR-APPROVAL-001.md", "generated/baseline-manifest.json"],
+      "required_output_patterns": ["can’t", "BL-006"],
+      "forbidden_trace_patterns": ["flow start", "baseline create", "verify --", "tests select", "quality gate"]
+    }
+  }
+}

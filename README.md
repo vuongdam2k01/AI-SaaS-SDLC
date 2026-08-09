@@ -1,0 +1,107 @@
+# AI SaaS SDLC
+
+AI SaaS SDLC is a dual Claude Code and Codex plugin for turning a raw SaaS idea into an evidence-grounded, implementation-ready and continuously maintained documentation repository.
+
+It is deliberately event-driven rather than stage-gated. Four mutation flows follow the product through time: Genesis, Evidence Reassessment, Product Evolution and Reconciliation. Inspect State is read-only. There are no user interviews, outreach, presales, custom research agents, MCP requirements, runtime/deployment operations or automatic prose-review loops.
+
+## What it produces
+
+An initialized documentation repository separates five kinds of truth:
+
+```text
+00-system/       pinned authoring patterns and repository rules
+01-discovery/    raw idea, attributable public evidence and market synthesis
+02-product/      requirements, access, invariants, FTR, UC and FLOW behavior
+03-design/       architecture, UX, SCR, CMP, SUB, API, ENT, INT, JOB and EVT design
+04-verification/ actual UT, IT, ST specifications and execution-backed RESULT records
+05-control/      unresolved questions, ISS repairs and immutable accepted ADR history
+generated/       reproducible indexes, traceability, coverage and impact projections
+```
+
+Reusable patterns and live artifacts are different layers. Canonical pattern sources live in the plugin at `resources/artifact-patterns/`; initialization pins their exact snapshot to `00-system/patterns/`. `04-verification/` contains only real test specifications and results for the product. See [Pattern to Instance](docs/pattern-to-instance.md).
+
+## Requirements
+
+- Node.js 22 or newer
+- Git
+- Claude Code for the Claude plugin, or Codex for the Codex plugin
+
+## Claude Code
+
+Load a development checkout:
+
+```bash
+claude --plugin-dir .
+```
+
+Or install from the repository marketplace:
+
+```text
+/plugin marketplace add vuongdam2k01/AI-SaaS-SDLC
+/plugin install ai-saas-sdlc@ai-saas-sdlc
+```
+
+Start Claude Code in a separate, centralized documentation repository and invoke one of:
+
+```text
+/ai-saas-sdlc:genesis <raw idea>
+/ai-saas-sdlc:reassess-evidence <specific question or signal>
+/ai-saas-sdlc:evolve-product <semantic product intent>
+/ai-saas-sdlc:reconcile <concrete failure or mismatch>
+/ai-saas-sdlc:inspect-state [scope]
+```
+
+All five skills require explicit user invocation. Research uses actual `WebSearch` and `WebFetch`; a compatible already-installed tool may substitute, but no integration is mandatory.
+
+## Codex
+
+The repository also contains `.codex-plugin/plugin.json` and five Codex-native adapters under `skills/`. Claude's manual-only adapters live separately under `claude/skills/`. Both load the same playbooks, patterns, portable hooks and engine. Codex asks the user to review and trust bundled command hooks before running them. See [dual-host installation and use](docs/codex-installation.md).
+
+## Temporal flows
+
+| Flow | Event and result |
+|---|---|
+| Genesis | Raw idea plus public-web observations become attributable discovery, product foundations, `EVR-001` and `BL-000`. No features are pre-created. |
+| Evidence Reassessment | One concrete market question appends evidence and revises affected discovery synthesis. Invalidated product truth becomes an issue, never a silent feature mutation. |
+| Product Evolution | An addition, change, consolidation, breaking change or retirement becomes FTR → UC/FLOW → conditional design → UT/IT/ST → verified successor baseline. Repeating this flow is horizontal scale. |
+| Reconciliation | A failed test, inspected drift or contract contradiction determines authority, repairs the minimal impact closure, reruns regression and preserves the failed/successful history. |
+| Inspect State | Shows baseline, active change, graph, stale artifacts, questions, issues and verification without writing. |
+
+A loop is legal only after a new public source, changed source, explicit product decision, inspected file/code diff, execution result or concrete contradiction. Spelling, tone and formatting do not open a flow.
+
+## Deterministic engine
+
+The bundled executable handles structure and provenance; the model handles research, synthesis and design reasoning.
+
+```text
+ai-saas-sdlc init
+ai-saas-sdlc state [--json]
+ai-saas-sdlc flow start --type <genesis|reassessment|evolution|reconciliation>
+ai-saas-sdlc flow close
+ai-saas-sdlc patterns list [--json]
+ai-saas-sdlc artifact create --type <type> --id <ID> --title <title>
+ai-saas-sdlc impact [--json]
+ai-saas-sdlc validate [--active|--all] [--json]
+ai-saas-sdlc tests select [--json]
+ai-saas-sdlc verify [--unit|--integration|--system|--all] --execute
+ai-saas-sdlc baseline create
+ai-saas-sdlc refresh [--check|--editorial]
+ai-saas-sdlc migrate [--check]
+```
+
+It validates permanent IDs, canonical paths, required sections/tables, local trace IDs, references, lifecycle, historical graph edges, immutable raw input and accepted ADRs, execution provenance and generated projections. It never performs a tone review or decides whether prose is “good enough.”
+
+Verification runs only exact commands declared in `sdlc.config.yaml`. Testing levels remain exactly UT, IT and ST; security, privacy, performance, accessibility and AI behavior are viewpoints within those levels.
+
+## Development and validation
+
+```bash
+npm ci
+npm run check
+claude plugin validate . --strict
+npm run validate:manifests
+```
+
+The package checks both plugin manifests, all ten host skill adapters, the 23 pattern types, isolated Claude/Codex root resolution, path confinement and reproducible projections.
+
+Further references: [timeline](docs/end-to-end-timeline.md), [flow reference](docs/flow-reference.md), [artifact reference](docs/artifact-reference.md), [command reference](docs/command-reference.md), [configuration](docs/configuration-reference.md) and [architecture](docs/system-architecture.md).

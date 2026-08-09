@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/vuongdam2k01/AI-SaaS-SDLC/schemas/project-config.schema.json",
+  "title": "AI SaaS SDLC Project Configuration",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "project_id", "research_mode", "implementation_sources", "verification"],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "project_id": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$" },
+    "research_mode": { "const": "public-web-only" },
+    "implementation_sources": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "path"],
+        "properties": { "id": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$" }, "path": { "type": "string", "minLength": 1 } }
+      }
+    },
+    "verification": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["unit", "integration", "system"],
+      "properties": {
+        "unit": { "$ref": "#/$defs/commands" },
+        "integration": { "$ref": "#/$defs/commands" },
+        "system": { "$ref": "#/$defs/commands" }
+      }
+    }
+  },
+  "$defs": {
+    "commands": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "cwd", "command"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$" },
+          "cwd": { "type": "string", "minLength": 1 },
+          "command": { "type": "string", "minLength": 1 }
+        }
+      }
+    }
+  }
+}

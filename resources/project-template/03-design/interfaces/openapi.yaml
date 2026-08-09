@@ -1,0 +1,44 @@
+openapi: 3.1.0
+info:
+  title: Project HTTP interface contract
+  version: 0.0.0-draft
+  description: >-
+    Authoritative HTTP wire contract. Paths, parameters, request bodies,
+    response bodies, protocol status codes, security requirements, and shared
+    wire schemas are defined here. API processing documents reference
+    operationId values and must not redefine the wire shape.
+
+# Completion contract for a non-draft interface:
+# - Every supported operation has a globally unique, stable operationId.
+# - Path/query/header/cookie parameters state schema, requiredness, and constraints.
+# - Every request/response media type references a concrete schema.
+# - Success and all contractually observable error responses are declared.
+# - Security requirements agree with ACCESS-CONTROL and never embed credentials.
+# - Examples, when added, use safe synthetic values and match their schemas.
+# - Breaking changes use an explicit compatibility decision and version strategy.
+
+jsonSchemaDialect: https://json-schema.org/draft/2020-12/schema
+
+paths: {}
+
+components:
+  schemas: {}
+  parameters: {}
+  headers: {}
+  responses: {}
+  securitySchemes: {}
+
+# Add operations only after PRODUCT-REQUIREMENTS and applicable FTR/UC contracts
+# define observable behavior. Use this native-comment outline for each operation:
+# <method>:
+#   operationId: <stableVerbNoun>
+#   summary: <observable responsibility>
+#   description: <applicability and exclusions>
+#   security: <named scheme and scopes>
+#   parameters: <schema-backed list>
+#   requestBody: <requiredness, media type, schema>
+#   responses:
+#     '<success-code>': <schema-backed success response>
+#     '<error-code>': <schema-backed ERROR-CATALOG mapping>
+# Processing order, transactions, idempotency, data access, and side effects
+# belong in the API-*.md artifact that references the operationId.

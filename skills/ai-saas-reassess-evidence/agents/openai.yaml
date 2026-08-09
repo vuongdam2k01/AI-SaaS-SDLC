@@ -1,0 +1,6 @@
+interface:
+  display_name: "AI SaaS Evidence Reassessment"
+  short_description: "Reassess one evidence question safely"
+  default_prompt: "Use $ai-saas-reassess-evidence to check this specific market signal against current public evidence."
+policy:
+  allow_implicit_invocation: false

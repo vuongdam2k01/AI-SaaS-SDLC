@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/vuongdam2k01/AI-SaaS-SDLC/schemas/change-record.schema.json",
+  "title": "AI SaaS SDLC Change Record",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "id", "flow_id", "type", "input", "status", "base_baseline", "started_at"],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "id": { "type": "string", "pattern": "^CHG-[0-9]{3,}$" },
+    "flow_id": { "type": "string", "pattern": "^FLOW-[0-9]{3,}$" },
+    "type": { "enum": ["evolution", "reconciliation"] },
+    "input": { "type": "string" },
+    "status": { "enum": ["active", "baselined", "closed", "cancelled"] },
+    "base_baseline": { "type": "string", "pattern": "^BL-[0-9]{3,}$" },
+    "started_at": { "type": "string", "format": "date-time" },
+    "closed_at": { "type": "string", "format": "date-time" },
+    "successor_baseline": { "type": "string", "pattern": "^BL-[0-9]{3,}$" },
+    "impact": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["direct", "affected", "stale"],
+      "properties": {
+        "direct": { "type": "array", "items": { "type": "string", "pattern": "^[A-Z][A-Z0-9-]*$" }, "uniqueItems": true },
+        "affected": { "type": "array", "items": { "type": "string", "pattern": "^[A-Z][A-Z0-9-]*$" }, "uniqueItems": true },
+        "stale": { "type": "array", "items": { "type": "string", "pattern": "^[A-Z][A-Z0-9-]*$" }, "uniqueItems": true }
+      }
+    }
+  },
+  "allOf": [
+    { "if": { "properties": { "status": { "const": "active" } } }, "then": { "not": { "anyOf": [{ "required": ["closed_at"] }, { "required": ["successor_baseline"] }, { "required": ["impact"] }] } } },
+    { "if": { "properties": { "status": { "const": "baselined" } } }, "then": { "required": ["successor_baseline", "impact"], "not": { "required": ["closed_at"] } } },
+    { "if": { "properties": { "status": { "const": "closed" } } }, "then": { "required": ["closed_at", "successor_baseline", "impact"] } },
+    { "if": { "properties": { "status": { "const": "cancelled" } } }, "then": { "required": ["closed_at"], "not": { "anyOf": [{ "required": ["successor_baseline"] }, { "required": ["impact"] }] } } }
+  ]
+}

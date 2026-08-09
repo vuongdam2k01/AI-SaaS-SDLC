@@ -1,0 +1,6 @@
+interface:
+  display_name: "AI SaaS Genesis"
+  short_description: "Research a raw SaaS idea into a baseline"
+  default_prompt: "Use $ai-saas-genesis to research this raw SaaS idea and create its first evidence-grounded baseline."
+policy:
+  allow_implicit_invocation: false

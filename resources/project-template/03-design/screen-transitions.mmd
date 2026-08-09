@@ -1,0 +1,18 @@
+flowchart LR
+  %% Authoritative project-level graph for transitions among SCR artifacts.
+  %% The graph is intentionally empty until concrete screens exist.
+  %% SCR artifacts own fields, actions, validation, and per-transition detail;
+  %% this file owns the cross-screen topology and reachability view.
+  %%
+  %% Completion contract before related screens are active:
+  %% - Every node is an existing SCR ID plus a concise title.
+  %% - Every directed edge has a stable transition label matching SCR local T-* ID.
+  %% - Entry points, successful exits, denied/error destinations, and back/cancel
+  %%   behavior are represented where applicable.
+  %% - Guards cite ACCESS/INV/FTR/UC/FLOW authority and do not restate its rule.
+  %% - No unreachable node, dangling destination, or contradictory reverse edge.
+  %% - Visual grouping may show product areas but cannot imply an unowned boundary.
+  %%
+  %% Native Mermaid guidance:
+  %% SCR_AREA_001["SCR-AREA-001 — <title>"]
+  %% SCR_AREA_001 -->|"T-01: <trigger>; guard <authority ID>"| SCR_AREA_002
