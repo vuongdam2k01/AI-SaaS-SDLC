@@ -31,7 +31,7 @@ Claude adapters live under `claude/skills/` and resolve the executable through `
 
 ## Codex
 
-The repository is a skills-only Codex plugin with `.codex-plugin/plugin.json`, five skills under `skills/` and presentation metadata under each skill's `agents/openai.yaml`.
+The repository is a skills-only Codex plugin with `.codex-plugin/plugin.json`, five skills under `codex/skills/` and presentation metadata under each skill's `agents/openai.yaml`.
 
 For a development checkout, add this repository as a local marketplace source using the Codex plugin management available in your environment, refresh Codex, and install `ai-saas-sdlc` from that local source. This repository does not publish or modify a user's personal marketplace as part of its build. OpenAI's current local-plugin workflow is described in [Build plugins](https://developers.openai.com/codex/build-plugins).
 

@@ -16,7 +16,7 @@ function validate(target) {
 try {
   await mkdir(path.join(staged, ".claude-plugin"), { recursive: true });
   await cp(path.join(root, ".claude-plugin", "plugin.json"), path.join(staged, ".claude-plugin", "plugin.json"));
-  for (const item of [".codex-plugin", "skills", "claude", "hooks", "resources", "schemas", "bin", "dist", "LICENSE", "README.md"]) {
+  for (const item of [".codex-plugin", "codex", "claude", "hooks", "resources", "schemas", "bin", "dist", "LICENSE", "README.md"]) {
     await cp(path.join(root, item), path.join(staged, item), { recursive: true });
   }
   validate(staged);

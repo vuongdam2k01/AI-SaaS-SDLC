@@ -10,7 +10,7 @@
   "repository": "https://github.com/vuongdam2k01/AI-SaaS-SDLC",
   "license": "MIT",
   "keywords": ["saas", "sdlc", "requirements", "architecture", "testing", "research"],
-  "skills": "./skills/",
+  "skills": "./codex/skills/",
   "interface": {
     "displayName": "AI SaaS SDLC",
     "shortDescription": "Turn SaaS evidence and intent into build-ready specifications.",

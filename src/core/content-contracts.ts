@@ -1,6 +1,7 @@
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import type { Artifact, ValidationFinding } from "./types.js";
+import { isLiveStatus } from "./types.js";
 import type { ArtifactPattern, PatternContentContract, PatternTableContract } from "./pattern-catalog.js";
 import { loadPatternCatalog } from "./pattern-catalog.js";
 import { pathExists } from "./state.js";
@@ -146,7 +147,7 @@ export async function validateActiveArtifactContent(root: string, artifacts: Art
   const patterns = new Map(catalog.patterns.map((pattern) => [pattern.artifact_type, pattern]));
   const foundations = new Map(catalog.foundations.map((foundation) => [foundation.artifact_type, foundation]));
   const findings: ValidationFinding[] = [];
-  for (const artifact of artifacts.filter((item) => item.status === "active")) {
+  for (const artifact of artifacts.filter((item) => isLiveStatus(item.status))) {
     const pattern = patterns.get(artifact.artifact_type);
     if (pattern) {
       findings.push(...await validateArtifact(artifact, pattern, catalog.root));

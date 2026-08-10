@@ -1,9 +1,25 @@
 export const FLOW_TYPES = ["genesis", "reassessment", "evolution", "reconciliation"] as const;
 export const ARTIFACT_STATUSES = ["draft", "active", "deprecated", "retired", "superseded"] as const;
+// Issues carry their own lifecycle. ARTIFACT-LIFECYCLE and issue.pattern.md both
+// prescribe open -> resolved, so the engine must accept those two and reject the
+// authored-artifact vocabulary for this type rather than forcing a closed issue
+// to masquerade as `active`.
+export const ISSUE_STATUSES = ["open", "resolved"] as const;
+export const ALL_ARTIFACT_STATUSES = [...ARTIFACT_STATUSES, ...ISSUE_STATUSES] as const;
 export const ADR_STATUSES = ["proposed", "accepted", "deprecated", "superseded"] as const;
 
 export type FlowType = (typeof FLOW_TYPES)[number];
-export type ArtifactStatus = (typeof ARTIFACT_STATUSES)[number];
+export type ArtifactStatus = (typeof ARTIFACT_STATUSES)[number] | (typeof ISSUE_STATUSES)[number];
+
+export function statusesForArtifactType(artifactType: string): readonly string[] {
+  return artifactType === "issue" ? ISSUE_STATUSES : ARTIFACT_STATUSES;
+}
+
+// A live artifact participates in the baseline and must satisfy its content
+// contract. `resolved` stays live: a closed issue keeps its closure evidence.
+export function isLiveStatus(status: string): boolean {
+  return status === "active" || status === "open" || status === "resolved";
+}
 
 export interface CommandDefinition {
   id: string;

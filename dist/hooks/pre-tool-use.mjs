@@ -7543,11 +7543,14 @@ var init_config = __esm({
 });
 
 // src/core/types.ts
-var FLOW_TYPES;
+var FLOW_TYPES, ARTIFACT_STATUSES, ISSUE_STATUSES, ALL_ARTIFACT_STATUSES;
 var init_types = __esm({
   "src/core/types.ts"() {
     "use strict";
     FLOW_TYPES = ["genesis", "reassessment", "evolution", "reconciliation"];
+    ARTIFACT_STATUSES = ["draft", "active", "deprecated", "retired", "superseded"];
+    ISSUE_STATUSES = ["open", "resolved"];
+    ALL_ARTIFACT_STATUSES = [...ARTIFACT_STATUSES, ...ISSUE_STATUSES];
   }
 });
 

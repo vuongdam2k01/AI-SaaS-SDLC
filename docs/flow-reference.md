@@ -44,4 +44,14 @@ A dirty mutation flow closes only after refresh, active validation and its requi
 
 Spelling, tone and formatting are not mutation events. `refresh --editorial` may accept a body-only representation change when metadata, relationships, evidence, immutable records and machine-owned files are unchanged. It creates no change record and runs no tests.
 
+Because an editorial change runs outside every flow, the session applying it has no skill context and cannot resolve the plugin root. `init` and every writing `refresh` record the resolved engine in `.ai-saas-sdlc/engine.json`:
+
+```json
+{ "schema_version": 1, "plugin_version": "1.0.0",
+  "engine_path": "…/bin/ai-saas-sdlc",
+  "editorial_command": "node \"…/bin/ai-saas-sdlc\" refresh --editorial" }
+```
+
+Run `editorial_command` verbatim. Never search the filesystem for another copy of the engine: a different copy may be a different version, and on a machine that has a source checkout it will silently be preferred over the installed package. Inspect State also prints this command whenever it names an editorial edit as the next valid action. The file holds a machine-local absolute path and `init` adds it to `.gitignore`.
+
 There is no approval pipeline or automatic self-review loop. Re-entry requires a new or changed public source, explicit product decision, inspected file/code diff, execution result or concrete contradiction. Rereading unchanged prose is not a new event.

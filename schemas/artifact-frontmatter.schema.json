@@ -8,7 +8,7 @@
     "id": { "type": "string", "pattern": "^[A-Z][A-Z0-9-]*$" },
     "artifact_type": { "type": "string", "minLength": 1 },
     "title": { "type": "string", "minLength": 1 },
-    "status": { "enum": ["draft", "active", "deprecated", "retired", "superseded"] },
+    "status": { "enum": ["draft", "active", "deprecated", "retired", "superseded", "open", "resolved"] },
     "created_by_change": { "type": "string", "pattern": "^(INIT|GENESIS|FLOW-[0-9]{3,}|CHG-[0-9]{3,})$" },
     "depends_on": { "type": "array", "items": { "$ref": "#/$defs/id" }, "uniqueItems": true },
     "decisions": { "type": "array", "items": { "$ref": "#/$defs/id" }, "uniqueItems": true },
@@ -18,5 +18,12 @@
     "adr_status": { "enum": ["proposed", "accepted", "deprecated", "superseded"] },
     "execution_id": { "type": "string", "pattern": "^EXEC-[0-9]{3,}$" }
   },
+  "allOf": [
+    {
+      "if": { "properties": { "artifact_type": { "const": "issue" } }, "required": ["artifact_type"] },
+      "then": { "properties": { "status": { "enum": ["open", "resolved"] } } },
+      "else": { "properties": { "status": { "enum": ["draft", "active", "deprecated", "retired", "superseded"] } } }
+    }
+  ],
   "$defs": { "id": { "type": "string", "pattern": "^[A-Z][A-Z0-9-]*$" } }
 }

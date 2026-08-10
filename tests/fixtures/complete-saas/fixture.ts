@@ -77,7 +77,9 @@ export async function materializePatternArtifact(
   const created = await createArtifactFromPattern(root, catalog, artifact.type, artifact.id, artifact.title);
   const file = path.join(root, created.file);
   const draft = await readFile(file, "utf8");
-  let completed = replaceField(draft, "status", "active");
+  // Issues carry their own lifecycle vocabulary (open -> resolved); every other
+  // authored artifact type is materialized live as `active`.
+  let completed = replaceField(draft, "status", artifact.type === "issue" ? "open" : "active");
   completed = replaceField(completed, "depends_on", list(artifact.dependsOn));
   if (artifact.writesTo) completed = replaceField(completed, "writes_to", list(artifact.writesTo));
   if (artifact.adrStatus) completed = replaceField(completed, "adr_status", artifact.adrStatus);

@@ -55,7 +55,7 @@ All five skills require explicit user invocation. Research uses actual `WebSearc
 
 ## Codex
 
-The repository also contains `.codex-plugin/plugin.json` and five Codex-native adapters under `skills/`. Claude's manual-only adapters live separately under `claude/skills/`. Both load the same playbooks, patterns, portable hooks and engine. Codex asks the user to review and trust bundled command hooks before running them. See [dual-host installation and use](docs/codex-installation.md).
+The repository also contains `.codex-plugin/plugin.json` and five Codex-native adapters under `codex/skills/`. Claude's manual-only adapters live separately under `claude/skills/`. Neither directory sits at the repository root, so a Claude host loads exactly the five manual Claude skills and a Codex host loads exactly the five Codex skills. Both load the same playbooks, patterns, portable hooks and engine. Codex asks the user to review and trust bundled command hooks before running them. See [dual-host installation and use](docs/codex-installation.md).
 
 ## Temporal flows
 

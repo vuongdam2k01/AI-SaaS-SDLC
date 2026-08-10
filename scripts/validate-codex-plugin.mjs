@@ -13,7 +13,7 @@ function requireString(value, label) {
 
 for (const key of ["name", "version", "description", "skills"]) requireString(manifest[key], `plugin.${key}`);
 if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(manifest.name)) throw new Error("plugin.name must be kebab-case");
-if (manifest.skills !== "./skills/") throw new Error("plugin.skills must point to ./skills/");
+if (manifest.skills !== "./codex/skills/") throw new Error("plugin.skills must point to ./codex/skills/");
 if (manifest.hooks !== undefined && manifest.hooks !== "./hooks/hooks.json") throw new Error("plugin.hooks, when present, must point to ./hooks/hooks.json");
 for (const key of ["mcpServers", "apps"]) if (key in manifest) throw new Error(`Unsupported Codex plugin field: ${key}`);
 for (const key of ["displayName", "shortDescription", "longDescription", "developerName", "category", "defaultPrompt"]) requireString(manifest.interface?.[key], `plugin.interface.${key}`);
@@ -30,7 +30,7 @@ for (const [event, groups] of Object.entries(hookConfig.hooks ?? {})) {
   }
 }
 
-const skills = await fg("skills/*/SKILL.md", { cwd: root });
+const skills = await fg("codex/skills/*/SKILL.md", { cwd: root });
 if (skills.length !== 5) throw new Error(`Expected five Codex skills; found ${skills.length}`);
 for (const relative of skills) {
   const source = await readFile(path.join(root, relative), "utf8");

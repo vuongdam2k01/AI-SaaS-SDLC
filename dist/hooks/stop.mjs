@@ -13384,12 +13384,20 @@ var init_artifacts = __esm({
 });
 
 // src/core/types.ts
-var FLOW_TYPES, ARTIFACT_STATUSES, ADR_STATUSES;
+function statusesForArtifactType(artifactType) {
+  return artifactType === "issue" ? ISSUE_STATUSES : ARTIFACT_STATUSES;
+}
+function isLiveStatus(status) {
+  return status === "active" || status === "open" || status === "resolved";
+}
+var FLOW_TYPES, ARTIFACT_STATUSES, ISSUE_STATUSES, ALL_ARTIFACT_STATUSES, ADR_STATUSES;
 var init_types = __esm({
   "src/core/types.ts"() {
     "use strict";
     FLOW_TYPES = ["genesis", "reassessment", "evolution", "reconciliation"];
     ARTIFACT_STATUSES = ["draft", "active", "deprecated", "retired", "superseded"];
+    ISSUE_STATUSES = ["open", "resolved"];
+    ALL_ARTIFACT_STATUSES = [...ARTIFACT_STATUSES, ...ISSUE_STATUSES];
     ADR_STATUSES = ["proposed", "accepted", "deprecated", "superseded"];
   }
 });
@@ -13543,7 +13551,7 @@ function isBaselineManifest(value) {
   const verdicts = ["passed", "failed", "not-configured", "not-run"];
   const baselineArtifactIds = value.artifacts.filter(record).map((item) => item.id);
   const artifactFiles = value.artifacts.filter(record).map((item) => item.file);
-  return value.schema_version === 1 && id(value.id, "BL") && id(value.evidence_revision, "EVR") && dateTime(value.created_at) && (value.git_commit === null || typeof value.git_commit === "string") && FLOW_TYPES.includes(value.flow_type) && id(value.flow_id, "FLOW") && value.artifacts.every((item) => record(item) && exactKeys2(item, ["id", "title", "file", "hash", "status", "artifact_type", "created_by_change", "depends_on", "decisions", "supersedes", "writes_to", "implementation", "adr_status"]) && typeof item.id === "string" && /^[A-Z][A-Z0-9-]*$/.test(item.id) && typeof item.title === "string" && item.title.length > 0 && typeof item.file === "string" && item.file.length > 0 && !item.file.startsWith("/") && !item.file.includes("..") && typeof item.hash === "string" && /^[a-f0-9]{64}$/.test(item.hash) && typeof item.status === "string" && ["draft", "active", "deprecated", "retired", "superseded"].includes(item.status) && typeof item.artifact_type === "string" && item.artifact_type.length > 0 && typeof item.created_by_change === "string" && /^(?:INIT|GENESIS|FLOW-[0-9]{3,}|CHG-[0-9]{3,})$/.test(item.created_by_change) && artifactIds(item.depends_on) && artifactIds(item.decisions) && artifactIds(item.writes_to) && strings(item.implementation) && (item.supersedes === null || typeof item.supersedes === "string" && /^[A-Z][A-Z0-9-]*$/.test(item.supersedes)) && (item.adr_status === void 0 || ["proposed", "accepted", "deprecated", "superseded"].includes(String(item.adr_status)))) && new Set(baselineArtifactIds).size === baselineArtifactIds.length && new Set(artifactFiles).size === artifactFiles.length && value.executions.every((execution) => id(execution, "EXEC")) && new Set(value.executions).size === value.executions.length && exactKeys2(verification, ["unit", "integration", "system"]) && ["unit", "integration", "system"].every((level) => verdicts.includes(String(verification[level])));
+  return value.schema_version === 1 && id(value.id, "BL") && id(value.evidence_revision, "EVR") && dateTime(value.created_at) && (value.git_commit === null || typeof value.git_commit === "string") && FLOW_TYPES.includes(value.flow_type) && id(value.flow_id, "FLOW") && value.artifacts.every((item) => record(item) && exactKeys2(item, ["id", "title", "file", "hash", "status", "artifact_type", "created_by_change", "depends_on", "decisions", "supersedes", "writes_to", "implementation", "adr_status"]) && typeof item.id === "string" && /^[A-Z][A-Z0-9-]*$/.test(item.id) && typeof item.title === "string" && item.title.length > 0 && typeof item.file === "string" && item.file.length > 0 && !item.file.startsWith("/") && !item.file.includes("..") && typeof item.hash === "string" && /^[a-f0-9]{64}$/.test(item.hash) && typeof item.status === "string" && typeof item.artifact_type === "string" && statusesForArtifactType(item.artifact_type).includes(item.status) && item.artifact_type.length > 0 && typeof item.created_by_change === "string" && /^(?:INIT|GENESIS|FLOW-[0-9]{3,}|CHG-[0-9]{3,})$/.test(item.created_by_change) && artifactIds(item.depends_on) && artifactIds(item.decisions) && artifactIds(item.writes_to) && strings(item.implementation) && (item.supersedes === null || typeof item.supersedes === "string" && /^[A-Z][A-Z0-9-]*$/.test(item.supersedes)) && (item.adr_status === void 0 || ["proposed", "accepted", "deprecated", "superseded"].includes(String(item.adr_status)))) && new Set(baselineArtifactIds).size === baselineArtifactIds.length && new Set(artifactFiles).size === artifactFiles.length && value.executions.every((execution) => id(execution, "EXEC")) && new Set(value.executions).size === value.executions.length && exactKeys2(verification, ["unit", "integration", "system"]) && ["unit", "integration", "system"].every((level) => verdicts.includes(String(verification[level])));
 }
 var init_record_validation = __esm({
   "src/core/record-validation.ts"() {
@@ -14110,6 +14118,7 @@ var FIXED_TYPES = /* @__PURE__ */ new Set(["engine_configuration", "openapi_cont
 var CANONICAL_TYPES = new Set(Object.values(CANONICAL_MARKDOWN).map(([, type]) => type));
 
 // src/core/content-contracts.ts
+init_types();
 import { readFile as readFile8 } from "node:fs/promises";
 import path9 from "node:path";
 
@@ -14413,7 +14422,7 @@ async function validateActiveArtifactContent(root2, artifacts) {
   const patterns = new Map(catalog.patterns.map((pattern) => [pattern.artifact_type, pattern]));
   const foundations = new Map(catalog.foundations.map((foundation) => [foundation.artifact_type, foundation]));
   const findings = [];
-  for (const artifact of artifacts.filter((item) => item.status === "active")) {
+  for (const artifact of artifacts.filter((item) => isLiveStatus(item.status))) {
     const pattern = patterns.get(artifact.artifact_type);
     if (pattern) {
       findings.push(...await validateArtifact(artifact, pattern, catalog.root));
@@ -14468,7 +14477,8 @@ async function validateProject(root2, artifacts) {
     }
     if (!/^(?:INIT|GENESIS|FLOW-[0-9]{3,}|CHG-[0-9]{3,})$/.test(artifact.created_by_change)) findings.push({ severity: "error", code: "CREATION_ID_INVALID", message: `Invalid creation identity: ${artifact.created_by_change}`, file: artifact.file });
     if (!/^[A-Z][A-Z0-9-]*$/.test(artifact.id)) findings.push({ severity: "error", code: "ID_INVALID", message: `Invalid artifact ID: ${artifact.id}`, file: artifact.file });
-    if (!ARTIFACT_STATUSES.includes(artifact.status)) findings.push({ severity: "error", code: "STATUS_INVALID", message: `Invalid status: ${artifact.status}`, file: artifact.file });
+    const allowedStatuses = statusesForArtifactType(artifact.artifact_type);
+    if (!allowedStatuses.includes(artifact.status)) findings.push({ severity: "error", code: "STATUS_INVALID", message: `Invalid status for ${artifact.artifact_type}: ${artifact.status} (expected ${allowedStatuses.join("|")})`, file: artifact.file });
     if (byId.has(artifact.id)) findings.push({ severity: "error", code: "ID_DUPLICATE", message: `Duplicate artifact ID: ${artifact.id}`, file: artifact.file });
     else byId.set(artifact.id, artifact);
     const canonical = CANONICAL_MARKDOWN[artifact.file];
@@ -14504,7 +14514,7 @@ async function validateProject(root2, artifacts) {
     }
     for (const reference of [...artifact.depends_on, ...artifact.writes_to]) {
       const upstream = byId.get(reference);
-      if (upstream && (upstream.status === "retired" || upstream.status === "superseded") && (artifact.status === "active" || artifact.status === "draft")) {
+      if (upstream && (upstream.status === "retired" || upstream.status === "superseded") && (isLiveStatus(artifact.status) || artifact.status === "draft")) {
         findings.push({ severity: "error", code: "LIFECYCLE_DEPENDENCY", message: `${artifact.id} is ${artifact.status} but depends on ${upstream.status} ${reference}`, file: artifact.file });
       }
     }

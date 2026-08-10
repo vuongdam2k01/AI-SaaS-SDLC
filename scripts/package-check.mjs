@@ -35,7 +35,7 @@ const marketplacePlugin = marketplaceManifest.plugins?.find((plugin) => plugin.n
 if (!marketplacePlugin || packageManifest.version !== pluginManifest.version || pluginManifest.version !== marketplacePlugin.version || pluginManifest.version !== codexManifest.version) {
   throw new Error("package.json, Claude/Codex plugin manifests and marketplace versions must match");
 }
-if (codexManifest.skills !== "./skills/") throw new Error("Codex manifest must use the root Codex skill adapters");
+if (codexManifest.skills !== "./codex/skills/") throw new Error("Codex manifest must use the dedicated Codex skill adapters under codex/skills/");
 if (codexManifest.hooks !== undefined && codexManifest.hooks !== "./hooks/hooks.json") throw new Error("Codex hook override must use the shared portable hook path");
 if (pluginManifest.skills !== "./claude/skills/") throw new Error("Claude manifest must use the dedicated manual Claude skill adapters");
 for (const unsupported of ["mcpServers", "apps"]) if (unsupported in codexManifest) throw new Error(`Unsupported Codex manifest field: ${unsupported}`);
@@ -55,7 +55,7 @@ for (const forbidden of ["agents", ".mcp.json", ".claude/settings.json", "settin
   }
 }
 
-const textFiles = await fg(["skills/**/*.{md,yaml}", "claude/skills/**/*.md", "hooks/**/*.json", ".claude-plugin/*.json", ".codex-plugin/*.json", "resources/{flow-playbooks,protocols}/**/*.md"]);
+const textFiles = await fg(["codex/skills/**/*.{md,yaml}", "claude/skills/**/*.md", "hooks/**/*.json", ".claude-plugin/*.json", ".codex-plugin/*.json", "resources/{flow-playbooks,protocols}/**/*.md"]);
 for (const file of textFiles) {
   const content = await readFile(file, "utf8");
   for (const match of content.matchAll(/\]\(([^)]+)\)/g)) {
@@ -75,7 +75,7 @@ for (const file of claudeSkills) {
   if (!/^---\r?\n[\s\S]*?disable-model-invocation:\s*true\r?\n---/m.test(content)) throw new Error(`Skill must be manual: ${file}`);
 }
 
-const codexSkills = await fg("skills/*/SKILL.md");
+const codexSkills = await fg("codex/skills/*/SKILL.md");
 if (codexSkills.length !== 5) throw new Error(`Expected 5 Codex skills, found ${codexSkills.length}`);
 for (const file of codexSkills) {
   const content = await readFile(file, "utf8");
@@ -112,7 +112,7 @@ try {
   const isolatedDocs = path.join(isolatedParent, "docs repo");
   await mkdir(isolatedPlugin, { recursive: true });
   await mkdir(isolatedDocs, { recursive: true });
-  for (const item of [".claude-plugin", ".codex-plugin", "skills", "claude", "hooks", "resources", "schemas", "bin", "dist", "LICENSE", "README.md"]) {
+  for (const item of [".claude-plugin", ".codex-plugin", "codex", "claude", "hooks", "resources", "schemas", "bin", "dist", "LICENSE", "README.md"]) {
     await cp(path.join(pluginRoot, item), path.join(isolatedPlugin, item), { recursive: true });
   }
   const run = (args) => spawnSync(process.execPath, [path.join(isolatedPlugin, "bin", "ai-saas-sdlc"), ...args], {

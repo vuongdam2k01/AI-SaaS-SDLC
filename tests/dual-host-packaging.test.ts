@@ -30,7 +30,7 @@ describe("dual-host packaging", () => {
     const codex = JSON.parse(await readFile(path.join(pluginRoot, ".codex-plugin", "plugin.json"), "utf8"));
     const claude = JSON.parse(await readFile(path.join(pluginRoot, ".claude-plugin", "plugin.json"), "utf8"));
     expect({ name: codex.name, version: codex.version }).toEqual({ name: claude.name, version: claude.version });
-    expect(codex.skills).toBe("./skills/");
+    expect(codex.skills).toBe("./codex/skills/");
     expect(codex.hooks).toBeUndefined();
     expect(claude.skills).toBe("./claude/skills/");
 
@@ -44,7 +44,7 @@ describe("dual-host packaging", () => {
 
     for (const flow of FLOWS) {
       const codexName = flow === "reassess-evidence" ? "ai-saas-reassess-evidence" : `ai-saas-${flow}`;
-      const codexSkill = await readFile(path.join(pluginRoot, "skills", codexName, "SKILL.md"), "utf8");
+      const codexSkill = await readFile(path.join(pluginRoot, "codex", "skills", codexName, "SKILL.md"), "utf8");
       const claudeSkill = await readFile(path.join(pluginRoot, "claude", "skills", flow, "SKILL.md"), "utf8");
       expect(sharedPlaybook(codexSkill)).toBe(sharedPlaybook(claudeSkill));
       expect(codexSkill).not.toContain("## Implementation Steps");
@@ -68,9 +68,9 @@ describe("dual-host packaging", () => {
   it("keeps every Codex UI descriptor bound to its installed skill name", async () => {
     for (const flow of FLOWS) {
       const directory = flow === "reassess-evidence" ? "ai-saas-reassess-evidence" : `ai-saas-${flow}`;
-      const skill = await readFile(path.join(pluginRoot, "skills", directory, "SKILL.md"), "utf8");
+      const skill = await readFile(path.join(pluginRoot, "codex", "skills", directory, "SKILL.md"), "utf8");
       const frontmatter = YAML.parse(skill.match(/^---\r?\n([\s\S]*?)\r?\n---/)![1]!);
-      const ui = YAML.parse(await readFile(path.join(pluginRoot, "skills", directory, "agents", "openai.yaml"), "utf8"));
+      const ui = YAML.parse(await readFile(path.join(pluginRoot, "codex", "skills", directory, "agents", "openai.yaml"), "utf8"));
       expect(ui.interface.default_prompt).toContain(`$${frontmatter.name}`);
     }
   });

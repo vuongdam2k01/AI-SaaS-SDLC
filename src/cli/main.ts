@@ -3,6 +3,7 @@ import { resolve } from "node:path";
 import { initializeProject } from "../core/template.js";
 import { loadCurrentState, loadActiveFlow, startFlow, closeFlow } from "../core/state.js";
 import { projectSnapshot, refreshProject } from "../core/project.js";
+import { ensureEnginePointerIgnored, recordEnginePointer } from "../core/engine-pointer.js";
 import { scanArtifacts } from "../core/artifacts.js";
 import { buildGraph } from "../core/graph.js";
 import { validateProject } from "../core/validation.js";
@@ -46,6 +47,8 @@ program.command("init")
         resolve(runtimeRoot, "resources", "artifact-patterns")
       );
       await refreshProject(root, false);
+      await recordEnginePointer(root, runtimeRoot, program.version() ?? "0.0.0");
+      await ensureEnginePointerIgnored(root);
     });
     print(`Initialized AI SaaS SDLC documentation repository: ${projectId}`);
   });
@@ -155,6 +158,7 @@ program.command("refresh")
     if (options.check && options.editorial) throw new SdlcError("--check and --editorial cannot be combined.");
     if (options.editorial) await syncRepresentationChanges(root);
     const drift = await refreshProject(root, Boolean(options.check));
+    if (!options.check) await recordEnginePointer(root, runtimeRoot, program.version() ?? "0.0.0");
     print({ synchronized: drift.length === 0, drift }, Boolean(options.json));
     if (options.check && drift.length > 0) process.exitCode = 1;
   });

@@ -74,6 +74,14 @@ Report compactly:
 - UT/IT/ST specification and execution state;
 - one next valid action, chosen from editorial edit, continue active flow, Reassessment, Evolution, Reconciliation or no action.
 
+When the next valid action is an editorial edit, print the runnable command with `PLUGIN_ROOT` already resolved, not the abstract form:
+
+```
+node "<PLUGIN_ROOT>/bin/ai-saas-sdlc" refresh --editorial
+```
+
+An editorial change is applied outside every flow, so the session that applies it has no skill context and cannot resolve the plugin root on its own. The same resolved command is recorded in `.ai-saas-sdlc/engine.json` as `editorial_command`; read it there rather than searching the filesystem for a copy of the engine.
+
 Never claim a test passed without an execution-backed result.
 
 ## 6. Stop and re-entry

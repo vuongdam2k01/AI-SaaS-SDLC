@@ -2,7 +2,7 @@ import { readFile } from "node:fs/promises";
 import path from "node:path";
 import YAML from "yaml";
 import type { Artifact, ValidationFinding, ValidationReport } from "./types.js";
-import { ADR_STATUSES, ARTIFACT_STATUSES } from "./types.js";
+import { ADR_STATUSES, isLiveStatus, statusesForArtifactType } from "./types.js";
 import { buildGraph, topologicalOrder } from "./graph.js";
 import { loadConfig } from "./config.js";
 import { loadCurrentState, pathExists } from "./state.js";
@@ -52,7 +52,8 @@ export async function validateProject(root: string, artifacts: Artifact[]): Prom
     }
     if (!/^(?:INIT|GENESIS|FLOW-[0-9]{3,}|CHG-[0-9]{3,})$/.test(artifact.created_by_change)) findings.push({ severity: "error", code: "CREATION_ID_INVALID", message: `Invalid creation identity: ${artifact.created_by_change}`, file: artifact.file });
     if (!/^[A-Z][A-Z0-9-]*$/.test(artifact.id)) findings.push({ severity: "error", code: "ID_INVALID", message: `Invalid artifact ID: ${artifact.id}`, file: artifact.file });
-    if (!ARTIFACT_STATUSES.includes(artifact.status as (typeof ARTIFACT_STATUSES)[number])) findings.push({ severity: "error", code: "STATUS_INVALID", message: `Invalid status: ${artifact.status}`, file: artifact.file });
+    const allowedStatuses = statusesForArtifactType(artifact.artifact_type);
+    if (!allowedStatuses.includes(artifact.status)) findings.push({ severity: "error", code: "STATUS_INVALID", message: `Invalid status for ${artifact.artifact_type}: ${artifact.status} (expected ${allowedStatuses.join("|")})`, file: artifact.file });
     if (byId.has(artifact.id)) findings.push({ severity: "error", code: "ID_DUPLICATE", message: `Duplicate artifact ID: ${artifact.id}`, file: artifact.file });
     else byId.set(artifact.id, artifact);
     const canonical = CANONICAL_MARKDOWN[artifact.file as keyof typeof CANONICAL_MARKDOWN];
@@ -88,7 +89,7 @@ export async function validateProject(root: string, artifacts: Artifact[]): Prom
     }
     for (const reference of [...artifact.depends_on, ...artifact.writes_to]) {
       const upstream = byId.get(reference);
-      if (upstream && (upstream.status === "retired" || upstream.status === "superseded") && (artifact.status === "active" || artifact.status === "draft")) {
+      if (upstream && (upstream.status === "retired" || upstream.status === "superseded") && (isLiveStatus(artifact.status) || artifact.status === "draft")) {
         findings.push({ severity: "error", code: "LIFECYCLE_DEPENDENCY", message: `${artifact.id} is ${artifact.status} but depends on ${upstream.status} ${reference}`, file: artifact.file });
       }
     }

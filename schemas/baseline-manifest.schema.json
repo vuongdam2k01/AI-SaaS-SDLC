@@ -24,7 +24,7 @@
           "title": { "type": "string", "minLength": 1 },
           "file": { "type": "string", "minLength": 1, "pattern": "^(?!.*(?:^|/)\\.\\.(?:/|$))(?!/).+$" },
           "hash": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
-          "status": { "enum": ["draft", "active", "deprecated", "retired", "superseded"] },
+          "status": { "enum": ["draft", "active", "deprecated", "retired", "superseded", "open", "resolved"] },
           "artifact_type": { "type": "string", "minLength": 1 },
           "created_by_change": { "type": "string", "pattern": "^(INIT|GENESIS|FLOW-[0-9]{3,}|CHG-[0-9]{3,})$" },
           "depends_on": { "type": "array", "items": { "type": "string", "pattern": "^[A-Z][A-Z0-9-]*$" }, "uniqueItems": true },
@@ -33,7 +33,14 @@
           "writes_to": { "type": "array", "items": { "type": "string", "pattern": "^[A-Z][A-Z0-9-]*$" }, "uniqueItems": true },
           "implementation": { "type": "array", "items": { "type": "string", "minLength": 1 }, "uniqueItems": true },
           "adr_status": { "enum": ["proposed", "accepted", "deprecated", "superseded"] }
-        }
+        },
+        "allOf": [
+          {
+            "if": { "properties": { "artifact_type": { "const": "issue" } }, "required": ["artifact_type"] },
+            "then": { "properties": { "status": { "enum": ["open", "resolved"] } } },
+            "else": { "properties": { "status": { "enum": ["draft", "active", "deprecated", "retired", "superseded"] } } }
+          }
+        ]
       }
     },
     "executions": { "type": "array", "items": { "type": "string", "pattern": "^EXEC-[0-9]{3,}$" }, "uniqueItems": true },

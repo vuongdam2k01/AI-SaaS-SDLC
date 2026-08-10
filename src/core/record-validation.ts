@@ -1,4 +1,4 @@
-import { FLOW_TYPES } from "./types.js";
+import { FLOW_TYPES, statusesForArtifactType } from "./types.js";
 import type { ActiveFlow, BaselineManifest, ChangeRecord, ExecutionRecord } from "./types.js";
 
 function record(value: unknown): value is Record<string, unknown> {
@@ -104,8 +104,9 @@ export function isBaselineManifest(value: unknown): value is BaselineManifest {
       && typeof item.title === "string" && item.title.length > 0
       && typeof item.file === "string" && item.file.length > 0 && !item.file.startsWith("/") && !item.file.includes("..")
       && typeof item.hash === "string" && /^[a-f0-9]{64}$/.test(item.hash)
-      && typeof item.status === "string" && ["draft", "active", "deprecated", "retired", "superseded"].includes(item.status)
-      && typeof item.artifact_type === "string" && item.artifact_type.length > 0
+      && typeof item.status === "string" && typeof item.artifact_type === "string"
+      && statusesForArtifactType(item.artifact_type).includes(item.status)
+      && item.artifact_type.length > 0
       && typeof item.created_by_change === "string" && /^(?:INIT|GENESIS|FLOW-[0-9]{3,}|CHG-[0-9]{3,})$/.test(item.created_by_change)
       && artifactIds(item.depends_on) && artifactIds(item.decisions) && artifactIds(item.writes_to) && strings(item.implementation)
       && (item.supersedes === null || (typeof item.supersedes === "string" && /^[A-Z][A-Z0-9-]*$/.test(item.supersedes)))
