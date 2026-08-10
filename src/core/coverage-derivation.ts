@@ -43,3 +43,54 @@ export function acceptanceCoverage(artifacts: Artifact[]): string {
   });
   return `# Acceptance Coverage\n\nDesign is conditional; behavior and verification references are required for complete coverage.\n\n${table(["Acceptance criterion", "Feature", "Behavior", "Design", "Tests", "Status"], rows)}`;
 }
+
+/**
+ * Which verification level claims each declared business rule.
+ *
+ * A feature's business rules are the commitments the product makes. Nothing
+ * previously derived whether any test specification claimed them, so a rule
+ * could reach a baseline with no oracle at any level and no signal that it had.
+ * Which level holds a rule is a derivation judgement and stays that way; that
+ * *some* level holds it is a contract, and this projection is what makes it
+ * checkable.
+ */
+export function ruleCoverage(artifacts: Artifact[]): string {
+  const rows = ruleCoverageEntries(artifacts).map((entry) => [
+    `\`${entry.rule}\``,
+    `\`${entry.feature}\``,
+    cell(entry.unit),
+    cell(entry.integration),
+    cell(entry.system),
+    entry.covered ? "covered" : "unverified"
+  ]);
+  return `# Business Rule Coverage\n\nEvery business rule declared by a live feature must be claimed by at least one verification specification. The level is a derivation judgement; having a level at all is a contract.\n\n${table(["Business rule", "Feature", "Unit", "Integration", "System", "Status"], rows)}`;
+}
+
+export interface RuleCoverageEntry {
+  rule: string;
+  feature: string;
+  file: string;
+  unit: string[];
+  integration: string[];
+  system: string[];
+  covered: boolean;
+}
+
+const unitTypes = new Set(["unit_test_backend", "unit_test_frontend", "unit_test_job"]);
+
+export function ruleCoverageEntries(artifacts: Artifact[]): RuleCoverageEntry[] {
+  const features = artifacts.filter((artifact) => artifact.artifact_type === "feature"
+    && artifact.status !== "retired" && artifact.status !== "superseded");
+  return features.flatMap((feature) => ids(feature.body, /\bBR-[A-Z0-9-]+\b/g).map((rule) => {
+    const qualified = `${feature.id}#${rule}`;
+    // Either form counts as a claim: the qualified reference, or a bare rule ID
+    // inside a specification that already declares the owning feature upstream.
+    const claimants = artifacts.filter((artifact) => testTypes.has(artifact.artifact_type)
+      && (artifact.body.includes(qualified)
+        || (artifact.depends_on.includes(feature.id) && new RegExp(`\\b${rule}\\b`).test(artifact.body))));
+    const unit = claimants.filter((artifact) => unitTypes.has(artifact.artifact_type)).map((artifact) => artifact.id);
+    const integration = claimants.filter((artifact) => artifact.artifact_type === "integration_test").map((artifact) => artifact.id);
+    const system = claimants.filter((artifact) => artifact.artifact_type === "system_test").map((artifact) => artifact.id);
+    return { rule: qualified, feature: feature.id, file: feature.file, unit, integration, system, covered: claimants.length > 0 };
+  }));
+}

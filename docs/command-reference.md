@@ -18,7 +18,7 @@ The deterministic engine operates on the current working directory. In a develop
 |---|---|---|
 | `flow start` | `--type <genesis\|reassessment\|evolution\|reconciliation>`, `--input <text>`, `--json` | Opens exactly one flow. Evolution and Reconciliation also reserve a `CHG-*`. Flow legality and starting snapshots are engine-enforced. |
 | `artifact create` | `--type <catalog-type>`, `--id <ID>`, `--title <title>`, `--json` | Creates one new draft from the pinned pattern at its canonical path. Requires a compatible active flow, checks type/ID/path/title, refuses collisions and rejects `test_result`. |
-| `refresh` | `--check`, `--editorial`, `--json` | Rebuilds generated projections. `--check` reports drift without writing. `--editorial` first accepts an eligible body-only representation change. The two flags cannot be combined. |
+| `refresh` | `--check`, `--editorial`, `--json` | Rebuilds generated projections, including `rule-coverage.md`. `--check` reports drift without writing. `--editorial` first accepts an eligible body-only representation change. The two flags cannot be combined. Any writing form also records the resolved engine at `.ai-saas-sdlc/engine.json`. |
 | `baseline create` | `--json` | Runs validation and flow-specific completion, impact and verification rules; then records the required evidence/product baseline. Reassessment advances EVR while retaining the product baseline ID. |
 | `flow close` | `--json` | Closes a baselined flow or records a clean cancellation. Rejects dirty work without the flow's baseline and changes made after that baseline. |
 

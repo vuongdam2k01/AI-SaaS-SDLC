@@ -14,6 +14,7 @@ import { isBaselineManifest } from "./record-validation.js";
 import { validateInternalRecords } from "./internal-validation.js";
 import { CANONICAL_MARKDOWN, CANONICAL_TYPES, FIXED_TYPES, SCALABLE_LOCATIONS } from "./artifact-contracts.js";
 import { validateActiveArtifactContent } from "./content-contracts.js";
+import { ruleCoverageEntries } from "./coverage-derivation.js";
 
 const requiredFiles = [
   ...Object.keys(CANONICAL_MARKDOWN),
@@ -116,6 +117,15 @@ export async function validateProject(root: string, artifacts: Artifact[]): Prom
         }
       }
     }
+  }
+  // A declared business rule with no verification specification claiming it is a
+  // commitment nothing can fail on. Reported as a warning rather than an error:
+  // the omission is real and must be visible, but which level should hold a rule
+  // is a derivation judgement, and blocking a baseline on it would enforce
+  // preference rather than structure.
+  for (const entry of ruleCoverageEntries(artifacts)) {
+    if (entry.covered) continue;
+    findings.push({ severity: "warning", code: "RULE_UNVERIFIED", message: `${entry.rule} is declared but no unit, integration or system specification claims it`, file: entry.file });
   }
   const graph = buildGraph(artifacts);
   const order = topologicalOrder(graph);

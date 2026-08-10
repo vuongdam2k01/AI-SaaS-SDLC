@@ -1,5 +1,54 @@
 # Changelog
 
+## Unreleased
+
+Findings from two full GitHub-distribution acceptance runs. The first run's
+report is the source for D-1, D-2 and D-4; the second run's for the rest.
+
+### Fixed
+
+- Claude no longer auto-discovers the Codex host adapter. It moved from the
+  repository root to `codex/skills/`, so a Claude host loads exactly the five
+  manual skills instead of ten, always-on cost drops from ~839 to ~384 tokens,
+  and a session no longer advertises the Codex command form to a Claude user.
+- The published editorial mechanism can be reached from the documentation
+  repository alone. `init` and every writing `refresh` record the resolved engine
+  in `.ai-saas-sdlc/engine.json` as `editorial_command`, `init` adds that file to
+  `.gitignore`, and Inspect State prints the resolved command whenever it names
+  an editorial edit as the next valid action. Previously a session applying a
+  body-only change had no plugin root to resolve and could execute a different
+  copy of this package.
+- Issues carry their own lifecycle. `open` and `resolved` are accepted for the
+  `issue` type and rejected for every other type, matching `ARTIFACT-LIFECYCLE`
+  and `issue.pattern.md`. A closed issue no longer has to masquerade as `active`
+  to satisfy validation.
+- `git_commit` no longer names a tree that was never tested. A commit recorded
+  over a modified or untracked working tree is suffixed `+dirty`.
+- A superseded accepted ADR is no longer presented as though it still governs.
+  `decision-index.md` derives `In force` and `Superseded by` from the successor's
+  `supersedes` edge, leaving the immutable original untouched.
+- A flow no longer re-runs a verification command that cannot observe anything
+  new. An identical command over an identical source snapshot within the same
+  flow reuses its existing execution record instead of adding a second one.
+
+### Added
+
+- `generated/rule-coverage.md` and the `RULE_UNVERIFIED` validation warning.
+  Every business rule a live feature declares must be claimed by at least one
+  UT, IT or ST specification. Which level holds a rule stays a derivation
+  judgement; having a level at all is now a checkable contract. Reported as a
+  warning so it never blocks a baseline on a placement preference.
+
+### Changed
+
+- Genesis always passes `--project-id`, deriving a stable identifier from the
+  product when the user supplies none, instead of letting the engine fall back to
+  the containing directory name.
+- Product Evolution must state, in its closing report, any boundary named by the
+  semantic intent for which it allocated no artifact, and must not leave a
+  client obligation such as an idempotency key without either an owning artifact
+  or a recorded question.
+
 ## 1.0.0 - 2026-08-09
 
 ### Added

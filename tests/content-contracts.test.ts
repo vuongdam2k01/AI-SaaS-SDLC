@@ -68,7 +68,11 @@ describe("pinned pattern and active-content contracts", () => {
     expect(active).toContain("status: active");
     expect(active).toContain("| AC-03 |");
     const report = await validateProject(root, await scanArtifacts(root));
-    expect(report.findings.filter((item) => item.file === result.file)).toEqual([]);
+    // Content completeness only. This fixture creates the feature without any
+    // verification specification, so its business rules are legitimately
+    // unclaimed and RULE_UNVERIFIED warnings are expected here.
+    expect(report.findings.filter((item) => item.file === result.file && item.severity === "error")).toEqual([]);
+    expect(report.findings.filter((item) => item.file === result.file).every((item) => item.code === "RULE_UNVERIFIED")).toBe(true);
   });
 
   it("accepts the complete pattern-derived approval feature closure", async () => {

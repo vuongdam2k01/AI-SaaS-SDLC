@@ -22,6 +22,8 @@ Testing has exactly three levels: UT, IT and ST. Security, privacy, performance,
 
 Every active feature requires at least one downstream UT, IT and ST specification under the current baseline contract. Keep each minimal and meaningful; do not duplicate the same case at all levels.
 
+**Every business rule a live feature declares must be claimed by at least one specification.** Choosing which level holds a rule is a derivation judgement made from the table below; having a level at all is a contract, not a judgement. Claim a rule by writing its qualified reference `FTR-<AREA>-<NNN>#BR-<NN>` in the specification, or its bare `BR-<NN>` in a specification that already declares the owning feature in `depends_on`. `ENGINE refresh` derives `generated/rule-coverage.md` from those references and `ENGINE validate` reports `RULE_UNVERIFIED` for every rule nothing claims. Treat that warning as work to do, not noise: an unclaimed rule is a commitment no execution can ever fail on.
+
 Instantiate new specifications with `ENGINE artifact create` using `unit_test_backend`, `unit_test_frontend`, `unit_test_job`, `integration_test` or `system_test`. Never instantiate `test_result`; only verified execution may generate it.
 
 ## Derivation map
@@ -29,6 +31,7 @@ Instantiate new specifications with `ENGINE artifact create` using `unit_test_ba
 | Source | Required test consequence |
 |---|---|
 | `AC-*` | At least one case proves the Given/When/Then oracle by reference |
+| `BR-*` | At least one case at one level claims the rule by reference; a rule with no claimant is a coverage defect |
 | UC alternate/error path | Case proves path selection and observable result |
 | FLOW compensation/cross-feature path | ST or IT proves state restoration/continuation |
 | Access-control rule | Denial and cross-tenant boundary at the lowest real enforcing level plus ST where user-visible |

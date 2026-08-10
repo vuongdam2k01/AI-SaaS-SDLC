@@ -1,11 +1,12 @@
 import { spawn } from "node:child_process";
-import { writeFile } from "node:fs/promises";
+import { readdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import type { CommandDefinition, ExecutionRecord, ProjectConfig } from "./types.js";
 import { gitCommit } from "./git.js";
 import { isRealPathWithin, prepareSafeManagedPath, projectPaths } from "./paths.js";
 import { loadActiveFlow, loadCurrentState, pathExists, saveCurrentState } from "./state.js";
-import { formatId, sha256, writeJsonAtomic } from "./utils.js";
+import { formatId, readJson, sha256, writeJsonAtomic } from "./utils.js";
+import { isExecutionRecord } from "./record-validation.js";
 import { SdlcError } from "./errors.js";
 import { renderResultArtifact } from "./result-artifact.js";
 import { withProjectLock } from "./project-lock.js";
@@ -15,6 +16,23 @@ type Level = "unit" | "integration" | "system";
 
 function allowedRoots(root: string, config: ProjectConfig): string[] {
   return [root, ...config.implementation_sources.map((source) => path.resolve(root, source.path))];
+}
+
+async function executionsForFlow(root: string, flowId: string): Promise<ExecutionRecord[]> {
+  const directory = projectPaths(root).executions;
+  if (!(await pathExists(directory))) return [];
+  const files = (await readdir(directory)).filter((name) => name.endsWith(".json")).sort();
+  const records: ExecutionRecord[] = [];
+  for (const name of files) {
+    try {
+      const candidate = await readJson<unknown>(path.join(directory, name));
+      if (isExecutionRecord(candidate) && candidate.flow_id === flowId) records.push(candidate);
+    } catch {
+      // A record that cannot be read is a provenance problem for `validate` to
+      // report, not a reason to re-run a command here.
+    }
+  }
+  return records;
 }
 
 async function runCommand(command: CommandDefinition, cwd: string): Promise<{ exitCode: number; output: string; started: string; ended: string }> {
@@ -46,7 +64,20 @@ async function executeVerificationUnlocked(root: string, config: ProjectConfig, 
       planned.push({ level, definition, cwd });
     }
   }
+  const priorForFlow = await executionsForFlow(root, flow.id);
   for (const { level, definition, cwd } of planned) {
+    // An identical command over an identical source tree inside the same flow
+    // cannot observe anything the earlier run did not. Re-running it would add a
+    // record that carries no new information and inflate the evidence set, so the
+    // existing record is reused instead.
+    const sourceSnapshotBefore = await sourceSnapshotHash(cwd);
+    const prior = priorForFlow.find((record) => record.command_id === definition.id
+      && record.command === definition.command
+      && record.source_snapshot_hash === sourceSnapshotBefore);
+    if (prior) {
+      records.push(prior);
+      continue;
+    }
     const id = formatId("EXEC", state.next_execution);
     const logFile = path.join(projectPaths(root).executions, `${id}.log`);
     const recordFile = path.join(projectPaths(root).executions, `${id}.json`);
@@ -58,7 +89,7 @@ async function executeVerificationUnlocked(root: string, config: ProjectConfig, 
     state.next_execution += 1;
     await saveCurrentState(root, state);
     const sourceCommit = gitCommit(cwd);
-    const sourceSnapshot = await sourceSnapshotHash(cwd);
+    const sourceSnapshot = sourceSnapshotBefore;
     const result = await runCommand(definition, cwd);
     const record: ExecutionRecord = {
       schema_version: 1,

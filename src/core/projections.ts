@@ -7,7 +7,7 @@ import { topologicalOrder } from "./graph.js";
 import { assertSafeManagedPath, isWithin, prepareSafeManagedPath, projectPaths } from "./paths.js";
 import { pathExists } from "./state.js";
 import { normalizeText, stableJson, uniqueSorted } from "./utils.js";
-import { acceptanceCoverage, evidenceClaimCoverage } from "./coverage-derivation.js";
+import { acceptanceCoverage, evidenceClaimCoverage, ruleCoverage } from "./coverage-derivation.js";
 
 export interface ProjectionSet { [relative: string]: string }
 
@@ -51,6 +51,7 @@ export function buildProjections(
   )}`;
   projections["evidence-claim-coverage.md"] = evidenceClaimCoverage(artifacts);
   projections["acceptance-coverage.md"] = acceptanceCoverage(artifacts);
+  projections["rule-coverage.md"] = ruleCoverage(artifacts);
 
   const nodesById = new Map(graph.nodes.map((node) => [node.id, node]));
   const featureRows = graph.nodes.filter((node) => node.type === "feature").map((feature) => {
@@ -77,9 +78,30 @@ export function buildProjections(
     ["ID", "Status", "Title"],
     artifacts.filter((item) => item.artifact_type === "issue").map((item) => [`\`${item.id}\``, item.status, item.title])
   )}`;
+  // An accepted ADR is immutable, so a superseded one keeps `accepted` and `active`
+  // in its own frontmatter forever. Deriving the reverse edge here is the only way
+  // the index can show that a later decision has taken over, without rewriting
+  // history in the artifact itself.
+  const decisions = artifacts.filter((item) => item.artifact_type === "architectural_decision");
+  const supersededBy = new Map<string, string[]>();
+  for (const decision of decisions) {
+    if (!decision.supersedes) continue;
+    supersededBy.set(decision.supersedes, [...(supersededBy.get(decision.supersedes) ?? []), decision.id]);
+  }
   projections["decision-index.md"] = `# Decision Index\n\n${table(
-    ["ID", "Decision status", "Artifact status", "Title", "Supersedes"],
-    artifacts.filter((item) => item.artifact_type === "architectural_decision").map((item) => [`\`${item.id}\``, item.adr_status ?? "", item.status, item.title, item.supersedes ? `\`${item.supersedes}\`` : "—"])
+    ["ID", "Decision status", "Artifact status", "In force", "Title", "Supersedes", "Superseded by"],
+    decisions.map((item) => {
+      const successors = supersededBy.get(item.id) ?? [];
+      return [
+        `\`${item.id}\``,
+        item.adr_status ?? "",
+        item.status,
+        successors.length > 0 ? "no" : "yes",
+        item.title,
+        item.supersedes ? `\`${item.supersedes}\`` : "—",
+        successors.length > 0 ? successors.map((id) => `\`${id}\``).join(", ") : "—"
+      ];
+    })
   )}`;
   for (const adr of artifacts.filter((item) => item.artifact_type === "architectural_decision")) {
     const affected = graph.edges.filter((edge) => edge.relation === "decision" && edge.to === adr.id).map((edge) => edge.from);

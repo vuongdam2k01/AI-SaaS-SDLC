@@ -7484,7 +7484,7 @@ var require_async2 = __commonJS({
         readdirWithFileTypes(directory, settings, callback);
         return;
       }
-      readdir4(directory, settings, callback);
+      readdir5(directory, settings, callback);
     }
     exports.read = read;
     function readdirWithFileTypes(directory, settings, callback) {
@@ -7533,7 +7533,7 @@ var require_async2 = __commonJS({
         });
       };
     }
-    function readdir4(directory, settings, callback) {
+    function readdir5(directory, settings, callback) {
       settings.fs.readdir(directory, (readdirError, names) => {
         if (readdirError !== null) {
           callFailureCallback(callback, readdirError);
@@ -7568,7 +7568,7 @@ var require_async2 = __commonJS({
         });
       });
     }
-    exports.readdir = readdir4;
+    exports.readdir = readdir5;
     function callFailureCallback(callback, error) {
       callback(error);
     }
@@ -7592,7 +7592,7 @@ var require_sync2 = __commonJS({
       if (!settings.stats && constants_1.IS_SUPPORT_READDIR_WITH_FILE_TYPES) {
         return readdirWithFileTypes(directory, settings);
       }
-      return readdir4(directory, settings);
+      return readdir5(directory, settings);
     }
     exports.read = read;
     function readdirWithFileTypes(directory, settings) {
@@ -7617,7 +7617,7 @@ var require_sync2 = __commonJS({
       });
     }
     exports.readdirWithFileTypes = readdirWithFileTypes;
-    function readdir4(directory, settings) {
+    function readdir5(directory, settings) {
       const names = settings.fs.readdirSync(directory);
       return names.map((name) => {
         const entryPath = common.joinPathSegments(directory, name, settings.pathSegmentSeparator);
@@ -7633,7 +7633,7 @@ var require_sync2 = __commonJS({
         return entry;
       });
     }
-    exports.readdir = readdir4;
+    exports.readdir = readdir5;
   }
 });
 
@@ -17291,13 +17291,40 @@ Design is conditional; behavior and verification references are required for com
 
 ${table(["Acceptance criterion", "Feature", "Behavior", "Design", "Tests", "Status"], rows)}`;
 }
-var behaviorTypes, designTypes, testTypes;
+function ruleCoverage(artifacts) {
+  const rows = ruleCoverageEntries(artifacts).map((entry) => [
+    `\`${entry.rule}\``,
+    `\`${entry.feature}\``,
+    cell(entry.unit),
+    cell(entry.integration),
+    cell(entry.system),
+    entry.covered ? "covered" : "unverified"
+  ]);
+  return `# Business Rule Coverage
+
+Every business rule declared by a live feature must be claimed by at least one verification specification. The level is a derivation judgement; having a level at all is a contract.
+
+${table(["Business rule", "Feature", "Unit", "Integration", "System", "Status"], rows)}`;
+}
+function ruleCoverageEntries(artifacts) {
+  const features = artifacts.filter((artifact2) => artifact2.artifact_type === "feature" && artifact2.status !== "retired" && artifact2.status !== "superseded");
+  return features.flatMap((feature) => ids(feature.body, /\bBR-[A-Z0-9-]+\b/g).map((rule) => {
+    const qualified = `${feature.id}#${rule}`;
+    const claimants = artifacts.filter((artifact2) => testTypes.has(artifact2.artifact_type) && (artifact2.body.includes(qualified) || artifact2.depends_on.includes(feature.id) && new RegExp(`\\b${rule}\\b`).test(artifact2.body)));
+    const unit = claimants.filter((artifact2) => unitTypes.has(artifact2.artifact_type)).map((artifact2) => artifact2.id);
+    const integration = claimants.filter((artifact2) => artifact2.artifact_type === "integration_test").map((artifact2) => artifact2.id);
+    const system = claimants.filter((artifact2) => artifact2.artifact_type === "system_test").map((artifact2) => artifact2.id);
+    return { rule: qualified, feature: feature.id, file: feature.file, unit, integration, system, covered: claimants.length > 0 };
+  }));
+}
+var behaviorTypes, designTypes, testTypes, unitTypes;
 var init_coverage_derivation = __esm({
   "src/core/coverage-derivation.ts"() {
     "use strict";
     behaviorTypes = /* @__PURE__ */ new Set(["use_case", "business_flow"]);
     designTypes = /* @__PURE__ */ new Set(["screen", "component", "subsystem", "api_processing", "entity", "external_integration", "job", "event"]);
     testTypes = /* @__PURE__ */ new Set(["unit_test_backend", "unit_test_frontend", "unit_test_job", "integration_test", "system_test"]);
+    unitTypes = /* @__PURE__ */ new Set(["unit_test_backend", "unit_test_frontend", "unit_test_job"]);
   }
 });
 
@@ -17358,6 +17385,7 @@ ${table2(
   )}`;
   projections["evidence-claim-coverage.md"] = evidenceClaimCoverage(artifacts);
   projections["acceptance-coverage.md"] = acceptanceCoverage(artifacts);
+  projections["rule-coverage.md"] = ruleCoverage(artifacts);
   const nodesById = new Map(graph.nodes.map((node) => [node.id, node]));
   const featureRows = graph.nodes.filter((node) => node.type === "feature").map((feature) => {
     const consumers = graph.edges.filter((edge) => edge.to === feature.id).map((edge) => nodesById.get(edge.from)).filter(Boolean);
@@ -17398,11 +17426,28 @@ ${table2(
     ["ID", "Status", "Title"],
     artifacts.filter((item) => item.artifact_type === "issue").map((item) => [`\`${item.id}\``, item.status, item.title])
   )}`;
+  const decisions = artifacts.filter((item) => item.artifact_type === "architectural_decision");
+  const supersededBy = /* @__PURE__ */ new Map();
+  for (const decision of decisions) {
+    if (!decision.supersedes) continue;
+    supersededBy.set(decision.supersedes, [...supersededBy.get(decision.supersedes) ?? [], decision.id]);
+  }
   projections["decision-index.md"] = `# Decision Index
 
 ${table2(
-    ["ID", "Decision status", "Artifact status", "Title", "Supersedes"],
-    artifacts.filter((item) => item.artifact_type === "architectural_decision").map((item) => [`\`${item.id}\``, item.adr_status ?? "", item.status, item.title, item.supersedes ? `\`${item.supersedes}\`` : "\u2014"])
+    ["ID", "Decision status", "Artifact status", "In force", "Title", "Supersedes", "Superseded by"],
+    decisions.map((item) => {
+      const successors = supersededBy.get(item.id) ?? [];
+      return [
+        `\`${item.id}\``,
+        item.adr_status ?? "",
+        item.status,
+        successors.length > 0 ? "no" : "yes",
+        item.title,
+        item.supersedes ? `\`${item.supersedes}\`` : "\u2014",
+        successors.length > 0 ? successors.map((id2) => `\`${id2}\``).join(", ") : "\u2014"
+      ];
+    })
   )}`;
   for (const adr of artifacts.filter((item) => item.artifact_type === "architectural_decision")) {
     const affected = graph.edges.filter((edge) => edge.relation === "decision" && edge.to === adr.id).map((edge) => edge.from);
@@ -18508,6 +18553,7 @@ async function validateActiveArtifactContent(root2, artifacts) {
 }
 
 // src/core/validation.ts
+init_coverage_derivation();
 var requiredFiles = [
   ...Object.keys(CANONICAL_MARKDOWN),
   "03-design/interfaces/openapi.yaml",
@@ -18610,6 +18656,10 @@ async function validateProject(root2, artifacts) {
       }
     }
   }
+  for (const entry of ruleCoverageEntries(artifacts)) {
+    if (entry.covered) continue;
+    findings.push({ severity: "warning", code: "RULE_UNVERIFIED", message: `${entry.rule} is declared but no unit, integration or system specification claims it`, file: entry.file });
+  }
   const graph = buildGraph(artifacts);
   const order = topologicalOrder(graph);
   if (order.cycles.length > 0) findings.push({ severity: "error", code: "DEPENDENCY_CYCLE", message: `Dependency cycle contains: ${order.cycles.join(", ")}` });
@@ -18699,28 +18749,52 @@ init_config();
 
 // src/core/verification.ts
 import { spawn } from "node:child_process";
-import { writeFile as writeFile5 } from "node:fs/promises";
+import { readdir as readdir3, writeFile as writeFile5 } from "node:fs/promises";
 import path16 from "node:path";
 
 // src/core/git.ts
 import { execFileSync as execFileSync2 } from "node:child_process";
-function gitCommit(root2) {
+function git2(root2, args) {
   try {
-    return execFileSync2("git", ["rev-parse", "HEAD"], { cwd: root2, encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] }).trim();
+    return execFileSync2("git", args, { cwd: root2, encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] }).trim();
   } catch {
     return null;
   }
+}
+function isDirty(root2) {
+  const status = git2(root2, ["status", "--porcelain"]);
+  return status !== null && status !== "";
+}
+function gitCommit(root2) {
+  const head = git2(root2, ["rev-parse", "HEAD"]);
+  if (head === null) return null;
+  return isDirty(root2) ? `${head}+dirty` : head;
 }
 
 // src/core/verification.ts
 init_paths();
 init_state();
 init_utils();
+init_record_validation();
 init_errors();
 init_project_lock();
 init_implementation_snapshot();
 function allowedRoots(root2, config) {
   return [root2, ...config.implementation_sources.map((source) => path16.resolve(root2, source.path))];
+}
+async function executionsForFlow(root2, flowId) {
+  const directory = projectPaths(root2).executions;
+  if (!await pathExists(directory)) return [];
+  const files = (await readdir3(directory)).filter((name) => name.endsWith(".json")).sort();
+  const records = [];
+  for (const name of files) {
+    try {
+      const candidate = await readJson(path16.join(directory, name));
+      if (isExecutionRecord(candidate) && candidate.flow_id === flowId) records.push(candidate);
+    } catch {
+    }
+  }
+  return records;
 }
 async function runCommand(command, cwd) {
   const started = (/* @__PURE__ */ new Date()).toISOString();
@@ -18759,7 +18833,14 @@ async function executeVerificationUnlocked(root2, config, levels) {
       planned.push({ level, definition, cwd });
     }
   }
+  const priorForFlow = await executionsForFlow(root2, flow2.id);
   for (const { level, definition, cwd } of planned) {
+    const sourceSnapshotBefore = await sourceSnapshotHash(cwd);
+    const prior = priorForFlow.find((record3) => record3.command_id === definition.id && record3.command === definition.command && record3.source_snapshot_hash === sourceSnapshotBefore);
+    if (prior) {
+      records.push(prior);
+      continue;
+    }
     const id2 = formatId("EXEC", state.next_execution);
     const logFile = path16.join(projectPaths(root2).executions, `${id2}.log`);
     const recordFile = path16.join(projectPaths(root2).executions, `${id2}.json`);
@@ -18771,7 +18852,7 @@ async function executeVerificationUnlocked(root2, config, levels) {
     state.next_execution += 1;
     await saveCurrentState(root2, state);
     const sourceCommit = gitCommit(cwd);
-    const sourceSnapshot = await sourceSnapshotHash(cwd);
+    const sourceSnapshot = sourceSnapshotBefore;
     const result = await runCommand(definition, cwd);
     const record2 = {
       schema_version: 1,
@@ -18809,7 +18890,7 @@ init_artifacts();
 init_graph();
 init_impact();
 import path17 from "node:path";
-import { readdir as readdir3 } from "node:fs/promises";
+import { readdir as readdir4 } from "node:fs/promises";
 init_config();
 init_state();
 init_project();
@@ -18886,7 +18967,7 @@ async function flowExecutions(root2, flowId) {
   const executionsDirectory = projectPaths(root2).executions;
   if (!await pathExists(executionsDirectory)) return [];
   await assertSafeManagedPath(root2, path17.join(executionsDirectory, ".managed-probe"));
-  for (const entry of await readdir3(executionsDirectory, { withFileTypes: true })) if (entry.isSymbolicLink() && /^EXEC-.*\.json$/.test(entry.name)) throw new SdlcError(`Execution record cannot be a symlink: ${entry.name}`);
+  for (const entry of await readdir4(executionsDirectory, { withFileTypes: true })) if (entry.isSymbolicLink() && /^EXEC-.*\.json$/.test(entry.name)) throw new SdlcError(`Execution record cannot be a symlink: ${entry.name}`);
   const files = await (0, import_fast_glob8.default)("EXEC-*.json", { cwd: executionsDirectory, absolute: true, followSymbolicLinks: false });
   const records = [];
   for (const file of files) {

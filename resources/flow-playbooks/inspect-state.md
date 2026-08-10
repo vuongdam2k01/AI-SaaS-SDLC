@@ -72,6 +72,7 @@ Report compactly:
 - stale artifacts and why they are reached;
 - unresolved questions/issues and accepted/superseded ADRs;
 - UT/IT/ST specification and execution state;
+- business rules declared by live features that no specification claims, taken from `generated/rule-coverage.md` and the `RULE_UNVERIFIED` warnings, reported as unverified commitments rather than as passing coverage;
 - one next valid action, chosen from editorial edit, continue active flow, Reassessment, Evolution, Reconciliation or no action.
 
 When the next valid action is an editorial edit, print the runnable command with `PLUGIN_ROOT` already resolved, not the abstract form:

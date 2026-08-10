@@ -27,7 +27,7 @@ Do not require a structured brief. Preserve the raw idea verbatim and classify e
 Before research:
 
 1. Detect initialization by checking `.ai-saas-sdlc/state/current.json` or running `ENGINE state --json` only when initialized.
-2. If uninitialized, run `ENGINE init --idea "<raw idea>"` and include `--project-id` only when the user supplied a stable ID. Never overwrite an existing initialized repository.
+2. If uninitialized, run `ENGINE init --idea "<raw idea>"`. Always pass `--project-id`: use the ID the user supplied, and otherwise derive a stable kebab-case identifier from the product the idea describes. Without it the engine falls back to the containing directory name, which produces a meaningless project identity such as `docs`. Never overwrite an existing initialized repository.
 3. Read `sdlc.config.yaml`, `00-system/document-rules.md`, lifecycle/validation rules and discovery/product foundation files.
 4. Read `01-discovery/original-idea.md`; replace the explicit initialization placeholder once only if the repository was initialized without idea text. Never rewrite captured input.
 5. Confirm no baseline or active incompatible flow exists. Genesis is legal only before the first baseline.

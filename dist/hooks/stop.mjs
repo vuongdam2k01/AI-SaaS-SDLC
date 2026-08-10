@@ -13708,9 +13708,26 @@ var init_impact = __esm({
 });
 
 // src/core/coverage-derivation.ts
+function ids(body, pattern) {
+  return [...new Set(body.match(pattern) ?? [])].sort();
+}
+function ruleCoverageEntries(artifacts) {
+  const features = artifacts.filter((artifact) => artifact.artifact_type === "feature" && artifact.status !== "retired" && artifact.status !== "superseded");
+  return features.flatMap((feature) => ids(feature.body, /\bBR-[A-Z0-9-]+\b/g).map((rule) => {
+    const qualified = `${feature.id}#${rule}`;
+    const claimants = artifacts.filter((artifact) => testTypes.has(artifact.artifact_type) && (artifact.body.includes(qualified) || artifact.depends_on.includes(feature.id) && new RegExp(`\\b${rule}\\b`).test(artifact.body)));
+    const unit = claimants.filter((artifact) => unitTypes.has(artifact.artifact_type)).map((artifact) => artifact.id);
+    const integration = claimants.filter((artifact) => artifact.artifact_type === "integration_test").map((artifact) => artifact.id);
+    const system = claimants.filter((artifact) => artifact.artifact_type === "system_test").map((artifact) => artifact.id);
+    return { rule: qualified, feature: feature.id, file: feature.file, unit, integration, system, covered: claimants.length > 0 };
+  }));
+}
+var testTypes, unitTypes;
 var init_coverage_derivation = __esm({
   "src/core/coverage-derivation.ts"() {
     "use strict";
+    testTypes = /* @__PURE__ */ new Set(["unit_test_backend", "unit_test_frontend", "unit_test_job", "integration_test", "system_test"]);
+    unitTypes = /* @__PURE__ */ new Set(["unit_test_backend", "unit_test_frontend", "unit_test_job"]);
   }
 });
 
@@ -14404,8 +14421,8 @@ async function validateAgainstContract(artifact, contract, template) {
       findings.push({ severity: "error", code: "CONTENT_CONTRACT_INVALID", message: `${artifact.artifact_type} has an invalid local ID contract: ${local.namespace}`, file: artifact.file });
       continue;
     }
-    const ids = new Set(artifact.body.match(matcher) ?? []);
-    if (ids.size < local.minimum) findings.push({ severity: "error", code: "CONTENT_LOCAL_ID_MISSING", message: `${artifact.id} requires at least ${local.minimum} ${local.namespace} ID(s)`, file: artifact.file });
+    const ids2 = new Set(artifact.body.match(matcher) ?? []);
+    if (ids2.size < local.minimum) findings.push({ severity: "error", code: "CONTENT_LOCAL_ID_MISSING", message: `${artifact.id} requires at least ${local.minimum} ${local.namespace} ID(s)`, file: artifact.file });
   }
   return findings;
 }
@@ -14440,6 +14457,7 @@ async function validateActiveArtifactContent(root2, artifacts) {
 }
 
 // src/core/validation.ts
+init_coverage_derivation();
 var requiredFiles = [
   ...Object.keys(CANONICAL_MARKDOWN),
   "03-design/interfaces/openapi.yaml",
@@ -14541,6 +14559,10 @@ async function validateProject(root2, artifacts) {
         }
       }
     }
+  }
+  for (const entry of ruleCoverageEntries(artifacts)) {
+    if (entry.covered) continue;
+    findings.push({ severity: "warning", code: "RULE_UNVERIFIED", message: `${entry.rule} is declared but no unit, integration or system specification claims it`, file: entry.file });
   }
   const graph = buildGraph(artifacts);
   const order = topologicalOrder(graph);
