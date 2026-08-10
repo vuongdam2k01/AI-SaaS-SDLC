@@ -123,6 +123,25 @@ describe("release hardening", () => {
     expect(dirty).toBe(`${clean}+dirty`);
   });
 
+  it("reads an artifact that a Windows editor saved with a byte order mark", async () => {
+    const root = await tempProject();
+    roots.push(root);
+    await establishGenesis(root);
+
+    const target = path.join(root, "01-discovery", "market-landscape.md");
+    const original = await readFile(target, "utf8");
+    await writeFile(target, `\uFEFF${original}`, "utf8");
+
+    const artifacts = await scanArtifacts(root);
+    const landscape = artifacts.find((artifact) => artifact.artifact_type === "market_landscape");
+    expect(landscape).toBeDefined();
+    expect(landscape!.id).toBe("MARKET-LANDSCAPE");
+    expect(landscape!.metadata_issues).toEqual([]);
+
+    const report = await validateProject(root, artifacts);
+    expect(report.findings.some((item) => item.message.includes("Missing YAML frontmatter"))).toBe(false);
+  });
+
   it("records a runnable editorial command and keeps it out of shared history", async () => {
     const root = await tempProject();
     roots.push(root);

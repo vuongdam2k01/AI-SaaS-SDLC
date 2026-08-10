@@ -1,5 +1,18 @@
 # Changelog
 
+## 1.1.1 - 2026-08-10
+
+### Fixed
+
+- An artifact saved with a UTF-8 byte order mark is read normally. Windows
+  editors and PowerShell's default UTF-8 writer prepend a BOM the author never
+  sees; every command that scanned such a file previously failed the whole
+  repository with `Missing YAML frontmatter`. Found while probing the Stop hook
+  on Windows.
+- The Stop hook reports an unreadable repository as a structural failure instead
+  of terminating with a stack trace, so the author sees what to fix rather than
+  what looks like a broken plugin.
+
 ## 1.1.0 - 2026-08-10
 
 Findings from two full GitHub-distribution acceptance runs. The first run's

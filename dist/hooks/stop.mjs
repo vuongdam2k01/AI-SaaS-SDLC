@@ -13124,10 +13124,11 @@ var init_errors = __esm({
 
 // src/core/frontmatter.ts
 function parseFrontmatter(content, file) {
-  if (!content.startsWith("---\n") && !content.startsWith("---\r\n")) {
+  const withoutBom = content.charCodeAt(0) === 65279 ? content.slice(1) : content;
+  if (!withoutBom.startsWith("---\n") && !withoutBom.startsWith("---\r\n")) {
     throw new SdlcError(`Missing YAML frontmatter: ${file}`);
   }
-  const normalized = content.replace(/\r\n/g, "\n");
+  const normalized = withoutBom.replace(/\r\n/g, "\n");
   const end = normalized.indexOf("\n---\n", 4);
   if (end < 0) throw new SdlcError(`Unclosed YAML frontmatter: ${file}`);
   const raw = normalized.slice(4, end);
@@ -14636,16 +14637,20 @@ var root = process.cwd();
 if (input.stop_hook_active !== true && await pathExists(projectPaths(root).activeFlow)) {
   await withProjectLock(root, async () => {
     const flow = await loadActiveFlow(root);
-    if (flow) {
+    if (!flow) return;
+    let errors;
+    try {
       const report = await validateProject(root, await scanArtifacts(root));
-      const errors = report.findings.filter((item) => item.severity === "error").map((item) => `${item.code}: ${item.message}`);
-      if (errors.length > 0 && !flow.stop_blocked_once) {
-        flow.stop_blocked_once = true;
-        await prepareSafeManagedPath(root, projectPaths(root).activeFlow);
-        await writeJsonAtomic(projectPaths(root).activeFlow, flow);
-        emit({ decision: "block", reason: `Active ${flow.type} flow has structural errors. Fix only these hard failures; do not start a prose review loop:
+      errors = report.findings.filter((item) => item.severity === "error").map((item) => `${item.code}: ${item.message}`);
+    } catch (error) {
+      errors = [`SCAN_FAILED: ${error instanceof Error ? error.message : String(error)}`];
+    }
+    if (errors.length > 0 && !flow.stop_blocked_once) {
+      flow.stop_blocked_once = true;
+      await prepareSafeManagedPath(root, projectPaths(root).activeFlow);
+      await writeJsonAtomic(projectPaths(root).activeFlow, flow);
+      emit({ decision: "block", reason: `Active ${flow.type} flow has structural errors. Fix only these hard failures; do not start a prose review loop:
 ${errors.slice(0, 12).map((item) => `- ${item}`).join("\n")}` });
-      }
     }
   });
 }

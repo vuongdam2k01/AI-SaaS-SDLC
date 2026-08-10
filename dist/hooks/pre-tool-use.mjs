@@ -7379,10 +7379,11 @@ var init_errors = __esm({
 
 // src/core/frontmatter.ts
 function parseFrontmatter(content, file) {
-  if (!content.startsWith("---\n") && !content.startsWith("---\r\n")) {
+  const withoutBom = content.charCodeAt(0) === 65279 ? content.slice(1) : content;
+  if (!withoutBom.startsWith("---\n") && !withoutBom.startsWith("---\r\n")) {
     throw new SdlcError(`Missing YAML frontmatter: ${file}`);
   }
-  const normalized2 = content.replace(/\r\n/g, "\n");
+  const normalized2 = withoutBom.replace(/\r\n/g, "\n");
   const end = normalized2.indexOf("\n---\n", 4);
   if (end < 0) throw new SdlcError(`Unclosed YAML frontmatter: ${file}`);
   const raw = normalized2.slice(4, end);

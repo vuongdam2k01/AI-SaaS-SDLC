@@ -3,10 +3,15 @@ import type { ArtifactMeta } from "./types.js";
 import { SdlcError } from "./errors.js";
 
 export function parseFrontmatter(content: string, file: string): { data: Record<string, unknown>; body: string } {
-  if (!content.startsWith("---\n") && !content.startsWith("---\r\n")) {
+  // Windows editors and PowerShell's default UTF-8 writer prepend a byte order
+  // mark. It is invisible to the author, and without stripping it the file reads
+  // as having no frontmatter at all, which fails every artifact in the
+  // repository over an edit the author cannot see.
+  const withoutBom = content.charCodeAt(0) === 0xfeff ? content.slice(1) : content;
+  if (!withoutBom.startsWith("---\n") && !withoutBom.startsWith("---\r\n")) {
     throw new SdlcError(`Missing YAML frontmatter: ${file}`);
   }
-  const normalized = content.replace(/\r\n/g, "\n");
+  const normalized = withoutBom.replace(/\r\n/g, "\n");
   const end = normalized.indexOf("\n---\n", 4);
   if (end < 0) throw new SdlcError(`Unclosed YAML frontmatter: ${file}`);
   const raw = normalized.slice(4, end);
