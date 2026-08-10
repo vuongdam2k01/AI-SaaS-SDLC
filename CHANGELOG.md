@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 1.1.0 - 2026-08-10
 
 Findings from two full GitHub-distribution acceptance runs. The first run's
 report is the source for D-1, D-2 and D-4; the second run's for the rest.
