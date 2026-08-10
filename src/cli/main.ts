@@ -1,7 +1,9 @@
 import { Command, Option } from "commander";
 import { resolve } from "node:path";
 import { initializeProject } from "../core/template.js";
-import { loadCurrentState, loadActiveFlow, startFlow, closeFlow } from "../core/state.js";
+import { loadCurrentState, loadActiveFlow, startFlow, closeFlow, checkpointFlow } from "../core/state.js";
+import { flowGuidance } from "../core/flow-guidance.js";
+import { FLOW_STAGES, type FlowStage } from "../core/types.js";
 import { projectSnapshot, refreshProject } from "../core/project.js";
 import { ensureEnginePointerIgnored, recordEnginePointer } from "../core/engine-pointer.js";
 import { scanArtifacts } from "../core/artifacts.js";
@@ -30,7 +32,7 @@ function print(value: unknown, json = false): void {
   else console.log(value);
 }
 
-program.name("ai-saas-sdlc").description("Deterministic engine for AI SaaS SDLC documentation flows.").version("1.1.1");
+program.name("ai-saas-sdlc").description("Deterministic engine for AI SaaS SDLC documentation flows.").version("1.2.0");
 
 program.command("init")
   .description("Initialize a centralized documentation repository.")
@@ -91,10 +93,26 @@ const flow = program.command("flow").description("Manage one of the four tempora
 flow.command("start")
   .requiredOption("--type <type>", "genesis|reassessment|evolution|reconciliation")
   .option("--input <text>", "Raw flow trigger", "")
+  .option("--until <stage>", "Stop this turn at behavior|design|tests|implementation|baseline")
   .option("--json", "Emit JSON")
-  .action(async (options: { type: string; input: string; json?: boolean }) => {
-    print(await startFlow(root, options.type, options.input), Boolean(options.json));
+  .action(async (options: { type: string; input: string; until?: string; json?: boolean }) => {
+    if (options.until !== undefined && !FLOW_STAGES.includes(options.until as FlowStage)) {
+      throw new SdlcError(`Unsupported flow stage: ${options.until}. Expected ${FLOW_STAGES.join("|")}.`);
+    }
+    print(await startFlow(root, options.type, options.input, options.until as FlowStage | undefined), Boolean(options.json));
   });
+flow.command("checkpoint")
+  .description("Record the checkpoint an open flow has reached, and optionally retarget where it stops.")
+  .requiredOption("--stage <stage>", "behavior|design|tests|implementation|baseline")
+  .option("--until <stage>", "Retarget where this turn stops")
+  .option("--json", "Emit JSON")
+  .action(async (options: { stage: string; until?: string; json?: boolean }) => {
+    print(await checkpointFlow(root, options.stage, options.until), Boolean(options.json));
+  });
+flow.command("next")
+  .description("Report the open flow's progress and the exact command to run next.")
+  .option("--json", "Emit JSON")
+  .action(async (options: { json?: boolean }) => print(await flowGuidance(root), Boolean(options.json)));
 flow.command("close")
   .option("--json", "Emit JSON")
   .action(async (options: { json?: boolean }) => print(await closeFlow(root), Boolean(options.json)));

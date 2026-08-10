@@ -1,4 +1,4 @@
-import { FLOW_TYPES, statusesForArtifactType } from "./types.js";
+import { FLOW_STAGES, FLOW_TYPES, statusesForArtifactType } from "./types.js";
 import type { ActiveFlow, BaselineManifest, ChangeRecord, ExecutionRecord } from "./types.js";
 
 function record(value: unknown): value is Record<string, unknown> {
@@ -26,7 +26,9 @@ function dateTime(value: unknown): boolean {
 }
 
 export function isActiveFlow(value: unknown): value is ActiveFlow {
-  if (!record(value) || !exactKeys(value, ["schema_version", "id", "type", "input", "started_at", "base_baseline", "change_id", "stop_blocked_once", "start_snapshot_hash", "implementation_snapshot_hash", "baseline_created", "baseline_implementation_snapshot_hash"])) return false;
+  if (!record(value) || !exactKeys(value, ["schema_version", "id", "type", "input", "started_at", "base_baseline", "change_id", "stop_blocked_once", "start_snapshot_hash", "implementation_snapshot_hash", "target_stage", "reached_stage", "baseline_created", "baseline_implementation_snapshot_hash"])) return false;
+  const stageValid = (candidate: unknown): boolean => candidate === undefined || (typeof candidate === "string" && FLOW_STAGES.includes(candidate as (typeof FLOW_STAGES)[number]));
+  if (!stageValid(value.target_stage) || !stageValid(value.reached_stage)) return false;
   const semantic = value.type === "evolution" || value.type === "reconciliation";
   const baseValid = value.type === "genesis" ? value.base_baseline === null : id(value.base_baseline, "BL");
   return value.schema_version === 1

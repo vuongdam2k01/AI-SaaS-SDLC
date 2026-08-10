@@ -73,7 +73,10 @@ Report compactly:
 - unresolved questions/issues and accepted/superseded ADRs;
 - UT/IT/ST specification and execution state;
 - business rules declared by live features that no specification claims, taken from `generated/rule-coverage.md` and the `RULE_UNVERIFIED` warnings, reported as unverified commitments rather than as passing coverage;
+- the open flow's checkpoint progress when one exists: which stage it reached, which it was asked to stop at, and which remain — taken from `ENGINE flow next --json`;
 - one next valid action, chosen from editorial edit, continue active flow, Reassessment, Evolution, Reconciliation or no action.
+
+State the next action as a command the author can type verbatim, not as a description of a category. `ENGINE flow next --json` supplies it. A flow left open at a checkpoint is a normal state; report it as progress with work remaining, never as an anomaly.
 
 When the next valid action is an editorial edit, print the runnable command with `PLUGIN_ROOT` already resolved, not the abstract form:
 

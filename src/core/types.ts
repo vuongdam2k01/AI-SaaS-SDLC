@@ -1,4 +1,16 @@
 export const FLOW_TYPES = ["genesis", "reassessment", "evolution", "reconciliation"] as const;
+
+// Checkpoints inside a flow, in the order a flow reaches them. These are not
+// lifecycle stages and never gate one another: they are the points at which the
+// author may take the turn back, review what exists and decide what happens
+// next. A flow that stops at a checkpoint stays open and is continued by
+// invoking the same skill again.
+export const FLOW_STAGES = ["behavior", "design", "tests", "implementation", "baseline"] as const;
+export type FlowStage = (typeof FLOW_STAGES)[number];
+
+export function stageIndex(stage: string): number {
+  return FLOW_STAGES.indexOf(stage as FlowStage);
+}
 export const ARTIFACT_STATUSES = ["draft", "active", "deprecated", "retired", "superseded"] as const;
 // Issues carry their own lifecycle. ARTIFACT-LIFECYCLE and issue.pattern.md both
 // prescribe open -> resolved, so the engine must accept those two and reject the
@@ -90,6 +102,10 @@ export interface ActiveFlow {
   stop_blocked_once: boolean;
   start_snapshot_hash: string;
   implementation_snapshot_hash: string;
+  /** Where the author asked this turn to stop. Absent means run to baseline. */
+  target_stage?: FlowStage;
+  /** The furthest checkpoint the flow has recorded. */
+  reached_stage?: FlowStage;
   baseline_created?: string;
   baseline_implementation_snapshot_hash?: string;
 }

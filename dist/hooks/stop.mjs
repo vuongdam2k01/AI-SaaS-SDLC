@@ -13391,11 +13391,12 @@ function statusesForArtifactType(artifactType) {
 function isLiveStatus(status) {
   return status === "active" || status === "open" || status === "resolved";
 }
-var FLOW_TYPES, ARTIFACT_STATUSES, ISSUE_STATUSES, ALL_ARTIFACT_STATUSES, ADR_STATUSES;
+var FLOW_TYPES, FLOW_STAGES, ARTIFACT_STATUSES, ISSUE_STATUSES, ALL_ARTIFACT_STATUSES, ADR_STATUSES;
 var init_types = __esm({
   "src/core/types.ts"() {
     "use strict";
     FLOW_TYPES = ["genesis", "reassessment", "evolution", "reconciliation"];
+    FLOW_STAGES = ["behavior", "design", "tests", "implementation", "baseline"];
     ARTIFACT_STATUSES = ["draft", "active", "deprecated", "retired", "superseded"];
     ISSUE_STATUSES = ["open", "resolved"];
     ALL_ARTIFACT_STATUSES = [...ARTIFACT_STATUSES, ...ISSUE_STATUSES];
@@ -13530,7 +13531,9 @@ function dateTime(value) {
   return typeof value === "string" && Number.isFinite(Date.parse(value));
 }
 function isActiveFlow(value) {
-  if (!record(value) || !exactKeys2(value, ["schema_version", "id", "type", "input", "started_at", "base_baseline", "change_id", "stop_blocked_once", "start_snapshot_hash", "implementation_snapshot_hash", "baseline_created", "baseline_implementation_snapshot_hash"])) return false;
+  if (!record(value) || !exactKeys2(value, ["schema_version", "id", "type", "input", "started_at", "base_baseline", "change_id", "stop_blocked_once", "start_snapshot_hash", "implementation_snapshot_hash", "target_stage", "reached_stage", "baseline_created", "baseline_implementation_snapshot_hash"])) return false;
+  const stageValid = (candidate) => candidate === void 0 || typeof candidate === "string" && FLOW_STAGES.includes(candidate);
+  if (!stageValid(value.target_stage) || !stageValid(value.reached_stage)) return false;
   const semantic = value.type === "evolution" || value.type === "reconciliation";
   const baseValid = value.type === "genesis" ? value.base_baseline === null : id(value.base_baseline, "BL");
   return value.schema_version === 1 && id(value.id, "FLOW") && FLOW_TYPES.includes(value.type) && typeof value.input === "string" && dateTime(value.started_at) && baseValid && (value.change_id === null || id(value.change_id, "CHG")) && (semantic ? value.change_id !== null : value.change_id === null) && typeof value.stop_blocked_once === "boolean" && typeof value.start_snapshot_hash === "string" && /^[a-f0-9]{64}$/.test(value.start_snapshot_hash) && typeof value.implementation_snapshot_hash === "string" && /^[a-f0-9]{64}$/.test(value.implementation_snapshot_hash) && (value.baseline_created === void 0 || id(value.baseline_created, "BL")) && (value.baseline_implementation_snapshot_hash === void 0 || typeof value.baseline_implementation_snapshot_hash === "string" && /^[a-f0-9]{64}$/.test(value.baseline_implementation_snapshot_hash)) && (value.baseline_created === void 0 ? value.baseline_implementation_snapshot_hash === void 0 : value.baseline_implementation_snapshot_hash !== void 0);

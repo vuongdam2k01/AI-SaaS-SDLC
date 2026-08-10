@@ -16,6 +16,8 @@
     "stop_blocked_once": { "type": "boolean" },
     "start_snapshot_hash": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
     "implementation_snapshot_hash": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "target_stage": { "enum": ["behavior", "design", "tests", "implementation", "baseline"] },
+    "reached_stage": { "enum": ["behavior", "design", "tests", "implementation", "baseline"] },
     "baseline_created": { "type": "string", "pattern": "^BL-[0-9]{3,}$" },
     "baseline_implementation_snapshot_hash": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
   },

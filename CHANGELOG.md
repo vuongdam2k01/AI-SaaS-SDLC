@@ -1,5 +1,37 @@
 # Changelog
 
+## 1.2.0 - 2026-08-10
+
+Author control over how much of a flow runs in one turn. Two acceptance runs
+measured single Evolution commands at 33 and 49 minutes, each rewriting dozens of
+artifacts with no visible progress and no point at which the author could read
+the behaviour before tests were derived from it. A flow that cannot be steered is
+a flow that can only be waited on.
+
+### Added
+
+- **Flow checkpoints.** `behavior`, `design`, `tests`, `implementation`,
+  `baseline`. `flow start --until <stage>` declares where a turn stops;
+  `flow checkpoint --stage <stage>` records how far it came. A flow that reaches
+  its target stops there and stays open. Continuing it is invoking the same skill
+  again — the machinery that already resumed an interrupted Genesis across
+  sessions, now exposed as a control instead of a recovery path.
+
+  Checkpoints are not lifecycle stages. They add no gate, no review round and no
+  approval step, and the four mutation flows are unchanged.
+
+- **`flow next`.** Reports the open flow's progress and the exact command to run
+  next, so the author never derives it from the artifact tree. Inspect State and
+  every flow's closing report now quote it verbatim.
+
+### Changed
+
+- Product Evolution announces each checkpoint as it is reached instead of working
+  silently, and every closing report ends with the flow's state and the literal
+  next command.
+- `evolve-product` accepts `--until <stage>` or the same intent in plain words
+  ("stop after the design", "only the tests this time").
+
 ## 1.1.1 - 2026-08-10
 
 ### Fixed

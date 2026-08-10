@@ -1,6 +1,6 @@
 import { access, rm } from "node:fs/promises";
-import type { ActiveFlow, ChangeRecord, CurrentState, FlowType } from "./types.js";
-import { FLOW_TYPES } from "./types.js";
+import type { ActiveFlow, ChangeRecord, CurrentState, FlowStage, FlowType } from "./types.js";
+import { FLOW_STAGES, FLOW_TYPES, stageIndex } from "./types.js";
 import { SdlcError } from "./errors.js";
 import { formatId, readJson, sha256, stableJson, writeJsonAtomic } from "./utils.js";
 import { assertSafeManagedPath, prepareSafeManagedPath, projectPaths } from "./paths.js";
@@ -57,7 +57,7 @@ export async function loadActiveFlow(root: string): Promise<ActiveFlow | null> {
   return flow;
 }
 
-async function startFlowUnlocked(root: string, type: string, input: string): Promise<ActiveFlow> {
+async function startFlowUnlocked(root: string, type: string, input: string, targetStage?: FlowStage): Promise<ActiveFlow> {
   if (!FLOW_TYPES.includes(type as FlowType)) throw new SdlcError(`Unsupported flow type: ${type}`);
   if (await loadActiveFlow(root)) throw new SdlcError("An active flow already exists. Close it before starting another.");
   const state = await loadCurrentState(root);
@@ -75,7 +75,8 @@ async function startFlowUnlocked(root: string, type: string, input: string): Pro
     change_id: changeId,
     stop_blocked_once: false,
     start_snapshot_hash: await snapshotHash(root),
-    implementation_snapshot_hash: await implementationSnapshotHash(root)
+    implementation_snapshot_hash: await implementationSnapshotHash(root),
+    ...(targetStage ? { target_stage: targetStage } : {})
   };
   state.next_flow += 1;
   if (semantic) state.next_change += 1;
@@ -99,8 +100,31 @@ async function startFlowUnlocked(root: string, type: string, input: string): Pro
   return flow;
 }
 
-export async function startFlow(root: string, type: string, input: string): Promise<ActiveFlow> {
-  return withProjectLock(root, () => startFlowUnlocked(root, type, input));
+/**
+ * Record how far an open flow has come, and optionally where this turn should
+ * stop. Checkpoints only move forward: re-reaching an earlier one is a no-op
+ * rather than an error, because continuing a flow legitimately revisits work.
+ */
+export async function checkpointFlow(root: string, reached: string, target?: string): Promise<ActiveFlow> {
+  return withProjectLock(root, async () => {
+    if (!FLOW_STAGES.includes(reached as FlowStage)) throw new SdlcError(`Unsupported flow stage: ${reached}. Expected ${FLOW_STAGES.join("|")}.`);
+    if (target !== undefined && !FLOW_STAGES.includes(target as FlowStage)) throw new SdlcError(`Unsupported flow stage: ${target}. Expected ${FLOW_STAGES.join("|")}.`);
+    const flow = await loadActiveFlow(root);
+    if (!flow) throw new SdlcError("No active flow exists. A checkpoint only describes a flow that is open.");
+    const furthest = flow.reached_stage && stageIndex(flow.reached_stage) > stageIndex(reached) ? flow.reached_stage : (reached as FlowStage);
+    const updated: ActiveFlow = {
+      ...flow,
+      reached_stage: furthest,
+      ...(target !== undefined ? { target_stage: target as FlowStage } : {})
+    };
+    await prepareSafeManagedPath(root, projectPaths(root).activeFlow);
+    await writeJsonAtomic(projectPaths(root).activeFlow, updated);
+    return updated;
+  });
+}
+
+export async function startFlow(root: string, type: string, input: string, targetStage?: FlowStage): Promise<ActiveFlow> {
+  return withProjectLock(root, () => startFlowUnlocked(root, type, input, targetStage));
 }
 
 async function closeFlowUnlocked(root: string): Promise<ActiveFlow> {

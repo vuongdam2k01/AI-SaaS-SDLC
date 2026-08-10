@@ -9308,17 +9308,21 @@ var init_paths = __esm({
 });
 
 // src/core/types.ts
+function stageIndex(stage) {
+  return FLOW_STAGES.indexOf(stage);
+}
 function statusesForArtifactType(artifactType) {
   return artifactType === "issue" ? ISSUE_STATUSES : ARTIFACT_STATUSES;
 }
 function isLiveStatus(status) {
   return status === "active" || status === "open" || status === "resolved";
 }
-var FLOW_TYPES, ARTIFACT_STATUSES, ISSUE_STATUSES, ALL_ARTIFACT_STATUSES, ADR_STATUSES;
+var FLOW_TYPES, FLOW_STAGES, ARTIFACT_STATUSES, ISSUE_STATUSES, ALL_ARTIFACT_STATUSES, ADR_STATUSES;
 var init_types = __esm({
   "src/core/types.ts"() {
     "use strict";
     FLOW_TYPES = ["genesis", "reassessment", "evolution", "reconciliation"];
+    FLOW_STAGES = ["behavior", "design", "tests", "implementation", "baseline"];
     ARTIFACT_STATUSES = ["draft", "active", "deprecated", "retired", "superseded"];
     ISSUE_STATUSES = ["open", "resolved"];
     ALL_ARTIFACT_STATUSES = [...ARTIFACT_STATUSES, ...ISSUE_STATUSES];
@@ -9393,7 +9397,9 @@ function dateTime(value) {
   return typeof value === "string" && Number.isFinite(Date.parse(value));
 }
 function isActiveFlow(value) {
-  if (!record(value) || !exactKeys(value, ["schema_version", "id", "type", "input", "started_at", "base_baseline", "change_id", "stop_blocked_once", "start_snapshot_hash", "implementation_snapshot_hash", "baseline_created", "baseline_implementation_snapshot_hash"])) return false;
+  if (!record(value) || !exactKeys(value, ["schema_version", "id", "type", "input", "started_at", "base_baseline", "change_id", "stop_blocked_once", "start_snapshot_hash", "implementation_snapshot_hash", "target_stage", "reached_stage", "baseline_created", "baseline_implementation_snapshot_hash"])) return false;
+  const stageValid = (candidate) => candidate === void 0 || typeof candidate === "string" && FLOW_STAGES.includes(candidate);
+  if (!stageValid(value.target_stage) || !stageValid(value.reached_stage)) return false;
   const semantic = value.type === "evolution" || value.type === "reconciliation";
   const baseValid = value.type === "genesis" ? value.base_baseline === null : id(value.base_baseline, "BL");
   return value.schema_version === 1 && id(value.id, "FLOW") && FLOW_TYPES.includes(value.type) && typeof value.input === "string" && dateTime(value.started_at) && baseValid && (value.change_id === null || id(value.change_id, "CHG")) && (semantic ? value.change_id !== null : value.change_id === null) && typeof value.stop_blocked_once === "boolean" && typeof value.start_snapshot_hash === "string" && /^[a-f0-9]{64}$/.test(value.start_snapshot_hash) && typeof value.implementation_snapshot_hash === "string" && /^[a-f0-9]{64}$/.test(value.implementation_snapshot_hash) && (value.baseline_created === void 0 || id(value.baseline_created, "BL")) && (value.baseline_implementation_snapshot_hash === void 0 || typeof value.baseline_implementation_snapshot_hash === "string" && /^[a-f0-9]{64}$/.test(value.baseline_implementation_snapshot_hash)) && (value.baseline_created === void 0 ? value.baseline_implementation_snapshot_hash === void 0 : value.baseline_implementation_snapshot_hash !== void 0);
@@ -17635,7 +17641,7 @@ async function loadActiveFlow(root2) {
   if (!isActiveFlow(flow2)) throw new SdlcError(`Invalid active flow schema: ${file}`);
   return flow2;
 }
-async function startFlowUnlocked(root2, type, input) {
+async function startFlowUnlocked(root2, type, input, targetStage) {
   if (!FLOW_TYPES.includes(type)) throw new SdlcError(`Unsupported flow type: ${type}`);
   if (await loadActiveFlow(root2)) throw new SdlcError("An active flow already exists. Close it before starting another.");
   const state = await loadCurrentState(root2);
@@ -17653,7 +17659,8 @@ async function startFlowUnlocked(root2, type, input) {
     change_id: changeId,
     stop_blocked_once: false,
     start_snapshot_hash: await snapshotHash(root2),
-    implementation_snapshot_hash: await implementationSnapshotHash(root2)
+    implementation_snapshot_hash: await implementationSnapshotHash(root2),
+    ...targetStage ? { target_stage: targetStage } : {}
   };
   state.next_flow += 1;
   if (semantic) state.next_change += 1;
@@ -17676,8 +17683,25 @@ async function startFlowUnlocked(root2, type, input) {
   }
   return flow2;
 }
-async function startFlow(root2, type, input) {
-  return withProjectLock(root2, () => startFlowUnlocked(root2, type, input));
+async function checkpointFlow(root2, reached, target) {
+  return withProjectLock(root2, async () => {
+    if (!FLOW_STAGES.includes(reached)) throw new SdlcError(`Unsupported flow stage: ${reached}. Expected ${FLOW_STAGES.join("|")}.`);
+    if (target !== void 0 && !FLOW_STAGES.includes(target)) throw new SdlcError(`Unsupported flow stage: ${target}. Expected ${FLOW_STAGES.join("|")}.`);
+    const flow2 = await loadActiveFlow(root2);
+    if (!flow2) throw new SdlcError("No active flow exists. A checkpoint only describes a flow that is open.");
+    const furthest = flow2.reached_stage && stageIndex(flow2.reached_stage) > stageIndex(reached) ? flow2.reached_stage : reached;
+    const updated = {
+      ...flow2,
+      reached_stage: furthest,
+      ...target !== void 0 ? { target_stage: target } : {}
+    };
+    await prepareSafeManagedPath(root2, projectPaths(root2).activeFlow);
+    await writeJsonAtomic(projectPaths(root2).activeFlow, updated);
+    return updated;
+  });
+}
+async function startFlow(root2, type, input, targetStage) {
+  return withProjectLock(root2, () => startFlowUnlocked(root2, type, input, targetStage));
 }
 async function closeFlowUnlocked(root2) {
   const flow2 = await loadActiveFlow(root2);
@@ -17835,6 +17859,87 @@ async function initializeProject(root2, templateRoot, projectId, idea, patternRo
 
 // src/cli/main.ts
 init_state();
+
+// src/core/flow-guidance.ts
+init_types();
+init_state();
+var SKILL_FOR_FLOW = {
+  genesis: "/ai-saas-sdlc:genesis",
+  reassessment: "/ai-saas-sdlc:reassess-evidence",
+  evolution: "/ai-saas-sdlc:evolve-product",
+  reconciliation: "/ai-saas-sdlc:reconcile"
+};
+async function flowGuidance(root2) {
+  const flow2 = await loadActiveFlow(root2);
+  const state = await loadCurrentState(root2).catch(() => null);
+  if (!flow2) {
+    if (!state || !state.active_baseline) {
+      return {
+        active_flow: null,
+        flow_type: null,
+        target_stage: null,
+        reached_stage: null,
+        remaining_stages: [],
+        baseline_created: null,
+        next_command: "/ai-saas-sdlc:genesis <raw product idea>",
+        reason: "No baseline exists. Genesis establishes the first one."
+      };
+    }
+    return {
+      active_flow: null,
+      flow_type: null,
+      target_stage: null,
+      reached_stage: null,
+      remaining_stages: [],
+      baseline_created: null,
+      next_command: "/ai-saas-sdlc:evolve-product <semantic intent>",
+      reason: `No flow is open. ${state.active_baseline} is closed; the next change starts a new flow.`
+    };
+  }
+  const skill = SKILL_FOR_FLOW[flow2.type] ?? "/ai-saas-sdlc:inspect-state";
+  const reached = flow2.reached_stage ?? null;
+  const target = flow2.target_stage ?? null;
+  const remaining = reached ? FLOW_STAGES.filter((stage) => stageIndex(stage) > stageIndex(reached)) : [...FLOW_STAGES];
+  if (flow2.baseline_created) {
+    return {
+      active_flow: flow2.id,
+      flow_type: flow2.type,
+      target_stage: target,
+      reached_stage: reached,
+      remaining_stages: [],
+      baseline_created: flow2.baseline_created,
+      next_command: `ENGINE flow close`,
+      reason: `${flow2.baseline_created} exists and no drift remains, so ${flow2.id} is ready to close.`
+    };
+  }
+  if (remaining.length === 0) {
+    return {
+      active_flow: flow2.id,
+      flow_type: flow2.type,
+      target_stage: target,
+      reached_stage: reached,
+      remaining_stages: [],
+      baseline_created: null,
+      next_command: `ENGINE baseline create`,
+      reason: `${flow2.id} has reached every checkpoint; a verified baseline closes it.`
+    };
+  }
+  const next = remaining[0];
+  const stoppedShort = target !== null && reached !== null && stageIndex(reached) >= stageIndex(target);
+  return {
+    active_flow: flow2.id,
+    flow_type: flow2.type,
+    target_stage: target,
+    reached_stage: reached,
+    remaining_stages: remaining,
+    baseline_created: null,
+    next_command: `${skill} --until ${next} continue ${flow2.id}`,
+    reason: stoppedShort ? `${flow2.id} stopped at its requested checkpoint '${reached}' and is still open. Review what exists, then continue.` : `${flow2.id} is open and has not yet reached '${next}'.`
+  };
+}
+
+// src/cli/main.ts
+init_types();
 init_project();
 
 // src/core/engine-pointer.ts
@@ -19228,7 +19333,7 @@ function print(value, json = false) {
   if (json || typeof value !== "string") console.log(JSON.stringify(value, null, 2));
   else console.log(value);
 }
-program2.name("ai-saas-sdlc").description("Deterministic engine for AI SaaS SDLC documentation flows.").version("1.1.1");
+program2.name("ai-saas-sdlc").description("Deterministic engine for AI SaaS SDLC documentation flows.").version("1.2.0");
 program2.command("init").description("Initialize a centralized documentation repository.").option("--project-id <id>", "Stable project identifier").option("--idea <text>", "Raw idea preserved verbatim", "").action(async (options) => {
   const projectId = options.projectId ?? root.split(/[\\/]/).at(-1)?.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") ?? "saas-project";
   await withProjectLock(root, async () => {
@@ -19267,9 +19372,16 @@ program2.command("state").description("Show current baseline and active flow.").
   print({ current, active_flow: flow2 }, Boolean(options.json));
 });
 var flow = program2.command("flow").description("Manage one of the four temporal flows.");
-flow.command("start").requiredOption("--type <type>", "genesis|reassessment|evolution|reconciliation").option("--input <text>", "Raw flow trigger", "").option("--json", "Emit JSON").action(async (options) => {
-  print(await startFlow(root, options.type, options.input), Boolean(options.json));
+flow.command("start").requiredOption("--type <type>", "genesis|reassessment|evolution|reconciliation").option("--input <text>", "Raw flow trigger", "").option("--until <stage>", "Stop this turn at behavior|design|tests|implementation|baseline").option("--json", "Emit JSON").action(async (options) => {
+  if (options.until !== void 0 && !FLOW_STAGES.includes(options.until)) {
+    throw new SdlcError(`Unsupported flow stage: ${options.until}. Expected ${FLOW_STAGES.join("|")}.`);
+  }
+  print(await startFlow(root, options.type, options.input, options.until), Boolean(options.json));
 });
+flow.command("checkpoint").description("Record the checkpoint an open flow has reached, and optionally retarget where it stops.").requiredOption("--stage <stage>", "behavior|design|tests|implementation|baseline").option("--until <stage>", "Retarget where this turn stops").option("--json", "Emit JSON").action(async (options) => {
+  print(await checkpointFlow(root, options.stage, options.until), Boolean(options.json));
+});
+flow.command("next").description("Report the open flow's progress and the exact command to run next.").option("--json", "Emit JSON").action(async (options) => print(await flowGuidance(root), Boolean(options.json)));
 flow.command("close").option("--json", "Emit JSON").action(async (options) => print(await closeFlow(root), Boolean(options.json)));
 program2.command("impact").description("Compute direct changes and reverse dependency closure.").option("--json", "Emit JSON").action(async (options) => print((await projectSnapshot(root)).impact, Boolean(options.json)));
 program2.command("validate").description("Validate schemas, IDs, lifecycle, references, immutable artifacts and results.").option("--active", "Validate during the active flow").option("--all", "Validate the full repository").option("--json", "Emit JSON").action(async (options) => {

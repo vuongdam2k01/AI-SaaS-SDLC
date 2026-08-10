@@ -27,17 +27,39 @@ Reject spelling/tone/formatting-only work; use `refresh --editorial`. Route a co
 4. Read downstream design and UT/IT/ST for existing affected behavior.
 5. If configured implementation sources exist and access is explicitly permitted, inspect mapped code/tests inside those roots. Do not create/manage repositories or inspect unrelated paths.
 
-## 3. Open the temporal flow
+## 3. Open or continue the temporal flow
 
 If the same semantic intent already has an active Evolution flow, resume that flow/change ID and skip `flow start`. If another flow is active, stop and report it; never run two semantic changes concurrently.
 
 Run:
 
 ```text
-ENGINE flow start --type evolution --input "<semantic intent>" --json
+ENGINE flow start --type evolution --input "<semantic intent>" [--until <stage>] --json
 ```
 
 Use the returned `CHG-*` as `created_by_change` for every new artifact.
+
+### Where this turn stops
+
+The author decides how much of the flow runs in one turn. Read the invocation for `--until <stage>`, where the stage is one of `behavior`, `design`, `tests`, `implementation`, `baseline`. Plain language means the same thing: "stop after the design", "only write the tests this time", "just the specs for now".
+
+Absent an explicit stage, the target is `baseline` and the flow runs to completion, which is the historical behaviour.
+
+These are checkpoints, not lifecycle stages. They add no gate, no review round and no approval step. They exist because one turn that runs for forty minutes and rewrites thirty artifacts is not something an author can steer, and because reviewing behaviour before tests are derived from it is cheaper than discovering the mismatch afterwards.
+
+### At every checkpoint
+
+After finishing each checkpoint's work, record it and say so:
+
+```text
+ENGINE flow checkpoint --stage <reached> --json
+```
+
+Then, in the visible reply, state in one or two lines: the checkpoint just reached, what it produced by ID, and what remains. An author watching a terminal has no other way to see progress; silence for tens of minutes is the failure this is fixing.
+
+When the reached checkpoint equals the target, **stop**. Do not continue into the next checkpoint, do not create a baseline and do not close the flow. Leave the flow open and end the turn with the closing report described in section 12.
+
+A flow stopped at a checkpoint is a normal, valid state. It is not an error, not an interruption and not something to apologise for or immediately resume.
 
 ## 4. Form observable behavior
 
@@ -169,8 +191,21 @@ Report:
 - UT/IT/ST execution/result IDs or `not-configured`;
 - successor `BL-*`, unchanged/current `EVR-*` and unresolved questions.
 
+Every report, whether the flow completed or stopped at a checkpoint, ends with two things:
+
+1. **State of the flow** — open at checkpoint `<reached>` with `<remaining>` left, or closed at `BL-*`.
+2. **The exact next command**, written so the author can type it without deriving anything:
+
+```text
+/ai-saas-sdlc:evolve-product --until tests continue FLOW-004
+```
+
+Take it from `ENGINE flow next --json`, which reports the open flow's progress and the command that follows. Never end a turn with "let me know how you would like to proceed" — the author asked what to do next by running the flow at all.
+
+When the flow stopped short of `baseline`, also name what the author can usefully review before continuing: the specific artifact IDs this checkpoint produced.
+
 ## 13. Stop and re-entry
 
-Stop when behavior, conditional design, impact closure, UT/IT/ST and implementation verification agree in a successor baseline.
+Stop when the requested checkpoint is reached. When the target is `baseline`, stop when behavior, conditional design, impact closure, UT/IT/ST and implementation verification agree in a successor baseline.
 
 Legal re-entry requires a new semantic intent, newly discovered dependency/constraint, inspected code diff, execution result, explicit product decision or concrete contradiction. A reviewer rereading unchanged artifacts, wording-only concern or desire to “make it more complete” is not a trigger.
