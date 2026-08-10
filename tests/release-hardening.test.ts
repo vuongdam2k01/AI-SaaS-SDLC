@@ -1,7 +1,8 @@
 import { afterEach, describe, expect, it } from "vitest";
 import { execFileSync } from "node:child_process";
-import { readFile, writeFile } from "node:fs/promises";
+import { mkdir, readdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
+import YAML from "yaml";
 import { cleanup, establishGenesis, tempProject } from "./helpers.js";
 import { scanArtifacts } from "../src/core/artifacts.js";
 import { validateProject } from "../src/core/validation.js";
@@ -11,6 +12,8 @@ import { calculateImpact } from "../src/core/impact.js";
 import { ruleCoverageEntries } from "../src/core/coverage-derivation.js";
 import { gitCommit } from "../src/core/git.js";
 import { startFlow } from "../src/core/state.js";
+import { executeVerification } from "../src/core/verification.js";
+import { loadConfig } from "../src/core/config.js";
 import { addApprovalFeature, materializePatternArtifact } from "./fixtures/complete-saas/fixture.js";
 import { buildEnginePointer, ensureEnginePointerIgnored, recordEnginePointer } from "../src/core/engine-pointer.js";
 
@@ -121,6 +124,44 @@ describe("release hardening", () => {
     await writeFile(path.join(root, "tracked.txt"), "two\n", "utf8");
     const dirty = gitCommit(root);
     expect(dirty).toBe(`${clean}+dirty`);
+  });
+
+  it("reuses an execution when the same command reruns over an unchanged source", async () => {
+    const root = await tempProject();
+    roots.push(root);
+    await establishGenesis(root);
+    await startFlow(root, "evolution", "Add approval behavior");
+
+    // A separate source directory, as real projects configure. Pointing cwd at
+    // the documentation root would defeat the check by construction: the engine
+    // writes its own execution records there, so the snapshot changes every run.
+    await mkdir(path.join(root, "impl"), { recursive: true });
+    await writeFile(path.join(root, "impl", "index.js"), "export const ok = true;\n", "utf8");
+
+    const configFile = path.join(root, "sdlc.config.yaml");
+    const config = YAML.parse(await readFile(configFile, "utf8"));
+    config.implementation_sources = [{ id: "impl", path: "./impl" }];
+    config.verification.unit = [{ id: "unit-fixture", cwd: "./impl", command: `node -e "process.exit(0)"` }];
+    await writeFile(configFile, YAML.stringify(config), "utf8");
+
+    const first = await executeVerification(root, await loadConfig(root), ["unit"]);
+    expect(first).toHaveLength(1);
+
+    // Nothing about the source changed, so a second run cannot observe anything
+    // the first did not: the existing record is returned rather than a new one.
+    const second = await executeVerification(root, await loadConfig(root), ["unit"]);
+    expect(second).toHaveLength(1);
+    expect(second[0]!.id).toBe(first[0]!.id);
+
+    const recorded = (await readdir(path.join(root, ".ai-saas-sdlc", "executions"))).filter((name) => name.endsWith(".json"));
+    expect(recorded).toHaveLength(1);
+
+    // A changed command is a different observation and must run.
+    config.verification.unit = [{ id: "unit-fixture", cwd: "./impl", command: `node -e "process.exit(1)"` }];
+    await writeFile(configFile, YAML.stringify(config), "utf8");
+    const third = await executeVerification(root, await loadConfig(root), ["unit"]);
+    expect(third[0]!.id).not.toBe(first[0]!.id);
+    expect(third[0]!.exit_code).toBe(1);
   });
 
   it("reads an artifact that a Windows editor saved with a byte order mark", async () => {
