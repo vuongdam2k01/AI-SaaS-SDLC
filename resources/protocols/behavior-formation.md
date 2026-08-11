@@ -1,6 +1,6 @@
 # Behavior Formation Protocol
 
-Use this protocol in Product Evolution after a semantic intent is accepted and before choosing screens, APIs, entities or implementation structure.
+Use this protocol in Product Evolution after a semantic intent is accepted and before choosing surfaces, operations, entities, platform targets or implementation structure.
 
 ## Inputs
 

@@ -13,7 +13,7 @@ supersedes:
 
 # {{ID}} — {{TITLE}}
 
-<!-- Contract: specifies server-side processing behind one OpenAPI operation or tightly coupled operation set. It does not own paths, parameters, payload schemas, or response schemas; OpenAPI is authoritative for those. Create when an operation needs explicit authorization, validation, processing, transaction, idempotency, side-effect, or implementation semantics. ID is API-<AREA>-<NNN>; path is 03-design/interfaces/<ID>.md. Upstream: FTR/UC, access, invariants, errors, OpenAPI, entities, and ADRs. Consumers: screens, components, UT-API, IT, ST, and implementation. Lifecycle: draft -> active -> superseded. -->
+<!-- Contract: specifies processing behind one invocable operation or tightly coupled operation set — an OpenAPI operation, an IPC or bridge command, or a CLI entry. For an HTTP operation it does not own paths, parameters, payload schemas, or response schemas; OpenAPI is authoritative for those. For a non-HTTP operation this document owns the full invocation contract, including payload shape, because no wire authority exists elsewhere. Create when an operation needs explicit authorization, validation, processing, transaction, idempotency, side-effect, or implementation semantics. ID is API-<AREA>-<NNN>; path is 03-design/interfaces/<ID>.md. Upstream: FTR/UC, access, invariants, errors, OpenAPI, entities, and ADRs. Consumers: screens, components, UT-API, IT, ST, and implementation. Lifecycle: draft -> active -> superseded. -->
 
 ## Purpose and boundary
 
@@ -24,12 +24,12 @@ supersedes:
 
 ## Interface reference
 
-| OpenAPI operationId | Method and path for orientation | Request schema | Success schema | Error codes |
+| Operation identity | Invocation kind and address | Request shape | Success shape | Error codes |
 |---|---|---|---|---|
-| <operationId> | <method path copied for navigation> | <schema ref> | <schema ref> | <ERROR codes> |
+| <operationId, command name, or CLI entry> | <HTTP method path, IPC/bridge channel, or CLI invocation> | <schema ref for HTTP; declared payload for other kinds> | <schema ref or declared result> | <ERROR codes> |
 
-- Wire authority: `03-design/interfaces/openapi.yaml`.
-- Conflict rule: update OpenAPI for wire changes; this document must not redefine fields.
+- Wire authority: `03-design/interfaces/openapi.yaml` for HTTP operations; this document for every other invocation kind.
+- Conflict rule: update OpenAPI for HTTP wire changes and never redefine those fields here; a non-HTTP operation declares its request and result shape in this table.
 
 ## Authorization
 
@@ -71,7 +71,7 @@ supersedes:
 
 ## Completion contract
 
-- [ ] Every operation maps to an existing OpenAPI operationId without duplicating wire schema.
+- [ ] Every HTTP operation maps to an existing OpenAPI operationId without duplicating wire schema, and every non-HTTP operation declares its full invocation contract here.
 - [ ] Authorization precedes protected reads and writes and cites access rules.
 - [ ] Validation and failure paths use error-catalog codes with state guarantees.
 - [ ] Processing order, transaction, idempotency, concurrency, and side effects are deterministic.

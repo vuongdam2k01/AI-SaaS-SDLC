@@ -1,4 +1,54 @@
 export const APPROVAL_DESIGN_BODIES: Record<string, string> = {
+  platform_target: `# PLT-DESKTOP-001 — Windows desktop client
+
+## Purpose and boundary
+
+- Platform or channel: Windows 10 22H2 and later, distributed as a signed MSIX from the product site.
+- Why this target is distinct: decisions are made offline and reconciled later, and the local decision cache survives updates.
+- Included scope: FTR-APPROVAL-001 review and decision surfaces, and their offline queue.
+- Excluded responsibilities: build and signing procedure, and the decision semantics owned by API-APPROVAL-001.
+
+## Platform constraints
+
+| Local ID | Constraint | Authority or source | Product consequence | Applies when |
+|---|---|---|---|---|
+| C-01 | MSIX packaged apps write only to their own app-data container. | Windows app packaging documentation, observed 2026-01-14. | The decision cache lives in the container and is never written beside the executable. | All supported Windows versions. |
+
+## Capabilities and permissions
+
+| Local ID | Capability or permission | Purpose | Request timing | Denial or revocation behavior | Feature or access references |
+|---|---|---|---|---|---|
+| P-01 | Background network access | Reconcile queued decisions after connectivity returns. | First decision made while offline. | Queue holds decisions and the surface states that reconciliation is paused; no decision is discarded. | FTR-APPROVAL-001#AC-02, ACCESS-002 |
+
+## Distribution and update behavior
+
+| Local ID | Concern | Behavior | User-visible consequence | Failure or rollback behavior |
+|---|---|---|---|---|
+| D-01 | Update | Updates install on next launch after download completes. | The client restarts once; queued decisions survive the restart. | A failed update leaves the prior version installed and the queue intact. |
+
+## Local data and migration
+
+| Local ID | Store | Data and sensitivity | Lifetime and scope | Cross-version rule | Loss or corruption behavior |
+|---|---|---|---|---|---|
+| M-01 | Local decision queue in the app-data container | Pending decisions and their request identifiers; tenant-scoped business data | Per Windows user and install; survives updates | A newer client reads every queue written by a client sharing its major version. | A queue that fails to open is quarantined and the surface reports unreconciled decisions rather than dropping them silently. |
+
+## Verification consequences
+
+| Local ID | Upstream IDs | Platform-conditional claim | Observed at | Evidence expectation |
+|---|---|---|---|---|
+| V-01 | FTR-APPROVAL-001#AC-02, INV-002, Q-002 | At most one binding decision survives reconciliation even when the queue replays after an update. | The boundary between the local queue and the decision service. | An execution on Windows that replays a queue written by the prior version. |
+
+## Traceability
+
+- Upstream requirements and quality budgets: PRODUCT-REQUIREMENTS, Q-001, Q-002.
+- Affected features and journeys: FTR-APPROVAL-001 and UC-APPROVAL-001.
+- Constrained design artifacts: SCR-APPROVAL-001 and API-APPROVAL-001.
+- Decisions: none; no alternative was rejected for this target.
+
+## Completion contract
+
+Constraints, permissions, distribution, local data, and verification consequences carry stable local IDs and cite upstream authority only.
+`,
   screen: `# SCR-APPROVAL-001 — Approval decision view
 
 ## Purpose and boundary

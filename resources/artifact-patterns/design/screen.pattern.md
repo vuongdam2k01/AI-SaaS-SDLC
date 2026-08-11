@@ -12,7 +12,7 @@ supersedes:
 
 # {{ID}} — {{TITLE}}
 
-<!-- Contract: specifies one user-visible screen or stable view state, not a reusable component, API algorithm, implementation task, or visual mockup. Create when access, information hierarchy, fields, actions, validation, or transitions differ materially. ID is SCR-<AREA>-<NNN>; path is 03-design/screens/<ID>.md. This artifact owns screen composition and interaction semantics; CMP owns reusable parts, OpenAPI owns wire contracts, API/JOB own processing, UX-RULES owns shared interaction policy. Upstream: FTR/UC/FLOW, access, UX, errors, and decisions. Consumers: components, API processing, frontend UT, IT, ST, and implementation. Lifecycle: draft -> active -> superseded. -->
+<!-- Contract: specifies one user-visible screen or stable view state on any client surface — a web route, a desktop window or a mobile screen — not a reusable component, API algorithm, implementation task, or visual mockup. Create when access, information hierarchy, fields, actions, validation, or transitions differ materially. ID is SCR-<AREA>-<NNN>; path is 03-design/screens/<ID>.md. This artifact owns screen composition and interaction semantics; CMP owns reusable parts, OpenAPI owns wire contracts, API/JOB own processing, UX-RULES owns shared interaction policy. Upstream: FTR/UC/FLOW, access, UX, errors, and decisions. Consumers: components, API processing, frontend UT, IT, ST, and implementation. Lifecycle: draft -> active -> superseded. -->
 
 ## Purpose and boundary
 

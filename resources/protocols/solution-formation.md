@@ -14,14 +14,15 @@ Use this protocol in Product Evolution or Reconciliation after observable behavi
 
 | Artifact | Create or update when | Canonical content | Do not use for |
 |---|---|---|---|
-| `SCR-*` | A real UI route/surface has distinct purpose, state or transition behavior | Regions, fields, actions, validation messages, states, transitions, accessibility | Global UX rules or backend processing |
-| `CMP-*` | At least two real consumers share the same interaction contract | Inputs/outputs, variants, states, validation, accessibility, extension points | One-screen fragments or visual styling only |
+| `SCR-*` | A real user-facing surface — web route, desktop window or mobile screen — has distinct purpose, state or transition behavior | Regions, fields, actions, validation messages, states, transitions, accessibility | Global UX rules or backend processing |
+| `CMP-*` | At least two real consumers share the same interaction contract | Inputs/outputs, variants, states, validation, accessibility, extension points | One-surface fragments or visual styling only |
 | `SUB-*` | A non-trivial engine, model, pipeline or domain capability has its own quality/failure boundary | Capabilities, I/O/stores, budgets, pinning, degradation, evaluation, security | Ordinary CRUD grouping |
-| `API-*` | An operation has processing, authorization, transactional or side-effect behavior worth specifying | Callers, validation, sequence, consistency, side effects, idempotency, errors | Wire schema, which remains in OpenAPI |
+| `API-*` | An invocable operation — an OpenAPI operation, an IPC/bridge command or a CLI entry — has processing, authorization, transactional or side-effect behavior worth specifying | Callers, validation, sequence, consistency, side effects, idempotency, errors | HTTP wire schema, which remains in OpenAPI; a non-HTTP operation owns its full invocation contract here |
 | `ENT-*` | A domain object has independent identity, lifecycle, invariants or retention | Meaning, ownership, attributes, states, constraints, sensitivity, retention | Endpoint workflow or physical-only tuning |
 | `INT-*` | Product behavior depends on an external provider/service | Auth boundary, exchanged data, quota/cost, timeout/retry, callbacks, degradation, sandbox | Secrets or generic library usage |
-| `JOB-*` | Work outlives a request/screen, is scheduled, retryable or cancellable | Trigger, selection, transitions, concurrency, retry, cancellation, output/events | A synchronous method call |
+| `JOB-*` | Work outlives a request or interaction, is scheduled, retryable or cancellable | Trigger, selection, transitions, concurrency, retry, cancellation, output/events | A synchronous method call |
 | `EVT-*` | Multiple components depend on an emitted fact or asynchronous contract | Meaning, schema/version, ordering, duplication, consumers, replay/retention | In-process implementation detail |
+| `PLT-*` | The product ships on a platform or channel whose constraints, permissions, update behavior or local data differ materially | Platform constraints, capability/permission denial behavior, distribution/update/rollback, local data and migration, platform-conditional verification consequences | Build pipelines, signing, deployment operations, or behavior owned by FTR/SCR/API/INT |
 | `ADR-*` | Multiple viable alternatives have durable, cross-artifact or expensive-to-reverse consequences | Context, drivers, options, decision, consequences, verification and affected scope | Routine choices already owned by a design artifact |
 
 Absence is valid when the condition is false. A complete solution is not the one with the most files.
@@ -30,7 +31,8 @@ For each new allocation, use `ENGINE artifact create` with the catalog `artifact
 
 ## Canonical boundaries
 
-- OpenAPI owns wire request/response/schema truth; `API-*` owns processing semantics.
+- OpenAPI owns wire request/response/schema truth for HTTP operations; `API-*` owns processing semantics, and owns the full invocation contract when the operation is not HTTP.
+- `PLT-*` owns what shipping on a platform costs the product; the artifacts it constrains keep owning their own behavior.
 - `ENT-*` owns domain meaning/lifecycle; DBML owns physical relational structure.
 - `UX-RULES` owns global interaction conventions; `SCR-*` owns one surface; `CMP-*` owns shared behavior.
 - `ERROR-CATALOG` owns stable error meaning; API, screen and tests reference its IDs.
@@ -49,6 +51,8 @@ For each entity/store/API/event shared by old and new features, resolve:
 - idempotency and duplicate behavior;
 - transaction/consistency boundary;
 - retry, compensation and user-visible loser state;
+- offline or local-first divergence and the rule by which state reconverges;
+- multi-device or multi-install conflict winner and the user-visible state of the loser;
 - backward/forward compatibility;
 - retention/export/deletion consequences;
 - invariant enforcement and failure recovery.

@@ -12,7 +12,7 @@ supersedes:
 
 # {{ID}} — {{TITLE}}
 
-<!-- Contract: specifies deterministic unit verification for backend business/processing code in isolation. It is not an API wire, database, provider, multi-module, or end-to-end check. Create when an API-processing rule, domain rule, validation branch, authorization decision, or error mapping needs isolated evidence. ID is UT-API-<AREA>-<NNN>; path is 04-verification/unit-tests/backend/<ID>.md. This artifact owns test intent and case IDs; production design owns behavior and test files own executable evidence. Upstream: TEST-POLICY and referenced FTR/API/ENT/ACCESS/ERROR/INV artifacts. Consumers: test implementation, test results, issues, and change closure. Lifecycle: draft -> active -> superseded. -->
+<!-- Contract: specifies deterministic unit verification for backend business/processing code in isolation. It is not an API wire, database, provider, multi-module, or end-to-end check. Create when an API-processing rule, domain rule, validation branch, authorization decision, or error mapping needs isolated evidence. ID is UT-API-<AREA>-<NNN> for a unit sitting behind an invocable operation, or UT-CORE-<AREA>-<NNN> for platform-neutral core or domain logic; path is 04-verification/unit-tests/backend/<ID>.md either way. This artifact owns test intent and case IDs; production design owns behavior and test files own executable evidence. Upstream: TEST-POLICY and referenced FTR/API/ENT/ACCESS/ERROR/INV artifacts. Consumers: test implementation, test results, issues, and change closure. Lifecycle: draft -> active -> superseded. -->
 
 ## Purpose and boundary
 

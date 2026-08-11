@@ -2,6 +2,16 @@
 
 See the root [CHANGELOG](../CHANGELOG.md) for the release summary. This contributor view records documentation-impact areas that must remain synchronized with implementation.
 
+## 1.4.0 - 2026-08-11
+
+| Area | Documentation impact |
+|---|---|
+| Artifact contracts | Added `platform_target` (`PLT-*`) as the 24th scalable type and widened `unit_test_backend` to accept `UT-CORE-*` beside `UT-API-*` |
+| Design authority | `API-*` documented as covering any invocable operation, with OpenAPI authoritative for HTTP only and the `API-*` document owning non-HTTP invocation contracts in full |
+| Verification method | Platform variance documented as a viewpoint inside UT/IT/ST with per-platform execution limits recorded in `TEST-POLICY`; derivation rows added for platform constraints, permissions, update/migration and IPC boundaries |
+| Validation | `CONTENT_CONTRACT_UNPINNED` documented as the error for a live artifact whose type the pinned catalog predates |
+| Compatibility | Recorded that no pattern migration exists: existing repositories stay on their init-time catalog and the new type reaches new projects only |
+
 ## 1.0.0 - 2026-08-09
 
 | Area | Documentation impact |

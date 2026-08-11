@@ -1,5 +1,11 @@
 # Development Roadmap
 
+## Since 1.0.0
+
+| Release | Direction |
+|---|---|
+| 1.4.0 | Catalog opened beyond web products: `platform_target` owns platform constraints, permissions, distribution/update and local-data migration; `API-*` covers any invocable operation; platform variance is a viewpoint inside UT/IT/ST |
+
 ## 1.0.0 rebuild status
 
 | Workstream | Delivered outcome | Status |

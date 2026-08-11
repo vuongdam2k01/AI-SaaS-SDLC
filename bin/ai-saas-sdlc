@@ -17331,7 +17331,7 @@ var init_coverage_derivation = __esm({
   "src/core/coverage-derivation.ts"() {
     "use strict";
     behaviorTypes = /* @__PURE__ */ new Set(["use_case", "business_flow"]);
-    designTypes = /* @__PURE__ */ new Set(["screen", "component", "subsystem", "api_processing", "entity", "external_integration", "job", "event"]);
+    designTypes = /* @__PURE__ */ new Set(["screen", "component", "subsystem", "api_processing", "entity", "external_integration", "job", "event", "platform_target"]);
     testTypes = /* @__PURE__ */ new Set(["unit_test_backend", "unit_test_frontend", "unit_test_job", "integration_test", "system_test"]);
     unitTypes = /* @__PURE__ */ new Set(["unit_test_backend", "unit_test_frontend", "unit_test_job"]);
   }
@@ -18295,7 +18295,8 @@ var SCALABLE_LOCATIONS = {
   external_integration: /^03-design\/integrations\/INT-[A-Z0-9-]+\.md$/,
   job: /^03-design\/jobs\/JOB-[A-Z0-9-]+\.md$/,
   event: /^03-design\/events\/EVT-[A-Z0-9-]+\.md$/,
-  unit_test_backend: /^04-verification\/unit-tests\/backend\/UT-API-[A-Z0-9-]+\.md$/,
+  platform_target: /^03-design\/platforms\/PLT-[A-Z0-9-]+\.md$/,
+  unit_test_backend: /^04-verification\/unit-tests\/backend\/UT-(?:API|CORE)-[A-Z0-9-]+\.md$/,
   unit_test_frontend: /^04-verification\/unit-tests\/frontend\/UT-UI-[A-Z0-9-]+\.md$/,
   unit_test_job: /^04-verification\/unit-tests\/jobs\/UT-JOB-[A-Z0-9-]+\.md$/,
   integration_test: /^04-verification\/integration-tests\/IT-[A-Z0-9-]+\.md$/,
@@ -18320,6 +18321,7 @@ var SCALABLE_EXAMPLE_IDS = {
   external_integration: "INT-SAMPLE-001",
   job: "JOB-SAMPLE-001",
   event: "EVT-SAMPLE-001",
+  platform_target: "PLT-SAMPLE-001",
   unit_test_backend: "UT-API-SAMPLE-001",
   unit_test_frontend: "UT-UI-SAMPLE-001",
   unit_test_job: "UT-JOB-SAMPLE-001",
@@ -18672,6 +18674,8 @@ async function validateActiveArtifactContent(root2, artifacts) {
       findings.push(...await validateAgainstContract(artifact2, foundation.content));
     } else if (CANONICAL_TYPES.has(artifact2.artifact_type)) {
       findings.push({ severity: "error", code: "CONTENT_CONTRACT_MISSING", message: `${artifact2.id} has no pinned foundation content contract.`, file: artifact2.file });
+    } else if (SCALABLE_LOCATIONS[artifact2.artifact_type] && !FIXED_TYPES.has(artifact2.artifact_type)) {
+      findings.push({ severity: "error", code: "CONTENT_CONTRACT_UNPINNED", message: `${artifact2.id} has scalable type ${artifact2.artifact_type}, which this repository's pinned pattern catalog predates; re-initialize or migrate the pinned catalog before activating it.`, file: artifact2.file });
     }
   }
   return findings;
@@ -18968,8 +18972,8 @@ function selectTests(artifacts, graph, affected) {
   const affectedTypes = new Set(graph.nodes.filter((node) => affectedSet.has(node.id) && node.status !== "retired" && node.status !== "superseded").map((node) => node.type));
   const required = {
     unit: ["feature", "use_case", "screen", "component", "subsystem", "api_processing", "entity", "job", "access_control", "system_invariants", "error_catalog", "openapi_contract", "screen_transitions"].some((type) => affectedTypes.has(type)),
-    integration: ["business_flow", "subsystem", "api_processing", "entity", "external_integration", "job", "event", "access_control", "quality_requirements", "system_invariants", "error_catalog", "openapi_contract", "physical_schema"].some((type) => affectedTypes.has(type)),
-    system: ["feature", "use_case", "business_flow", "access_control", "quality_requirements", "system_invariants", "openapi_contract", "screen_transitions"].some((type) => affectedTypes.has(type))
+    integration: ["business_flow", "subsystem", "api_processing", "entity", "external_integration", "job", "event", "platform_target", "access_control", "quality_requirements", "system_invariants", "error_catalog", "openapi_contract", "physical_schema"].some((type) => affectedTypes.has(type)),
+    system: ["feature", "use_case", "business_flow", "platform_target", "access_control", "quality_requirements", "system_invariants", "openapi_contract", "screen_transitions"].some((type) => affectedTypes.has(type))
   };
   const selected = { unit: [], integration: [], system: [] };
   for (const [level, types] of Object.entries(testTypes2)) {
@@ -19149,7 +19153,7 @@ init_project_lock();
 // src/core/baseline-flow-rules.ts
 init_errors();
 var genesisFoundations = ["idea_definition", "evidence_ledger", "market_landscape", "customer_and_problem", "competitive_and_commercial", "feasibility_and_risk", "opportunity_definition", "product_requirements", "access_control", "quality_requirements", "system_invariants"];
-var scalableTypes = /* @__PURE__ */ new Set(["feature", "use_case", "business_flow", "screen", "component", "subsystem", "api_processing", "entity", "external_integration", "job", "event", "unit_test_backend", "unit_test_frontend", "unit_test_job", "integration_test", "system_test", "test_result", "issue", "architectural_decision"]);
+var scalableTypes = /* @__PURE__ */ new Set(["feature", "use_case", "business_flow", "screen", "component", "subsystem", "api_processing", "entity", "external_integration", "job", "event", "platform_target", "unit_test_backend", "unit_test_frontend", "unit_test_job", "integration_test", "system_test", "test_result", "issue", "architectural_decision"]);
 var reassessmentTypes = /* @__PURE__ */ new Set(["evidence_ledger", "idea_definition", "market_landscape", "customer_and_problem", "competitive_and_commercial", "feasibility_and_risk", "opportunity_definition", "ideal_customer_profile", "persona", "problem", "competitor", "question_ledger", "issue"]);
 var genesisCreatable = /* @__PURE__ */ new Set(["ideal_customer_profile", "persona", "problem", "competitor"]);
 var reassessmentCreatable = /* @__PURE__ */ new Set([...genesisCreatable, "issue"]);
@@ -19466,7 +19470,7 @@ function print(value, json = false) {
   if (json || typeof value !== "string") console.log(JSON.stringify(value, null, 2));
   else console.log(value);
 }
-program2.name("ai-saas-sdlc").description("Deterministic engine for AI SaaS SDLC documentation flows.").version("1.3.5");
+program2.name("ai-saas-sdlc").description("Deterministic engine for AI SaaS SDLC documentation flows.").version("1.4.0");
 program2.command("init").description("Initialize a centralized documentation repository.").option("--project-id <id>", "Stable project identifier").option("--idea <text>", "Raw idea preserved verbatim", "").action(async (options) => {
   const projectId = options.projectId ?? root.split(/[\\/]/).at(-1)?.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") ?? "saas-project";
   await withProjectLock(root, async () => {

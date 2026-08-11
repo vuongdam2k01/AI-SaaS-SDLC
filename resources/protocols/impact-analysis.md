@@ -39,6 +39,7 @@ Run it again after adding or removing design/test relationships. Removed depende
 | Subsystem | Are quality, cost, latency, pinning and degradation budgets still met? |
 | Integration | Do quota, timeout, retry, webhook and fallback changes affect old flows? |
 | Job/event | Do ordering, duplication, cancellation, replay and consumer compatibility hold? |
+| Platform target | Do constraints, permission denials, update/rollback and local-data rules still hold on every shipped platform? Which behavior now degrades on one platform only? |
 | Access/invariant | Can any old actor now read/write/transition something previously prohibited? |
 | ADR | Which artifacts depended on the old decision and require migration or re-verification? |
 

@@ -14102,7 +14102,8 @@ var SCALABLE_LOCATIONS = {
   external_integration: /^03-design\/integrations\/INT-[A-Z0-9-]+\.md$/,
   job: /^03-design\/jobs\/JOB-[A-Z0-9-]+\.md$/,
   event: /^03-design\/events\/EVT-[A-Z0-9-]+\.md$/,
-  unit_test_backend: /^04-verification\/unit-tests\/backend\/UT-API-[A-Z0-9-]+\.md$/,
+  platform_target: /^03-design\/platforms\/PLT-[A-Z0-9-]+\.md$/,
+  unit_test_backend: /^04-verification\/unit-tests\/backend\/UT-(?:API|CORE)-[A-Z0-9-]+\.md$/,
   unit_test_frontend: /^04-verification\/unit-tests\/frontend\/UT-UI-[A-Z0-9-]+\.md$/,
   unit_test_job: /^04-verification\/unit-tests\/jobs\/UT-JOB-[A-Z0-9-]+\.md$/,
   integration_test: /^04-verification\/integration-tests\/IT-[A-Z0-9-]+\.md$/,
@@ -14127,6 +14128,7 @@ var SCALABLE_EXAMPLE_IDS = {
   external_integration: "INT-SAMPLE-001",
   job: "JOB-SAMPLE-001",
   event: "EVT-SAMPLE-001",
+  platform_target: "PLT-SAMPLE-001",
   unit_test_backend: "UT-API-SAMPLE-001",
   unit_test_frontend: "UT-UI-SAMPLE-001",
   unit_test_job: "UT-JOB-SAMPLE-001",
@@ -14472,6 +14474,8 @@ async function validateActiveArtifactContent(root2, artifacts) {
       findings.push(...await validateAgainstContract(artifact, foundation.content));
     } else if (CANONICAL_TYPES.has(artifact.artifact_type)) {
       findings.push({ severity: "error", code: "CONTENT_CONTRACT_MISSING", message: `${artifact.id} has no pinned foundation content contract.`, file: artifact.file });
+    } else if (SCALABLE_LOCATIONS[artifact.artifact_type] && !FIXED_TYPES.has(artifact.artifact_type)) {
+      findings.push({ severity: "error", code: "CONTENT_CONTRACT_UNPINNED", message: `${artifact.id} has scalable type ${artifact.artifact_type}, which this repository's pinned pattern catalog predates; re-initialize or migrate the pinned catalog before activating it.`, file: artifact.file });
     }
   }
   return findings;

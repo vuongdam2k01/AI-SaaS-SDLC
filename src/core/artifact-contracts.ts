@@ -34,7 +34,8 @@ export const SCALABLE_LOCATIONS: Record<string, RegExp> = {
   external_integration: /^03-design\/integrations\/INT-[A-Z0-9-]+\.md$/,
   job: /^03-design\/jobs\/JOB-[A-Z0-9-]+\.md$/,
   event: /^03-design\/events\/EVT-[A-Z0-9-]+\.md$/,
-  unit_test_backend: /^04-verification\/unit-tests\/backend\/UT-API-[A-Z0-9-]+\.md$/,
+  platform_target: /^03-design\/platforms\/PLT-[A-Z0-9-]+\.md$/,
+  unit_test_backend: /^04-verification\/unit-tests\/backend\/UT-(?:API|CORE)-[A-Z0-9-]+\.md$/,
   unit_test_frontend: /^04-verification\/unit-tests\/frontend\/UT-UI-[A-Z0-9-]+\.md$/,
   unit_test_job: /^04-verification\/unit-tests\/jobs\/UT-JOB-[A-Z0-9-]+\.md$/,
   integration_test: /^04-verification\/integration-tests\/IT-[A-Z0-9-]+\.md$/,
@@ -49,6 +50,7 @@ export const SCALABLE_EXAMPLE_IDS: Record<string, string> = {
   feature: "FTR-SAMPLE-001", use_case: "UC-SAMPLE-001", business_flow: "FLOW-SAMPLE-001",
   screen: "SCR-SAMPLE-001", component: "CMP-SAMPLE-001", subsystem: "SUB-SAMPLE-001", api_processing: "API-SAMPLE-001",
   entity: "ENT-SAMPLE-001", external_integration: "INT-SAMPLE-001", job: "JOB-SAMPLE-001", event: "EVT-SAMPLE-001",
+  platform_target: "PLT-SAMPLE-001",
   unit_test_backend: "UT-API-SAMPLE-001", unit_test_frontend: "UT-UI-SAMPLE-001", unit_test_job: "UT-JOB-SAMPLE-001",
   integration_test: "IT-SAMPLE-001", system_test: "ST-SAMPLE-001", test_result: "RESULT-EXEC-001",
   issue: "ISS-SAMPLE-001", architectural_decision: "ADR-SAMPLE-001"

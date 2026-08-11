@@ -13,12 +13,12 @@ const roots: string[] = [];
 afterEach(async () => { while (roots.length) await cleanup(roots.pop()!); });
 
 describe("pinned pattern and active-content contracts", () => {
-  it("lists exactly 23 deterministic scalable patterns", async () => {
+  it("lists exactly 24 deterministic scalable patterns", async () => {
     const root = await tempProject();
     roots.push(root);
     const first = await resolveCatalog(root, process.cwd());
     const second = await resolveCatalog(root, process.cwd());
-    expect(first.patterns).toHaveLength(23);
+    expect(first.patterns).toHaveLength(24);
     expect(first.patterns.map((item) => item.artifact_type)).toEqual(second.patterns.map((item) => item.artifact_type));
     expect(first.patterns.map((item) => item.artifact_type)).toEqual([...first.patterns.map((item) => item.artifact_type)].sort());
     expect(first.patterns.every((item) => item.target.includes("{{ID}}") && !item.target.includes(".."))).toBe(true);

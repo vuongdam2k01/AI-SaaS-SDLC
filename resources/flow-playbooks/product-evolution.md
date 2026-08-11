@@ -117,14 +117,15 @@ Follow `resources/protocols/solution-formation.md` and each selected template co
 
 Create/update only when the boundary exists:
 
-- `SCR-*` for real UI surfaces;
+- `SCR-*` for real user-facing surfaces, whether a web route, a desktop window or a mobile screen;
 - `CMP-*` after a second real consumer;
 - `SUB-*` for non-trivial engine/model/pipeline/domain capability;
-- `API-*` for processing semantics and OpenAPI for wire contracts;
+- `API-*` for the processing semantics of an invocable operation, with OpenAPI owning the wire contract when that operation is HTTP;
 - `ENT-*` for domain identity/lifecycle and DBML for physical schema;
 - `INT-*` for external provider boundaries;
 - `JOB-*` for durable/scheduled/retryable work;
 - `EVT-*` for versioned facts with producers/consumers;
+- `PLT-*` for each shipped platform or channel whose constraints, permissions, update behavior or local data differ materially;
 - `ADR-*` only for multiple viable, durable, cross-artifact or expensive-to-reverse choices.
 
 Instantiate every newly allocated design/ADR artifact with `ENGINE artifact create` and then complete the produced content contract. Editing an existing active artifact does not create a second instance.
@@ -145,7 +146,7 @@ Run `ENGINE impact --json` again after design relationships stabilize. If the cl
 
 Follow `resources/protocols/test-derivation.md`.
 
-- create/update backend/frontend/job `UT-*` as applicable;
+- create/update backend/core, frontend and job `UT-*` as applicable;
 - create/update `IT-*` for real component/persistence/provider/event/job boundaries;
 - create/update `ST-*` for the actor journey and cross-feature behavior;
 - preserve existing regression tests reached through the closure;

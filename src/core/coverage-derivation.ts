@@ -26,7 +26,7 @@ export function evidenceClaimCoverage(artifacts: Artifact[]): string {
 }
 
 const behaviorTypes = new Set(["use_case", "business_flow"]);
-const designTypes = new Set(["screen", "component", "subsystem", "api_processing", "entity", "external_integration", "job", "event"]);
+const designTypes = new Set(["screen", "component", "subsystem", "api_processing", "entity", "external_integration", "job", "event", "platform_target"]);
 const testTypes = new Set(["unit_test_backend", "unit_test_frontend", "unit_test_job", "integration_test", "system_test"]);
 
 export function acceptanceCoverage(artifacts: Artifact[]): string {

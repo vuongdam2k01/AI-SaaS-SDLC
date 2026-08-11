@@ -3,7 +3,7 @@ import type { ImpactReport } from "./impact.js";
 import { SdlcError } from "./errors.js";
 
 const genesisFoundations = ["idea_definition", "evidence_ledger", "market_landscape", "customer_and_problem", "competitive_and_commercial", "feasibility_and_risk", "opportunity_definition", "product_requirements", "access_control", "quality_requirements", "system_invariants"];
-const scalableTypes = new Set(["feature", "use_case", "business_flow", "screen", "component", "subsystem", "api_processing", "entity", "external_integration", "job", "event", "unit_test_backend", "unit_test_frontend", "unit_test_job", "integration_test", "system_test", "test_result", "issue", "architectural_decision"]);
+const scalableTypes = new Set(["feature", "use_case", "business_flow", "screen", "component", "subsystem", "api_processing", "entity", "external_integration", "job", "event", "platform_target", "unit_test_backend", "unit_test_frontend", "unit_test_job", "integration_test", "system_test", "test_result", "issue", "architectural_decision"]);
 const reassessmentTypes = new Set(["evidence_ledger", "idea_definition", "market_landscape", "customer_and_problem", "competitive_and_commercial", "feasibility_and_risk", "opportunity_definition", "ideal_customer_profile", "persona", "problem", "competitor", "question_ledger", "issue"]);
 const genesisCreatable = new Set(["ideal_customer_profile", "persona", "problem", "competitor"]);
 const reassessmentCreatable = new Set([...genesisCreatable, "issue"]);

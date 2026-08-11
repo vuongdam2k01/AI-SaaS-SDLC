@@ -86,7 +86,7 @@ for (const file of codexSkills) {
 }
 
 const patterns = await fg("resources/artifact-patterns/**/*.pattern.md");
-if (patterns.length !== 23) throw new Error(`Expected 23 one-artifact patterns, found ${patterns.length}`);
+if (patterns.length !== 24) throw new Error(`Expected 24 one-artifact patterns, found ${patterns.length}`);
 for (const file of patterns) {
   const content = await readFile(file, "utf8");
   if (!content.includes("<!-- Contract:")) throw new Error(`Pattern authority contract is missing: ${file}`);
@@ -141,7 +141,7 @@ try {
   const codexInitialized = codexRun(["init", "--project-id", "isolated-codex", "--idea", "Portable Codex fixture"]);
   if (codexInitialized.status !== 0) throw new Error(`Isolated Codex-root init failed: ${codexInitialized.stderr}`);
   const listed = codexRun(["patterns", "list", "--json"]);
-  if (listed.status !== 0 || JSON.parse(listed.stdout).patterns?.length !== 23) throw new Error(`Isolated pattern listing failed: ${listed.stdout}${listed.stderr}`);
+  if (listed.status !== 0 || JSON.parse(listed.stdout).patterns?.length !== 24) throw new Error(`Isolated pattern listing failed: ${listed.stdout}${listed.stderr}`);
 
   const installedHooks = JSON.parse(await readFile(path.join(isolatedPlugin, codexManifest.hooks ?? "hooks/hooks.json"), "utf8"));
   const runInstalledHook = (event, input) => {

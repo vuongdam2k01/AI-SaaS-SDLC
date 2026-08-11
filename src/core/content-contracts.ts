@@ -5,7 +5,7 @@ import { isLiveStatus } from "./types.js";
 import type { ArtifactPattern, PatternContentContract, PatternTableContract } from "./pattern-catalog.js";
 import { loadPatternCatalog } from "./pattern-catalog.js";
 import { pathExists } from "./state.js";
-import { CANONICAL_TYPES } from "./artifact-contracts.js";
+import { CANONICAL_TYPES, FIXED_TYPES, SCALABLE_LOCATIONS } from "./artifact-contracts.js";
 import { allSections, completedRows, headingKey, markdownTables, meaningful, sections } from "./markdown.js";
 
 function deriveContract(template: string): PatternContentContract {
@@ -118,6 +118,11 @@ export async function validateActiveArtifactContent(root: string, artifacts: Art
       findings.push(...await validateAgainstContract(artifact, foundation.content));
     } else if (CANONICAL_TYPES.has(artifact.artifact_type)) {
       findings.push({ severity: "error", code: "CONTENT_CONTRACT_MISSING", message: `${artifact.id} has no pinned foundation content contract.`, file: artifact.file });
+    } else if (SCALABLE_LOCATIONS[artifact.artifact_type] && !FIXED_TYPES.has(artifact.artifact_type)) {
+      // The engine knows this type but the repository's pin predates it. Without
+      // this finding the artifact would silently escape every content contract,
+      // which is worse than an unknown type: it looks validated and is not.
+      findings.push({ severity: "error", code: "CONTENT_CONTRACT_UNPINNED", message: `${artifact.id} has scalable type ${artifact.artifact_type}, which this repository's pinned pattern catalog predates; re-initialize or migrate the pinned catalog before activating it.`, file: artifact.file });
     }
   }
   return findings;

@@ -1,5 +1,73 @@
 # Changelog
 
+## 1.4.0 - 2026-08-11
+
+The method was never web-specific, but the catalog was. An assessment of the
+plugin against desktop and mobile products found the engine and the four flows
+fully neutral, UT/IT/ST neutral because they are defined by boundary rather than
+protocol, and the design layer bound to the web: `API-*` was welded to an
+OpenAPI operation, every backend unit specification had to be called `UT-API-*`,
+and nothing owned platform constraints, operating-system permissions, install
+and update behavior, or local data that must survive a version change.
+
+### Added
+
+- **`platform_target` (`PLT-*`, `03-design/platforms/`)** — one artifact per
+  shipped platform or channel, owning what shipping there costs the product:
+  platform constraints with their product consequence, capabilities and
+  permissions with denial and revocation behavior, user-visible distribution,
+  update and rollback behavior, local data with a cross-version rule or an
+  explicit loss statement, and platform-conditional verification consequences.
+  It deliberately does not own build pipelines, signing or deployment
+  operations; that boundary is the same charter exclusion as before, and a
+  desktop product's *update prompt* is product behavior while its *release
+  pipeline* is not. Verification consequences cite upstream acceptance, rule,
+  quality and invariant IDs only — never a test case that does not exist yet,
+  which is the defect `CASE_REFERENCE_BROKEN` was added to catch in 1.3.0.
+
+- **`CONTENT_CONTRACT_UNPINNED` (error)** — a live artifact whose type the
+  engine knows but the repository's pinned catalog predates. Until now such an
+  artifact fell through every content contract silently: no headings, no
+  tables, no placeholder check, and `validate` still reported success. Reporting
+  nothing was worse than reporting an unknown type, because the artifact looked
+  validated and was not.
+
+### Changed
+
+- **`unit_test_backend` accepts `UT-CORE-*` as well as `UT-API-*`**, same type
+  and same directory. Core or domain logic that no platform owns had to be
+  filed under a name that claimed it sat behind an API.
+
+- **`API-*` covers any invocable operation** — an OpenAPI operation, an IPC or
+  bridge command, or a CLI entry. For HTTP, OpenAPI remains the wire authority
+  and nothing changes. For everything else the `API-*` document now owns the
+  full invocation contract including payload shape, because no other authority
+  exists. `openapi.yaml`, `schema.dbml` and `screen-transitions.mmd` remain
+  required files: an empty `paths` map is now the *declared* state for a product
+  with no HTTP surface rather than an oversight.
+
+- **Platform variance is a viewpoint inside UT/IT/ST, not a fourth level.** An
+  execution proves the platform it ran on; `TEST-POLICY` now records which
+  platforms the recorded executions covered and which shipped platforms remain
+  unproven. Test derivation gains rows for platform constraints, permission
+  denial, update and local-data migration, and the IPC/bridge/CLI boundary.
+
+- Solution formation gains offline and local-first divergence, reconvergence,
+  and multi-device conflict resolution as shared-state questions; screen, job
+  and behavior language no longer assumes a web route or a request.
+
+### Compatibility
+
+An existing repository stays on the pattern catalog it pinned at
+initialization. No pattern migration exists, so `platform_target` and the
+widened backend-unit contract reach newly initialized projects only; an
+existing repository keeps validating and baselining exactly as before. The
+pinned catalog version moved to `2` so that `patterns list --json` reports
+which generation a repository actually holds. In the other direction, a 1.3.x
+engine reading a 1.4.0 repository reports `ARTIFACT_TYPE_UNKNOWN` for `PLT-*`
+and an invalid location for `UT-CORE-*`; that is expected version skew, and the
+engine pointer records which engine initialized the repository.
+
 ## 1.3.5 - 2026-08-11
 
 The question-repayment obligation was keyed to the wrong signal, and the first

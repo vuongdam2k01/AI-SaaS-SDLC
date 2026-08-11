@@ -128,7 +128,7 @@ Transform the selected opportunity into:
 - `QUALITY-REQUIREMENTS`: only sourced or owner-confirmed quality, security, privacy, performance, reliability, accessibility and AI-behavior constraints;
 - `SYSTEM-INVARIANTS`: cross-feature truths that must remain true across future evolution.
 
-Do not create features, use cases, screens, APIs, entities or tests. Genesis defines the foundation they will depend on; Product Evolution scales horizontally later.
+Do not create features, use cases, screens, APIs, entities, platform targets or tests. Genesis defines the foundation they will depend on; Product Evolution scales horizontally later.
 
 ## 10. Deterministic close sequence
 

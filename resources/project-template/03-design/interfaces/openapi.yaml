@@ -6,7 +6,10 @@ info:
     Authoritative HTTP wire contract. Paths, parameters, request bodies,
     response bodies, protocol status codes, security requirements, and shared
     wire schemas are defined here. API processing documents reference
-    operationId values and must not redefine the wire shape.
+    operationId values and must not redefine the wire shape. An empty paths
+    map is the declared state when the product has no HTTP surface; non-HTTP
+    invocation contracts such as IPC or bridge commands and CLI entries are
+    owned in full by their API-* documents.
 
 # Completion contract for a non-draft interface:
 # - Every supported operation has a globally unique, stable operationId.

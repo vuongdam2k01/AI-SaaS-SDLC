@@ -52,7 +52,7 @@ describe("dual-host packaging", () => {
     }
   });
 
-  it("resolves the same 23-pattern catalog from isolated host root environments", async () => {
+  it("resolves the same 24-pattern catalog from isolated host root environments", async () => {
     const root = await mkdtemp(path.join(os.tmpdir(), "dual-host-patterns-"));
     roots.push(root);
     const codex = runWithRoot(root, "CODEX_PLUGIN_ROOT", ["patterns", "list", "--json"]);
@@ -62,7 +62,7 @@ describe("dual-host packaging", () => {
     const codexOutput = JSON.parse(codex.stdout);
     const claudeOutput = JSON.parse(claude.stdout);
     expect(codexOutput).toEqual(claudeOutput);
-    expect(codexOutput.patterns).toHaveLength(23);
+    expect(codexOutput.patterns).toHaveLength(24);
   });
 
   it("keeps every Codex UI descriptor bound to its installed skill name", async () => {

@@ -102,6 +102,6 @@ claude plugin validate . --strict
 npm run validate:manifests
 ```
 
-The package checks both plugin manifests, all ten host skill adapters, the 23 pattern types, isolated Claude/Codex root resolution, path confinement and reproducible projections.
+The package checks both plugin manifests, all ten host skill adapters, the 24 pattern types, isolated Claude/Codex root resolution, path confinement and reproducible projections.
 
 Further references: [timeline](docs/end-to-end-timeline.md), [flow reference](docs/flow-reference.md), [artifact reference](docs/artifact-reference.md), [command reference](docs/command-reference.md), [configuration](docs/configuration-reference.md) and [architecture](docs/system-architecture.md).

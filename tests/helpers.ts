@@ -7,6 +7,8 @@ import { refreshProject } from "../src/core/project.js";
 import { createBaseline } from "../src/core/baseline.js";
 import { closeFlow, startFlow } from "../src/core/state.js";
 import { completeFoundationArtifacts } from "./fixtures/complete-saas/fixture.js";
+import { sha256, stableJson } from "../src/core/utils.js";
+import fg from "fast-glob";
 
 export const pluginRoot = process.cwd();
 
@@ -19,6 +21,17 @@ export async function tempProject(projectId = "test-project", idea = "A real Saa
 
 export async function cleanup(root: string): Promise<void> {
   await rm(root, { recursive: true, force: true });
+}
+
+/** Re-pin the snapshot exactly as `init` would, after rewriting the pinned catalog. */
+export async function repinPatternSnapshot(root: string): Promise<void> {
+  const catalogRoot = path.join(root, "00-system", "patterns");
+  const files = await fg("**/*", { cwd: catalogRoot, onlyFiles: true, dot: true, followSymbolicLinks: false, ignore: ["snapshot.json"] });
+  const hashes: string[] = [];
+  for (const relative of files.sort()) {
+    hashes.push(`00-system/patterns/${relative.replaceAll("\\", "/")}:${sha256(await readFile(path.join(catalogRoot, relative), "utf8"))}`);
+  }
+  await writeFile(path.join(catalogRoot, "snapshot.json"), stableJson({ schema_version: 1, catalog_hash: sha256(hashes.join("\n")), files: hashes.length }), "utf8");
 }
 
 export function artifact(overrides: Partial<Artifact> & Pick<Artifact, "id" | "artifact_type">): Artifact {

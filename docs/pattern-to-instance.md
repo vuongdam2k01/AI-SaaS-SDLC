@@ -32,7 +32,7 @@ resources/project-template/   -> fixed foundation files    live singleton record
 live artifacts                -> generated/                derived projections
 ```
 
-A pattern describes a reusable class. For example, `unit-test-backend.pattern.md` is an authoring contract; `04-verification/unit-tests/backend/UT-API-APPROVAL-001.md` is one product-specific test specification. `generated/` contains reproducible views over live records and is never another authored source of truth.
+A pattern describes a reusable class. For example, `unit-test-backend.pattern.md` is an authoring contract; `04-verification/unit-tests/backend/UT-API-APPROVAL-001.md` is one product-specific test specification. The same contract also produces `UT-CORE-*` specifications for platform-neutral core logic. `generated/` contains reproducible views over live records and is never another authored source of truth.
 
 ## Creating a scalable instance
 

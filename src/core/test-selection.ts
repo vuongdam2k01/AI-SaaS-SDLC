@@ -17,8 +17,8 @@ export function selectTests(artifacts: Artifact[], graph: ArtifactGraph, affecte
   const affectedTypes = new Set(graph.nodes.filter((node) => affectedSet.has(node.id) && node.status !== "retired" && node.status !== "superseded").map((node) => node.type));
   const required = {
     unit: ["feature", "use_case", "screen", "component", "subsystem", "api_processing", "entity", "job", "access_control", "system_invariants", "error_catalog", "openapi_contract", "screen_transitions"].some((type) => affectedTypes.has(type)),
-    integration: ["business_flow", "subsystem", "api_processing", "entity", "external_integration", "job", "event", "access_control", "quality_requirements", "system_invariants", "error_catalog", "openapi_contract", "physical_schema"].some((type) => affectedTypes.has(type)),
-    system: ["feature", "use_case", "business_flow", "access_control", "quality_requirements", "system_invariants", "openapi_contract", "screen_transitions"].some((type) => affectedTypes.has(type))
+    integration: ["business_flow", "subsystem", "api_processing", "entity", "external_integration", "job", "event", "platform_target", "access_control", "quality_requirements", "system_invariants", "error_catalog", "openapi_contract", "physical_schema"].some((type) => affectedTypes.has(type)),
+    system: ["feature", "use_case", "business_flow", "platform_target", "access_control", "quality_requirements", "system_invariants", "openapi_contract", "screen_transitions"].some((type) => affectedTypes.has(type))
   };
   const selected = { unit: [] as string[], integration: [] as string[], system: [] as string[] };
   for (const [level, types] of Object.entries(testTypes) as Array<[keyof typeof testTypes, Set<string>]>) {

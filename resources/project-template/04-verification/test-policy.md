@@ -40,6 +40,7 @@ supersedes:
 - Only actual execution creates a RESULT artifact; content generation never pre-populates pass/fail evidence.
 - Result provenance includes revision, command, toolchain, timestamps, environment fingerprint, per-case outcomes, and sanitized diagnostic references.
 - Failed or missing cases remain visible; summaries reconcile with case rows.
+- An execution proves the platform it ran on. When the product ships on more than one platform, record which platforms the recorded executions covered and which shipped platforms remain unproven.
 
 ## Data and isolation rules
 

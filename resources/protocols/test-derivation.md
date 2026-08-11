@@ -9,6 +9,7 @@ Testing has exactly three levels: UT, IT and ST. Security, privacy, performance,
 - access rules, invariants and error codes;
 - screen/component states;
 - API/entity/subsystem/integration/job/event contracts;
+- platform-target constraints, permissions, update behavior and local-data rules;
 - impact closure and existing test specifications;
 - configured implementation paths and verification commands.
 
@@ -16,7 +17,7 @@ Testing has exactly three levels: UT, IT and ST. Security, privacy, performance,
 
 | Level | Proves | Use for | Do not use for |
 |---|---|---|---|
-| UT | One backend processing unit, frontend screen/component or job with controlled collaborators | Pure decisions, validation, state reducers, formatting, error mapping, retry policy under controlled dependencies | Real provider, persistence or complete journey claims |
+| UT | One backend or platform-neutral core processing unit, frontend screen/component or job with controlled collaborators | Pure decisions, validation, state reducers, formatting, error mapping, retry policy under controlled dependencies | Real provider, persistence or complete journey claims |
 | IT | A real boundary between components, persistence, provider adapter, event or job processing | API-database, component integration, schema mapping, webhook/event/job behavior, sandbox/provider adapter | Whole product journey or isolated pure function |
 | ST | Complete user-visible journey and cross-feature behavior | Actor goal, permissions, feature interaction, recovery/compensation, end-to-end acceptance and non-regression | Exhaustive internal permutations already covered below |
 
@@ -24,7 +25,7 @@ Every active feature requires at least one downstream UT, IT and ST specificatio
 
 **Every business rule a live feature declares must be claimed by at least one specification.** Choosing which level holds a rule is a derivation judgement made from the table below; having a level at all is a contract, not a judgement. Claim a rule by writing its qualified reference `FTR-<AREA>-<NNN>#BR-<NN>` in the specification, or its bare `BR-<NN>` in a specification that already declares the owning feature in `depends_on`. `ENGINE refresh` derives `generated/rule-coverage.md` from those references and `ENGINE validate` reports `RULE_UNVERIFIED` for every rule nothing claims. Treat that warning as work to do, not noise: an unclaimed rule is a commitment no execution can ever fail on.
 
-Instantiate new specifications with `ENGINE artifact create` using `unit_test_backend`, `unit_test_frontend`, `unit_test_job`, `integration_test` or `system_test`. Never instantiate `test_result`; only verified execution may generate it.
+Instantiate new specifications with `ENGINE artifact create` using `unit_test_backend`, `unit_test_frontend`, `unit_test_job`, `integration_test` or `system_test`. Backend and platform-neutral core units share `unit_test_backend`: use `UT-API-*` for a unit that sits behind an invocable operation and `UT-CORE-*` for domain or core logic that no platform owns. Never instantiate `test_result`; only verified execution may generate it.
 
 ### Level ownership
 
@@ -77,6 +78,10 @@ This matters most for anything that becomes immutable. An accepted ADR baselined
 | Integration degradation | Timeout/retry/quota/signature/fallback case, normally IT, plus ST for visible degraded behavior |
 | Job/event contract | Duplicate, ordering, retry, cancellation/replay and terminal-failure cases |
 | Subsystem quality budget | Deterministic fixture/metric or declared evaluation case at the appropriate level |
+| Platform constraint (`PLT-*` C-*) | Case proves the constrained behavior at the boundary the constraint acts on, normally IT, or ST when the constraint is visible to the actor |
+| Platform permission (`PLT-*` P-*) | Denial and revocation case at the lowest level that can observe the refusal, plus ST where the degraded behavior is user-visible |
+| Platform update or local-data rule (`PLT-*` D-*/M-*) | Cross-version data survival or declared-loss case at IT; ST when the upgrade behavior itself is user-visible |
+| IPC, bridge or CLI boundary | Contract case at IT exercising the real invocation boundary, with the same participant discipline as any other real boundary |
 
 ## Test artifact content
 
@@ -99,7 +104,8 @@ Apply only where relevant:
 - security/privacy: authorization, tenant isolation, secret/PII exposure, retention/deletion;
 - performance/reliability: explicit budget, timeout, retry, load/concurrency and graceful degradation;
 - accessibility: keyboard/focus/labels/contrast for UI, stable machine-readable errors/lifecycle for headless interfaces;
-- AI behavior: schema/grounding/quality/refusal/cost/latency/pinning/human-control based on `SUB-*` contracts.
+- AI behavior: schema/grounding/quality/refusal/cost/latency/pinning/human-control based on `SUB-*` contracts;
+- platform variance: apply the platform-conditional claims a `PLT-*` records inside the existing UT/IT/ST levels. Execution evidence is produced on one machine, so one execution proves one platform. Record which platforms an execution covered, and which shipped platforms remain unproven, in `TEST-POLICY`. Platform coverage is a limitation to state, never a fourth test level.
 
 Do not invent an SLA or evaluation threshold while writing a test. Route missing product/design criteria to `QUESTIONS` or the active issue.
 

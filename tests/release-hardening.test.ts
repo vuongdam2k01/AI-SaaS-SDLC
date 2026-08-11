@@ -3,7 +3,7 @@ import { execFileSync } from "node:child_process";
 import { mkdir, readdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import YAML from "yaml";
-import { cleanup, establishGenesis, tempProject } from "./helpers.js";
+import { cleanup, establishGenesis, repinPatternSnapshot, tempProject } from "./helpers.js";
 import { scanArtifacts } from "../src/core/artifacts.js";
 import { validateProject } from "../src/core/validation.js";
 import { buildProjections } from "../src/core/projections.js";
@@ -18,22 +18,9 @@ import { addApprovalFeature, materializePatternArtifact } from "./fixtures/compl
 import { buildEnginePointer, ensureEnginePointerIgnored, recordEnginePointer } from "../src/core/engine-pointer.js";
 import { createArtifactFromPattern } from "../src/core/artifact-instantiation.js";
 import { resolveCatalog } from "../src/core/pattern-catalog.js";
-import { sha256, stableJson } from "../src/core/utils.js";
-import fg from "fast-glob";
 
 const roots: string[] = [];
 afterEach(async () => { while (roots.length) await cleanup(roots.pop()!); });
-
-/** Re-pin the snapshot exactly as `init` would, after rewriting a pattern file. */
-async function repinPatternSnapshot(root: string): Promise<void> {
-  const catalogRoot = path.join(root, "00-system", "patterns");
-  const files = await fg("**/*", { cwd: catalogRoot, onlyFiles: true, dot: true, followSymbolicLinks: false, ignore: ["snapshot.json"] });
-  const hashes: string[] = [];
-  for (const relative of files.sort()) {
-    hashes.push(`00-system/patterns/${relative.replaceAll("\\", "/")}:${sha256(await readFile(path.join(catalogRoot, relative), "utf8"))}`);
-  }
-  await writeFile(path.join(catalogRoot, "snapshot.json"), stableJson({ schema_version: 1, catalog_hash: sha256(hashes.join("\n")), files: hashes.length }), "utf8");
-}
 
 async function projections(root: string) {
   const artifacts = await scanArtifacts(root);
