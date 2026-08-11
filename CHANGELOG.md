@@ -1,5 +1,24 @@
 # Changelog
 
+## 1.3.4 - 2026-08-11
+
+Repository tooling, not the plugin. The manifest validator could not find the
+Claude CLI and reported that as a failed validation.
+
+### Fixed
+
+- `scripts/validate-plugin-manifests.mjs` assumed `claude.exe` on Windows. A
+  global npm install leaves `claude.cmd`; the native installer leaves
+  `claude.exe`; a machine has one or the other, so on CI the script exited in
+  400ms with no output at all — indistinguishable, in the log, from a plugin
+  that failed strict validation.
+
+  The CLI is now resolved from `PATH` by extension, `.cmd` and `.bat` are
+  spawned through a shell because Node refuses them otherwise, a candidate must
+  be a *file* (a directory named `claude` on `PATH` otherwise resolved as the
+  executable), and a missing CLI is reported as a missing CLI rather than as a
+  validation failure.
+
 ## 1.3.3 - 2026-08-11
 
 The last red test on `windows-latest`, and the only one of the batch that was a
