@@ -6,43 +6,7 @@ import type { ArtifactPattern, PatternContentContract, PatternTableContract } fr
 import { loadPatternCatalog } from "./pattern-catalog.js";
 import { pathExists } from "./state.js";
 import { CANONICAL_TYPES } from "./artifact-contracts.js";
-
-interface Section { title: string; body: string }
-
-function headingKey(value: string): string {
-  return value.replace(/^#{1,6}\s+/, "").replace(/^\d+(?:\.\d+)*[.)]?\s*/, "").trim().toLowerCase().replace(/\s+/g, " ");
-}
-
-function sections(body: string): Section[] {
-  const matches = [...body.matchAll(/^##\s+(.+)$/gm)];
-  return matches.map((match, index) => ({
-    title: match[1]!.trim(),
-    body: body.slice((match.index ?? 0) + match[0].length, matches[index + 1]?.index ?? body.length).trim()
-  }));
-}
-
-function allSections(body: string): Section[] {
-  const matches = [...body.matchAll(/^#{2,6}\s+(.+)$/gm)];
-  return matches.map((match, index) => ({
-    title: match[1]!.trim(),
-    body: body.slice((match.index ?? 0) + match[0].length, matches[index + 1]?.index ?? body.length).trim()
-  }));
-}
-
-function markdownTables(section: string): Array<{ columns: string[]; rows: string[][] }> {
-  const lines = section.split("\n");
-  const tables: Array<{ columns: string[]; rows: string[][] }> = [];
-  for (let index = 0; index < lines.length - 1; index += 1) {
-    if (!/^\s*\|.*\|\s*$/.test(lines[index]!) || !/^\s*\|(?:\s*:?-+:?\s*\|)+\s*$/.test(lines[index + 1]!)) continue;
-    const split = (line: string) => line.trim().slice(1, -1).split("|").map((cell) => cell.trim());
-    const rows: string[][] = [];
-    let cursor = index + 2;
-    while (cursor < lines.length && /^\s*\|.*\|\s*$/.test(lines[cursor]!)) rows.push(split(lines[cursor++]!));
-    tables.push({ columns: split(lines[index]!), rows });
-    index = cursor - 1;
-  }
-  return tables;
-}
+import { allSections, completedRows, headingKey, markdownTables, meaningful, sections } from "./markdown.js";
 
 function deriveContract(template: string): PatternContentContract {
   const templateSections = sections(template);
@@ -65,11 +29,6 @@ function mergedContract(pattern: ArtifactPattern, derived: PatternContentContrac
     local_ids: pattern.content.local_ids,
     placeholder_patterns: pattern.content.placeholder_patterns
   };
-}
-
-function meaningful(value: string): boolean {
-  const stripped = value.replace(/<!--[\s\S]*?-->/g, "").replace(/^\s*\|(?:\s*:?-+:?\s*\|)+\s*$/gm, "").trim();
-  return stripped.length > 0;
 }
 
 function regexForTemplate(value: string): RegExp {
@@ -110,7 +69,7 @@ async function validateAgainstContract(artifact: Artifact, contract: PatternCont
     const table = markdownTables(section.body).find((candidate) => tableMatches(candidate.columns, required.columns));
     if (!table) findings.push({ severity: "error", code: "CONTENT_TABLE_MISSING", message: `${artifact.id} is missing the required table under ${required.heading}`, file: artifact.file });
     else {
-      const validRows = table.rows.filter((row) => row.some((cell) => meaningful(cell)) && !row.some((cell) => /\{\{|<PLACEHOLDER|\bTBD\b|\[TODO/i.test(cell)));
+      const validRows = completedRows(table);
       if (validRows.length < required.min_rows) findings.push({ severity: "error", code: "CONTENT_TABLE_EMPTY", message: `${artifact.id} requires ${required.min_rows} completed row(s) under ${required.heading}`, file: artifact.file });
     }
   }

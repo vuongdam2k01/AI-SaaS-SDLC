@@ -18,6 +18,7 @@ import { withProjectLock } from "../core/project-lock.js";
 import { resolveRuntimeRoot } from "../core/runtime-root.js";
 import { resolveCatalog } from "../core/pattern-catalog.js";
 import { createArtifactFromPattern } from "../core/artifact-instantiation.js";
+import { STALE_AFTER_BASELINES, baselinesOpen, openQuestions } from "../core/question-ledger.js";
 
 const program = new Command();
 const root = process.cwd();
@@ -32,7 +33,7 @@ function print(value: unknown, json = false): void {
   else console.log(value);
 }
 
-program.name("ai-saas-sdlc").description("Deterministic engine for AI SaaS SDLC documentation flows.").version("1.2.0");
+program.name("ai-saas-sdlc").description("Deterministic engine for AI SaaS SDLC documentation flows.").version("1.3.0");
 
 program.command("init")
   .description("Initialize a centralized documentation repository.")
@@ -86,7 +87,16 @@ program.command("state")
   .action(async (options: { json?: boolean }) => {
     const current = await loadCurrentState(root);
     const flow = await loadActiveFlow(root);
-    print({ current, active_flow: flow }, Boolean(options.json));
+    // Age, not just presence. An author reading state can otherwise see twenty
+    // open questions and no indication which of them the product has already
+    // moved on without.
+    const questions = openQuestions(await scanArtifacts(root)).map((question) => ({
+      id: question.id,
+      first_baseline: current.question_first_baseline?.[question.id] ?? null,
+      baselines_open: baselinesOpen(current.question_first_baseline?.[question.id], current.active_baseline),
+      stale: (baselinesOpen(current.question_first_baseline?.[question.id], current.active_baseline) ?? 0) >= STALE_AFTER_BASELINES
+    })).sort((a, b) => (b.baselines_open ?? -1) - (a.baselines_open ?? -1) || a.id.localeCompare(b.id));
+    print({ current, active_flow: flow, open_questions: questions }, Boolean(options.json));
   });
 
 const flow = program.command("flow").description("Manage one of the four temporal flows.");

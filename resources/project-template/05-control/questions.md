@@ -30,10 +30,12 @@ supersedes:
 | Question ID | Resolution summary | Evidence/decision IDs | Affected changes | Resolved by change |
 |---|---|---|---|---|
 <!-- A summary aids navigation but cannot replace the linked authority. Reopen only when the same question/authority remains; create a new ID when meaning changes. -->
+<!-- Two closures are legal and both belong here. Evidence answered it: cite the EVD-* IDs. A decision made it moot: cite the ADR-* and state in the summary what the decision deliberately no longer waits on. A question closed by a decision is closed, not abandoned; a question left open because nobody returned to it is neither. -->
 
 ## Aging and impact
 
 - Review signal: a referenced source ages, an affected artifact changes, or the question blocks a concrete authority.
+- The engine measures age in baselines and reports `QUESTION_STALE` once a question has outlived the work that raised it; Evidence Reassessment must then resolve it, close it by decision, or state why it stays open.
 - Impact classification: identify which facts remain unsafe to assert while open.
 - Stale questions remain visible until resolved or explicitly superseded; never delete unresolved history.
 - Open questions cannot be treated as evidence, assumptions, requirements, or accepted decisions.

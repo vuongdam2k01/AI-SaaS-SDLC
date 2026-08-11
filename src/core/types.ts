@@ -119,6 +119,15 @@ export interface CurrentState {
   next_flow: number;
   next_execution: number;
   id_registry: Record<string, string>;
+  /**
+   * Baseline at which each currently open question was first seen open.
+   *
+   * Age has to be measured somewhere, and the ledger table cannot hold it
+   * without a required new column that would invalidate every repository
+   * written before this field existed. Optional so that state written by an
+   * earlier version still loads.
+   */
+  question_first_baseline?: Record<string, string>;
 }
 
 export interface BaselineManifest {

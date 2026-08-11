@@ -21,6 +21,7 @@ Reject “research the market again” without a named decision or claim. Do not
 2. Read `generated/baseline-manifest.json`, `EVIDENCE-LEDGER` and the discovery artifact(s) containing the questioned claim.
 3. Read related `ICP-*`, `PERSONA-*`, `PROBLEM-*`, `COMPETITOR-*`, `QUESTIONS` and open `ISS-*` only when their IDs or content are in scope.
 4. Identify the existing conclusion, its evidence IDs, applicability, observation dates and downstream product assumptions.
+5. Read the stale questions. `ENGINE state --json` reports every open `QST-*` with how many baselines it has been open, and `ENGINE validate` reports `QUESTION_STALE` for each one the product has moved past. Those in this flow's scope are part of its work, not background.
 
 ## 3. Open the temporal flow
 
@@ -70,6 +71,18 @@ Update only affected discovery synthesis:
 
 Legal direct artifact types are discovery details, `QUESTIONS` and `ISS-*`. Do not edit `PRODUCT-REQUIREMENTS`, FTR/UC/FLOW, design, ADR or verification artifacts in this flow.
 
+### Stale questions in scope
+
+For every stale question this flow's evidence touches, reach one of three outcomes before closing. Leaving it untouched is not one of them.
+
+| Outcome | Required write |
+|---|---|
+| The evidence answers it | Move the row to *Resolution recording* with the `EVD-*` IDs that answered it and set its status to `resolved` |
+| A decision has made it moot | Move the row to *Resolution recording* citing the `ADR-*` in the evidence/decision column, and say in one line what the decision no longer waits on. A question can be closed by a choice as legitimately as by a fact |
+| It genuinely remains open | Leave it open and state what evidence would close it and why this reassessment did not produce it |
+
+A question the flow silently steps over is a debt the ledger records and nothing schedules. Report each outcome in section 9. Do not close a question by weakening it into something the current evidence happens to answer.
+
 When a new detail or issue is warranted, instantiate it through the pinned catalog:
 
 ```text
@@ -105,6 +118,7 @@ Report:
 - new/superseded/contradicting `EVD-*` IDs;
 - discovery artifacts changed;
 - whether an `ISS-*` was opened and affected IDs;
+- every stale question in scope with its outcome: resolved by evidence, closed by a decision, or still open with what would close it;
 - new `EVR-*` and unchanged active `BL-*`;
 - evidence limits and whether a separately chosen Evolution is warranted.
 

@@ -12,6 +12,7 @@
     "next_change": { "type": "integer", "minimum": 1 },
     "next_flow": { "type": "integer", "minimum": 1 },
     "next_execution": { "type": "integer", "minimum": 1 },
-    "id_registry": { "type": "object", "propertyNames": { "pattern": "^[A-Z][A-Z0-9-]*$" }, "additionalProperties": { "type": "string", "minLength": 1 } }
+    "id_registry": { "type": "object", "propertyNames": { "pattern": "^[A-Z][A-Z0-9-]*$" }, "additionalProperties": { "type": "string", "minLength": 1 } },
+    "question_first_baseline": { "type": "object", "propertyNames": { "pattern": "^QST-[A-Z0-9-]+$" }, "additionalProperties": { "type": "string", "pattern": "^BL-[0-9]{3,}$" } }
   }
 }

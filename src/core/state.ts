@@ -30,7 +30,8 @@ export async function loadCurrentState(root: string): Promise<CurrentState> {
   const candidate = await readJson<unknown>(file);
   if (!candidate || typeof candidate !== "object" || Array.isArray(candidate)) throw new SdlcError(`Invalid state schema: ${file}`);
   const state = candidate as CurrentState;
-  const valid = Object.keys(state).every((key) => ["schema_version", "project_id", "active_baseline", "evidence_revision", "next_change", "next_flow", "next_execution", "id_registry"].includes(key))
+  const questionAges = state.question_first_baseline;
+  const valid = Object.keys(state).every((key) => ["schema_version", "project_id", "active_baseline", "evidence_revision", "next_change", "next_flow", "next_execution", "id_registry", "question_first_baseline"].includes(key))
     && state.schema_version === 1
     && typeof state.project_id === "string" && /^[a-z0-9][a-z0-9-]*$/.test(state.project_id)
     && (state.active_baseline === null || /^BL-[0-9]{3,}$/.test(state.active_baseline))
@@ -38,7 +39,10 @@ export async function loadCurrentState(root: string): Promise<CurrentState> {
     && state.evidence_revision >= 0 && state.next_change >= 1 && state.next_flow >= 1 && state.next_execution >= 1
     && Boolean(state.id_registry) && typeof state.id_registry === "object" && !Array.isArray(state.id_registry)
     && Object.keys(state.id_registry).every((key) => /^[A-Z][A-Z0-9-]*$/.test(key))
-    && Object.values(state.id_registry).every((value) => typeof value === "string");
+    && Object.values(state.id_registry).every((value) => typeof value === "string")
+    && (questionAges === undefined || (typeof questionAges === "object" && questionAges !== null && !Array.isArray(questionAges)
+      && Object.keys(questionAges).every((key) => /^QST-[A-Z0-9-]+$/.test(key))
+      && Object.values(questionAges).every((value) => typeof value === "string" && /^BL-[0-9]{3,}$/.test(value))));
   if (!valid) throw new SdlcError(`Invalid state schema: ${file}`);
   return state;
 }

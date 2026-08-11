@@ -15,6 +15,8 @@ import { validateInternalRecords } from "./internal-validation.js";
 import { CANONICAL_MARKDOWN, CANONICAL_TYPES, FIXED_TYPES, SCALABLE_LOCATIONS } from "./artifact-contracts.js";
 import { validateActiveArtifactContent } from "./content-contracts.js";
 import { ruleCoverageEntries } from "./coverage-derivation.js";
+import { MAX_CASES_PER_SPEC, specSizeEntries } from "./spec-size.js";
+import { STALE_AFTER_BASELINES, baselinesOpen, openQuestions } from "./question-ledger.js";
 
 const requiredFiles = [
   ...Object.keys(CANONICAL_MARKDOWN),
@@ -127,6 +129,15 @@ export async function validateProject(root: string, artifacts: Artifact[]): Prom
     if (entry.covered) continue;
     findings.push({ severity: "warning", code: "RULE_UNVERIFIED", message: `${entry.rule} is declared but no unit, integration or system specification claims it`, file: entry.file });
   }
+  // A specification that absorbs every new behaviour stays complete and stops
+  // being readable. Reported as a warning for the same reason as the rule above:
+  // where a case belongs is a derivation judgement, and a baseline must not fail
+  // on document size. Left unmeasured, the file simply grows until nobody opens
+  // it.
+  for (const entry of specSizeEntries(artifacts)) {
+    if (!entry.oversized) continue;
+    findings.push({ severity: "warning", code: "SPEC_OVERSIZED", message: `${entry.id} holds ${entry.cases} test cases (threshold ${MAX_CASES_PER_SPEC}); split it ${entry.split_axis} before adding more`, file: entry.file });
+  }
   const graph = buildGraph(artifacts);
   const order = topologicalOrder(graph);
   if (order.cycles.length > 0) findings.push({ severity: "error", code: "DEPENDENCY_CYCLE", message: `Dependency cycle contains: ${order.cycles.join(", ")}` });
@@ -154,6 +165,15 @@ export async function validateProject(root: string, artifacts: Artifact[]): Prom
     for (const artifact of artifacts) {
       const registered = state.id_registry[artifact.id];
       if (registered && registered !== artifact.file) findings.push({ severity: "error", code: "ID_REUSED", message: `${artifact.id} was first registered at ${registered}, not ${artifact.file}`, file: artifact.file });
+    }
+    // An open question is honest; an open question nobody ever returns to is a
+    // debt the ledger records and never schedules. Age is measured in baselines
+    // because that is the unit in which the product moved on without it.
+    for (const question of openQuestions(artifacts)) {
+      const age = baselinesOpen(state.question_first_baseline?.[question.id], state.active_baseline);
+      if (age === null || age < STALE_AFTER_BASELINES) continue;
+      const blocks = question.affected ? ` It still blocks: ${question.affected}.` : "";
+      findings.push({ severity: "warning", code: "QUESTION_STALE", message: `${question.id} has been open for ${age} baselines since ${state.question_first_baseline?.[question.id]}; close it with evidence, close it with a decision that makes it moot, or record why it stays open.${blocks}`, file: question.file });
     }
   } catch {
     findings.push({ severity: "error", code: "STATE_INVALID", message: `Missing or invalid ${projectPaths(root).current}` });

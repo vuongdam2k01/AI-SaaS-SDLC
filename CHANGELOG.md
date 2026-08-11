@@ -1,5 +1,62 @@
 # Changelog
 
+## 1.3.0 - 2026-08-11
+
+Measurement for the debts a growing repository accumulates silently. A
+longitudinal run added five features to a finished product and found no
+structural degradation — 86 business rules, none unverified, no validation
+findings — but it also found three things nothing in the system could see:
+integration and system specifications that absorbed every new case instead of
+splitting, open questions that grew from 16 to 27 with none ever closed, and two
+declared lifecycle statuses no run had ever produced. None of them fails a
+baseline. All of them are invisible until a human reads the whole repository.
+
+### Added
+
+- **`SPEC_OVERSIZED`.** `validate` reports every live `IT-*` or `ST-*` holding
+  more than twelve completed test cases, naming the axis to split on:
+  integration boundary for `IT-*`, user journey for `ST-*`. A warning, never an
+  error — where a case belongs is a derivation judgement, and a baseline must not
+  fail on document size.
+
+- **`QUESTION_STALE`.** Baseline creation stamps each open `QST-*` with the
+  baseline it was first seen open at, and `validate` reports the ones that have
+  outlived three baselines with what they still block. `state --json` gains
+  `open_questions` with each question's age. Age lives in engine state rather
+  than in the ledger table so that no repository written before this release
+  needs migrating.
+
+### Changed
+
+- **Level ownership is now derivable, not free.** `test-derivation.md` states the
+  rule: the owning level is the lowest whose boundary can observe the violation,
+  a second claimant needs a named reason, and an existing claim does not move
+  without a changed contract, a changed boundary or a failed execution. Three
+  acceptance runs had placed the same rules at three different levels; coverage
+  stayed complete each time, which is exactly why nothing noticed.
+
+- **Deprecation granularity is stated.** Change an artifact's *status* only when
+  the whole artifact stops being the authority; when part of it survives,
+  deprecate the business rule inside it with a named replacement and a removal
+  condition. Recorded in Product Evolution and the artifact reference.
+
+- **Evidence Reassessment must settle the stale questions in its scope**:
+  resolved by evidence, closed by a decision that makes them moot, or left open
+  with what would close them. Silence is no longer a legal outcome, and closure
+  by decision is now written down as legitimate.
+
+- Inspect State reports question ages and oversized specifications; Product
+  Evolution checks specification size before adding cases at the `tests`
+  checkpoint.
+
+### Fixed
+
+- `deprecated` and `retired` were declared statuses that no run had ever
+  produced. The full path `active → deprecated → retired` is now driven by a
+  test, together with the four guards standing along it: dependency lifecycle,
+  post-baseline immutability, deletion in place of retirement, and the refusal to
+  baseline while live artifacts still depend on a retired one.
+
 ## 1.2.0 - 2026-08-10
 
 Author control over how much of a flow runs in one turn. Two acceptance runs

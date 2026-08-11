@@ -84,6 +84,17 @@ Use `ENGINE patterns list --json` to resolve the exact catalog type when necessa
 
 For a new feature allocate new permanent IDs. For a compatible refinement update current artifacts. For replacement use successor/supersession where required. For retirement preserve IDs/history and deprecate/retire dependents/tests rather than deleting them.
 
+### Deprecation granularity
+
+Deprecation has two instruments, and using the wrong one states something false about the product.
+
+- **Artifact status** — set `deprecated`, then `retired`, only when the whole artifact has stopped being the authority for anything. A retired artifact is immutable and no live artifact may depend on it, so retire it only after its dependents have moved.
+- **Business-rule granularity** — when part of the artifact survives, leave the artifact `active` and deprecate the rule inside it: mark the specific `BR-*` with the change that deprecated it, the named replacement and the condition under which it is removed. Marking the whole feature deprecated because one of its rules was replaced claims the rest of it is going away too.
+
+Apply the same test to `UC-*` and `FLOW-*`: a behavior fully replaced by a successor moves to `superseded`; a behavior partly replaced is edited, not retired.
+
+Whichever instrument you use, state in the closing report which artifacts changed **status** and which carry a rule-level deprecation, with the removal condition for each. A deprecation with no stated removal condition is an annotation, not a decision.
+
 ## 5. First impact closure
 
 After the behavior diff is real, run:
@@ -137,6 +148,8 @@ Follow `resources/protocols/test-derivation.md`.
 - create/update `ST-*` for the actor journey and cross-feature behavior;
 - preserve existing regression tests reached through the closure;
 - cover ACs, UC/FLOW errors, access, invariants, error codes, concurrency and degradation by reference.
+
+Before adding cases to an existing `IT-*` or `ST-*`, check whether it is already carrying more than one boundary or journey. `ENGINE validate --active --json` reports `SPEC_OVERSIZED` for every live specification past the threshold. When the specification you are about to extend is named there, split it first and add the new cases to the correct document; appending to a file the engine has already called oversized is how one specification becomes the only specification.
 
 Instantiate every new UT/IT/ST specification with `ENGINE artifact create`; `RESULT-*` remains engine-owned and is never instantiated or edited by the model.
 

@@ -26,6 +26,34 @@ Every active feature requires at least one downstream UT, IT and ST specificatio
 
 Instantiate new specifications with `ENGINE artifact create` using `unit_test_backend`, `unit_test_frontend`, `unit_test_job`, `integration_test` or `system_test`. Never instantiate `test_result`; only verified execution may generate it.
 
+### Level ownership
+
+Which level holds a rule is a judgement, but it is not a free one. Derive it in this order and stop at the first answer:
+
+1. **The owning level is the lowest level whose boundary can observe the rule being violated.** If a controlled unit can produce the wrong answer, the rule belongs to UT. If the violation only appears once a real boundary is crossed — persistence, provider, event, job — it belongs to IT. If it only appears as a wrong outcome for an actor completing a journey, it belongs to ST.
+2. **Add a second claimant only for a reason you can name**: the rule crosses a real boundary that the lower level controls away (IT), or its violation is directly visible to a user in a journey (ST). Claiming a rule at every level for reassurance is duplication, and duplication is what section *Level allocation* forbids.
+3. **An existing claim does not move.** Once a rule is claimed, re-derivation keeps that claim unless a contract changed, the boundary changed, or an execution failed. Relocating unclaimed-but-unchanged rules produces a different coverage map for the same product on every run; that is drift, not improvement. When a claim does move, say which of the three triggers moved it.
+
+`generated/rule-coverage.md` shows the current placement. Read it before deriving, not after.
+
+## Specification size and splitting
+
+One specification describes one boundary. It stops being a specification when it becomes the place every new case is appended to.
+
+- one `IT-*` per integration boundary — the participant pair and contract named in its *Integration boundary* table, not per feature and never one per product;
+- one `ST-*` per user-visible journey — one actor goal from start to observable outcome;
+- `UT-*` follows its unit and splits with it.
+
+`ENGINE validate` reports `SPEC_OVERSIZED` when a live `IT-*` or `ST-*` exceeds the case threshold. Treat it as work to do at the next `tests` checkpoint that touches the file:
+
+1. split along the axis the warning names — integration boundary for `IT-*`, journey for `ST-*`;
+2. instantiate the new specification with `ENGINE artifact create`, never by copying the file;
+3. **keep case IDs stable**: a case that moves keeps its `TC-NN` inside its new document, and rule and AC references move with it;
+4. declare `depends_on` for the new specification and leave the original's remaining references intact;
+5. update implementation mappings for both documents when sources are configured.
+
+Splitting is not a rewrite. A split that changes what the cases assert is a change of verification, and belongs to the derivation step that changed the behavior. If the warning fires on a file the current change does not touch, record it in `QUESTIONS` rather than opening unrelated work.
+
 ## Derivation map
 
 | Source | Required test consequence |

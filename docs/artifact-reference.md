@@ -69,3 +69,5 @@ The engine builds reverse edges and historical impact closure. Implementation ma
 ## Lifecycle and immutability
 
 IDs and canonical locations are permanent. Deprecated, retired and superseded records remain present and become immutable after baselining. The original idea is immutable after capture. An accepted ADR body is immutable; change it with a successor ADR. A result is bound to its exact `EXEC-*` record, command, source snapshot and output digest.
+
+Status is the wrong instrument for a partial retirement. Set `deprecated` or `retired` only when the whole artifact has stopped being the authority for anything; a retired artifact is immutable and no live artifact may depend on it, so retire it only after its dependents have moved. When part of the artifact survives, leave it `active` and deprecate the specific business rule inside it, naming the change that deprecated it, its replacement and the condition for removal.

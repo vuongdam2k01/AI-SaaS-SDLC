@@ -19,6 +19,7 @@ import { latestExecution } from "./execution-selection.js";
 import { withProjectLock } from "./project-lock.js";
 import { enforceFlowArtifactBoundaries } from "./baseline-flow-rules.js";
 import { implementationSnapshotHash } from "./implementation-snapshot.js";
+import { openQuestions } from "./question-ledger.js";
 
 function nextBaselineId(current: string | null): string {
   if (!current) return "BL-000";
@@ -136,6 +137,13 @@ async function createBaselineUnlocked(root: string): Promise<BaselineManifest> {
     verification
   };
   for (const artifact of artifacts) state.id_registry[artifact.id] ??= artifact.file;
+  // Stamp every open question with the baseline it was first seen open at, and
+  // forget the ones that closed. A question that is later reopened therefore
+  // ages from its reopening rather than from a history it no longer has.
+  const open = openQuestions(artifacts);
+  const ages: Record<string, string> = {};
+  for (const question of open) ages[question.id] = state.question_first_baseline?.[question.id] ?? id;
+  state.question_first_baseline = ages;
   state.active_baseline = id;
   await saveCurrentState(root, state);
   await prepareSafeManagedPath(root, projectPaths(root).baseline);

@@ -13676,7 +13676,8 @@ async function loadCurrentState(root2) {
   const candidate = await readJson(file);
   if (!candidate || typeof candidate !== "object" || Array.isArray(candidate)) throw new SdlcError(`Invalid state schema: ${file}`);
   const state = candidate;
-  const valid = Object.keys(state).every((key) => ["schema_version", "project_id", "active_baseline", "evidence_revision", "next_change", "next_flow", "next_execution", "id_registry"].includes(key)) && state.schema_version === 1 && typeof state.project_id === "string" && /^[a-z0-9][a-z0-9-]*$/.test(state.project_id) && (state.active_baseline === null || /^BL-[0-9]{3,}$/.test(state.active_baseline)) && [state.evidence_revision, state.next_change, state.next_flow, state.next_execution].every(Number.isInteger) && state.evidence_revision >= 0 && state.next_change >= 1 && state.next_flow >= 1 && state.next_execution >= 1 && Boolean(state.id_registry) && typeof state.id_registry === "object" && !Array.isArray(state.id_registry) && Object.keys(state.id_registry).every((key) => /^[A-Z][A-Z0-9-]*$/.test(key)) && Object.values(state.id_registry).every((value) => typeof value === "string");
+  const questionAges = state.question_first_baseline;
+  const valid = Object.keys(state).every((key) => ["schema_version", "project_id", "active_baseline", "evidence_revision", "next_change", "next_flow", "next_execution", "id_registry", "question_first_baseline"].includes(key)) && state.schema_version === 1 && typeof state.project_id === "string" && /^[a-z0-9][a-z0-9-]*$/.test(state.project_id) && (state.active_baseline === null || /^BL-[0-9]{3,}$/.test(state.active_baseline)) && [state.evidence_revision, state.next_change, state.next_flow, state.next_execution].every(Number.isInteger) && state.evidence_revision >= 0 && state.next_change >= 1 && state.next_flow >= 1 && state.next_execution >= 1 && Boolean(state.id_registry) && typeof state.id_registry === "object" && !Array.isArray(state.id_registry) && Object.keys(state.id_registry).every((key) => /^[A-Z][A-Z0-9-]*$/.test(key)) && Object.values(state.id_registry).every((value) => typeof value === "string") && (questionAges === void 0 || typeof questionAges === "object" && questionAges !== null && !Array.isArray(questionAges) && Object.keys(questionAges).every((key) => /^QST-[A-Z0-9-]+$/.test(key)) && Object.values(questionAges).every((value) => typeof value === "string" && /^BL-[0-9]{3,}$/.test(value)));
   if (!valid) throw new SdlcError(`Invalid state schema: ${file}`);
   return state;
 }
@@ -14318,6 +14319,8 @@ async function loadPatternCatalog(catalogRoot, projectRoot) {
 
 // src/core/content-contracts.ts
 init_state();
+
+// src/core/markdown.ts
 function headingKey(value) {
   return value.replace(/^#{1,6}\s+/, "").replace(/^\d+(?:\.\d+)*[.)]?\s*/, "").trim().toLowerCase().replace(/\s+/g, " ");
 }
@@ -14349,6 +14352,24 @@ function markdownTables(section) {
   }
   return tables;
 }
+function completedRows(table) {
+  return table.rows.filter(completedRow);
+}
+function meaningful(value) {
+  const stripped = value.replace(/<!--[\s\S]*?-->/g, "").replace(/^\s*\|(?:\s*:?-+:?\s*\|)+\s*$/gm, "").trim();
+  return stripped.length > 0;
+}
+function sectionBody(body, heading) {
+  return allSections(body).find((candidate) => headingKey(candidate.title) === headingKey(heading))?.body ?? null;
+}
+function dataRows(section) {
+  return section.split("\n").filter((line) => /^\s*\|.*\|\s*$/.test(line) && !/^\s*\|(?:\s*:?-+:?\s*\|)+\s*$/.test(line)).map((line) => line.trim().slice(1, -1).split("|").map((cell) => cell.trim()));
+}
+function completedRow(row) {
+  return row.some((cell) => meaningful(cell)) && !row.some((cell) => /\{\{|<PLACEHOLDER|\bTBD\b|\[TODO/i.test(cell));
+}
+
+// src/core/content-contracts.ts
 function deriveContract(template) {
   const templateSections = sections(template);
   const requiredTables = [];
@@ -14370,17 +14391,13 @@ function mergedContract(pattern, derived) {
     placeholder_patterns: pattern.content.placeholder_patterns
   };
 }
-function meaningful(value) {
-  const stripped = value.replace(/<!--[\s\S]*?-->/g, "").replace(/^\s*\|(?:\s*:?-+:?\s*\|)+\s*$/gm, "").trim();
-  return stripped.length > 0;
-}
 function regexForTemplate(value) {
   const escaped = value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&").replace(/\\\{\\\{[A-Z0-9_]+\\\}\\\}/g, "[\\s\\S]+?");
   return new RegExp(`^${escaped.replace(/\s+/g, "\\s+")}$`, "i");
 }
 function tableMatches(columns, required) {
   const actual = columns.map(headingKey);
-  return required.every((column) => actual.includes(headingKey(column)));
+  return required.every((column2) => actual.includes(headingKey(column2)));
 }
 function placeholderPatterns(contract) {
   const defaults = ["\\{\\{[^}]+\\}\\}", "\\[TODO(?::[^\\]]*)?\\]", "<[a-z][^>\\n]{1,100}>", "\\bTBD\\b", "^-\\s*\\[ \\]"];
@@ -14409,7 +14426,7 @@ async function validateAgainstContract(artifact, contract, template) {
     const table = markdownTables(section.body).find((candidate) => tableMatches(candidate.columns, required.columns));
     if (!table) findings.push({ severity: "error", code: "CONTENT_TABLE_MISSING", message: `${artifact.id} is missing the required table under ${required.heading}`, file: artifact.file });
     else {
-      const validRows = table.rows.filter((row) => row.some((cell) => meaningful(cell)) && !row.some((cell) => /\{\{|<PLACEHOLDER|\bTBD\b|\[TODO/i.test(cell)));
+      const validRows = completedRows(table);
       if (validRows.length < required.min_rows) findings.push({ severity: "error", code: "CONTENT_TABLE_EMPTY", message: `${artifact.id} requires ${required.min_rows} completed row(s) under ${required.heading}`, file: artifact.file });
     }
   }
@@ -14462,6 +14479,75 @@ async function validateActiveArtifactContent(root2, artifacts) {
 
 // src/core/validation.ts
 init_coverage_derivation();
+
+// src/core/spec-size.ts
+init_types();
+var MAX_CASES_PER_SPEC = 12;
+var SPLIT_AXIS = {
+  integration_test: "by integration boundary",
+  system_test: "by user journey"
+};
+function specSizeEntries(artifacts) {
+  return artifacts.filter((artifact) => SPLIT_AXIS[artifact.artifact_type] && isLiveStatus(artifact.status)).map((artifact) => {
+    const section = sectionBody(artifact.body, "Test cases");
+    const ids2 = new Set(section ? dataRows(section).filter((row) => completedRow(row) && /^`?TC-[0-9]+`?$/i.test(row[0] ?? "")).map((row) => row[0].replace(/`/g, "").toUpperCase()) : []);
+    const cases = ids2.size;
+    return {
+      id: artifact.id,
+      artifact_type: artifact.artifact_type,
+      file: artifact.file,
+      cases,
+      oversized: cases > MAX_CASES_PER_SPEC,
+      split_axis: SPLIT_AXIS[artifact.artifact_type]
+    };
+  });
+}
+
+// src/core/question-ledger.ts
+var STALE_AFTER_BASELINES = 3;
+function column(columns, name) {
+  return columns.map(headingKey).indexOf(headingKey(name));
+}
+function openQuestions(artifacts) {
+  const ledger = artifacts.find((artifact) => artifact.artifact_type === "question_ledger");
+  if (!ledger) return [];
+  const section = sectionBody(ledger.body, "Open questions");
+  if (!section) return [];
+  const rows = dataRows(section);
+  const header = rows.find((row) => column(row, "Question ID") >= 0 && column(row, "Status") >= 0);
+  if (!header) return [];
+  const idIndex = column(header, "Question ID");
+  const statusIndex = column(header, "Status");
+  const questionIndex = column(header, "Question");
+  const affectedIndex = column(header, "Affected artifacts");
+  const questions = /* @__PURE__ */ new Map();
+  for (const row of rows) {
+    if (!completedRow(row)) continue;
+    const id2 = (row[idIndex] ?? "").replace(/[`*]/g, "").trim().toUpperCase();
+    if (!/^QST-[A-Z0-9-]+$/.test(id2)) continue;
+    if ((row[statusIndex] ?? "").trim().toLowerCase() === "resolved") continue;
+    questions.set(id2, {
+      id: id2,
+      question: (row[questionIndex] ?? "").trim(),
+      affected: (row[affectedIndex] ?? "").trim(),
+      file: ledger.file
+    });
+  }
+  return [...questions.values()];
+}
+function baselineNumber(id2) {
+  if (!id2) return null;
+  const number = Number(id2.slice(3));
+  return Number.isInteger(number) ? number : null;
+}
+function baselinesOpen(firstBaseline, activeBaseline) {
+  const first = baselineNumber(firstBaseline);
+  const active = baselineNumber(activeBaseline);
+  if (first === null || active === null) return null;
+  return Math.max(0, active - first);
+}
+
+// src/core/validation.ts
 var requiredFiles = [
   ...Object.keys(CANONICAL_MARKDOWN),
   "03-design/interfaces/openapi.yaml",
@@ -14568,6 +14654,10 @@ async function validateProject(root2, artifacts) {
     if (entry.covered) continue;
     findings.push({ severity: "warning", code: "RULE_UNVERIFIED", message: `${entry.rule} is declared but no unit, integration or system specification claims it`, file: entry.file });
   }
+  for (const entry of specSizeEntries(artifacts)) {
+    if (!entry.oversized) continue;
+    findings.push({ severity: "warning", code: "SPEC_OVERSIZED", message: `${entry.id} holds ${entry.cases} test cases (threshold ${MAX_CASES_PER_SPEC}); split it ${entry.split_axis} before adding more`, file: entry.file });
+  }
   const graph = buildGraph(artifacts);
   const order = topologicalOrder(graph);
   if (order.cycles.length > 0) findings.push({ severity: "error", code: "DEPENDENCY_CYCLE", message: `Dependency cycle contains: ${order.cycles.join(", ")}` });
@@ -14595,6 +14685,12 @@ async function validateProject(root2, artifacts) {
     for (const artifact of artifacts) {
       const registered = state.id_registry[artifact.id];
       if (registered && registered !== artifact.file) findings.push({ severity: "error", code: "ID_REUSED", message: `${artifact.id} was first registered at ${registered}, not ${artifact.file}`, file: artifact.file });
+    }
+    for (const question of openQuestions(artifacts)) {
+      const age = baselinesOpen(state.question_first_baseline?.[question.id], state.active_baseline);
+      if (age === null || age < STALE_AFTER_BASELINES) continue;
+      const blocks = question.affected ? ` It still blocks: ${question.affected}.` : "";
+      findings.push({ severity: "warning", code: "QUESTION_STALE", message: `${question.id} has been open for ${age} baselines since ${state.question_first_baseline?.[question.id]}; close it with evidence, close it with a decision that makes it moot, or record why it stays open.${blocks}`, file: question.file });
     }
   } catch {
     findings.push({ severity: "error", code: "STATE_INVALID", message: `Missing or invalid ${projectPaths(root2).current}` });
