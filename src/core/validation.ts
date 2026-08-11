@@ -18,6 +18,7 @@ import { ruleCoverageEntries } from "./coverage-derivation.js";
 import { MAX_CASES_PER_SPEC, specSizeEntries } from "./spec-size.js";
 import { brokenCaseReferences } from "./test-cases.js";
 import { STALE_AFTER_BASELINES, baselinesOpen, openQuestions } from "./question-ledger.js";
+import { platformEvidenceFindings } from "./platform-evidence.js";
 
 const requiredFiles = [
   ...Object.keys(CANONICAL_MARKDOWN),
@@ -142,6 +143,12 @@ export async function validateProject(root: string, artifacts: Artifact[]): Prom
   for (const broken of brokenCaseReferences(artifacts)) {
     findings.push({ severity: "warning", code: "CASE_REFERENCE_BROKEN", message: `${broken.reference} names a case ${broken.specification} does not declare`, file: broken.file });
   }
+  // A live platform target whose evidence no command declares is the repository
+  // promising per-platform proof the engine can never produce. Warning, not
+  // error, for the same reason as the rules above — and it fires even with zero
+  // configured commands, because a documentation-only repository that claims
+  // platforms is exactly the one that needs the reminder.
+  if (config) findings.push(...platformEvidenceFindings(config, artifacts));
   const graph = buildGraph(artifacts);
   const order = topologicalOrder(graph);
   if (order.cycles.length > 0) findings.push({ severity: "error", code: "DEPENDENCY_CYCLE", message: `Dependency cycle contains: ${order.cycles.join(", ")}` });

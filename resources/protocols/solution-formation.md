@@ -14,7 +14,7 @@ Use this protocol in Product Evolution or Reconciliation after observable behavi
 
 | Artifact | Create or update when | Canonical content | Do not use for |
 |---|---|---|---|
-| `SCR-*` | A real user-facing surface — web route, desktop window or mobile screen — has distinct purpose, state or transition behavior | Regions, fields, actions, validation messages, states, transitions, accessibility | Global UX rules or backend processing |
+| `SCR-*` | A real user-facing surface — web route, desktop window, mobile screen, or a non-window surface such as a tray or menu-bar menu — has distinct purpose, state or transition behavior | Regions, fields, actions, validation messages, states, transitions, accessibility | Global UX rules or backend processing |
 | `CMP-*` | At least two real consumers share the same interaction contract | Inputs/outputs, variants, states, validation, accessibility, extension points | One-surface fragments or visual styling only |
 | `SUB-*` | A non-trivial engine, model, pipeline or domain capability has its own quality/failure boundary | Capabilities, I/O/stores, budgets, pinning, degradation, evaluation, security | Ordinary CRUD grouping |
 | `API-*` | An invocable operation — an OpenAPI operation, an IPC/bridge command or a CLI entry — has processing, authorization, transactional or side-effect behavior worth specifying | Callers, validation, sequence, consistency, side effects, idempotency, errors | HTTP wire schema, which remains in OpenAPI; a non-HTTP operation owns its full invocation contract here |
@@ -26,6 +26,16 @@ Use this protocol in Product Evolution or Reconciliation after observable behavi
 | `ADR-*` | Multiple viable alternatives have durable, cross-artifact or expensive-to-reverse consequences | Context, drivers, options, decision, consequences, verification and affected scope | Routine choices already owned by a design artifact |
 
 Absence is valid when the condition is false. A complete solution is not the one with the most files.
+
+### OS entry points and surfaces
+
+Operating-system entry points — a global shortcut, a file association, a deep link, a share target, a tray action — have no artifact type of their own, deliberately. Allocate them by what each one is:
+
+- the **entry itself is a trigger**: declare it in the owning `UC-*`/`FLOW-*` as the step or trigger that starts the behavior;
+- its **registration cost is platform behavior**: the `PLT-*` capabilities table owns registration, the conflict when another application already holds it, and the denial or revocation behavior;
+- a **tray or menu-bar menu with real interaction structure is a screen**: regions, actions, enablement rules and transitions make it an `SCR-*` like any other stable surface, window or not.
+
+An entry point that appears in a journey but is registered nowhere, or registered in a `PLT-*` that no behavior references, is an allocation gap of the same kind as an unowned client obligation.
 
 For each new allocation, use `ENGINE artifact create` with the catalog `artifact_type`; never copy template/pattern files manually. Complete the generated instance and preserve its assigned path/ID. Existing artifacts are edited in place only when lifecycle rules permit.
 

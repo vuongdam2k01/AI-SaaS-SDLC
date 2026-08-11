@@ -2,6 +2,15 @@
 
 See the root [CHANGELOG](../CHANGELOG.md) for the release summary. This contributor view records documentation-impact areas that must remain synchronized with implementation.
 
+## 1.5.0 - 2026-08-11
+
+| Area | Documentation impact |
+|---|---|
+| Verification provenance | Documented `platforms` declarations on verification commands, the observed-host fields on execution records, and both in `RESULT-*` provenance |
+| Validation | Documented `PLATFORM_EVIDENCE_MISSING` and `PLATFORM_DECLARATION_UNKNOWN`; command reference now enumerates all six warnings |
+| Design method | OS entry points decomposed into UC/FLOW triggers, `PLT-*` capability rows and `SCR-*` surfaces; screens carry a form-factor rule; single-user products state OS-account/device boundaries |
+| Guides | Adopted the how-to guide set into the repository and aligned its allocation table with the 24-type catalog |
+
 ## 1.4.0 - 2026-08-11
 
 | Area | Documentation impact |

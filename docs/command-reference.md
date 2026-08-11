@@ -37,7 +37,7 @@ The deterministic engine operates on the current working directory. In a develop
 
 Validation covers configuration, canonical type/path identity, metadata, permanent IDs, graph references and cycles, lifecycle and supersession, immutable input/ADR/terminal history, active content contracts, pinned-pattern integrity, internal state/change/execution schemas, execution/result binding, implementation mappings and generated synchronization. Baseline creation adds flow boundaries, coverage and required execution verdicts.
 
-Three findings are reported as warnings and never block a baseline, because each names a judgement rather than a broken structure: `RULE_UNVERIFIED` for a declared business rule no specification claims, `SPEC_OVERSIZED` for a live integration or system specification past the case threshold, and `QUESTION_STALE` for an open question that has outlived three baselines. They are work owed, and they are reported precisely so that owing it stays visible.
+Six findings are reported as warnings and never block a baseline, because each names a judgement or a debt rather than a broken structure: `RULE_UNVERIFIED` for a declared business rule no specification claims, `SPEC_OVERSIZED` for a live integration or system specification past the case threshold, `CASE_REFERENCE_BROKEN` for a qualified case reference naming a case its specification does not declare, `QUESTION_STALE` for an open question that has outlived three baselines, `PLATFORM_EVIDENCE_MISSING` for a live platform target no verification command declares evidence for, and `PLATFORM_DECLARATION_UNKNOWN` for a declaration naming no live platform target. They are work owed, and they are reported precisely so that owing it stays visible.
 
 ## Mutation safety
 

@@ -47,8 +47,14 @@ export function isActiveFlow(value: unknown): value is ActiveFlow {
     && (value.baseline_created === undefined ? value.baseline_implementation_snapshot_hash === undefined : value.baseline_implementation_snapshot_hash !== undefined);
 }
 
+function validHost(value: unknown): boolean {
+  if (value === undefined) return true;
+  return record(value) && exactKeys(value, ["os", "release", "arch", "node"])
+    && ["os", "release", "arch", "node"].every((key) => typeof value[key] === "string" && (value[key] as string).length > 0);
+}
+
 export function isExecutionRecord(value: unknown): value is ExecutionRecord {
-  if (!record(value) || !exactKeys(value, ["schema_version", "id", "flow_id", "level", "command_id", "command", "cwd", "started_at", "ended_at", "exit_code", "output_hash", "output_file", "git_commit", "source_snapshot_hash"])) return false;
+  if (!record(value) || !exactKeys(value, ["schema_version", "id", "flow_id", "level", "command_id", "command", "cwd", "started_at", "ended_at", "exit_code", "output_hash", "output_file", "git_commit", "source_snapshot_hash", "platforms", "host"])) return false;
   return value.schema_version === 1
     && id(value.id, "EXEC")
     && id(value.flow_id, "FLOW")
@@ -59,7 +65,9 @@ export function isExecutionRecord(value: unknown): value is ExecutionRecord {
     && Number.isInteger(value.exit_code)
     && typeof value.output_hash === "string" && /^[a-f0-9]{64}$/.test(value.output_hash)
     && (value.git_commit === null || typeof value.git_commit === "string")
-    && typeof value.source_snapshot_hash === "string" && /^[a-f0-9]{64}$/.test(value.source_snapshot_hash);
+    && typeof value.source_snapshot_hash === "string" && /^[a-f0-9]{64}$/.test(value.source_snapshot_hash)
+    && (value.platforms === undefined || (artifactIds(value.platforms) && value.platforms.length > 0))
+    && validHost(value.host);
 }
 
 export function isChangeRecord(value: unknown): value is ChangeRecord {

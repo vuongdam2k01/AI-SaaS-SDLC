@@ -57,6 +57,17 @@ All five skills require explicit user invocation. Research uses actual `WebSearc
 
 The repository also contains `.codex-plugin/plugin.json` and five Codex-native adapters under `codex/skills/`. Claude's manual-only adapters live separately under `claude/skills/`. Neither directory sits at the repository root, so a Claude host loads exactly the five manual Claude skills and a Codex host loads exactly the five Codex skills. Both load the same playbooks, patterns, portable hooks and engine. Codex asks the user to review and trust bundled command hooks before running them. See [dual-host installation and use](docs/codex-installation.md).
 
+## Guides
+
+Task-oriented walkthroughs organized by what you are actually doing — starting a product, building a feature, changing behavior, reassessing the market, fixing a mismatch, checking state. Start at the [guides index](docs/guides/README.md), which routes each situation to the right skill and the exact command:
+
+- [Start a new product](docs/guides/start-a-new-product.md) — install, the documentation-repository model, and Genesis.
+- [Implement a feature](docs/guides/implement-a-feature.md) — Product Evolution end to end, checkpoint by checkpoint.
+- [Evolve existing behavior](docs/guides/evolve-existing-behavior.md) — change, consolidate, break, deprecate or retire.
+- [Reassess market evidence](docs/guides/reassess-evidence.md) — Evidence Reassessment on one concrete question.
+- [Fix a failure or mismatch](docs/guides/reconcile-a-failure.md) — Reconciliation, authority-first repair.
+- [Inspect state and check results](docs/guides/inspect-and-check-results.md) — verifying outcomes and editorial edits.
+
 ## Temporal flows
 
 | Flow | Event and result |
@@ -102,6 +113,6 @@ claude plugin validate . --strict
 npm run validate:manifests
 ```
 
-The package checks both plugin manifests, all ten host skill adapters, the 24 pattern types, isolated Claude/Codex root resolution, path confinement and reproducible projections.
+The package checks both plugin manifests, all ten host skill adapters, the 23 pattern types, isolated Claude/Codex root resolution, path confinement and reproducible projections.
 
-Further references: [timeline](docs/end-to-end-timeline.md), [flow reference](docs/flow-reference.md), [artifact reference](docs/artifact-reference.md), [command reference](docs/command-reference.md), [configuration](docs/configuration-reference.md) and [architecture](docs/system-architecture.md).
+Further references: [how-to guides](docs/guides/README.md), [timeline](docs/end-to-end-timeline.md), [flow reference](docs/flow-reference.md), [artifact reference](docs/artifact-reference.md), [command reference](docs/command-reference.md), [configuration](docs/configuration-reference.md) and [architecture](docs/system-architecture.md).

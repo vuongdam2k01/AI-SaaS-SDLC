@@ -7506,8 +7506,12 @@ function exactKeys(value, allowed) {
 function safeId(value) {
   return typeof value === "string" && /^[a-z0-9][a-z0-9-]*$/.test(value);
 }
+function validPlatforms(value) {
+  if (value === void 0) return true;
+  return Array.isArray(value) && value.length > 0 && value.every((item) => typeof item === "string" && /^[A-Z][A-Z0-9-]*$/.test(item)) && new Set(value).size === value.length;
+}
 function validCommand(value) {
-  return isRecord(value) && exactKeys(value, ["id", "cwd", "command"]) && safeId(value.id) && [value.cwd, value.command].every((item) => typeof item === "string" && item.length > 0);
+  return isRecord(value) && exactKeys(value, ["id", "cwd", "command", "platforms"]) && safeId(value.id) && [value.cwd, value.command].every((item) => typeof item === "string" && item.length > 0) && validPlatforms(value.platforms);
 }
 function validConfig(value) {
   if (!isRecord(value) || !exactKeys(value, ["schema_version", "project_id", "research_mode", "implementation_sources", "verification"])) return false;
@@ -7530,7 +7534,7 @@ async function loadConfig(root2) {
   } catch (error) {
     throw new SdlcError(`Cannot read ${file}: ${String(error)}`);
   }
-  if (!validConfig(parsed)) throw new SdlcError("Invalid sdlc.config.yaml: expected schema_version 1, kebab-case project/source/command IDs, public-web-only research, implementation_sources, and unit/integration/system command arrays.");
+  if (!validConfig(parsed)) throw new SdlcError("Invalid sdlc.config.yaml: expected schema_version 1, kebab-case project/source/command IDs, public-web-only research, implementation_sources, unit/integration/system command arrays, and optional non-empty artifact-ID platforms lists.");
   return parsed;
 }
 var import_yaml2;

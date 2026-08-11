@@ -1,5 +1,75 @@
 # Changelog
 
+## 1.5.0 - 2026-08-11
+
+1.4.0 gave platform targets a place to state per-platform verification
+consequences, and left the engine unable to check them. A repository could run
+its entire suite on Windows, validate clean and baseline while macOS, iOS and
+Android had never executed once — the documentation promising, at every `V-*`
+row, evidence the machine had no way to demand. The same failure shape as
+oracle-placement drift: a claim that validates clean while silently untrue.
+
+### Added
+
+- **Platform evidence declarations.** A verification command that exercises a
+  shipped platform now declares it in `sdlc.config.yaml`:
+  `platforms: [PLT-WIN-001]`. The declaration is a human claim, in the same
+  trust class as `implementation_sources`. Each execution copies the
+  declaration into its record **beside** the machine-observed host
+  (OS, release, architecture, Node version), and both appear in the rendered
+  `RESULT-*` provenance. They are deliberately never merged: an Android
+  declaration whose records always show a `win32` host is visible to any
+  reviewer, which is what makes the claim auditable rather than decorative.
+
+- **`PLATFORM_EVIDENCE_MISSING` and `PLATFORM_DECLARATION_UNKNOWN`
+  (warnings).** The first names every live platform target no configured
+  command declares evidence for — it fires even in a documentation-only
+  repository, because a repository whose documents claim platforms while
+  running nothing is exactly the one that needs the reminder. The second names
+  a declaration pointing at no live platform target. Neither blocks; a platform
+  no available machine can execute legitimately stays undeclared, recorded as
+  unproven in `TEST-POLICY`.
+
+- **Declare-after-run is not evidence.** An execution recorded before a
+  `platforms` declaration was added does not satisfy that declaration: both
+  the in-flow reuse check and the baseline verdict now compare the declaration,
+  so adding one after the run reads as `not-run` and forces a re-execution
+  whose record carries what was declared. Without this, mapping a platform
+  after the fact would have baselined on records that never mentioned it.
+
+- **OS entry points have owners.** A global shortcut, file association, deep
+  link or tray action is a trigger in its `UC-*`/`FLOW-*`; its registration,
+  conflict and denial behavior is a `PLT-*` capability row; a tray or menu-bar
+  menu with real interaction structure is an `SCR-*` like any other stable
+  surface. Solution formation states the split; test derivation gains the
+  trigger/conflict/denial row. No new artifact type — the set decomposes
+  cleanly into the three that exist.
+
+### Changed
+
+- A screen covers every form factor of its surface; materially different
+  phone/tablet/desktop behavior splits into per-form-factor artifacts with
+  their own IDs. Single-user installed products state their boundary as the
+  OS user account or device — "not applicable, single-user product" with the
+  boundary named is a complete access answer, not a gap. Access-rule test
+  derivation says cross-boundary (tenant, account or device) rather than
+  assuming tenancy.
+
+### Compatibility
+
+Old configurations and old execution records validate unchanged: the new
+config key and both record fields are optional, and the result renderer emits
+byte-identical output for records that lack them — the digest binding on every
+immutable pre-1.5.0 `RESULT-*` still holds, verified against a copy of a real
+repository with 36 executed results. In the other direction, **an execution
+recorded by ≥1.5.0 reads as `EXECUTION_INVALID` under older engines; upgrade
+the engine, do not repair the record** — the record is immutable provenance
+and the failure heals on upgrade. Adopting declarations in an existing
+repository is one Product Evolution whose only direct change is
+`SDLC-CONFIG`; that satisfies the semantic-change gate. The warning proves the
+*mapping* exists, not that evidence does — the existing
+all-commands-before-baseline gate is what forces every mapped command to run.
+
 ## 1.4.0 - 2026-08-11
 
 The method was never web-specific, but the catalog was. An assessment of the

@@ -31,7 +31,7 @@ supersedes:
 
 | Local ID | Capability or permission | Purpose | Request timing | Denial or revocation behavior | Feature or access references |
 |---|---|---|---|---|---|
-| P-01 | <notifications, filesystem, camera, location, background execution> | <FTR outcome it serves> | <install, first use, or explicit user action> | <observable degraded behavior and user-safe message> | <FTR/AC/ACCESS IDs> |
+| P-01 | <notifications, filesystem, camera, location, background execution, global shortcut, file association, deep link> | <FTR outcome it serves> | <install, first use, or explicit user action> | <observable degraded behavior when denied, revoked, or already held by another application> | <FTR/AC/ACCESS IDs> |
 
 ## Distribution and update behavior
 
@@ -51,7 +51,7 @@ supersedes:
 | Local ID | Upstream IDs | Platform-conditional claim | Observed at | Evidence expectation |
 |---|---|---|---|---|
 | V-01 | <AC/BR/QR/INV IDs> | <how the claim changes or must still hold on this platform> | <boundary or surface where the difference is observable> | <per-platform execution evidence required> |
-<!-- Cite upstream acceptance, rule, quality and invariant IDs only. Downstream UT/IT/ST specifications claim these consequences later and are never named here; a specification that does not exist yet cannot be referenced. -->
+<!-- Cite upstream acceptance, rule, quality and invariant IDs only. Downstream UT/IT/ST specifications claim these consequences later and are never named here; a specification that does not exist yet cannot be referenced. When verification commands exist, evidence for this target is declared by adding platforms: [<this ID>] to the commands that exercise it; ENGINE validate reports PLATFORM_EVIDENCE_MISSING while no command declares it. -->
 
 ## Traceability
 

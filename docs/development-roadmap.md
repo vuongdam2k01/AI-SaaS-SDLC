@@ -4,6 +4,7 @@
 
 | Release | Direction |
 |---|---|
+| 1.5.0 | Platform claims became checkable: verification commands declare the platform targets they evidence, executions record the declaration beside the observed host, and validate warns about live platforms nothing declares. Candidate follow-up: a `generated/platform-coverage.md` projection joining live targets, declaring commands, latest executions and hosts — emitted only when platform targets exist so existing repositories see no drift |
 | 1.4.0 | Catalog opened beyond web products: `platform_target` owns platform constraints, permissions, distribution/update and local-data migration; `API-*` covers any invocable operation; platform variance is a viewpoint inside UT/IT/ST |
 
 ## 1.0.0 rebuild status

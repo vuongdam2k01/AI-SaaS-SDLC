@@ -16,6 +16,7 @@ import { formatId, readJson, writeJsonAtomic } from "./utils.js";
 import { SdlcError } from "./errors.js";
 import { isChangeRecord, isExecutionRecord } from "./record-validation.js";
 import { latestExecution } from "./execution-selection.js";
+import { samePlatformDeclaration } from "./verification.js";
 import { withProjectLock } from "./project-lock.js";
 import { enforceFlowArtifactBoundaries } from "./baseline-flow-rules.js";
 import { implementationSnapshotHash } from "./implementation-snapshot.js";
@@ -94,7 +95,10 @@ async function createBaselineUnlocked(root: string): Promise<BaselineManifest> {
     const definitions = config.verification[level];
     const records = executions.filter((record) => record.level === level);
     if (definitions.length === 0) return [level, "not-configured"];
-    const latest = definitions.map((definition) => latestExecution(records.filter((record) => record.command_id === definition.id && record.command === definition.command && record.cwd === definition.cwd)));
+    // The declaration participates in the match: an execution recorded before a
+    // platform declaration was added is not evidence for that declaration, so a
+    // declare-after-run edit reads as not-run and forces a re-execution.
+    const latest = definitions.map((definition) => latestExecution(records.filter((record) => record.command_id === definition.id && record.command === definition.command && record.cwd === definition.cwd && samePlatformDeclaration(record.platforms, definition.platforms))));
     if (latest.some((record) => !record)) return [level, "not-run"];
     return [level, latest.every((record) => record?.exit_code === 0) ? "passed" : "failed"];
   })) as BaselineManifest["verification"];

@@ -19,6 +19,14 @@ function duration(record: ExecutionRecord): string {
 export function renderResultArtifact(record: ExecutionRecord, change: string): string {
   const outcome = record.exit_code === 0 ? "passed" : "failed";
   const recordFile = record.output_file.replace(/\.log$/, ".json");
+  // Both rows derive from the record alone. This function is re-rendered on
+  // every machine that validates, and its digest is compared against the
+  // stored artifact, so reading the local environment here would break every
+  // committed result the moment another machine validates the repository.
+  // A record without the optional fields must render byte-identically to the
+  // output of the engine that wrote it.
+  const fingerprint = record.host ? tableCell(`${record.host.os} ${record.host.release} ${record.host.arch}; node ${record.host.node}`) : NOT_REPORTED;
+  const declaredPlatforms = record.platforms ? `\n| Declared platform evidence | ${tableCell(record.platforms.join(", "))} |` : "";
   const evidence = `${record.output_file} (SHA-256 ${record.output_hash})`;
   const failure = record.exit_code === 0
     ? `| Command ${record.command_id} | No command-level failure observed; exit code was 0. | Exit code 0 | ${tableCell(evidence)} | none recorded by execution engine |`
@@ -57,7 +65,7 @@ execution_id: ${record.id}
 | Command | ${tableCell(record.command)} |
 | Working directory | ${tableCell(record.cwd)} |
 | Toolchain | ${NOT_REPORTED} |
-| Environment fingerprint | ${NOT_REPORTED} |
+| Environment fingerprint | ${fingerprint} |${declaredPlatforms}
 
 ## Aggregate result
 

@@ -25,7 +25,7 @@ supersedes:
 ## Ownership and tenancy
 
 - Owning subsystem: <SUB ID>
-- Tenant/organization scope: <scope and isolation rule>
+- Tenant/organization scope: <scope and isolation rule; a single-user product states the OS-account or device boundary instead>
 - Creation authority: <actor or processing artifact>
 - Mutation authority: <bounded actors/processes>
 - Read authority: <access rule IDs>

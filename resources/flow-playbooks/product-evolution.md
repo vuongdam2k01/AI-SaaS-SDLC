@@ -181,6 +181,8 @@ ENGINE verify --all --execute --json
 
 If none are configured, preserve honest `not-configured` state. Never write `RESULT-*` manually or simulate a pass.
 
+When live `PLT-*` targets exist, declare which of them each command produces evidence for with `platforms: [PLT-...]` on the command definition before executing. `ENGINE validate` reports `PLATFORM_EVIDENCE_MISSING` for a live platform target no command declares; a platform this machine genuinely cannot execute stays undeclared and is recorded as unproven in `TEST-POLICY` instead of being declared optimistically.
+
 ## 11. Deterministic close sequence
 
 Run:

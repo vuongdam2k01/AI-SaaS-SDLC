@@ -75,6 +75,7 @@ Report compactly:
 - business rules declared by live features that no specification claims, taken from `generated/rule-coverage.md` and the `RULE_UNVERIFIED` warnings, reported as unverified commitments rather than as passing coverage;
 - the oldest open questions with their age in baselines and what each still blocks, taken from `open_questions` in `ENGINE state --json` and the `QUESTION_STALE` warnings — a count of open questions without their ages hides exactly the ones worth reporting;
 - verification specifications the engine reports as `SPEC_OVERSIZED`, with their case counts, reported as maintenance owed rather than as a defect;
+- live platform targets the engine reports as `PLATFORM_EVIDENCE_MISSING`, reported as platforms whose claims no recorded execution can support, and any `PLATFORM_DECLARATION_UNKNOWN` declarations pointing at nothing;
 - the open flow's checkpoint progress when one exists: which stage it reached, which it was asked to stop at, and which remain — taken from `ENGINE flow next --json`;
 - one next valid action, chosen from editorial edit, continue active flow, Reassessment, Evolution, Reconciliation or no action.
 

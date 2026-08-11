@@ -37,6 +37,8 @@ export interface CommandDefinition {
   id: string;
   cwd: string;
   command: string;
+  /** Live platform_target IDs this command produces execution evidence for. */
+  platforms?: string[];
 }
 
 export interface ProjectConfig {
@@ -185,6 +187,10 @@ export interface ExecutionRecord {
   output_file: string;
   git_commit: string | null;
   source_snapshot_hash: string;
+  /** Copied verbatim from the command definition at execution time: the declaration. */
+  platforms?: string[];
+  /** Observed on the machine that ran the command: the fact. */
+  host?: { os: string; release: string; arch: string; node: string };
 }
 
 export interface ChangeRecord {

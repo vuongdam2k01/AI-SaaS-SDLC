@@ -71,7 +71,7 @@ This matters most for anything that becomes immutable. An accepted ADR baselined
 | `BR-*` | At least one case at one level claims the rule by reference; a rule with no claimant is a coverage defect |
 | UC alternate/error path | Case proves path selection and observable result |
 | FLOW compensation/cross-feature path | ST or IT proves state restoration/continuation |
-| Access-control rule | Denial and cross-tenant boundary at the lowest real enforcing level plus ST where user-visible |
+| Access-control rule | Denial and cross-boundary case — tenant, account or device — at the lowest real enforcing level plus ST where user-visible |
 | System invariant | Boundary/property cases and at least one integration/system proof when it spans components |
 | Error-catalog code | Trigger, stable mapping, user-visible recovery and non-leakage |
 | Shared write/concurrency rule | Interleaving/duplicate/idempotency case at IT; ST if the loser/user behavior matters |
@@ -82,6 +82,7 @@ This matters most for anything that becomes immutable. An accepted ADR baselined
 | Platform permission (`PLT-*` P-*) | Denial and revocation case at the lowest level that can observe the refusal, plus ST where the degraded behavior is user-visible |
 | Platform update or local-data rule (`PLT-*` D-*/M-*) | Cross-version data survival or declared-loss case at IT; ST when the upgrade behavior itself is user-visible |
 | IPC, bridge or CLI boundary | Contract case at IT exercising the real invocation boundary, with the same participant discipline as any other real boundary |
+| OS entry point (global shortcut, file association, deep link, tray action) | Trigger, conflict and denial cases at the level that observes the refusal; ST where the entry starts an actor journey |
 
 ## Test artifact content
 
@@ -105,7 +106,7 @@ Apply only where relevant:
 - performance/reliability: explicit budget, timeout, retry, load/concurrency and graceful degradation;
 - accessibility: keyboard/focus/labels/contrast for UI, stable machine-readable errors/lifecycle for headless interfaces;
 - AI behavior: schema/grounding/quality/refusal/cost/latency/pinning/human-control based on `SUB-*` contracts;
-- platform variance: apply the platform-conditional claims a `PLT-*` records inside the existing UT/IT/ST levels. Execution evidence is produced on one machine, so one execution proves one platform. Record which platforms an execution covered, and which shipped platforms remain unproven, in `TEST-POLICY`. Platform coverage is a limitation to state, never a fourth test level.
+- platform variance: apply the platform-conditional claims a `PLT-*` records inside the existing UT/IT/ST levels. Execution evidence is produced on one machine, so one execution proves one platform. Declare which platform targets a verification command produces evidence for with `platforms: [PLT-...]` on the command in `sdlc.config.yaml`; the engine copies the declaration into each execution record beside the observed host, and `ENGINE validate` reports `PLATFORM_EVIDENCE_MISSING` for a live platform target no command declares and `PLATFORM_DECLARATION_UNKNOWN` for a declaration naming no live target. The declaration is a human claim and the host is a machine fact, kept separate on purpose: a command declaring Android whose records forever show a win32 host is visible to any reviewer. A shipped platform that genuinely cannot be executed stays undeclared, with the limitation recorded in `TEST-POLICY`. Platform coverage is a limitation to state, never a fourth test level.
 
 Do not invent an SLA or evaluation threshold while writing a test. Route missing product/design criteria to `QUESTIONS` or the active issue.
 

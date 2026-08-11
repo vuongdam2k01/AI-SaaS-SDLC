@@ -1,5 +1,6 @@
 import { spawn } from "node:child_process";
 import { readdir, writeFile } from "node:fs/promises";
+import os from "node:os";
 import path from "node:path";
 import type { CommandDefinition, ExecutionRecord, ProjectConfig } from "./types.js";
 import { gitCommit } from "./git.js";
@@ -13,6 +14,13 @@ import { withProjectLock } from "./project-lock.js";
 import { sourceSnapshotHash } from "./implementation-snapshot.js";
 
 type Level = "unit" | "integration" | "system";
+
+/** Order-insensitive equality for platform declarations; absence equals empty. */
+export function samePlatformDeclaration(a: string[] | undefined, b: string[] | undefined): boolean {
+  const left = [...(a ?? [])].sort();
+  const right = [...(b ?? [])].sort();
+  return left.length === right.length && left.every((value, index) => value === right[index]);
+}
 
 function allowedRoots(root: string, config: ProjectConfig): string[] {
   return [root, ...config.implementation_sources.map((source) => path.resolve(root, source.path))];
@@ -73,7 +81,8 @@ async function executeVerificationUnlocked(root: string, config: ProjectConfig, 
     const sourceSnapshotBefore = await sourceSnapshotHash(cwd);
     const prior = priorForFlow.find((record) => record.command_id === definition.id
       && record.command === definition.command
-      && record.source_snapshot_hash === sourceSnapshotBefore);
+      && record.source_snapshot_hash === sourceSnapshotBefore
+      && samePlatformDeclaration(record.platforms, definition.platforms));
     if (prior) {
       records.push(prior);
       continue;
@@ -105,7 +114,12 @@ async function executeVerificationUnlocked(root: string, config: ProjectConfig, 
       output_hash: sha256(result.output),
       output_file: `.ai-saas-sdlc/executions/${id}.log`,
       git_commit: sourceCommit,
-      source_snapshot_hash: sourceSnapshot
+      source_snapshot_hash: sourceSnapshot,
+      // The declaration is the command author's claim; the host is what this
+      // machine observed. They are recorded separately and never merged, so an
+      // Android declaration executed on a win32 host stays auditable.
+      ...(definition.platforms ? { platforms: definition.platforms } : {}),
+      host: { os: process.platform, release: os.release(), arch: os.arch(), node: process.versions.node }
     };
     // Recheck immediately before persistence in case a directory changed during execution.
     await prepareSafeManagedPath(root, logFile);

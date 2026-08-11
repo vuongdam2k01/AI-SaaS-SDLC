@@ -35,7 +35,7 @@ supersedes:
 
 | Access ID | Subject or role | Resource | Action | Condition | Decision | Denial behavior |
 |---|---|---|---|---|---|---|
-<!-- Use ACCESS-001 onward. Decision is allow/deny; conditions include ownership, tenant, state, or delegated scope. -->
+<!-- Use ACCESS-001 onward. Decision is allow/deny; conditions include ownership, tenant, state, or delegated scope. A single-user installed product states its boundary as the operating-system user account or device instead of a tenant; "not applicable, single-user product" with the device/account boundary named is a complete answer, not a gap. -->
 
 ## Denial behavior
 

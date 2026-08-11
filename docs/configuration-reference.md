@@ -22,9 +22,10 @@ verification:
     - id: web-system
       cwd: ../approval-web-app
       command: npm run test:system
+      platforms: [PLT-WIN-001]
 ```
 
-No additional top-level or nested keys are accepted in schema version 1.
+No additional top-level or nested keys are accepted in schema version 1; the only optional command key is `platforms`.
 
 ## Core fields
 
@@ -34,7 +35,7 @@ No additional top-level or nested keys are accepted in schema version 1.
 | `project_id` | Stable lowercase letters, numbers and hyphens. |
 | `research_mode` | Must be `public-web-only`. Real host search/page inspection is required for claimed evidence. |
 | `implementation_sources` | Array of unique `{id, path}` mappings; IDs use lowercase letters, numbers and hyphens. |
-| `verification` | Exactly `unit`, `integration` and `system`, each containing unique `{id, cwd, command}` entries. |
+| `verification` | Exactly `unit`, `integration` and `system`, each containing unique `{id, cwd, command}` entries, each optionally carrying `platforms: [PLT-...]` — the live platform targets the command produces execution evidence for. |
 
 ## Implementation-source boundary
 
@@ -65,9 +66,15 @@ Each execution records:
 - start/end time and exit code;
 - Git commit when available;
 - pre-execution source snapshot hash;
-- captured log path and digest.
+- captured log path and digest;
+- the observed host (operating system, release, architecture, Node version);
+- the command's `platforms` declaration, copied verbatim when present.
 
-The engine renders the matching `RESULT-EXEC-*` from that record. It never overwrites a failed attempt; a rerun receives a new execution/result ID. Baseline verification uses the latest applicable attempt for each declared command.
+The engine renders the matching `RESULT-EXEC-*` from that record. It never overwrites a failed attempt; a rerun receives a new execution/result ID. Baseline verification uses the latest applicable attempt for each declared command, and an execution recorded before a `platforms` declaration was added does not count for it — the command re-runs so the record carries what was declared.
+
+### Platform evidence declarations
+
+A command that exercises a shipped platform declares it: `platforms: [PLT-WIN-001]`. The declaration is a human claim, recorded beside the machine-observed host so the two never blur — an Android declaration whose records always show a `win32` host is visible to any reviewer. `validate` reports `PLATFORM_EVIDENCE_MISSING` for every live platform target no command declares, and `PLATFORM_DECLARATION_UNKNOWN` for a declaration matching no live target. Both are warnings: a platform that cannot be executed on any available machine legitimately stays undeclared, with the limitation recorded in `TEST-POLICY`.
 
 ## Documentation-only mode
 

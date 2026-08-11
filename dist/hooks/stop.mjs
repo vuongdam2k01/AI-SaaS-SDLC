@@ -13474,8 +13474,12 @@ function exactKeys(value, allowed) {
 function safeId(value) {
   return typeof value === "string" && /^[a-z0-9][a-z0-9-]*$/.test(value);
 }
+function validPlatforms(value) {
+  if (value === void 0) return true;
+  return Array.isArray(value) && value.length > 0 && value.every((item) => typeof item === "string" && /^[A-Z][A-Z0-9-]*$/.test(item)) && new Set(value).size === value.length;
+}
 function validCommand(value) {
-  return isRecord(value) && exactKeys(value, ["id", "cwd", "command"]) && safeId(value.id) && [value.cwd, value.command].every((item) => typeof item === "string" && item.length > 0);
+  return isRecord(value) && exactKeys(value, ["id", "cwd", "command", "platforms"]) && safeId(value.id) && [value.cwd, value.command].every((item) => typeof item === "string" && item.length > 0) && validPlatforms(value.platforms);
 }
 function validConfig(value) {
   if (!isRecord(value) || !exactKeys(value, ["schema_version", "project_id", "research_mode", "implementation_sources", "verification"])) return false;
@@ -13498,7 +13502,7 @@ async function loadConfig(root2) {
   } catch (error) {
     throw new SdlcError(`Cannot read ${file}: ${String(error)}`);
   }
-  if (!validConfig(parsed)) throw new SdlcError("Invalid sdlc.config.yaml: expected schema_version 1, kebab-case project/source/command IDs, public-web-only research, implementation_sources, and unit/integration/system command arrays.");
+  if (!validConfig(parsed)) throw new SdlcError("Invalid sdlc.config.yaml: expected schema_version 1, kebab-case project/source/command IDs, public-web-only research, implementation_sources, unit/integration/system command arrays, and optional non-empty artifact-ID platforms lists.");
   return parsed;
 }
 var import_yaml2;
@@ -13538,9 +13542,13 @@ function isActiveFlow(value) {
   const baseValid = value.type === "genesis" ? value.base_baseline === null : id(value.base_baseline, "BL");
   return value.schema_version === 1 && id(value.id, "FLOW") && FLOW_TYPES.includes(value.type) && typeof value.input === "string" && dateTime(value.started_at) && baseValid && (value.change_id === null || id(value.change_id, "CHG")) && (semantic ? value.change_id !== null : value.change_id === null) && typeof value.stop_blocked_once === "boolean" && typeof value.start_snapshot_hash === "string" && /^[a-f0-9]{64}$/.test(value.start_snapshot_hash) && typeof value.implementation_snapshot_hash === "string" && /^[a-f0-9]{64}$/.test(value.implementation_snapshot_hash) && (value.baseline_created === void 0 || id(value.baseline_created, "BL")) && (value.baseline_implementation_snapshot_hash === void 0 || typeof value.baseline_implementation_snapshot_hash === "string" && /^[a-f0-9]{64}$/.test(value.baseline_implementation_snapshot_hash)) && (value.baseline_created === void 0 ? value.baseline_implementation_snapshot_hash === void 0 : value.baseline_implementation_snapshot_hash !== void 0);
 }
+function validHost(value) {
+  if (value === void 0) return true;
+  return record(value) && exactKeys2(value, ["os", "release", "arch", "node"]) && ["os", "release", "arch", "node"].every((key) => typeof value[key] === "string" && value[key].length > 0);
+}
 function isExecutionRecord(value) {
-  if (!record(value) || !exactKeys2(value, ["schema_version", "id", "flow_id", "level", "command_id", "command", "cwd", "started_at", "ended_at", "exit_code", "output_hash", "output_file", "git_commit", "source_snapshot_hash"])) return false;
-  return value.schema_version === 1 && id(value.id, "EXEC") && id(value.flow_id, "FLOW") && ["unit", "integration", "system"].includes(String(value.level)) && typeof value.command_id === "string" && /^[a-z0-9][a-z0-9-]*$/.test(value.command_id) && [value.command, value.cwd, value.output_file].every((item) => typeof item === "string" && item.length > 0) && dateTime(value.started_at) && dateTime(value.ended_at) && Number.isInteger(value.exit_code) && typeof value.output_hash === "string" && /^[a-f0-9]{64}$/.test(value.output_hash) && (value.git_commit === null || typeof value.git_commit === "string") && typeof value.source_snapshot_hash === "string" && /^[a-f0-9]{64}$/.test(value.source_snapshot_hash);
+  if (!record(value) || !exactKeys2(value, ["schema_version", "id", "flow_id", "level", "command_id", "command", "cwd", "started_at", "ended_at", "exit_code", "output_hash", "output_file", "git_commit", "source_snapshot_hash", "platforms", "host"])) return false;
+  return value.schema_version === 1 && id(value.id, "EXEC") && id(value.flow_id, "FLOW") && ["unit", "integration", "system"].includes(String(value.level)) && typeof value.command_id === "string" && /^[a-z0-9][a-z0-9-]*$/.test(value.command_id) && [value.command, value.cwd, value.output_file].every((item) => typeof item === "string" && item.length > 0) && dateTime(value.started_at) && dateTime(value.ended_at) && Number.isInteger(value.exit_code) && typeof value.output_hash === "string" && /^[a-f0-9]{64}$/.test(value.output_hash) && (value.git_commit === null || typeof value.git_commit === "string") && typeof value.source_snapshot_hash === "string" && /^[a-f0-9]{64}$/.test(value.source_snapshot_hash) && (value.platforms === void 0 || artifactIds(value.platforms) && value.platforms.length > 0) && validHost(value.host);
 }
 function isChangeRecord(value) {
   if (!record(value) || !exactKeys2(value, ["schema_version", "id", "flow_id", "type", "input", "status", "base_baseline", "started_at", "closed_at", "successor_baseline", "impact"])) return false;
@@ -13833,6 +13841,9 @@ function duration(record2) {
 function renderResultArtifact(record2, change) {
   const outcome = record2.exit_code === 0 ? "passed" : "failed";
   const recordFile = record2.output_file.replace(/\.log$/, ".json");
+  const fingerprint = record2.host ? tableCell(`${record2.host.os} ${record2.host.release} ${record2.host.arch}; node ${record2.host.node}`) : NOT_REPORTED;
+  const declaredPlatforms = record2.platforms ? `
+| Declared platform evidence | ${tableCell(record2.platforms.join(", "))} |` : "";
   const evidence = `${record2.output_file} (SHA-256 ${record2.output_hash})`;
   const failure = record2.exit_code === 0 ? `| Command ${record2.command_id} | No command-level failure observed; exit code was 0. | Exit code 0 | ${tableCell(evidence)} | none recorded by execution engine |` : `| Command ${record2.command_id}; case mapping ${NOT_REPORTED} | Configured command exited with code ${record2.exit_code}. | Exit code 0 | ${tableCell(evidence)} | none recorded by execution engine |`;
   return `---
@@ -13869,7 +13880,7 @@ execution_id: ${record2.id}
 | Command | ${tableCell(record2.command)} |
 | Working directory | ${tableCell(record2.cwd)} |
 | Toolchain | ${NOT_REPORTED} |
-| Environment fingerprint | ${NOT_REPORTED} |
+| Environment fingerprint | ${fingerprint} |${declaredPlatforms}
 
 ## Aggregate result
 
@@ -14579,6 +14590,36 @@ function baselinesOpen(firstBaseline, activeBaseline) {
   return Math.max(0, active - first);
 }
 
+// src/core/platform-evidence.ts
+init_types();
+function platformEvidenceFindings(config, artifacts) {
+  const findings = [];
+  const declared = new Set(
+    ["unit", "integration", "system"].flatMap((level) => config.verification[level].flatMap((command) => command.platforms ?? []))
+  );
+  const liveTargets = artifacts.filter((artifact) => artifact.artifact_type === "platform_target" && isLiveStatus(artifact.status));
+  for (const target of liveTargets) {
+    if (declared.has(target.id)) continue;
+    findings.push({
+      severity: "warning",
+      code: "PLATFORM_EVIDENCE_MISSING",
+      message: `${target.id} is a live platform target no configured verification command declares evidence for; add platforms: [${target.id}] to a command that exercises it, or record the unproven platform in TEST-POLICY.`,
+      file: target.file
+    });
+  }
+  const liveTargetIds = new Set(liveTargets.map((target) => target.id));
+  for (const declaration of [...declared].sort()) {
+    if (liveTargetIds.has(declaration)) continue;
+    findings.push({
+      severity: "warning",
+      code: "PLATFORM_DECLARATION_UNKNOWN",
+      message: `Verification commands declare evidence for ${declaration}, which matches no live platform_target artifact.`,
+      file: "sdlc.config.yaml"
+    });
+  }
+  return findings;
+}
+
 // src/core/validation.ts
 var requiredFiles = [
   ...Object.keys(CANONICAL_MARKDOWN),
@@ -14693,6 +14734,7 @@ async function validateProject(root2, artifacts) {
   for (const broken of brokenCaseReferences(artifacts)) {
     findings.push({ severity: "warning", code: "CASE_REFERENCE_BROKEN", message: `${broken.reference} names a case ${broken.specification} does not declare`, file: broken.file });
   }
+  if (config) findings.push(...platformEvidenceFindings(config, artifacts));
   const graph = buildGraph(artifacts);
   const order = topologicalOrder(graph);
   if (order.cycles.length > 0) findings.push({ severity: "error", code: "DEPENDENCY_CYCLE", message: `Dependency cycle contains: ${order.cycles.join(", ")}` });
