@@ -16,7 +16,7 @@ A feature is not written in one blast. The flow moves through five checkpoints, 
 | Checkpoint | Plain meaning | What it produces |
 |---|---|---|
 | `behavior` | Make the requirement observable | `FTR-*` with stable `AC-*` acceptance IDs, `UC-*`, `FLOW-*` |
-| `design` | Write the implementation-detail docs | Only the boundaries that exist: `SCR/CMP/SUB/API/ENT/INT/JOB/EVT`, plus the owning interface/schema files (OpenAPI / DBML by default, siblings per surface or database), and `ADR-*` when a real decision is made |
+| `design` | Write the implementation-detail docs | Only the boundaries that exist: `SCR/CMP/SUB/API/ENT/INT/JOB/EVT`, plus the owning interface/schema files (OpenAPI / DBML by default, siblings per surface or database), the architecture overview's Runtime topology section when units or network boundaries change, and `ADR-*` when a real decision is made |
 | `tests` | Write the test specifications | `UT-*`, `IT-*`, `ST-*` derived from behavior and affected regression |
 | `implementation` | Change the code and run it | Edits inside configured implementation sources; `verify --execute` produces real `RESULT-*` |
 | `baseline` (default) | Lock it in | `refresh` → `validate` → successor `BL-*`, flow closed |

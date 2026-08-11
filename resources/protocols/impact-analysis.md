@@ -37,6 +37,7 @@ Run it again after adding or removing design/test relationships. Removed depende
 | API/interface file | Are old callers, errors, authorization, idempotency and compatibility preserved? Which operations declare the changed file as their wire authority? |
 | Component/screen | Are old consumers, states, accessibility and transitions preserved? |
 | Subsystem | Are quality, cost, latency, pinning and degradation budgets still met? |
+| Runtime topology | Did a unit gain or lose a subsystem? Did a contract start or stop crossing a network boundary? Which integration tests exercise the moved boundary? |
 | Integration | Do quota, timeout, retry, webhook and fallback changes affect old flows? |
 | Job/event | Do ordering, duplication, cancellation, replay and consumer compatibility hold? |
 | Platform target | Do constraints, permission denials, update/rollback and local-data rules still hold on every shipped platform? Which behavior now degrades on one platform only? |

@@ -12,7 +12,7 @@ supersedes:
 
 # Architecture overview
 
-<!-- Owns system context, architectural boundaries, responsibility allocation, high-level flows, and cross-cutting constraints. Detailed APIs, entities, jobs, events, integrations, screens, and decisions remain separate authorities. -->
+<!-- Owns system context, architectural boundaries, responsibility allocation, high-level flows, cross-cutting constraints, and the runtime topology. Detailed APIs, entities, jobs, events, integrations, screens, and decisions remain separate authorities. -->
 
 ## System context
 
@@ -43,6 +43,12 @@ supersedes:
 |---|---|---|---|---|
 <!-- Cover access/tenancy, privacy, reliability, accessibility, error semantics, and quality only as applicable. -->
 
+## Runtime topology
+
+| Runtime unit | Grouped subsystems | Network boundary | Crossing contracts | Failure and scaling boundary |
+|---|---|---|---|---|
+<!-- Group SUB-* into the processes and installables they run in. Name each network boundary and the API/EVT/interface contracts crossing it, and state what fails and scales together. Descriptive design truth only: build, signing and deployment operations stay out of scope. A single-process product states its one unit explicitly. -->
+
 ## Decision references
 
 | ADR ID | Decision summary | Affected boundaries | Required consequences | Verification obligation |
@@ -52,6 +58,7 @@ supersedes:
 ## Completion contract
 
 - [ ] Context, trust/data boundaries, responsibilities, dependencies, and ownership are non-overlapping.
+- [ ] Runtime units group every live subsystem, and every contract crossing a network boundary is named.
 - [ ] High-level flows reference detailed interface/data/processing authorities.
 - [ ] Every active requirement, quality rule, access rule, and invariant has an architectural home.
 - [ ] Durable choices link accepted ADRs and all responsibilities map to implementation/verification.

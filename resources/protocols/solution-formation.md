@@ -47,7 +47,7 @@ For each new allocation, use `ENGINE artifact create` with the catalog `artifact
 - `UX-RULES` owns global interaction conventions; `SCR-*` owns one surface; `CMP-*` owns shared behavior.
 - `ERROR-CATALOG` owns stable error meaning; API, screen and tests reference its IDs.
 - `SUB-*` owns non-CRUD capability quality and degradation; feature/flow documents reference capability behavior.
-- `ARCHITECTURE-OVERVIEW` owns system-wide boundaries; detailed artifacts refine it.
+- `ARCHITECTURE-OVERVIEW` owns system-wide boundaries and the runtime topology — which subsystems share a runtime unit, where the network boundaries sit and which contracts cross them; detailed artifacts refine it, and deployment operations stay out of scope.
 
 Do not copy one canonical answer into several documents. Declare `depends_on`, `decisions`, `writes_to` and `implementation`; reverse relationships are generated.
 

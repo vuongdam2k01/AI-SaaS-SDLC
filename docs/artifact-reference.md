@@ -14,6 +14,8 @@ These singleton documents are initialized at fixed paths and have catalog-backed
 | Verification | `TEST-POLICY` |
 | Control | `QUESTIONS` |
 
+`ARCHITECTURE-OVERVIEW` also owns the runtime topology: the grouping of subsystems into runtime units and the contracts that cross network boundaries, as descriptive design truth with deployment operations out of scope.
+
 The fixed non-Markdown contracts `SDLC-CONFIG`, `OPENAPI-CONTRACT`, `PHYSICAL-SCHEMA` and `SCREEN-TRANSITIONS` also have stable graph identities. Sibling files are discovered as further first-class contracts of the same types — `03-design/interfaces/*.yaml` or `.yml` as `WIRE-*`, `03-design/data/*.dbml` as `SCHEMA-*`, `03-design/*.mmd` as `TRANSITIONS-*` — with identities derived from their filenames and permanent once baselined. All their hashes participate in baselines and impact analysis, and in a multi-file family each `API-*`/`ENT-*`/`SCR-*` names its owning file in `depends_on`.
 
 ## Scalable records

@@ -13,7 +13,7 @@ supersedes:
 
 # {{ID}} — {{TITLE}}
 
-<!-- Contract: defines one architectural boundary with cohesive responsibilities, interfaces, and data ownership. It is not a code folder inventory, product feature, environment description, or delivery topology. Create when a boundary needs explicit ownership and failure isolation. ID is SUB-<AREA>-<NNN>; path is 03-design/subsystems/<ID>.md. This artifact owns subsystem boundaries and collaboration rules; API/EVT/JOB/INT artifacts own detailed contracts and DBML owns physical schema. Consumers: design artifacts, integration tests, architecture decisions, and implementation. Lifecycle: draft -> active -> superseded. -->
+<!-- Contract: defines one architectural boundary with cohesive responsibilities, interfaces, and data ownership. It is not a code folder inventory, product feature, environment description, or delivery topology; runtime grouping and network boundaries are owned by the Runtime topology section of ARCHITECTURE-OVERVIEW. Create when a boundary needs explicit ownership and failure isolation. ID is SUB-<AREA>-<NNN>; path is 03-design/subsystems/<ID>.md. This artifact owns subsystem boundaries and collaboration rules; API/EVT/JOB/INT artifacts own detailed contracts and DBML owns physical schema. Consumers: design artifacts, integration tests, architecture decisions, and implementation. Lifecycle: draft -> active -> superseded. -->
 
 ## Purpose and boundary
 

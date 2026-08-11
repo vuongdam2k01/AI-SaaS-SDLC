@@ -2,7 +2,7 @@ import { readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { createArtifactFromPattern } from "../../../src/core/artifact-instantiation.js";
 import { resolveCatalog } from "../../../src/core/pattern-catalog.js";
-import { GENESIS_FOUNDATION_BODIES } from "./foundation-content.js";
+import { ARCHITECTURE_OVERVIEW_ACTIVE_BODY, GENESIS_FOUNDATION_BODIES } from "./foundation-content.js";
 import { APPROVAL_PRODUCT_BODIES } from "./approval-product-content.js";
 import { APPROVAL_DESIGN_BODIES } from "./approval-design-content.js";
 import { APPROVAL_VERIFICATION_BODIES } from "./approval-verification-content.js";
@@ -71,6 +71,15 @@ export async function completeFoundationArtifacts(root: string): Promise<void> {
     source = replaceField(source, "status", "active");
     await writeFile(file, replaceBody(source, body), "utf8");
   }
+}
+
+export async function activateArchitectureOverview(root: string, body: string = ARCHITECTURE_OVERVIEW_ACTIVE_BODY): Promise<string> {
+  const relative = "03-design/architecture-overview.md";
+  const file = path.join(root, relative);
+  let source = await readFile(file, "utf8");
+  source = replaceField(source, "status", "active");
+  await writeFile(file, replaceBody(source, body), "utf8");
+  return relative;
 }
 
 export async function materializePatternArtifact(

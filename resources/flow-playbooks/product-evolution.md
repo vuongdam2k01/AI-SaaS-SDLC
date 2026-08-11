@@ -126,6 +126,7 @@ Create/update only when the boundary exists:
 - `JOB-*` for durable/scheduled/retryable work;
 - `EVT-*` for versioned facts with producers/consumers;
 - `PLT-*` for each shipped platform or channel whose constraints, permissions, update behavior or local data differ materially;
+- the `Runtime topology` section of `ARCHITECTURE-OVERVIEW` when the change adds, removes or regroups a runtime unit, or moves a contract across a network boundary;
 - `ADR-*` only for multiple viable, durable, cross-artifact or expensive-to-reverse choices.
 
 Instantiate every newly allocated design/ADR artifact with `ENGINE artifact create` and then complete the produced content contract. Editing an existing active artifact does not create a second instance.

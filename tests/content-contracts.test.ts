@@ -7,7 +7,7 @@ import { validateProject } from "../src/core/validation.js";
 import { resolveCatalog } from "../src/core/pattern-catalog.js";
 import { createArtifactFromPattern } from "../src/core/artifact-instantiation.js";
 import { startFlow } from "../src/core/state.js";
-import { addApprovalFeature, materializePatternArtifact } from "./fixtures/complete-saas/fixture.js";
+import { activateArchitectureOverview, addApprovalFeature, materializePatternArtifact } from "./fixtures/complete-saas/fixture.js";
 
 const roots: string[] = [];
 afterEach(async () => { while (roots.length) await cleanup(roots.pop()!); });
@@ -102,6 +102,28 @@ describe("pinned pattern and active-content contracts", () => {
       const report = await validateProject(root, await scanArtifacts(root));
       expect(report.findings.some((item) => item.code === "CONTENT_LOCAL_ID_MISSING" && item.file === "03-design/data/ENT-APPROVAL-001.md")).toBe(false);
     }
+  });
+
+  it("demands a populated runtime topology before the architecture overview goes active", async () => {
+    const root = await tempProject();
+    roots.push(root);
+    await establishGenesis(root);
+    await startFlow(root, "evolution", "Describe the runtime topology");
+    const relative = await activateArchitectureOverview(root);
+    const complete = await validateProject(root, await scanArtifacts(root));
+    expect(complete.findings.filter((item) => item.file === relative)).toEqual([]);
+
+    const file = path.join(root, relative);
+    const active = await readFile(file, "utf8");
+    const withoutSection = active.replace(/## Runtime topology[\s\S]*?(?=## Decision references)/, "");
+    await writeFile(file, withoutSection, "utf8");
+    const missing = await validateProject(root, await scanArtifacts(root));
+    expect(missing.findings.some((item) => item.code === "CONTENT_HEADING_MISSING" && item.message.includes("Runtime topology"))).toBe(true);
+
+    const emptyRows = active.replace(/\| approval-web[^\n]*\n/, "").replace(/\| approval-service[^\n]*\n/, "");
+    await writeFile(file, emptyRows, "utf8");
+    const empty = await validateProject(root, await scanArtifacts(root));
+    expect(empty.findings.some((item) => ["CONTENT_TABLE_EMPTY", "CONTENT_SECTION_EMPTY"].includes(item.code) && item.file === relative)).toBe(true);
   });
 
   it("rejects any in-place change to the pinned snapshot", async () => {

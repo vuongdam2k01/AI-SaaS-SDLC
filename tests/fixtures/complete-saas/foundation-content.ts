@@ -281,3 +281,57 @@ Denied, invalid, and conflicting requests preserve the prior state and return a 
 ${complete}
 `
 };
+
+// Deliberately not part of GENESIS_FOUNDATION_BODIES: the architecture overview
+// legitimately stays draft through Genesis, so adding it there would change the
+// genesis bytes every existing test depends on. Tests that need an active
+// architecture overview apply this body explicitly.
+export const ARCHITECTURE_OVERVIEW_ACTIVE_BODY = `# Architecture overview
+
+## System context
+
+| Actor/external system | Need or exchanged capability | Trust/data boundary | Entry interface | Evidence/requirement IDs |
+|---|---|---|---|---|
+| Agency contributor | Submit deliverables for decision | Tenant-scoped session | Approval web client | REQ-001 |
+| Client approver | Decide submitted requests | Tenant-scoped session | Approval web client | REQ-002 |
+
+## Architectural boundaries
+
+| Boundary/SUB ID | Inside | Outside | Owned data | Public contracts | Rationale/ADR |
+|---|---|---|---|---|---|
+| Approval domain | Request lifecycle and decision audit | Tenant identity issuance | approval_requests | API-APPROVAL-001 | fixture boundary, no ADR yet |
+
+## Component responsibilities
+
+| Component/subsystem | Responsibilities | Non-responsibilities | Dependencies | Quality/invariant constraints |
+|---|---|---|---|---|
+| Approval service | Validate scope, decide, audit | Identity provisioning | tenant identity authority | INV-001 tenant isolation |
+
+## Data and control flow
+
+1. A contributor submits a request through the approval client; the approval service validates tenant scope and the request reaches pending state.
+2. An approver decides through API-APPROVAL-001; the decision commits exactly one audit row and the client observes the terminal state.
+
+## Cross-cutting constraints
+
+| Concern | Governing IDs | Architectural constraint | Enforcement owner | Verification |
+|---|---|---|---|---|
+| Tenant isolation | INV-001 | Every read and write scopes by tenant_id | Approval service | IT-APPROVAL-001 |
+
+## Runtime topology
+
+| Runtime unit | Grouped subsystems | Network boundary | Crossing contracts | Failure and scaling boundary |
+|---|---|---|---|---|
+| approval-web | Approval client surface | HTTPS to approval-service | API-APPROVAL-001 | Client restarts alone and holds no durable state |
+| approval-service | Approval domain and audit | Database connection stays inside the unit | PHYSICAL-SCHEMA | Service and its database fail and scale together |
+
+## Decision references
+
+| ADR ID | Decision summary | Affected boundaries | Required consequences | Verification obligation |
+|---|---|---|---|---|
+| none yet | No accepted ADR constrains this fixture | Approval domain | none | none |
+
+## Completion contract
+
+${complete}
+`;
