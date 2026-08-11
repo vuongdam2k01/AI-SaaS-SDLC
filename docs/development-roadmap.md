@@ -4,6 +4,7 @@
 
 | Release | Direction |
 |---|---|
+| 1.6.0 | Authority surface opened beyond one service: sibling interface/schema/transition files are discovered as first-class contracts with declared per-file ownership and impact convergence, entities declare a persistence authority beyond relational DBML, the architecture overview owns runtime topology, and an opt-in `areas` registry makes ID namespacing checkable |
 | 1.5.0 | Platform claims became checkable: verification commands declare the platform targets they evidence, executions record the declaration beside the observed host, and validate warns about live platforms nothing declares. Candidate follow-up: a `generated/platform-coverage.md` projection joining live targets, declaring commands, latest executions and hosts — emitted only when platform targets exist so existing repositories see no drift |
 | 1.4.0 | Catalog opened beyond web products: `platform_target` owns platform constraints, permissions, distribution/update and local-data migration; `API-*` covers any invocable operation; platform variance is a viewpoint inside UT/IT/ST |
 

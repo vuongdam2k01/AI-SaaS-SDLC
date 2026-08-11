@@ -1,5 +1,104 @@
 # Changelog
 
+## 1.6.0 - 2026-08-11
+
+An assessment of the plugin against complex products — a desktop client with a
+microservice backend — found the contract semantics ready and the authority
+surface not. Subsystems, events, jobs and flows already spoke the language of
+distributed systems, but every service shared one `openapi.yaml`, every store
+was welded to one relational `schema.dbml`, nothing owned which subsystems
+share a process, and the AREA segment inside every ID was checked by nobody.
+The assessment also surfaced a provenance hole: a second file under
+`03-design/interfaces/` was invisible — unscanned, unhashed, absent from the
+graph and the baseline manifest — and a flow whose only change was adding one
+closed as a *cancellation*. The same failure shape 1.5.0 fixed for platforms:
+a claim that validates clean while silently untrue.
+
+### Added
+
+- **Sibling contract files are first-class artifacts.** `03-design/interfaces/*.yaml|yml`,
+  `03-design/data/*.dbml` and `03-design/*.mmd` are discovered as contracts of
+  the existing fixed types with filename-derived identities — `billing.yaml`
+  becomes `WIRE-BILLING`, `analytics.dbml` becomes `SCHEMA-ANALYTICS`,
+  `desktop.mmd` becomes `TRANSITIONS-DESKTOP` — hashed, graphed, baselined and
+  protected exactly like the canonical three, which stay mandatory under their
+  historical IDs. A new artifact type was deliberately rejected: these files
+  are wire, schema and transition truth, and reusing the existing types means
+  impact convergence, test selection and flow boundaries apply unchanged.
+  Discovery also closes the invisibility hole — a flow that only adds a
+  sibling file now refuses to close without its baseline instead of recording
+  a cancellation.
+- **Declared per-file ownership.** While a family holds one file, the engine
+  derives ownership itself, exactly as before. With siblings present, each
+  live `API-*`/`ENT-*`/`SCR-*` names its owning file in `depends_on`, and
+  impact converges per file — a change to `billing.yaml` reaches the
+  operations that declare it, never the whole surface. Always-auto fan-out
+  was rejected because it makes every service change every service's problem,
+  which is the singleton behavior scaled up rather than fixed. Add the file
+  first and declare second, inside the same flow: an early declaration forms
+  a dependency cycle with the auto-derived edge and is reported as one.
+- **`WIRE_AUTHORITY_UNDECLARED`, `SCHEMA_AUTHORITY_UNDECLARED` and
+  `TRANSITION_AUTHORITY_UNDECLARED` (warnings).** In a multi-file family, a
+  live instance that names no owning file is a standing warning, never an
+  error: an IPC-only operation and a client-local entity legitimately declare
+  none, and the warning is the durable record of that state — the platform-
+  evidence doctrine applied to authority files.
+- **A persistence authority on every entity.** The entity pattern's mapping
+  table demanded a DBML table and column, which forced document, key-value,
+  event-sourced and client-local entities to fabricate relational mappings.
+  The column is now the store-neutral `Store target`, and a required
+  `Persistence authority:` line names the owner of the entity's physical
+  shape — `PHYSICAL-SCHEMA` or a `SCHEMA-*` sibling, a `PLT-*` local-data
+  row, or an explicit `none — <reason>`. Enforced through the existing
+  catalog local-ID machinery; no engine code changed, and the pinned catalog
+  version moves to `3` so `patterns list` reports which generation a
+  repository holds.
+- **Runtime topology in the architecture overview.** A required section now
+  groups subsystems into runtime units and names the network boundaries and
+  the contracts crossing them, as descriptive design truth — build, signing
+  and deployment operations stay explicitly out of scope. A new artifact type
+  was rejected here too: topology is one system-wide view, and the overview
+  already owns system-wide boundaries; the subsystem pattern now points at
+  the owner instead of merely disclaiming delivery topology.
+- **An `areas` registry and `AREA_UNREGISTERED`.** `sdlc.config.yaml` accepts
+  an optional `areas` list — schema_version stays 1, the same additive shape
+  as the 1.5.0 `platforms` key. Declared, every live scalable ID that parses
+  as `<PREFIX>-<AREA>-<NNN>` must name a registered area, longest segment
+  first (`SUB-ORDERS-EU-001` demands `ORDERS-EU`); the violation is a
+  warning, because a permanent ID cannot be renamed after baselining.
+  Undeclared, IDs stay unconstrained.
+
+### Changed
+
+- Sibling interface files must parse as a YAML mapping, and the `3.1.0`
+  dialect is demanded only of documents that carry an `openapi` key — an
+  AsyncAPI or schema bundle is a legitimate hash-tracked contract, while a
+  syntactically broken file is a structural defect. The canonical
+  `openapi.yaml` checks are byte-identical to 1.5.0.
+- Document rules, glossary, playbooks, protocols, guides and references state
+  per-file authority — one interface file per surface, one `.dbml` per
+  database, one `.mmd` per transition graph — and the command reference now
+  enumerates all ten warnings. The README's pattern-type count regression
+  (23, reintroduced by 1.5.0) is fixed at 24, and the timeline's missing
+  `PLT` is restored.
+
+### Compatibility
+
+An old engine reading a 1.6.0-shaped repository does not discover sibling
+files: they are unscanned, absent from snapshots and manifests, and a flow
+whose only change is such a file closes as a cancellation again; declarations
+targeting `WIRE-*`/`SCHEMA-*`/`TRANSITIONS-*` identities read as
+`REFERENCE_BROKEN` errors. Upgrade the engine; do not strip declarations.
+In the other direction, a 1.6.0 engine reads an existing repository
+byte-identically: with one file per family the auto-derived edges, findings
+and baseline rows are exactly the 1.5.0 output, no `areas` key means no
+`AREA_UNREGISTERED`, and pinned catalogs keep validating unchanged — the
+entity and architecture-overview contracts reach newly initialized
+repositories only, per the no-migration doctrine. A sibling file's name is
+its permanent identity once baselined: rename or deletion afterwards is
+`BASELINED_ARTIFACT_DELETED`, so name files by their bounded scope before
+baselining.
+
 ## 1.5.0 - 2026-08-11
 
 1.4.0 gave platform targets a place to state per-platform verification

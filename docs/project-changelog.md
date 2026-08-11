@@ -2,6 +2,17 @@
 
 See the root [CHANGELOG](../CHANGELOG.md) for the release summary. This contributor view records documentation-impact areas that must remain synchronized with implementation.
 
+## 1.6.0 - 2026-08-11
+
+| Area | Documentation impact |
+|---|---|
+| Contract authorities | Interface/DBML/transition families documented as multi-file: sibling discovery, `WIRE-*`/`SCHEMA-*`/`TRANSITIONS-*` identities, `depends_on` ownership, per-file impact convergence and the add-file-first transition recipe |
+| Data method | Entity pattern documents the `Persistence authority` line and the store-neutral `Store target` column; DBML documented as one file per database with non-relational and client-local stores declared on the entity; pinned catalog version 3 |
+| Architecture method | `Runtime topology` documented as the architecture overview's required section owning runtime units, network boundaries and crossing contracts; subsystem pattern points at the new owner |
+| Validation | Command reference and inspect guide enumerate all ten warnings, adding the three authority declarations and `AREA_UNREGISTERED` |
+| Configuration | `areas` registry documented as the second optional schema-v1 key beside `platforms` |
+| Compatibility | Recorded both skew directions: old engines see sibling files as unscanned and their declarations as broken references; new engines read existing repositories byte-identically |
+
 ## 1.5.0 - 2026-08-11
 
 | Area | Documentation impact |
