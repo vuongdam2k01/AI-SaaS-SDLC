@@ -13256,15 +13256,75 @@ var init_frontmatter = __esm({
   }
 });
 
+// src/core/contract-authorities.ts
+var import_fast_glob, CONTRACT_KINDS, CONTRACT_ARTIFACT_TYPES;
+var init_contract_authorities = __esm({
+  "src/core/contract-authorities.ts"() {
+    "use strict";
+    import_fast_glob = __toESM(require_out4(), 1);
+    init_types();
+    init_utils();
+    CONTRACT_KINDS = [
+      {
+        artifact_type: "openapi_contract",
+        canonical_id: "OPENAPI-CONTRACT",
+        canonical_file: "03-design/interfaces/openapi.yaml",
+        canonical_title: "OpenAPI Contract",
+        glob: "03-design/interfaces/*.{yaml,yml}",
+        location: /^03-design\/interfaces\/[^/]+\.(?:yaml|yml)$/,
+        id_prefix: "WIRE-",
+        title_label: "Interface contract",
+        base_dependencies: ["ARCHITECTURE-OVERVIEW", "ERROR-CATALOG"],
+        instance_type: "api_processing",
+        warning_code: "WIRE_AUTHORITY_UNDECLARED",
+        file_noun: "interface files",
+        remedy: "declare the owning interface file, or leave an IPC/CLI-only operation undeclared \u2014 this warning is the standing record of that state."
+      },
+      {
+        artifact_type: "physical_schema",
+        canonical_id: "PHYSICAL-SCHEMA",
+        canonical_file: "03-design/data/schema.dbml",
+        canonical_title: "Physical Schema",
+        glob: "03-design/data/*.dbml",
+        location: /^03-design\/data\/[^/]+\.dbml$/,
+        id_prefix: "SCHEMA-",
+        title_label: "Physical schema",
+        base_dependencies: ["ARCHITECTURE-OVERVIEW", "SYSTEM-INVARIANTS"],
+        instance_type: "entity",
+        warning_code: "SCHEMA_AUTHORITY_UNDECLARED",
+        file_noun: "schema files",
+        remedy: "declare the owning schema file, or leave a client-local or non-relational entity undeclared with its store named in the entity's persistence declaration."
+      },
+      {
+        artifact_type: "screen_transitions",
+        canonical_id: "SCREEN-TRANSITIONS",
+        canonical_file: "03-design/screen-transitions.mmd",
+        canonical_title: "Screen Transitions",
+        glob: "03-design/*.mmd",
+        location: /^03-design\/[^/]+\.mmd$/,
+        id_prefix: "TRANSITIONS-",
+        title_label: "Screen transitions",
+        base_dependencies: ["UX-RULES"],
+        instance_type: "screen",
+        warning_code: "TRANSITION_AUTHORITY_UNDECLARED",
+        file_noun: "transition graphs",
+        remedy: "declare the graph that owns this screen's transitions, or leave a screen outside every graph undeclared."
+      }
+    ];
+    CONTRACT_ARTIFACT_TYPES = new Set(CONTRACT_KINDS.map((kind) => kind.artifact_type));
+  }
+});
+
 // src/core/artifacts.ts
-var import_fast_glob;
+var import_fast_glob2;
 var init_artifacts = __esm({
   "src/core/artifacts.ts"() {
     "use strict";
-    import_fast_glob = __toESM(require_out4(), 1);
+    import_fast_glob2 = __toESM(require_out4(), 1);
     init_frontmatter();
     init_utils();
     init_paths();
+    init_contract_authorities();
   }
 });
 
@@ -13292,11 +13352,11 @@ var init_config = __esm({
 });
 
 // src/core/implementation-snapshot.ts
-var import_fast_glob2;
+var import_fast_glob3;
 var init_implementation_snapshot = __esm({
   "src/core/implementation-snapshot.ts"() {
     "use strict";
-    import_fast_glob2 = __toESM(require_out4(), 1);
+    import_fast_glob3 = __toESM(require_out4(), 1);
     init_config();
     init_errors();
     init_paths();

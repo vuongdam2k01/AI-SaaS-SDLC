@@ -1,5 +1,6 @@
 import type { Artifact, ArtifactGraph } from "./types.js";
 import { uniqueSorted } from "./utils.js";
+import { CONTRACT_ARTIFACT_TYPES } from "./contract-authorities.js";
 
 export function buildGraph(artifacts: Artifact[]): ArtifactGraph {
   const nodes = artifacts
@@ -28,13 +29,28 @@ export function buildGraph(artifacts: Artifact[]): ArtifactGraph {
 export function reverseClosure(graph: ArtifactGraph, seeds: Iterable<string>): string[] {
   const reverse = new Map<string, Set<string>>();
   const convergenceForward = new Map<string, Set<string>>();
-  const contractTypes = new Set(["openapi_contract", "physical_schema", "screen_transitions"]);
   const typeById = new Map(graph.nodes.map((node) => [node.id, node.type]));
+  const contractNodeCounts = new Map<string, number>();
+  for (const node of graph.nodes) {
+    if (CONTRACT_ARTIFACT_TYPES.has(node.type)) contractNodeCounts.set(node.type, (contractNodeCounts.get(node.type) ?? 0) + 1);
+  }
+  // A depends_on edge into a contract family that holds sibling files is a
+  // declared ownership edge: the instance converges into its own authority
+  // file and, through it, into that file's other owners — never into the
+  // whole surface. With a single file per family the auto-derived contract
+  // edges already carry the convergence, so the gate keeps single-file
+  // repositories on the exact pre-sibling walk.
+  const declaredAuthorityTarget = (id: string) => {
+    const type = typeById.get(id);
+    return type !== undefined && CONTRACT_ARTIFACT_TYPES.has(type) && (contractNodeCounts.get(type) ?? 0) >= 2;
+  };
   for (const edge of graph.edges) {
     const values = reverse.get(edge.to) ?? new Set<string>();
     values.add(edge.from);
     reverse.set(edge.to, values);
-    if (edge.relation === "writes_to" || edge.relation === "supersedes" || (edge.relation === "depends_on" && contractTypes.has(typeById.get(edge.from) ?? ""))) {
+    if (edge.relation === "writes_to" || edge.relation === "supersedes"
+      || (edge.relation === "depends_on" && CONTRACT_ARTIFACT_TYPES.has(typeById.get(edge.from) ?? ""))
+      || (edge.relation === "depends_on" && declaredAuthorityTarget(edge.to))) {
       const targets = convergenceForward.get(edge.from) ?? new Set<string>();
       targets.add(edge.to);
       convergenceForward.set(edge.from, targets);

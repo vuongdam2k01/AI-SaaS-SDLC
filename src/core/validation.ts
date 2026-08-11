@@ -19,6 +19,7 @@ import { MAX_CASES_PER_SPEC, specSizeEntries } from "./spec-size.js";
 import { brokenCaseReferences } from "./test-cases.js";
 import { STALE_AFTER_BASELINES, baselinesOpen, openQuestions } from "./question-ledger.js";
 import { platformEvidenceFindings } from "./platform-evidence.js";
+import { contractAuthorityFindings, expectedContractIdentity } from "./contract-authorities.js";
 
 const requiredFiles = [
   ...Object.keys(CANONICAL_MARKDOWN),
@@ -26,13 +27,6 @@ const requiredFiles = [
   "03-design/data/schema.dbml",
   "03-design/screen-transitions.mmd",
 ];
-
-const fixedIdentities: Record<string, [string, string]> = {
-  engine_configuration: ["SDLC-CONFIG", "sdlc.config.yaml"],
-  openapi_contract: ["OPENAPI-CONTRACT", "03-design/interfaces/openapi.yaml"],
-  physical_schema: ["PHYSICAL-SCHEMA", "03-design/data/schema.dbml"],
-  screen_transitions: ["SCREEN-TRANSITIONS", "03-design/screen-transitions.mmd"]
-};
 
 export async function validateProject(root: string, artifacts: Artifact[]): Promise<ValidationReport> {
   const findings: ValidationFinding[] = [];
@@ -67,8 +61,8 @@ export async function validateProject(root: string, artifacts: Artifact[]): Prom
     else if (SCALABLE_LOCATIONS[artifact.artifact_type] && !SCALABLE_LOCATIONS[artifact.artifact_type]!.test(artifact.file)) findings.push({ severity: "error", code: "ARTIFACT_LOCATION_INVALID", message: `${artifact.artifact_type} cannot appear at ${artifact.file}`, file: artifact.file });
     else if (SCALABLE_LOCATIONS[artifact.artifact_type] && path.basename(artifact.file, ".md") !== artifact.id) findings.push({ severity: "error", code: "ARTIFACT_FILENAME_MISMATCH", message: `${artifact.id} must use the matching filename ${artifact.id}.md`, file: artifact.file });
     else if (FIXED_TYPES.has(artifact.artifact_type)) {
-      const fixed = fixedIdentities[artifact.artifact_type];
-      if (!fixed || artifact.id !== fixed[0] || artifact.file !== fixed[1]) findings.push({ severity: "error", code: "FIXED_IDENTITY_INVALID", message: `${artifact.artifact_type} has an invalid fixed identity`, file: artifact.file });
+      const expected = expectedContractIdentity(artifact.artifact_type, artifact.file);
+      if (!expected || artifact.id !== expected) findings.push({ severity: "error", code: "FIXED_IDENTITY_INVALID", message: `${artifact.artifact_type} has an invalid fixed identity`, file: artifact.file });
     } else if (!SCALABLE_LOCATIONS[artifact.artifact_type] && !canonical) findings.push({ severity: "error", code: "ARTIFACT_TYPE_UNKNOWN", message: `Unknown artifact type: ${artifact.artifact_type}`, file: artifact.file });
     if (artifact.artifact_type === "architectural_decision" && (!artifact.adr_status || !ADR_STATUSES.includes(artifact.adr_status as (typeof ADR_STATUSES)[number]))) {
       findings.push({ severity: "error", code: "ADR_STATUS_INVALID", message: "ADR requires adr_status: proposed|accepted|deprecated|superseded", file: artifact.file });
@@ -149,6 +143,11 @@ export async function validateProject(root: string, artifacts: Artifact[]): Prom
   // configured commands, because a documentation-only repository that claims
   // platforms is exactly the one that needs the reminder.
   if (config) findings.push(...platformEvidenceFindings(config, artifacts));
+  // A contract family with sibling files makes ownership a declared fact. An
+  // instance that names no authority file may be legitimate — an IPC-only
+  // operation, a client-local entity — so the gap is a standing warning rather
+  // than an error, the same doctrine as platform evidence above.
+  findings.push(...contractAuthorityFindings(artifacts));
   const graph = buildGraph(artifacts);
   const order = topologicalOrder(graph);
   if (order.cycles.length > 0) findings.push({ severity: "error", code: "DEPENDENCY_CYCLE", message: `Dependency cycle contains: ${order.cycles.join(", ")}` });
@@ -169,6 +168,22 @@ export async function validateProject(root: string, artifacts: Artifact[]): Prom
     if (openapi.openapi !== "3.1.0") findings.push({ severity: "error", code: "OPENAPI_VERSION", message: "openapi.yaml must use OpenAPI 3.1.0" });
   } catch (error) {
     findings.push({ severity: "error", code: "OPENAPI_INVALID", message: `Invalid openapi.yaml: ${String(error)}` });
+  }
+  // Sibling interface files must at least parse as a YAML mapping; the 3.1.0
+  // dialect is demanded only of documents that claim to be OpenAPI. An AsyncAPI
+  // or schema bundle is a legitimate hash-tracked contract with no dialect
+  // demand, while a syntactically broken file would hide a structural defect.
+  for (const artifact of artifacts) {
+    if (artifact.artifact_type !== "openapi_contract" || artifact.id === "OPENAPI-CONTRACT") continue;
+    if (expectedContractIdentity(artifact.artifact_type, artifact.file) !== artifact.id) continue;
+    try {
+      const parsed = YAML.parse(artifact.body) as unknown;
+      if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) throw new Error("the document must be a YAML mapping");
+      const document = parsed as Record<string, unknown>;
+      if ("openapi" in document && document.openapi !== "3.1.0") findings.push({ severity: "error", code: "OPENAPI_VERSION", message: `${artifact.file} must use OpenAPI 3.1.0`, file: artifact.file });
+    } catch (error) {
+      findings.push({ severity: "error", code: "OPENAPI_INVALID", message: `Invalid ${artifact.file}: ${String(error)}`, file: artifact.file });
+    }
   }
   try {
     const state = await loadCurrentState(root);
