@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it } from "vitest";
-import { readFile, writeFile } from "node:fs/promises";
+import { readFile, rm, symlink, writeFile } from "node:fs/promises";
 import { execFileSync } from "node:child_process";
 import path from "node:path";
 import { createBaseline, syncRepresentationChanges } from "../src/core/baseline.js";
@@ -12,7 +12,13 @@ import YAML from "yaml";
 import { materializePatternArtifact } from "./fixtures/complete-saas/fixture.js";
 
 const roots: string[] = [];
-afterEach(async () => { while (roots.length) await cleanup(roots.pop()!); });
+const links: string[] = [];
+afterEach(async () => {
+  // Remove links before their targets: deleting through a junction would take
+  // the real directory with it.
+  while (links.length) await rm(links.pop()!, { recursive: false, force: true }).catch(() => undefined);
+  while (roots.length) await cleanup(roots.pop()!);
+});
 
 async function append(file: string, text: string): Promise<string> {
   const before = await readFile(file, "utf8");
@@ -73,6 +79,35 @@ describe("contract and temporal safety", () => {
     const flow = await startFlow(root, "evolution", "Accidental same-repository flow");
     await closeFlow(root);
     const change = JSON.parse(await readFile(path.join(root, `.ai-saas-sdlc/changes/${flow.change_id}.json`), "utf8"));
+    expect(change.status).toBe("cancelled");
+  });
+
+  it("excludes engine-owned files when the repository is reached through a link", async () => {
+    // The same exclusion, through a path whose realpath differs from its
+    // spelling: a junction, a mapped drive, or an 8.3 short name like
+    // C:\Users\RUNNER~1\... Sources are resolved through realpath before use, so
+    // an exclusion built from the other spelling of the same directory fails the
+    // containment test and is dropped without a word. The snapshot then contains
+    // the engine's own state directory, which the engine writes to during every
+    // flow, and no flow can ever be recognised as having changed nothing.
+    const real = await tempProject();
+    roots.push(real);
+    const link = path.join(path.dirname(real), `${path.basename(real)}-link`);
+    await symlink(real, link, process.platform === "win32" ? "junction" : "dir");
+    links.push(link);
+
+    await establishGenesis(link);
+    const configFile = path.join(link, "sdlc.config.yaml");
+    const config = YAML.parse(await readFile(configFile, "utf8"));
+    config.implementation_sources = [{ id: "same-repository", path: "." }];
+    await writeFile(configFile, YAML.stringify(config), "utf8");
+    execFileSync("git", ["init", "-q"], { cwd: link });
+    execFileSync("git", ["add", "."], { cwd: link });
+    execFileSync("git", ["-c", "user.name=Fixture", "-c", "user.email=fixture@example.com", "commit", "-qm", "fixture"], { cwd: link });
+
+    const flow = await startFlow(link, "evolution", "Accidental same-repository flow through a link");
+    await closeFlow(link);
+    const change = JSON.parse(await readFile(path.join(link, `.ai-saas-sdlc/changes/${flow.change_id}.json`), "utf8"));
     expect(change.status).toBe("cancelled");
   });
 

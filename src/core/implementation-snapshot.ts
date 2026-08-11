@@ -56,7 +56,8 @@ async function filesystemState(resolved: string, exclusions: string[]): Promise<
 
 async function pathState(configured: string, label: string, exclusions: string[] = []): Promise<unknown> {
   const resolved = await realpath(configured).catch(() => { throw new SdlcError(`Snapshot source is missing: ${label}`); });
-  const scopedExclusions = exclusions.map((value) => path.resolve(value)).filter((value) => isWithin(resolved, value));
+  const scopedExclusions = (await Promise.all(exclusions.map((value) => realpath(value).catch(() => path.resolve(value)))))
+    .filter((value) => isWithin(resolved, value));
   const context = (await stat(resolved)).isDirectory() ? resolved : path.dirname(resolved);
   const repository = git(context, ["rev-parse", "--show-toplevel"], true).toString("utf8").trim();
   if (!repository) return filesystemState(resolved, scopedExclusions);
@@ -90,7 +91,15 @@ export async function sourceSnapshotHash(target: string): Promise<string> {
 
 export async function implementationSnapshotHash(root: string): Promise<string> {
   const config = await loadConfig(root);
-  const engineOwned = [path.join(root, ".ai-saas-sdlc"), path.join(root, "generated"), path.join(root, "04-verification", "results")];
+  // Build the engine-owned exclusions from the *real* root. Every source path is
+  // resolved through `realpath` before use, so an exclusion built from the
+  // configured spelling of the same directory — reached through a junction, a
+  // mapped drive or an 8.3 short name such as C:\Users\RUNNER~1\... — fails the
+  // containment test and is silently dropped. The snapshot then swallows the
+  // engine's own state directory, changes on every write the engine makes, and
+  // no flow can ever be recognised as having changed nothing.
+  const realRoot = await realpath(root).catch(() => path.resolve(root));
+  const engineOwned = [path.join(realRoot, ".ai-saas-sdlc"), path.join(realRoot, "generated"), path.join(realRoot, "04-verification", "results")];
   const states = [];
   for (const source of [...config.implementation_sources].sort((a, b) => a.id.localeCompare(b.id))) {
     states.push({ id: source.id, path: source.path, state: await pathState(path.resolve(root, source.path), `${source.id} (${source.path})`, engineOwned) });

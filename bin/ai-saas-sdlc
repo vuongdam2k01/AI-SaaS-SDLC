@@ -17077,7 +17077,7 @@ async function pathState(configured, label, exclusions = []) {
   const resolved = await realpath2(configured).catch(() => {
     throw new SdlcError(`Snapshot source is missing: ${label}`);
   });
-  const scopedExclusions = exclusions.map((value) => path5.resolve(value)).filter((value) => isWithin(resolved, value));
+  const scopedExclusions = (await Promise.all(exclusions.map((value) => realpath2(value).catch(() => path5.resolve(value))))).filter((value) => isWithin(resolved, value));
   const context = (await stat(resolved)).isDirectory() ? resolved : path5.dirname(resolved);
   const repository = git(context, ["rev-parse", "--show-toplevel"], true).toString("utf8").trim();
   if (!repository) return filesystemState(resolved, scopedExclusions);
@@ -17101,7 +17101,8 @@ async function sourceSnapshotHash(target) {
 }
 async function implementationSnapshotHash(root2) {
   const config = await loadConfig(root2);
-  const engineOwned = [path5.join(root2, ".ai-saas-sdlc"), path5.join(root2, "generated"), path5.join(root2, "04-verification", "results")];
+  const realRoot = await realpath2(root2).catch(() => path5.resolve(root2));
+  const engineOwned = [path5.join(realRoot, ".ai-saas-sdlc"), path5.join(realRoot, "generated"), path5.join(realRoot, "04-verification", "results")];
   const states = [];
   for (const source of [...config.implementation_sources].sort((a, b) => a.id.localeCompare(b.id))) {
     states.push({ id: source.id, path: source.path, state: await pathState(path5.resolve(root2, source.path), `${source.id} (${source.path})`, engineOwned) });
@@ -19465,7 +19466,7 @@ function print(value, json = false) {
   if (json || typeof value !== "string") console.log(JSON.stringify(value, null, 2));
   else console.log(value);
 }
-program2.name("ai-saas-sdlc").description("Deterministic engine for AI SaaS SDLC documentation flows.").version("1.3.2");
+program2.name("ai-saas-sdlc").description("Deterministic engine for AI SaaS SDLC documentation flows.").version("1.3.3");
 program2.command("init").description("Initialize a centralized documentation repository.").option("--project-id <id>", "Stable project identifier").option("--idea <text>", "Raw idea preserved verbatim", "").action(async (options) => {
   const projectId = options.projectId ?? root.split(/[\\/]/).at(-1)?.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") ?? "saas-project";
   await withProjectLock(root, async () => {

@@ -1,5 +1,33 @@
 # Changelog
 
+## 1.3.3 - 2026-08-11
+
+The last red test on `windows-latest`, and the only one of the batch that was a
+real engine defect rather than test scaffolding.
+
+### Fixed
+
+- **Engine-owned exclusions were dropped whenever the repository path did not
+  spell itself the way `realpath` does.** Implementation sources are resolved
+  through `realpath` before sampling, while the exclusions — `.ai-saas-sdlc`,
+  `generated`, `04-verification/results` — were built from the configured
+  spelling. Reach the same directory through a junction, a mapped drive or an
+  8.3 short name such as `C:\Users\RUNNER~1\...`, and every exclusion fails its
+  containment test and is discarded in silence.
+
+  The snapshot then contains the engine's own state directory, which the engine
+  writes to during every flow. The consequence is not subtle: **no flow can ever
+  be recognised as having changed nothing**, so an accidental or abandoned flow
+  can never be cancelled, and `flow close` refuses with a list of changes the
+  author did not make. Exclusions are now resolved the same way sources are, and
+  a test drives a real junction to prove it.
+
+- Sampling refreshes the git index first, so two samples of an unchanged
+  worktree cannot disagree through a stale stat cache. Added while pursuing the
+  wrong explanation for the failure above and kept on its own merits: a snapshot
+  that answers "did the implementation change" must not answer it differently
+  twice over the same bytes.
+
 ## 1.3.2 - 2026-08-11
 
 Continuous integration had failed on **every commit since the first release**,
