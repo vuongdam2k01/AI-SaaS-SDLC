@@ -8,6 +8,7 @@ import { validateProject } from "../src/core/validation.js";
 import { resolveCatalog } from "../src/core/pattern-catalog.js";
 import { createArtifactFromPattern } from "../src/core/artifact-instantiation.js";
 import { startFlow } from "../src/core/state.js";
+import { createBaseline } from "../src/core/baseline.js";
 import { buildGraph } from "../src/core/graph.js";
 import { selectTests } from "../src/core/test-selection.js";
 import { acceptanceCoverage, ruleCoverageEntries } from "../src/core/coverage-derivation.js";
@@ -72,6 +73,13 @@ describe("platform targets and platform-neutral core units", () => {
     expect(acceptanceCoverage(artifacts)).toContain("PLT-DESKTOP-001");
     const claimants = ruleCoverageEntries(artifacts).flatMap((entry) => [...entry.unit, ...entry.integration, ...entry.system]);
     expect(claimants).not.toContain("PLT-DESKTOP-001");
+
+    // A design artifact that never reaches a baseline is not part of the record.
+    const baseline = await createBaseline(root);
+    const manifest = JSON.parse(await readFile(path.join(root, "generated", "baseline-manifest.json"), "utf8")) as { artifacts: Array<{ id: string; artifact_type: string }> };
+    expect(manifest.artifacts.find((entry) => entry.id === "PLT-DESKTOP-001")?.artifact_type).toBe("platform_target");
+    expect(baseline.id).toMatch(/^BL-[0-9]{3,}$/);
+    expect(baseline.artifacts.some((entry) => entry.id === "PLT-DESKTOP-001")).toBe(true);
   });
 
   it("requires integration and system regression when a platform target is affected", () => {
