@@ -9,7 +9,10 @@ info:
     operationId values and must not redefine the wire shape. An empty paths
     map is the declared state when the product has no HTTP surface; non-HTTP
     invocation contracts such as IPC or bridge commands and CLI entries are
-    owned in full by their API-* documents.
+    owned in full by their API-* documents. Sibling interface files in this
+    directory are discovered as first-class WIRE-* contracts, each owning the
+    wire shape of one surface; an API-* document in a multi-file repository
+    names its owning file in depends_on.
 
 # Completion contract for a non-draft interface:
 # - Every supported operation has a globally unique, stable operationId.

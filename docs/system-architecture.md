@@ -48,7 +48,7 @@ Only one flow may be active. The engine captures canonical and configured implem
 
 Canonical artifacts declare forward relationships: `depends_on`, `decisions`, `writes_to`, `supersedes` and `implementation`. The engine builds reverse edges and unions current and previous-baseline graphs, so removing an old dependency or shared-write edge still reaches its former consumers.
 
-`SDLC-CONFIG`, OpenAPI, DBML and screen transitions participate as fixed contracts. Impact compares current hashes with the baseline, then walks reverse dependencies. Test selection derives UT/IT/ST obligations from the affected closure. Coverage projections join evidence, product acceptance, behavior/design and verification references without copying reverse links into authored files.
+`SDLC-CONFIG` and every interface, DBML and transition-graph file participate as fixed contracts; sibling files carry filename-derived `WIRE-*`/`SCHEMA-*`/`TRANSITIONS-*` identities. Impact compares current hashes with the baseline, then walks reverse dependencies. Test selection derives UT/IT/ST obligations from the affected closure. Coverage projections join evidence, product acceptance, behavior/design and verification references without copying reverse links into authored files.
 
 ## Enforcement boundary
 

@@ -8,7 +8,7 @@ Testing has exactly three levels: UT, IT and ST. Security, privacy, performance,
 - UC alternate/error paths and FLOW compensation paths;
 - access rules, invariants and error codes;
 - screen/component states;
-- API/entity/subsystem/integration/job/event contracts;
+- API/entity/subsystem/integration/job/event contracts and their owning interface/schema files;
 - platform-target constraints, permissions, update behavior and local-data rules;
 - impact closure and existing test specifications;
 - configured implementation paths and verification commands.

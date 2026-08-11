@@ -120,7 +120,7 @@ Create/update only when the boundary exists:
 - `SCR-*` for real user-facing surfaces, whether a web route, a desktop window or a mobile screen;
 - `CMP-*` after a second real consumer;
 - `SUB-*` for non-trivial engine/model/pipeline/domain capability;
-- `API-*` for the processing semantics of an invocable operation, with OpenAPI owning the wire contract when that operation is HTTP;
+- `API-*` for the processing semantics of an invocable operation, with the owning interface file — `openapi.yaml` or a sibling under `03-design/interfaces/` — owning the wire contract when that operation is HTTP; in a multi-file repository the `API-*` names that file in `depends_on`;
 - `ENT-*` for domain identity/lifecycle and DBML for physical schema;
 - `INT-*` for external provider boundaries;
 - `JOB-*` for durable/scheduled/retryable work;

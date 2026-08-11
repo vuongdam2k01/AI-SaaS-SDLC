@@ -3,6 +3,9 @@ flowchart LR
   %% The graph is intentionally empty until concrete screens exist.
   %% SCR artifacts own fields, actions, validation, and per-transition detail;
   %% this file owns the cross-screen topology and reachability view.
+  %% Sibling *.mmd files directly under 03-design/ are discovered as further
+  %% TRANSITIONS-* graphs, one per client surface; a screen in a multi-graph
+  %% repository names its owning graph in depends_on.
   %%
   %% Completion contract before related screens are active:
   %% - Every node is an existing SCR ID plus a concise title.

@@ -25,9 +25,9 @@ supersedes:
 | Acceptance criterion | Stable, observable pass/fail condition local to a feature. | A test implementation or broad requirement. | Feature artifact |
 | Test specification | Authored intent defining what executable evidence must prove. | An execution result. | UT/IT/ST artifact |
 | Test result | Immutable engine projection of an actual test execution. | Test intent or manually written status. | RESULT artifact |
-| Wire contract | Protocol path, parameter, payload, and response shape. | Internal processing algorithm. | OpenAPI |
+| Wire contract | Protocol path, parameter, payload, and response shape. | Internal processing algorithm. | Owning interface file (OpenAPI by default) |
 | Domain entity | Semantic model of an identity-bearing domain concept. | A physical table or API schema. | ENT artifact |
-| Physical schema | Tables, columns, indexes, and relationships used for persistence. | Domain meaning or wire representation. | DBML |
+| Physical schema | Tables, columns, indexes, and relationships used for persistence. | Domain meaning or wire representation. | Owning `.dbml` file (one per database) |
 | Supersession | Explicit transfer of authority to a new stable ID while retaining history. | Editing history or deleting an obsolete file. | ARTIFACT-LIFECYCLE |
 
 ## Acronyms

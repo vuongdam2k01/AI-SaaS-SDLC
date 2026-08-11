@@ -28,7 +28,7 @@ Input is one semantic intent, such as allowing an agency to request approval for
 intent
   -> FTR
   -> UC and FLOW
-  -> conditional SCR/CMP/SUB/API/ENT/INT/JOB/EVT
+  -> conditional SCR/CMP/SUB/API/ENT/INT/JOB/EVT/PLT and owning interface/schema files
   -> UT/IT/ST specifications
   -> mapped implementation and exact configured verification, when available
   -> refresh + validate + BL-001
@@ -38,7 +38,7 @@ New scalable artifacts start as pinned-pattern drafts. They become active only a
 
 ## t3: Later feature or shared change
 
-Another Evolution may add, refine, consolidate, break, deprecate or retire behavior. The engine compares the worktree with the current baseline and unions old/new relationship graphs. A shared access rule, invariant, component, subsystem, API, entity, integration, job, event or ADR change can therefore reach earlier features and their regression tests.
+Another Evolution may add, refine, consolidate, break, deprecate or retire behavior. The engine compares the worktree with the current baseline and unions old/new relationship graphs. A shared access rule, invariant, component, subsystem, API, entity, integration, job, event, ADR or interface/schema contract-file change can therefore reach earlier features and their regression tests.
 
 Only the affected closure changes. Permanent IDs and files remain when records are deprecated, retired or superseded. Selected UT/IT/ST commands run through the engine, and the successor baseline records the resulting state.
 

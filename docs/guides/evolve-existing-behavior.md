@@ -42,7 +42,7 @@ You are knowingly changing a contract in a way that is not backward-compatible.
 
 > *"The publish API must now reject any post that has an unresolved change request — callers that used to get a 200 will get a 409."*
 
-- State the compatibility consequence explicitly in your intent. The flow records current-vs-desired behavior and the breaking consequence, and pulls every dependent of the changed `API-*`/`EVT-*`/`ENT-*` contract into regression.
+- State the compatibility consequence explicitly in your intent. The flow records current-vs-desired behavior and the breaking consequence, and pulls every dependent of the changed `API-*`/`EVT-*`/`ENT-*` contract — or of a changed interface/schema contract file — into regression.
 - A breaking contract change is the kind of durable, expensive-to-reverse decision that legitimately earns an `ADR-*`. Expect one, and expect the report to explain why the threshold was met.
 - A client obligation the change introduces (a new required field, an idempotency key, the identity of a superseded record) must be **owned by an artifact** or recorded in `QUESTIONS` as an allocation gap. The flow will not leave a new caller obligation unowned and silent.
 

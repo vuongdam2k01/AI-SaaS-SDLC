@@ -36,7 +36,7 @@ Validation evaluates project artifacts as contracts. It detects structural absen
 - Each normative fact has one owner; copies, summaries, and generated evidence do not compete with it.
 - `depends_on`, ADR, operationId, entity/schema, error, access, invariant, feature acceptance, and test-case references resolve.
 - Dependency edges are direct, meaningful, and acyclic across normative artifacts.
-- Wire fields are not redefined outside OpenAPI; physical schema is not redefined outside DBML; shared access/error/UX/invariant rules are referenced rather than duplicated.
+- Wire fields are not redefined outside the owning interface file; physical schema is not redefined outside the owning DBML file; shared access/error/UX/invariant rules are referenced rather than duplicated.
 - Unit-test exclusions are assigned to an integration or system test when the excluded claim remains required.
 
 ## Completion contract

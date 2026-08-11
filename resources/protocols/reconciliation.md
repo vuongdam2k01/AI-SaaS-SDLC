@@ -6,7 +6,7 @@ Use this protocol only for a concrete mismatch among accepted documentation, int
 
 - failed UT/IT/ST execution with record/log;
 - inspected implementation behavior or Git diff;
-- OpenAPI/DBML/event/provider contract mismatch;
+- interface-file/DBML/event/provider contract mismatch;
 - reproducible user-visible behavior conflicting with an active feature/flow;
 - explicit user correction of product intent;
 - public evidence contradiction, which is routed to Evidence Reassessment before any product repair.
@@ -35,7 +35,7 @@ Instantiate a new issue, successor ADR or regression specification through `ENGI
 |---|---|---|
 | Code violates active feature/UC/FLOW/acceptance | Product contract | User declares intentional behavior change → Product Evolution |
 | Detailed design conflicts with active product behavior | Product behavior | Durable product change is chosen → Evolution, not quiet design rewrite |
-| Code and OpenAPI/DBML/event contract differ | Accepted external/data/event contract | Intentional breaking/migration decision → successor ADR/Evolution |
+| Code and interface-file/DBML/event contract differ | Accepted external/data/event contract | Intentional breaking/migration decision → successor ADR/Evolution |
 | Test conflicts with canonical acceptance/error/invariant | Canonical contract | Contract is proven wrong by user decision or newer authoritative source |
 | Accepted ADR conflicts with implementation/design | Accepted ADR | Create successor ADR; never edit accepted body |
 | Public evidence conflicts with discovery assumption | Evidence Reassessment | Product mutation waits for explicit Evolution intent |

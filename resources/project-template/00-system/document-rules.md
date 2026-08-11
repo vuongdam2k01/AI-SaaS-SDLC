@@ -15,7 +15,7 @@ supersedes:
 
 - Each fact has one owning artifact. Other artifacts reference its ID or stable local ID instead of restating it.
 - Product artifacts own observable behavior; design artifacts own realization contracts; verification specs own test intent; result artifacts own observed execution evidence.
-- `03-design/interfaces/openapi.yaml` owns HTTP wire shape. `03-design/data/schema.dbml` owns physical data shape. `03-design/screen-transitions.mmd` owns the screen-transition graph.
+- Each interface file under `03-design/interfaces/` owns the HTTP wire shape of one surface, each `03-design/data/*.dbml` file owns the physical shape of one database, and each `03-design/*.mmd` file owns one screen-transition graph. `openapi.yaml`, `schema.dbml` and `screen-transitions.mmd` are the mandatory defaults; sibling files are first-class discovered contracts, and in a multi-file family each design artifact names its owning file in `depends_on`.
 - Shared rules live in `00-system`, `02-product`, or the applicable design singleton. Scalable artifacts may specialize them only through an explicit applicability rule or ADR.
 - A generated result, summary, or pinned snapshot never becomes normative authority.
 

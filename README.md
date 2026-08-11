@@ -12,7 +12,7 @@ An initialized documentation repository separates five kinds of truth:
 00-system/       pinned authoring patterns and repository rules
 01-discovery/    raw idea, attributable public evidence and market synthesis
 02-product/      requirements, access, invariants, FTR, UC and FLOW behavior
-03-design/       architecture, UX, SCR, CMP, SUB, API, ENT, INT, JOB and EVT design
+03-design/       architecture, UX, SCR, CMP, SUB, API, ENT, INT, JOB, EVT and PLT design
 04-verification/ actual UT, IT, ST specifications and execution-backed RESULT records
 05-control/      unresolved questions, ISS repairs and immutable accepted ADR history
 generated/       reproducible indexes, traceability, coverage and impact projections
@@ -113,6 +113,6 @@ claude plugin validate . --strict
 npm run validate:manifests
 ```
 
-The package checks both plugin manifests, all ten host skill adapters, the 23 pattern types, isolated Claude/Codex root resolution, path confinement and reproducible projections.
+The package checks both plugin manifests, all ten host skill adapters, the 24 pattern types, isolated Claude/Codex root resolution, path confinement and reproducible projections.
 
 Further references: [how-to guides](docs/guides/README.md), [timeline](docs/end-to-end-timeline.md), [flow reference](docs/flow-reference.md), [artifact reference](docs/artifact-reference.md), [command reference](docs/command-reference.md), [configuration](docs/configuration-reference.md) and [architecture](docs/system-architecture.md).

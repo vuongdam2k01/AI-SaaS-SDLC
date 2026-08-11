@@ -1,9 +1,12 @@
 Project project_schema {
   database_type: 'PostgreSQL'
   Note: '''
-  Authoritative physical data contract. Tables, columns, types, nullability,
-  defaults, keys, indexes, references, and database-enforced constraints live
-  here. ENT artifacts own domain meaning; API/OpenAPI own wire representations.
+  Authoritative physical data contract for one database. Tables, columns,
+  types, nullability, defaults, keys, indexes, references, and
+  database-enforced constraints live here. ENT artifacts own domain meaning;
+  interface files own wire representations. Sibling *.dbml files in this
+  directory are discovered as further SCHEMA-* contracts, one per database;
+  an entity in a multi-file repository names its owning file in depends_on.
   The empty draft is intentional until active entities require persistence.
   '''
 }

@@ -17,7 +17,7 @@ Use this protocol in Product Evolution or Reconciliation after observable behavi
 | `SCR-*` | A real user-facing surface — web route, desktop window, mobile screen, or a non-window surface such as a tray or menu-bar menu — has distinct purpose, state or transition behavior | Regions, fields, actions, validation messages, states, transitions, accessibility | Global UX rules or backend processing |
 | `CMP-*` | At least two real consumers share the same interaction contract | Inputs/outputs, variants, states, validation, accessibility, extension points | One-surface fragments or visual styling only |
 | `SUB-*` | A non-trivial engine, model, pipeline or domain capability has its own quality/failure boundary | Capabilities, I/O/stores, budgets, pinning, degradation, evaluation, security | Ordinary CRUD grouping |
-| `API-*` | An invocable operation — an OpenAPI operation, an IPC/bridge command or a CLI entry — has processing, authorization, transactional or side-effect behavior worth specifying | Callers, validation, sequence, consistency, side effects, idempotency, errors | HTTP wire schema, which remains in OpenAPI; a non-HTTP operation owns its full invocation contract here |
+| `API-*` | An invocable operation — an OpenAPI operation, an IPC/bridge command or a CLI entry — has processing, authorization, transactional or side-effect behavior worth specifying | Callers, validation, sequence, consistency, side effects, idempotency, errors | HTTP wire schema, which remains in the owning interface file; a non-HTTP operation owns its full invocation contract here |
 | `ENT-*` | A domain object has independent identity, lifecycle, invariants or retention | Meaning, ownership, attributes, states, constraints, sensitivity, retention | Endpoint workflow or physical-only tuning |
 | `INT-*` | Product behavior depends on an external provider/service | Auth boundary, exchanged data, quota/cost, timeout/retry, callbacks, degradation, sandbox | Secrets or generic library usage |
 | `JOB-*` | Work outlives a request or interaction, is scheduled, retryable or cancellable | Trigger, selection, transitions, concurrency, retry, cancellation, output/events | A synchronous method call |
@@ -41,7 +41,7 @@ For each new allocation, use `ENGINE artifact create` with the catalog `artifact
 
 ## Canonical boundaries
 
-- OpenAPI owns wire request/response/schema truth for HTTP operations; `API-*` owns processing semantics, and owns the full invocation contract when the operation is not HTTP.
+- The owning interface file — `openapi.yaml` by default, a sibling `03-design/interfaces/*.yaml` for a further surface — owns wire request/response/schema truth for HTTP operations; `API-*` owns processing semantics, and owns the full invocation contract when the operation is not HTTP. In a multi-file repository each HTTP `API-*` names its owning `WIRE-*`/`OPENAPI-CONTRACT` file in `depends_on`.
 - `PLT-*` owns what shipping on a platform costs the product; the artifacts it constrains keep owning their own behavior.
 - `ENT-*` owns domain meaning/lifecycle; DBML owns physical relational structure.
 - `UX-RULES` owns global interaction conventions; `SCR-*` owns one surface; `CMP-*` owns shared behavior.
@@ -50,6 +50,8 @@ For each new allocation, use `ENGINE artifact create` with the catalog `artifact
 - `ARCHITECTURE-OVERVIEW` owns system-wide boundaries; detailed artifacts refine it.
 
 Do not copy one canonical answer into several documents. Declare `depends_on`, `decisions`, `writes_to` and `implementation`; reverse relationships are generated.
+
+When a contract family gains its second file — a second interface file, a second `.dbml` database, a second transition graph — add the file first and declare ownership second, inside the same flow: while the family holds a single file the engine derives ownership itself, and an early declaration forms a dependency cycle with that auto-derived edge. A sibling file's name becomes its permanent identity once baselined, so name it by its bounded scope (`billing.yaml`, `analytics.dbml`, `desktop.mmd`), never by version or date.
 
 ## Shared-state and degradation design
 

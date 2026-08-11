@@ -24,7 +24,7 @@ Run it again after adding or removing design/test relationships. Removed depende
 
 1. Seed the closure with direct artifact changes and implementation files implicated by the intent/failure.
 2. Follow reverse `depends_on`, `decision`, `writes_to` and `supersedes` relationships.
-3. Add consumers of changed fixed contracts: OpenAPI, DBML and screen transitions.
+3. Add consumers of changed fixed contracts: interface files, DBML files and transition graphs. A family with sibling files converges per owning file through declared `depends_on` edges rather than across the whole surface.
 4. Include old features reached through a shared entity, component, subsystem, API, integration, job, event, access rule, invariant or accepted ADR.
 5. Include existing UT/IT/ST that verify any reached contract.
 6. Mark only genuinely affected artifacts for modification; reading/verification does not imply rewriting.
@@ -34,7 +34,7 @@ Run it again after adding or removing design/test relationships. Removed depende
 | Changed node | Questions that close degradation risk |
 |---|---|
 | Entity/store | Do old fields/states/migrations/retention still hold? Which features write it? |
-| API/OpenAPI | Are old callers, errors, authorization, idempotency and compatibility preserved? |
+| API/interface file | Are old callers, errors, authorization, idempotency and compatibility preserved? Which operations declare the changed file as their wire authority? |
 | Component/screen | Are old consumers, states, accessibility and transitions preserved? |
 | Subsystem | Are quality, cost, latency, pinning and degradation budgets still met? |
 | Integration | Do quota, timeout, retry, webhook and fallback changes affect old flows? |

@@ -24,7 +24,7 @@ If current evidence may invalidate product truth, the flow creates or updates `I
 
 ## Product Evolution
 
-Evolution converts one semantic intent into observable FTR behavior and stable acceptance IDs, then derives the required UC/FLOW paths. It computes impact before and after conditional solution design so changes to access, invariants and shared CMP/SUB/API/ENT/INT/JOB/EVT contracts pull prior dependents and regression obligations into the closure.
+Evolution converts one semantic intent into observable FTR behavior and stable acceptance IDs, then derives the required UC/FLOW paths. It computes impact before and after conditional solution design so changes to access, invariants, shared CMP/SUB/API/ENT/INT/JOB/EVT contracts and interface/schema/transition contract files pull prior dependents and regression obligations into the closure.
 
 Only boundaries that exist receive design artifacts. New scalable artifacts are instantiated from the pinned catalog. UT, IT and ST specifications are derived from behavior and affected regression. When implementation sources and verification commands are configured and access is permitted, the flow edits mapped paths and runs the exact declared commands through the engine. Otherwise execution remains honestly `not-configured`.
 

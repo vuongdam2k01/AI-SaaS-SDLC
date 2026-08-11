@@ -16,7 +16,7 @@ A feature is not written in one blast. The flow moves through five checkpoints, 
 | Checkpoint | Plain meaning | What it produces |
 |---|---|---|
 | `behavior` | Make the requirement observable | `FTR-*` with stable `AC-*` acceptance IDs, `UC-*`, `FLOW-*` |
-| `design` | Write the implementation-detail docs | Only the boundaries that exist: `SCR/CMP/SUB/API/ENT/INT/JOB/EVT`, plus OpenAPI / DBML, and `ADR-*` when a real decision is made |
+| `design` | Write the implementation-detail docs | Only the boundaries that exist: `SCR/CMP/SUB/API/ENT/INT/JOB/EVT`, plus the owning interface/schema files (OpenAPI / DBML by default, siblings per surface or database), and `ADR-*` when a real decision is made |
 | `tests` | Write the test specifications | `UT-*`, `IT-*`, `ST-*` derived from behavior and affected regression |
 | `implementation` | Change the code and run it | Edits inside configured implementation sources; `verify --execute` produces real `RESULT-*` |
 | `baseline` (default) | Lock it in | `refresh` → `validate` → successor `BL-*`, flow closed |
@@ -74,7 +74,7 @@ What the flow does:
 - Allocates design artifacts **only where a real boundary exists** — it does not invent layers:
   - `SCR-*` for a real user-facing surface — a web route, a desktop window, a mobile screen, or a tray/menu-bar menu with real interaction structure; `CMP-*` only after a second real consumer exists;
   - `SUB-*` for a non-trivial engine/pipeline/domain capability;
-  - `API-*` for the processing semantics of any invocable operation — OpenAPI owns the wire contract when it is HTTP; an IPC/bridge/CLI operation owns its full invocation contract in the `API-*` document itself;
+  - `API-*` for the processing semantics of any invocable operation — the owning interface file (OpenAPI by default, a sibling `03-design/interfaces/*.yaml` per further surface) owns the wire contract when it is HTTP, and a multi-file repository names that file in the `API-*`'s `depends_on`; an IPC/bridge/CLI operation owns its full invocation contract in the `API-*` document itself;
   - `ENT-*` for domain identity/lifecycle (plus DBML for the physical schema);
   - `INT-*` for an external provider boundary; `JOB-*` for durable/scheduled work; `EVT-*` for versioned facts;
   - `PLT-*` for each shipped platform or channel whose constraints, permissions, update behavior or local data differ materially;
