@@ -20,6 +20,7 @@ import { brokenCaseReferences } from "./test-cases.js";
 import { STALE_AFTER_BASELINES, baselinesOpen, openQuestions } from "./question-ledger.js";
 import { platformEvidenceFindings } from "./platform-evidence.js";
 import { contractAuthorityFindings, expectedContractIdentity } from "./contract-authorities.js";
+import { areaFindings } from "./area-registry.js";
 
 const requiredFiles = [
   ...Object.keys(CANONICAL_MARKDOWN),
@@ -148,6 +149,11 @@ export async function validateProject(root: string, artifacts: Artifact[]): Prom
   // operation, a client-local entity — so the gap is a standing warning rather
   // than an error, the same doctrine as platform evidence above.
   findings.push(...contractAuthorityFindings(artifacts));
+  // The areas registry is opt-in: absent, IDs stay unconstrained. Declared, an
+  // unregistered area is a naming decision made visible — a warning, because a
+  // permanent ID cannot be renamed after baselining and a baseline must not
+  // fail on a name.
+  if (config) findings.push(...areaFindings(config, artifacts));
   const graph = buildGraph(artifacts);
   const order = topologicalOrder(graph);
   if (order.cycles.length > 0) findings.push({ severity: "error", code: "DEPENDENCY_CYCLE", message: `Dependency cycle contains: ${order.cycles.join(", ")}` });

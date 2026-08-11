@@ -6,6 +6,7 @@
 schema_version: 1
 project_id: approval-workflow
 research_mode: public-web-only
+areas: [APPROVAL, BILLING]
 implementation_sources:
   - id: web-app
     path: ../approval-web-app
@@ -25,7 +26,7 @@ verification:
       platforms: [PLT-WIN-001]
 ```
 
-No additional top-level or nested keys are accepted in schema version 1; the only optional command key is `platforms`.
+No additional top-level or nested keys are accepted in schema version 1; the optional keys are the command-level `platforms` list and the top-level `areas` registry.
 
 ## Core fields
 
@@ -36,6 +37,7 @@ No additional top-level or nested keys are accepted in schema version 1; the onl
 | `research_mode` | Must be `public-web-only`. Real host search/page inspection is required for claimed evidence. |
 | `implementation_sources` | Array of unique `{id, path}` mappings; IDs use lowercase letters, numbers and hyphens. |
 | `verification` | Exactly `unit`, `integration` and `system`, each containing unique `{id, cwd, command}` entries, each optionally carrying `platforms: [PLT-...]` — the live platform targets the command produces execution evidence for. |
+| `areas` | Optional non-empty array of unique uppercase area segments (`ORDERS`, `ORDERS-EU`). When present, every live scalable artifact whose ID parses as `<PREFIX>-<AREA>-<NNN>` must name a registered area; violations are `AREA_UNREGISTERED` warnings. |
 
 ## Implementation-source boundary
 
@@ -75,6 +77,10 @@ The engine renders the matching `RESULT-EXEC-*` from that record. It never overw
 ### Platform evidence declarations
 
 A command that exercises a shipped platform declares it: `platforms: [PLT-WIN-001]`. The declaration is a human claim, recorded beside the machine-observed host so the two never blur — an Android declaration whose records always show a `win32` host is visible to any reviewer. `validate` reports `PLATFORM_EVIDENCE_MISSING` for every live platform target no command declares, and `PLATFORM_DECLARATION_UNKNOWN` for a declaration matching no live target. Both are warnings: a platform that cannot be executed on any available machine legitimately stays undeclared, with the limitation recorded in `TEST-POLICY`.
+
+## Area registry
+
+`areas` is an opt-in namespace registry. Undeclared, IDs stay unconstrained, exactly as before. Declared, every live scalable artifact whose ID parses as `<PREFIX>-<AREA>-<NNN>` must name a registered area — `SUB-ORDERS-001` demands `ORDERS`; `SUB-ORDERS-EU-001` demands `ORDERS-EU`, never the shorter prefix. `validate` reports `AREA_UNREGISTERED` as a warning: an unregistered area is a naming decision made visible, not a broken structure, and IDs without a numeric suffix are exempt.
 
 ## Documentation-only mode
 

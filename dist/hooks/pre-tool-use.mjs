@@ -7510,12 +7510,17 @@ function validPlatforms(value) {
   if (value === void 0) return true;
   return Array.isArray(value) && value.length > 0 && value.every((item) => typeof item === "string" && /^[A-Z][A-Z0-9-]*$/.test(item)) && new Set(value).size === value.length;
 }
+function validAreas(value) {
+  if (value === void 0) return true;
+  return Array.isArray(value) && value.length > 0 && value.every((item) => typeof item === "string" && /^[A-Z][A-Z0-9]*(?:-[A-Z0-9]+)*$/.test(item)) && new Set(value).size === value.length;
+}
 function validCommand(value) {
   return isRecord(value) && exactKeys(value, ["id", "cwd", "command", "platforms"]) && safeId(value.id) && [value.cwd, value.command].every((item) => typeof item === "string" && item.length > 0) && validPlatforms(value.platforms);
 }
 function validConfig(value) {
-  if (!isRecord(value) || !exactKeys(value, ["schema_version", "project_id", "research_mode", "implementation_sources", "verification"])) return false;
+  if (!isRecord(value) || !exactKeys(value, ["schema_version", "project_id", "research_mode", "implementation_sources", "verification", "areas"])) return false;
   if (value.schema_version !== 1 || value.research_mode !== "public-web-only" || typeof value.project_id !== "string" || !/^[a-z0-9][a-z0-9-]*$/.test(value.project_id)) return false;
+  if (!validAreas(value.areas)) return false;
   if (!Array.isArray(value.implementation_sources) || !value.implementation_sources.every((source) => isRecord(source) && exactKeys(source, ["id", "path"]) && safeId(source.id) && typeof source.path === "string" && source.path.length > 0)) return false;
   if (new Set(value.implementation_sources.map((source) => source.id)).size !== value.implementation_sources.length) return false;
   if (!isRecord(value.verification) || !exactKeys(value.verification, ["unit", "integration", "system"])) return false;
@@ -7534,7 +7539,7 @@ async function loadConfig(root2) {
   } catch (error) {
     throw new SdlcError(`Cannot read ${file}: ${String(error)}`);
   }
-  if (!validConfig(parsed)) throw new SdlcError("Invalid sdlc.config.yaml: expected schema_version 1, kebab-case project/source/command IDs, public-web-only research, implementation_sources, unit/integration/system command arrays, and optional non-empty artifact-ID platforms lists.");
+  if (!validConfig(parsed)) throw new SdlcError("Invalid sdlc.config.yaml: expected schema_version 1, kebab-case project/source/command IDs, public-web-only research, implementation_sources, unit/integration/system command arrays, optional non-empty artifact-ID platforms lists, and an optional non-empty uppercase areas registry.");
   return parsed;
 }
 var import_yaml2;

@@ -41,7 +41,7 @@ It will not turn a warning into a product decision, and it never claims a test p
 
 The engine's `validate` returns non-zero only when there is an **error** — a broken structure: a bad ID, a broken reference, a lifecycle or supersession violation, a coverage gap, a mutated immutable record. Those must be fixed before a baseline.
 
-Nine findings are **warnings** and never block a baseline, because each names a *judgement* or a debt rather than a broken structure. They are reported precisely so that owing them stays visible:
+Ten findings are **warnings** and never block a baseline, because each names a *judgement* or a debt rather than a broken structure. They are reported precisely so that owing them stays visible:
 
 | Warning | Means | You owe |
 |---|---|---|
@@ -54,6 +54,7 @@ Nine findings are **warnings** and never block a baseline, because each names a 
 | `WIRE_AUTHORITY_UNDECLARED` | A live `API-*` naming no owning interface file while sibling interface files exist | The owning `WIRE-*`/`OPENAPI-CONTRACT` in `depends_on`, or the standing record that the operation is IPC/CLI-only |
 | `SCHEMA_AUTHORITY_UNDECLARED` | A live `ENT-*` naming no owning schema file while sibling `.dbml` files exist | The owning `SCHEMA-*`/`PHYSICAL-SCHEMA` in `depends_on`, or the standing record that the entity lives in a client-local or non-relational store |
 | `TRANSITION_AUTHORITY_UNDECLARED` | A live `SCR-*` naming no owning transition graph while sibling `.mmd` graphs exist | The owning `TRANSITIONS-*`/`SCREEN-TRANSITIONS` in `depends_on` |
+| `AREA_UNREGISTERED` | A live artifact ID naming an area outside the optional `areas` registry in `sdlc.config.yaml` | Registering the area, or picking a registered one before the ID is baselined |
 
 Seeing warnings after a flow closes is expected and healthy. Seeing **errors: 0** is the bar for "it worked."
 

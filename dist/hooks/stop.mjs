@@ -13584,12 +13584,17 @@ function validPlatforms(value) {
   if (value === void 0) return true;
   return Array.isArray(value) && value.length > 0 && value.every((item) => typeof item === "string" && /^[A-Z][A-Z0-9-]*$/.test(item)) && new Set(value).size === value.length;
 }
+function validAreas(value) {
+  if (value === void 0) return true;
+  return Array.isArray(value) && value.length > 0 && value.every((item) => typeof item === "string" && /^[A-Z][A-Z0-9]*(?:-[A-Z0-9]+)*$/.test(item)) && new Set(value).size === value.length;
+}
 function validCommand(value) {
   return isRecord(value) && exactKeys(value, ["id", "cwd", "command", "platforms"]) && safeId(value.id) && [value.cwd, value.command].every((item) => typeof item === "string" && item.length > 0) && validPlatforms(value.platforms);
 }
 function validConfig(value) {
-  if (!isRecord(value) || !exactKeys(value, ["schema_version", "project_id", "research_mode", "implementation_sources", "verification"])) return false;
+  if (!isRecord(value) || !exactKeys(value, ["schema_version", "project_id", "research_mode", "implementation_sources", "verification", "areas"])) return false;
   if (value.schema_version !== 1 || value.research_mode !== "public-web-only" || typeof value.project_id !== "string" || !/^[a-z0-9][a-z0-9-]*$/.test(value.project_id)) return false;
+  if (!validAreas(value.areas)) return false;
   if (!Array.isArray(value.implementation_sources) || !value.implementation_sources.every((source) => isRecord(source) && exactKeys(source, ["id", "path"]) && safeId(source.id) && typeof source.path === "string" && source.path.length > 0)) return false;
   if (new Set(value.implementation_sources.map((source) => source.id)).size !== value.implementation_sources.length) return false;
   if (!isRecord(value.verification) || !exactKeys(value.verification, ["unit", "integration", "system"])) return false;
@@ -13608,7 +13613,7 @@ async function loadConfig(root2) {
   } catch (error) {
     throw new SdlcError(`Cannot read ${file}: ${String(error)}`);
   }
-  if (!validConfig(parsed)) throw new SdlcError("Invalid sdlc.config.yaml: expected schema_version 1, kebab-case project/source/command IDs, public-web-only research, implementation_sources, unit/integration/system command arrays, and optional non-empty artifact-ID platforms lists.");
+  if (!validConfig(parsed)) throw new SdlcError("Invalid sdlc.config.yaml: expected schema_version 1, kebab-case project/source/command IDs, public-web-only research, implementation_sources, unit/integration/system command arrays, optional non-empty artifact-ID platforms lists, and an optional non-empty uppercase areas registry.");
   return parsed;
 }
 var import_yaml2;
@@ -14728,6 +14733,57 @@ function platformEvidenceFindings(config, artifacts) {
 
 // src/core/validation.ts
 init_contract_authorities();
+
+// src/core/area-registry.ts
+init_types();
+var AREA_PREFIXES = {
+  feature: ["FTR"],
+  use_case: ["UC"],
+  business_flow: ["FLOW"],
+  screen: ["SCR"],
+  component: ["CMP"],
+  subsystem: ["SUB"],
+  api_processing: ["API"],
+  entity: ["ENT"],
+  external_integration: ["INT"],
+  job: ["JOB"],
+  event: ["EVT"],
+  platform_target: ["PLT"],
+  unit_test_backend: ["UT-API", "UT-CORE"],
+  unit_test_frontend: ["UT-UI"],
+  unit_test_job: ["UT-JOB"],
+  integration_test: ["IT"],
+  system_test: ["ST"],
+  issue: ["ISS"],
+  architectural_decision: ["ADR"]
+};
+function areaOf(artifactType, id2) {
+  for (const prefix of AREA_PREFIXES[artifactType] ?? []) {
+    const match = new RegExp(`^${prefix}-(.+)-[0-9]{2,}$`).exec(id2);
+    if (match) return match[1];
+  }
+  return null;
+}
+function areaFindings(config, artifacts) {
+  const registered = config.areas;
+  if (!registered) return [];
+  const areas = new Set(registered);
+  const findings = [];
+  for (const artifact of artifacts) {
+    if (!isLiveStatus(artifact.status)) continue;
+    const area = areaOf(artifact.artifact_type, artifact.id);
+    if (area === null || areas.has(area)) continue;
+    findings.push({
+      severity: "warning",
+      code: "AREA_UNREGISTERED",
+      message: `${artifact.id} names area ${area}, which sdlc.config.yaml does not register; add it to areas or pick a registered area before the ID is baselined.`,
+      file: artifact.file
+    });
+  }
+  return findings;
+}
+
+// src/core/validation.ts
 var requiredFiles = [
   ...Object.keys(CANONICAL_MARKDOWN),
   "03-design/interfaces/openapi.yaml",
@@ -14837,6 +14893,7 @@ async function validateProject(root2, artifacts) {
   }
   if (config) findings.push(...platformEvidenceFindings(config, artifacts));
   findings.push(...contractAuthorityFindings(artifacts));
+  if (config) findings.push(...areaFindings(config, artifacts));
   const graph = buildGraph(artifacts);
   const order = topologicalOrder(graph);
   if (order.cycles.length > 0) findings.push({ severity: "error", code: "DEPENDENCY_CYCLE", message: `Dependency cycle contains: ${order.cycles.join(", ")}` });

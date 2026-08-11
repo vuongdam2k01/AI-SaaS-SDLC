@@ -49,6 +49,7 @@ supersedes:
 - Add project-specific domain terms as rows with a precise meaning, exclusions, and owning artifact before using ambiguous synonyms.
 - IDs remain stable even if a title changes; never encode status or assignment in an ID.
 - Local IDs are meaningful only within their owning artifact unless referenced as `<artifact ID>#<local ID>`.
+- The AREA segment between an ID's type prefix and its number groups artifacts by product area; when `sdlc.config.yaml` declares an `areas` registry, every new ID uses a registered area.
 
 ## Completion contract
 

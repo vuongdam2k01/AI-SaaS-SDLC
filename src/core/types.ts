@@ -51,6 +51,8 @@ export interface ProjectConfig {
     integration: CommandDefinition[];
     system: CommandDefinition[];
   };
+  /** Optional registered AREA segments; live IDs outside it warn AREA_UNREGISTERED. */
+  areas?: string[];
 }
 
 export interface ArtifactMeta {
