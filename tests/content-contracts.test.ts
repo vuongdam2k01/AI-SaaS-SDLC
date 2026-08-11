@@ -86,6 +86,24 @@ describe("pinned pattern and active-content contracts", () => {
     expect(report.valid).toBe(true);
   });
 
+  it("requires every active entity to declare its persistence authority", async () => {
+    const root = await tempProject();
+    roots.push(root);
+    await establishGenesis(root);
+    await startFlow(root, "evolution", "Add approval behavior");
+    await addApprovalFeature(root);
+    const file = path.join(root, "03-design", "data", "ENT-APPROVAL-001.md");
+    const declared = await readFile(file, "utf8");
+    await writeFile(file, declared.replace("- Persistence authority: PHYSICAL-SCHEMA\n\n", ""), "utf8");
+    const missing = await validateProject(root, await scanArtifacts(root));
+    expect(missing.findings.some((item) => item.code === "CONTENT_LOCAL_ID_MISSING" && item.message.includes("persistence_authority"))).toBe(true);
+    for (const value of ["SCHEMA-ANALYTICS", "PLT-DESKTOP-001#M-01 local store", "none — derived at read time from the decision audit rows"]) {
+      await writeFile(file, declared.replace("- Persistence authority: PHYSICAL-SCHEMA", `- Persistence authority: ${value}`), "utf8");
+      const report = await validateProject(root, await scanArtifacts(root));
+      expect(report.findings.some((item) => item.code === "CONTENT_LOCAL_ID_MISSING" && item.file === "03-design/data/ENT-APPROVAL-001.md")).toBe(false);
+    }
+  });
+
   it("rejects any in-place change to the pinned snapshot", async () => {
     const root = await tempProject();
     roots.push(root);

@@ -11,6 +11,10 @@ Project project_schema {
   '''
 }
 
+// A non-relational or client-local store is never forced into DBML: the owning
+// ENT artifact declares it on its "Persistence authority" line instead, and an
+// ephemeral or derived entity declares an explicit none with its reason.
+
 // Completion contract before a schema-backed feature is active:
 // - Every table and column maps to an ENT attribute/relationship or documented
 //   technical necessity.

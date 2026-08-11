@@ -121,7 +121,7 @@ Create/update only when the boundary exists:
 - `CMP-*` after a second real consumer;
 - `SUB-*` for non-trivial engine/model/pipeline/domain capability;
 - `API-*` for the processing semantics of an invocable operation, with the owning interface file — `openapi.yaml` or a sibling under `03-design/interfaces/` — owning the wire contract when that operation is HTTP; in a multi-file repository the `API-*` names that file in `depends_on`;
-- `ENT-*` for domain identity/lifecycle and DBML for physical schema;
+- `ENT-*` for domain identity/lifecycle, each declaring its persistence authority — the owning `.dbml` file for relational storage, a `PLT-*` local store, or an explicit none;
 - `INT-*` for external provider boundaries;
 - `JOB-*` for durable/scheduled/retryable work;
 - `EVT-*` for versioned facts with producers/consumers;

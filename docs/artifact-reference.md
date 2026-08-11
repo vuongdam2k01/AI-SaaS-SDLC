@@ -33,7 +33,7 @@ The pinned catalog contains 24 scalable artifact types.
 | Design | `component` | `CMP-*` | Reused interaction contract for real consumers |
 | Design | `subsystem` | `SUB-*` | Non-trivial capability boundary and implementation mapping |
 | Design | `api_processing` | `API-*` | Authorization, processing, transactions and side effects |
-| Design | `entity` | `ENT-*` | Domain identity, state, invariants and schema mapping |
+| Design | `entity` | `ENT-*` | Domain identity, state, invariants and declared persistence authority |
 | Design | `external_integration` | `INT-*` | Provider, mapping, reliability and secret boundary |
 | Design | `job` | `JOB-*` | Durable or scheduled processing and retry behavior |
 | Design | `event` | `EVT-*` | Versioned event envelope, delivery and consumers |

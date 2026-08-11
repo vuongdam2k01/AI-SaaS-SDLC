@@ -237,7 +237,9 @@ OpenAPI authority, authorization order, validation, errors, transaction, idempot
 
 ## Schema mapping
 
-| Attribute or relationship ID | DBML table and column | Application symbol | Migration note |
+- Persistence authority: PHYSICAL-SCHEMA
+
+| Attribute or relationship ID | Store target | Application symbol | Migration note |
 |---|---|---|---|
 | A-01 | approval_requests.request_id | ApprovalRequest.id | immutable primary identity |
 | A-02 | approval_requests.tenant_id | ApprovalRequest.tenantId | backfill prohibited without tenant authority |

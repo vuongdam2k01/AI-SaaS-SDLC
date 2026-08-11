@@ -1,4 +1,4 @@
-version: 2
+version: 3
 patterns:
   - artifact_type: ideal_customer_profile
     template: discovery/ideal-customer-profile.pattern.md
@@ -146,11 +146,12 @@ patterns:
     required_tables:
       - {heading: Attributes, columns: [Local ID, Name, Meaning, Type, Required, Constraints, Sensitivity], min_rows: 1}
       - {heading: States and invariants, columns: [Local ID, Type, Rule, Applies when, Enforcement owner], min_rows: 1}
-      - {heading: Schema mapping, columns: [Attribute or relationship ID, DBML table and column, Application symbol, Migration note], min_rows: 1}
+      - {heading: Schema mapping, columns: [Attribute or relationship ID, Store target, Application symbol, Migration note], min_rows: 1}
     local_id_patterns:
       - {namespace: attribute, pattern: '\bA-[0-9]{2}\b', minimum: 1}
       - {namespace: state, pattern: '\bST-[0-9]{2}\b', minimum: 1}
       - {namespace: invariant, pattern: '\bINV-[0-9]{2}\b', minimum: 1}
+      - {namespace: persistence_authority, pattern: '^- Persistence authority: (?:(?:PHYSICAL-SCHEMA|SCHEMA-[A-Z0-9-]+|PLT-[A-Z0-9-]+#M-[0-9]{2})(?: [^\n]*)?|none(?: —| -|:) [^\n]+)$', minimum: 1}
   - artifact_type: external_integration
     template: design/external-integration.pattern.md
     target: 03-design/integrations/{{ID}}.md

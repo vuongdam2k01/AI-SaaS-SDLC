@@ -28,6 +28,7 @@ supersedes:
 | Wire contract | Protocol path, parameter, payload, and response shape. | Internal processing algorithm. | Owning interface file (OpenAPI by default) |
 | Domain entity | Semantic model of an identity-bearing domain concept. | A physical table or API schema. | ENT artifact |
 | Physical schema | Tables, columns, indexes, and relationships used for persistence. | Domain meaning or wire representation. | Owning `.dbml` file (one per database) |
+| Persistence authority | The declared owner of an entity's physical shape: a schema file, a platform-target local store, or an explicit none. | Wire representation or domain meaning. | ENT artifact |
 | Supersession | Explicit transfer of authority to a new stable ID while retaining history. | Editing history or deleting an obsolete file. | ARTIFACT-LIFECYCLE |
 
 ## Acronyms

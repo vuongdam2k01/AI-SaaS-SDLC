@@ -43,7 +43,7 @@ For each new allocation, use `ENGINE artifact create` with the catalog `artifact
 
 - The owning interface file — `openapi.yaml` by default, a sibling `03-design/interfaces/*.yaml` for a further surface — owns wire request/response/schema truth for HTTP operations; `API-*` owns processing semantics, and owns the full invocation contract when the operation is not HTTP. In a multi-file repository each HTTP `API-*` names its owning `WIRE-*`/`OPENAPI-CONTRACT` file in `depends_on`.
 - `PLT-*` owns what shipping on a platform costs the product; the artifacts it constrains keep owning their own behavior.
-- `ENT-*` owns domain meaning/lifecycle; DBML owns physical relational structure.
+- `ENT-*` owns domain meaning/lifecycle and declares its persistence authority: the owning `.dbml` file for relational storage, a `PLT-*` local-data row for a client-local store, or an explicit `none — <reason>` for ephemeral or derived state.
 - `UX-RULES` owns global interaction conventions; `SCR-*` owns one surface; `CMP-*` owns shared behavior.
 - `ERROR-CATALOG` owns stable error meaning; API, screen and tests reference its IDs.
 - `SUB-*` owns non-CRUD capability quality and degradation; feature/flow documents reference capability behavior.

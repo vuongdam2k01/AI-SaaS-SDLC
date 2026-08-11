@@ -76,4 +76,4 @@ The engine deliberately does not score prose, tone, persuasiveness or product co
 
 ## Authority rule
 
-Patterns define shape; live artifacts define product truth. Within live artifacts, authority stays narrow: `FTR-*` owns outcomes and acceptance criteria, `SCR-*` owns screen-local behavior, `API-*` owns processing and transaction semantics, OpenAPI owns wire contracts, `ENT-*` owns domain meaning and DBML owns physical schema. Adjacent artifacts reference these authorities instead of duplicating them.
+Patterns define shape; live artifacts define product truth. Within live artifacts, authority stays narrow: `FTR-*` owns outcomes and acceptance criteria, `SCR-*` owns screen-local behavior, `API-*` owns processing and transaction semantics, the owning interface file owns wire contracts, and `ENT-*` owns domain meaning while its declared persistence authority — a schema file, a platform-target local store, or an explicit none — owns physical shape. Adjacent artifacts reference these authorities instead of duplicating them.

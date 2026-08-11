@@ -13,7 +13,7 @@ supersedes:
 
 # {{ID}} — {{TITLE}}
 
-<!-- Contract: defines the semantic model, ownership, lifecycle, invariants, sensitivity, and schema mapping for one domain entity. It does not own physical column syntax, API payload shape, or screen labels. Create when a durable or identity-bearing concept needs a stable semantic contract. ID is ENT-<AREA>-<NNN>; path is 03-design/data/<ID>.md. This artifact owns domain meaning; DBML owns physical schema and OpenAPI owns wire representations. Consumers: API/JOB/EVT/INT/SUB designs, tests, privacy rules, and implementation. Lifecycle: draft -> active -> superseded. -->
+<!-- Contract: defines the semantic model, ownership, lifecycle, invariants, sensitivity, and schema mapping for one domain entity. It does not own physical column syntax, API payload shape, or screen labels. Create when a durable or identity-bearing concept needs a stable semantic contract. ID is ENT-<AREA>-<NNN>; path is 03-design/data/<ID>.md. This artifact owns domain meaning and declares its persistence authority: the owning schema file owns physical shape for relational storage, a PLT-* local-data row owns a client-local store, an explicit none records ephemeral or derived state, and interface files own wire representations. Consumers: API/JOB/EVT/INT/SUB designs, tests, privacy rules, and implementation. Lifecycle: draft -> active -> superseded. -->
 
 ## Purpose and boundary
 
@@ -65,9 +65,11 @@ supersedes:
 
 ## Schema mapping
 
-| Attribute or relationship ID | DBML table and column | Application symbol | Migration note |
+- Persistence authority: <PHYSICAL-SCHEMA, SCHEMA-... node, PLT-...#M-NN local store, or none — reason>
+
+| Attribute or relationship ID | Store target | Application symbol | Migration note |
 |---|---|---|---|
-| <A/relationship ID> | <table.column> | <model/type symbol> | <compatibility or backfill constraint> |
+| <A/relationship ID> | <table.column, collection.field, key pattern, or store path> | <model/type symbol> | <compatibility or backfill constraint> |
 
 ## Completion contract
 
@@ -75,4 +77,4 @@ supersedes:
 - [ ] Attributes, states, and invariants have stable local IDs and semantic types.
 - [ ] Every transition and relationship states guards and deletion consequences.
 - [ ] Retention, deletion, export, and sensitivity rules are explicit where applicable.
-- [ ] Domain semantics map to DBML, implementation, and verification without redefining wire schemas.
+- [ ] Domain semantics map to the declared persistence authority, implementation, and verification without redefining wire schemas.
