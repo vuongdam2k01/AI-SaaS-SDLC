@@ -16,9 +16,24 @@ import { executeVerification } from "../src/core/verification.js";
 import { loadConfig } from "../src/core/config.js";
 import { addApprovalFeature, materializePatternArtifact } from "./fixtures/complete-saas/fixture.js";
 import { buildEnginePointer, ensureEnginePointerIgnored, recordEnginePointer } from "../src/core/engine-pointer.js";
+import { createArtifactFromPattern } from "../src/core/artifact-instantiation.js";
+import { resolveCatalog } from "../src/core/pattern-catalog.js";
+import { sha256, stableJson } from "../src/core/utils.js";
+import fg from "fast-glob";
 
 const roots: string[] = [];
 afterEach(async () => { while (roots.length) await cleanup(roots.pop()!); });
+
+/** Re-pin the snapshot exactly as `init` would, after rewriting a pattern file. */
+async function repinPatternSnapshot(root: string): Promise<void> {
+  const catalogRoot = path.join(root, "00-system", "patterns");
+  const files = await fg("**/*", { cwd: catalogRoot, onlyFiles: true, dot: true, followSymbolicLinks: false, ignore: ["snapshot.json"] });
+  const hashes: string[] = [];
+  for (const relative of files.sort()) {
+    hashes.push(`00-system/patterns/${relative.replaceAll("\\", "/")}:${sha256(await readFile(path.join(catalogRoot, relative), "utf8"))}`);
+  }
+  await writeFile(path.join(catalogRoot, "snapshot.json"), stableJson({ schema_version: 1, catalog_hash: sha256(hashes.join("\n")), files: hashes.length }), "utf8");
+}
 
 async function projections(root: string) {
   const artifacts = await scanArtifacts(root);
@@ -181,6 +196,36 @@ describe("release hardening", () => {
 
     const report = await validateProject(root, artifacts);
     expect(report.findings.some((item) => item.message.includes("Missing YAML frontmatter"))).toBe(false);
+  });
+
+  it("instantiates a pattern that a Windows clone checked out with CRLF", async () => {
+    // A clone with core.autocrlf=true delivers pattern templates as CRLF. The
+    // invariant: whatever the checkout did to line endings, instantiation
+    // produces an LF artifact with intact frontmatter. Held before this release
+    // too — pinned here because the neighbouring CI failure came from exactly
+    // this shape of mistake, made in the test fixtures rather than the engine.
+    const root = await tempProject();
+    roots.push(root);
+    await establishGenesis(root);
+
+    const pattern = path.join(root, "00-system", "patterns", "product", "feature.pattern.md");
+    const source = await readFile(pattern, "utf8");
+    expect(source).not.toContain("\r\n");
+    await writeFile(pattern, source.replace(/\n/g, "\r\n"), "utf8");
+    // The pinned snapshot is hash-verified, so re-pin it exactly as a fresh
+    // checkout would have produced it.
+    await repinPatternSnapshot(root);
+
+    await startFlow(root, "evolution", "Add approval behavior");
+    const created = await createArtifactFromPattern(root, await resolveCatalog(root, process.cwd()), "feature", "FTR-CRLF-001", "Checked out with CRLF");
+    const written = await readFile(path.join(root, created.file), "utf8");
+    expect(written).not.toContain("\r\n");
+    expect(written.startsWith("---\nid: FTR-CRLF-001\n")).toBe(true);
+
+    const artifact = (await scanArtifacts(root)).find((item) => item.id === "FTR-CRLF-001");
+    expect(artifact).toBeDefined();
+    expect(artifact!.metadata_issues).toEqual([]);
+    expect(artifact!.artifact_type).toBe("feature");
   });
 
   it("records a runnable editorial command and keeps it out of shared history", async () => {

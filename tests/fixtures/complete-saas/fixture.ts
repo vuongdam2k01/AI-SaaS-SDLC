@@ -32,10 +32,14 @@ export const APPROVAL_ARTIFACTS: FixtureArtifact[] = [
 
 const CONTENT = { ...APPROVAL_PRODUCT_BODIES, ...APPROVAL_DESIGN_BODIES, ...APPROVAL_VERIFICATION_BODIES, ...CONTROL_BODIES };
 
+// Every helper below normalizes before it indexes. Slicing an original CRLF
+// string at an index found in a normalized copy is short by one byte per line,
+// which is how a Windows checkout produced artifacts with truncated frontmatter.
 function replaceBody(source: string, body: string): string {
-  const marker = source.replace(/\r\n/g, "\n").indexOf("\n---\n", 4);
+  const normalized = source.replace(/\r\n/g, "\n");
+  const marker = normalized.indexOf("\n---\n", 4);
   if (marker < 0) throw new Error("Fixture artifact is missing frontmatter.");
-  return `${source.slice(0, marker + 5)}\n${body.trim()}\n`;
+  return `${normalized.slice(0, marker + 5)}\n${body.trim()}\n`;
 }
 
 function list(values: string[]): string {
@@ -43,13 +47,14 @@ function list(values: string[]): string {
 }
 
 function replaceField(source: string, field: string, value: string): string {
+  const normalized = source.replace(/\r\n/g, "\n");
   const matcher = new RegExp(`^${field}:.*$`, "m");
-  if (!matcher.test(source)) {
-    const marker = source.replace(/\r\n/g, "\n").indexOf("\n---\n", 4);
+  if (!matcher.test(normalized)) {
+    const marker = normalized.indexOf("\n---\n", 4);
     if (marker < 0) throw new Error("Fixture artifact is missing frontmatter.");
-    return `${source.slice(0, marker)}\n${field}: ${value}${source.slice(marker)}`;
+    return `${normalized.slice(0, marker)}\n${field}: ${value}${normalized.slice(marker)}`;
   }
-  return source.replace(matcher, `${field}: ${value}`);
+  return normalized.replace(matcher, `${field}: ${value}`);
 }
 
 function bodyFor(type: string, substitutions?: Record<string, string>): string {

@@ -50,8 +50,8 @@ Complete for this fixture; later changes require a named semantic flow and attri
 
 async function writeLedger(root: string, body = LEDGER_BODY): Promise<void> {
   const file = path.join(root, "05-control", "questions.md");
-  const source = await readFile(file, "utf8");
-  const marker = source.replace(/\r\n/g, "\n").indexOf("\n---\n", 4);
+  const source = (await readFile(file, "utf8")).replace(/\r\n/g, "\n");
+  const marker = source.indexOf("\n---\n", 4);
   const frontmatter = source.slice(0, marker + 5).replace("status: draft", "status: active");
   await writeFile(file, `${frontmatter}\n${body.trim()}\n`, "utf8");
 }

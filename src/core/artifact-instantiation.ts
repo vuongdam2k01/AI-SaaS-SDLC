@@ -33,16 +33,21 @@ function tokenValues(id: string, title: string, createdBy: string): Record<strin
 }
 
 function render(template: string, values: Record<string, string>): string {
-  let output = template.replace(/^title:\s*\{\{TITLE\}\}\s*$/m, `title: ${JSON.stringify(values.TITLE)}`);
+  // Normalize once, at the top. A pattern file checked out on Windows arrives
+  // with CRLF, and locating the frontmatter boundary in a normalized copy while
+  // slicing the original cuts at an index that is short by one byte per line
+  // above it — silently truncating the frontmatter of every artifact the engine
+  // creates.
+  let output = template.replace(/\r\n/g, "\n").replace(/^title:\s*\{\{TITLE\}\}\s*$/m, `title: ${JSON.stringify(values.TITLE)}`);
   for (const [key, value] of Object.entries(values)) output = output.replaceAll(`{{${key}}}`, value);
-  const frontmatterEnd = output.replace(/\r\n/g, "\n").indexOf("\n---\n", 4);
+  const frontmatterEnd = output.indexOf("\n---\n", 4);
   if (frontmatterEnd > 0) {
     const head = output.slice(0, frontmatterEnd).replace(/\[(?:\s*,?\s*\{\{[^}]+\}\}\s*,?)*\]/g, "[]").replace(/:\s*\{\{[^}]+\}\}\s*$/gm, ":");
     output = head + output.slice(frontmatterEnd);
   }
   const unresolved = output.match(/\{\{[A-Z0-9_]+\}\}/g);
   if (unresolved) throw new SdlcError(`Pattern contains unsupported template tokens: ${[...new Set(unresolved)].join(", ")}`);
-  return output.replace(/\r\n/g, "\n").replace(/\s+$/, "") + "\n";
+  return output.replace(/\s+$/, "") + "\n";
 }
 
 function resolveTarget(root: string, pattern: ArtifactPattern, id: string): string {

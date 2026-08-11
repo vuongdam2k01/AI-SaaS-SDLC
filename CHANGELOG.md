@@ -1,5 +1,32 @@
 # Changelog
 
+## 1.3.2 - 2026-08-11
+
+Continuous integration had failed on **every commit since the first release**,
+on all four matrix entries, while local checks passed. Nobody had looked. Two
+independent causes, neither of them in the shipped engine, and both invisible to
+a Windows developer running the suite locally.
+
+### Fixed
+
+- **Line endings.** No `.gitattributes` meant a clone with `core.autocrlf=true`
+  received every Markdown file as CRLF. The test fixtures located the
+  frontmatter boundary in a normalized copy and then sliced the *original*
+  string — an index short by one byte for every line above the boundary — which
+  produced fixture artifacts whose frontmatter was never closed and failed 23
+  tests on `windows-latest`. Fixtures normalize before indexing, and
+  `* text=auto eol=lf` stops the input from varying by platform at all.
+
+  The engine itself was never affected: all 23 patterns instantiate identically
+  from CRLF and LF input, verified pattern by pattern. `render` now normalizes
+  once at the top regardless, and a test pins the invariant that a CRLF checkout
+  still yields an LF artifact with intact frontmatter.
+
+- **Executable bit.** `bin/ai-saas-sdlc` was committed `100644`; the build
+  chmods it to `755`, so on Linux the "committed bundles are current" step saw a
+  mode-only difference and failed. Recorded as `100755`, which it always should
+  have been.
+
 ## 1.3.1 - 2026-08-11
 
 Found by 1.3.0 doing its job. The first real flow run under the new warning did

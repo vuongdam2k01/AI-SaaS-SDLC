@@ -1,0 +1,12 @@
+# Every tracked file checks out with LF, on every platform.
+#
+# Without this, a Windows clone with core.autocrlf=true receives pattern
+# templates and project-template files as CRLF. The engine tolerates that when
+# reading, but the committed build bundles then differ from a fresh build by
+# line ending alone, and any code that locates a byte offset in a normalized
+# copy while slicing the original is off by one byte per line.
+* text=auto eol=lf
+
+# The engine bundle is executable and must keep that bit in the index, or a
+# Linux build reports a mode-only difference against the committed file.
+bin/ai-saas-sdlc text eol=lf
