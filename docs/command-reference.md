@@ -7,7 +7,7 @@ The deterministic engine operates on the current working directory. In a develop
 | Command | Options | Behavior |
 |---|---|---|
 | `init` | `--project-id <id>`, `--idea <text>` | Copies the project skeleton, pins the installed pattern catalog to `00-system/patterns/`, creates internal state and refreshes projections. Refuses an initialized repository, unsafe destinations and any overwrite. |
-| `state` | `--json` | Returns current baseline/evidence state plus the active flow, if any. |
+| `state` | `--json` | Returns current baseline/evidence state, the active flow if any, and every open question with the baseline it was first seen open at and how many baselines it has stayed open. |
 | `patterns list` | `--json` | Lists the consuming repository's verified pinned catalog. Before initialization only, it can list the plugin source catalog. |
 | `impact` | `--json` | Compares canonical and fixed-contract hashes with the baseline and walks current plus historical reverse dependencies. |
 | `tests select` | `--json` | Returns UT/IT/ST obligations derived from the affected closure and existing test dependencies. It does not execute tests. |
@@ -36,6 +36,8 @@ The deterministic engine operates on the current working directory. In a develop
 | `migrate` | `--check`, `--json` | Reports whether config/state schema differs from schema 1. Version 1 provides no predecessor transformation; a mismatch returns non-zero. |
 
 Validation covers configuration, canonical type/path identity, metadata, permanent IDs, graph references and cycles, lifecycle and supersession, immutable input/ADR/terminal history, active content contracts, pinned-pattern integrity, internal state/change/execution schemas, execution/result binding, implementation mappings and generated synchronization. Baseline creation adds flow boundaries, coverage and required execution verdicts.
+
+Three findings are reported as warnings and never block a baseline, because each names a judgement rather than a broken structure: `RULE_UNVERIFIED` for a declared business rule no specification claims, `SPEC_OVERSIZED` for a live integration or system specification past the case threshold, and `QUESTION_STALE` for an open question that has outlived three baselines. They are work owed, and they are reported precisely so that owing it stays visible.
 
 ## Mutation safety
 
