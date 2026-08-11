@@ -17082,6 +17082,7 @@ async function pathState(configured, label, exclusions = []) {
   const repository = git(context, ["rev-parse", "--show-toplevel"], true).toString("utf8").trim();
   if (!repository) return filesystemState(resolved, scopedExclusions);
   if (!isWithin(repository, resolved)) throw new SdlcError(`Snapshot source is outside its Git worktree: ${label}`);
+  git(context, ["update-index", "--refresh", "-q"], true);
   const relative = toPosix(path5.relative(repository, resolved));
   const pathspec = relative || ".";
   const pathspecs = [pathspec, ...scopedExclusions.map((value) => `:(exclude,top)${toPosix(path5.relative(repository, value))}`)];

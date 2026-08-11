@@ -61,6 +61,15 @@ async function pathState(configured: string, label: string, exclusions: string[]
   const repository = git(context, ["rev-parse", "--show-toplevel"], true).toString("utf8").trim();
   if (!repository) return filesystemState(resolved, scopedExclusions);
   if (!isWithin(repository, resolved)) throw new SdlcError(`Snapshot source is outside its Git worktree: ${label}`);
+  // Settle the index before sampling it. Git caches stat information per file
+  // and only re-reads content when that cache looks out of date, so a first
+  // call after a checkout or a bulk `git add` can report entries as modified
+  // that a second call, having refreshed the cache, reports as clean. Two
+  // samples of an unchanged worktree must agree, or a flow that changed nothing
+  // is refused its own cancellation. Non-zero exit here means "some files
+  // really are modified", which is information the sampling below collects
+  // properly; it is not an error.
+  git(context, ["update-index", "--refresh", "-q"], true);
   const relative = toPosix(path.relative(repository, resolved));
   const pathspec = relative || ".";
   const pathspecs = [pathspec, ...scopedExclusions.map((value) => `:(exclude,top)${toPosix(path.relative(repository, value))}`)];
