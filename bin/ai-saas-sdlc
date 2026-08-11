@@ -18680,6 +18680,36 @@ init_coverage_derivation();
 
 // src/core/spec-size.ts
 init_types();
+
+// src/core/test-cases.ts
+init_types();
+var TEST_TYPES = /* @__PURE__ */ new Set(["unit_test_backend", "unit_test_frontend", "unit_test_job", "integration_test", "system_test"]);
+function caseIds(body) {
+  const section = sectionBody(body, "Test cases");
+  if (!section) return /* @__PURE__ */ new Set();
+  return new Set(dataRows(section).filter((row) => completedRow(row) && /^`?TC-[0-9]+`?$/i.test(row[0] ?? "")).map((row) => row[0].replace(/`/g, "").toUpperCase()));
+}
+function brokenCaseReferences(artifacts) {
+  const declared = /* @__PURE__ */ new Map();
+  for (const artifact2 of artifacts) {
+    if (TEST_TYPES.has(artifact2.artifact_type)) declared.set(artifact2.id, caseIds(artifact2.body));
+  }
+  const broken = [];
+  for (const artifact2 of artifacts) {
+    if (!isLiveStatus(artifact2.status)) continue;
+    const seen = /* @__PURE__ */ new Set();
+    for (const match of artifact2.body.matchAll(/\b([A-Z][A-Z0-9-]*)#(TC-[0-9]+)\b/g)) {
+      const [reference, specification, testCase] = [match[0], match[1], match[2]];
+      const cases = declared.get(specification);
+      if (!cases || cases.has(testCase.toUpperCase()) || seen.has(reference)) continue;
+      seen.add(reference);
+      broken.push({ reference, specification, file: artifact2.file });
+    }
+  }
+  return broken;
+}
+
+// src/core/spec-size.ts
 var MAX_CASES_PER_SPEC = 12;
 var SPLIT_AXIS = {
   integration_test: "by integration boundary",
@@ -18687,9 +18717,7 @@ var SPLIT_AXIS = {
 };
 function specSizeEntries(artifacts) {
   return artifacts.filter((artifact2) => SPLIT_AXIS[artifact2.artifact_type] && isLiveStatus(artifact2.status)).map((artifact2) => {
-    const section = sectionBody(artifact2.body, "Test cases");
-    const ids2 = new Set(section ? dataRows(section).filter((row) => completedRow(row) && /^`?TC-[0-9]+`?$/i.test(row[0] ?? "")).map((row) => row[0].replace(/`/g, "").toUpperCase()) : []);
-    const cases = ids2.size;
+    const cases = caseIds(artifact2.body).size;
     return {
       id: artifact2.id,
       artifact_type: artifact2.artifact_type,
@@ -18855,6 +18883,9 @@ async function validateProject(root2, artifacts) {
   for (const entry of specSizeEntries(artifacts)) {
     if (!entry.oversized) continue;
     findings.push({ severity: "warning", code: "SPEC_OVERSIZED", message: `${entry.id} holds ${entry.cases} test cases (threshold ${MAX_CASES_PER_SPEC}); split it ${entry.split_axis} before adding more`, file: entry.file });
+  }
+  for (const broken of brokenCaseReferences(artifacts)) {
+    findings.push({ severity: "warning", code: "CASE_REFERENCE_BROKEN", message: `${broken.reference} names a case ${broken.specification} does not declare`, file: broken.file });
   }
   const graph = buildGraph(artifacts);
   const order = topologicalOrder(graph);
@@ -19433,7 +19464,7 @@ function print(value, json = false) {
   if (json || typeof value !== "string") console.log(JSON.stringify(value, null, 2));
   else console.log(value);
 }
-program2.name("ai-saas-sdlc").description("Deterministic engine for AI SaaS SDLC documentation flows.").version("1.3.0");
+program2.name("ai-saas-sdlc").description("Deterministic engine for AI SaaS SDLC documentation flows.").version("1.3.1");
 program2.command("init").description("Initialize a centralized documentation repository.").option("--project-id <id>", "Stable project identifier").option("--idea <text>", "Raw idea preserved verbatim", "").action(async (options) => {
   const projectId = options.projectId ?? root.split(/[\\/]/).at(-1)?.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") ?? "saas-project";
   await withProjectLock(root, async () => {

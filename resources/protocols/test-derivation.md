@@ -54,6 +54,14 @@ One specification describes one boundary. It stops being a specification when it
 
 Splitting is not a rewrite. A split that changes what the cases assert is a change of verification, and belongs to the derivation step that changed the behavior. If the warning fires on a file the current change does not touch, record it in `QUESTIONS` rather than opening unrelated work.
 
+An existing specification whose cases are already bound to executed results is not renumbered. `RESULT-*` records name case IDs that were actually run, so moving those IDs would orphan real evidence. Split forward — new boundaries get new specifications — and record the deferral and its reason in `TEST-POLICY`.
+
+### Referring to a case that does not exist yet
+
+Never write a qualified case reference — `IT-X#TC-NN` — for a case you have not yet created. Refer to the specification, the acceptance criterion or the rule until the case exists, then name it. `ENGINE validate` reports `CASE_REFERENCE_BROKEN` for every qualified reference naming a case its specification does not declare.
+
+This matters most for anything that becomes immutable. An accepted ADR baselined with a reference to a case that was later written into a different specification cannot be corrected in place, and a successor ADR for a stale cross-reference is disproportionate. Order the work so the cases exist first, or cite the specification and not the case.
+
 ## Derivation map
 
 | Source | Required test consequence |

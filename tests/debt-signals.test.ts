@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it } from "vitest";
 import { readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
-import { artifact, cleanup, prepareGenesisArtifacts, tempProject } from "./helpers.js";
+import { artifact, cleanup, establishGenesis, prepareGenesisArtifacts, tempProject } from "./helpers.js";
 import { addApprovalFeature, addSharedQueueFeature, materializePatternArtifact } from "./fixtures/complete-saas/fixture.js";
 import { createBaseline } from "../src/core/baseline.js";
 import { closeFlow, loadCurrentState, startFlow } from "../src/core/state.js";
@@ -9,6 +9,7 @@ import { scanArtifacts } from "../src/core/artifacts.js";
 import { validateProject } from "../src/core/validation.js";
 import { MAX_CASES_PER_SPEC, specSizeEntries } from "../src/core/spec-size.js";
 import { baselinesOpen, openQuestions } from "../src/core/question-ledger.js";
+import { brokenCaseReferences } from "../src/core/test-cases.js";
 
 const roots: string[] = [];
 afterEach(async () => { while (roots.length) await cleanup(roots.pop()!); });
@@ -138,6 +139,44 @@ describe("specification size", () => {
     expect(oversized[0]!.message).toContain("split it by integration boundary");
     expect(report.findings.some((item) => item.severity === "error")).toBe(false);
     // The warning is maintenance owed, not a defect: the baseline still forms.
+    expect((await createBaseline(root)).id).toBe("BL-001");
+  });
+});
+
+describe("qualified case references", () => {
+  // Found by a real flow: an ADR was accepted citing IT-X#TC-40 while planning
+  // to append to IT-X, the cases correctly went into a new specification
+  // instead, and nothing noticed — reference checking covered artifact IDs in
+  // frontmatter, never case IDs written in prose.
+  it("reports a reference to a case its specification does not declare", () => {
+    const artifacts = [
+      artifact({ id: "IT-A-001", artifact_type: "integration_test", body: specBody(3) }),
+      artifact({ id: "IT-A-002", artifact_type: "integration_test", body: specBody(2) }),
+      artifact({
+        id: "ADR-A-001", artifact_type: "architectural_decision", adr_status: "accepted",
+        body: "# Decision\n\nProved by IT-A-001#TC-02, IT-A-001#TC-40 and IT-A-002#TC-01.\nAlso by IT-A-001#TC-40 again, and by UNKNOWN-001#TC-99.\n"
+      })
+    ];
+    const broken = brokenCaseReferences(artifacts);
+    expect(broken.map((item) => item.reference)).toEqual(["IT-A-001#TC-40"]);
+    expect(broken[0]!.file).toBe("ADR-A-001.md");
+  });
+
+  it("never fails a baseline on one, because an accepted ADR cannot be repaired", async () => {
+    const root = await tempProject();
+    roots.push(root);
+    await establishGenesis(root);
+    await startFlow(root, "evolution", "Add approval request behavior");
+    await addApprovalFeature(root);
+    const feature = path.join(root, "02-product", "features", "FTR-APPROVAL-001.md");
+    await writeFile(feature, `${await readFile(feature, "utf8")}\nProved by IT-APPROVAL-001#TC-97.\n`, "utf8");
+
+    const report = await validateProject(root, await scanArtifacts(root));
+    const broken = report.findings.filter((item) => item.code === "CASE_REFERENCE_BROKEN");
+    expect(broken).toHaveLength(1);
+    expect(broken[0]!.severity).toBe("warning");
+    expect(broken[0]!.message).toBe("IT-APPROVAL-001#TC-97 names a case IT-APPROVAL-001 does not declare");
+    expect(report.findings.some((item) => item.severity === "error")).toBe(false);
     expect((await createBaseline(root)).id).toBe("BL-001");
   });
 });

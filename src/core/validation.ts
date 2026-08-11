@@ -16,6 +16,7 @@ import { CANONICAL_MARKDOWN, CANONICAL_TYPES, FIXED_TYPES, SCALABLE_LOCATIONS } 
 import { validateActiveArtifactContent } from "./content-contracts.js";
 import { ruleCoverageEntries } from "./coverage-derivation.js";
 import { MAX_CASES_PER_SPEC, specSizeEntries } from "./spec-size.js";
+import { brokenCaseReferences } from "./test-cases.js";
 import { STALE_AFTER_BASELINES, baselinesOpen, openQuestions } from "./question-ledger.js";
 
 const requiredFiles = [
@@ -137,6 +138,9 @@ export async function validateProject(root: string, artifacts: Artifact[]): Prom
   for (const entry of specSizeEntries(artifacts)) {
     if (!entry.oversized) continue;
     findings.push({ severity: "warning", code: "SPEC_OVERSIZED", message: `${entry.id} holds ${entry.cases} test cases (threshold ${MAX_CASES_PER_SPEC}); split it ${entry.split_axis} before adding more`, file: entry.file });
+  }
+  for (const broken of brokenCaseReferences(artifacts)) {
+    findings.push({ severity: "warning", code: "CASE_REFERENCE_BROKEN", message: `${broken.reference} names a case ${broken.specification} does not declare`, file: broken.file });
   }
   const graph = buildGraph(artifacts);
   const order = topologicalOrder(graph);

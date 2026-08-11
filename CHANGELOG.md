@@ -1,5 +1,39 @@
 # Changelog
 
+## 1.3.1 - 2026-08-11
+
+Found by 1.3.0 doing its job. The first real flow run under the new warning did
+exactly what it was meant to — it gave the new boundary its own specifications
+instead of appending to a file the engine had already called oversized — and in
+doing so exposed a reference class nothing had ever checked.
+
+### Added
+
+- **`CASE_REFERENCE_BROKEN`.** A qualified case reference such as
+  `IT-X#TC-40` is now checked against the cases its specification actually
+  declares. `validate` had always refused a reference to a missing *artifact*;
+  a reference to a case inside one was written in prose and verified by nobody.
+
+  The gap only became reachable once specifications started splitting: an author
+  who cites `IT-X#TC-40` while planning to append to `IT-X`, then correctly puts
+  the cases in a new specification, leaves a reference to a case that never came
+  to exist. In the run that found this, the artifact holding the broken
+  references was an accepted ADR — immutable after baselining, so the reference
+  can never be repaired in place.
+
+  A warning, deliberately. Failing on it would leave such a repository unable to
+  baseline anything ever again over a stale cross-reference.
+
+### Changed
+
+- Test derivation forbids writing a qualified case reference before the case
+  exists, and Product Evolution says the same where accepted ADRs are written —
+  cite the specification, the acceptance criterion or the rule until the cases
+  are real.
+- Test derivation states that a specification whose cases are bound to executed
+  `RESULT-*` records is not renumbered. Split forward, and record the deferral in
+  `TEST-POLICY`.
+
 ## 1.3.0 - 2026-08-11
 
 Measurement for the debts a growing repository accumulates silently. A

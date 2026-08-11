@@ -129,6 +129,8 @@ Create/update only when the boundary exists:
 
 Instantiate every newly allocated design/ADR artifact with `ENGINE artifact create` and then complete the produced content contract. Editing an existing active artifact does not create a second instance.
 
+An ADR marked `accepted` is immutable once baselined, so do not cite verification case IDs it cannot yet see. Name the specification, the acceptance criterion or the rule; name individual `TC-*` only after the cases exist. `ENGINE validate` reports `CASE_REFERENCE_BROKEN` for a qualified case reference that no specification declares, and inside an accepted ADR that finding can never be repaired.
+
 When the semantic intent names a boundary of one of these kinds and you do not allocate an artifact for it, say so explicitly in the closing report: name the boundary, name the artifact type you did not create, and state why the boundary does not exist yet. Silently omitting a named boundary is not an allocation decision, it is an unrecorded one.
 
 A client obligation that no artifact owns is an allocation gap, not a detail. If a contract you write or change requires the caller to supply something it cannot derive — an idempotency key, a correlation identifier, the identity of a record it is superseding, a chosen version — then either allocate the artifact that owns the surface producing it, or record the gap in `QUESTIONS` with the exact obligation, the artifacts that impose it, and the claim it blocks until it is closed. Leaving the obligation unowned and unrecorded is not permitted.

@@ -14482,6 +14482,36 @@ init_coverage_derivation();
 
 // src/core/spec-size.ts
 init_types();
+
+// src/core/test-cases.ts
+init_types();
+var TEST_TYPES = /* @__PURE__ */ new Set(["unit_test_backend", "unit_test_frontend", "unit_test_job", "integration_test", "system_test"]);
+function caseIds(body) {
+  const section = sectionBody(body, "Test cases");
+  if (!section) return /* @__PURE__ */ new Set();
+  return new Set(dataRows(section).filter((row) => completedRow(row) && /^`?TC-[0-9]+`?$/i.test(row[0] ?? "")).map((row) => row[0].replace(/`/g, "").toUpperCase()));
+}
+function brokenCaseReferences(artifacts) {
+  const declared = /* @__PURE__ */ new Map();
+  for (const artifact of artifacts) {
+    if (TEST_TYPES.has(artifact.artifact_type)) declared.set(artifact.id, caseIds(artifact.body));
+  }
+  const broken = [];
+  for (const artifact of artifacts) {
+    if (!isLiveStatus(artifact.status)) continue;
+    const seen = /* @__PURE__ */ new Set();
+    for (const match of artifact.body.matchAll(/\b([A-Z][A-Z0-9-]*)#(TC-[0-9]+)\b/g)) {
+      const [reference, specification, testCase] = [match[0], match[1], match[2]];
+      const cases = declared.get(specification);
+      if (!cases || cases.has(testCase.toUpperCase()) || seen.has(reference)) continue;
+      seen.add(reference);
+      broken.push({ reference, specification, file: artifact.file });
+    }
+  }
+  return broken;
+}
+
+// src/core/spec-size.ts
 var MAX_CASES_PER_SPEC = 12;
 var SPLIT_AXIS = {
   integration_test: "by integration boundary",
@@ -14489,9 +14519,7 @@ var SPLIT_AXIS = {
 };
 function specSizeEntries(artifacts) {
   return artifacts.filter((artifact) => SPLIT_AXIS[artifact.artifact_type] && isLiveStatus(artifact.status)).map((artifact) => {
-    const section = sectionBody(artifact.body, "Test cases");
-    const ids2 = new Set(section ? dataRows(section).filter((row) => completedRow(row) && /^`?TC-[0-9]+`?$/i.test(row[0] ?? "")).map((row) => row[0].replace(/`/g, "").toUpperCase()) : []);
-    const cases = ids2.size;
+    const cases = caseIds(artifact.body).size;
     return {
       id: artifact.id,
       artifact_type: artifact.artifact_type,
@@ -14657,6 +14685,9 @@ async function validateProject(root2, artifacts) {
   for (const entry of specSizeEntries(artifacts)) {
     if (!entry.oversized) continue;
     findings.push({ severity: "warning", code: "SPEC_OVERSIZED", message: `${entry.id} holds ${entry.cases} test cases (threshold ${MAX_CASES_PER_SPEC}); split it ${entry.split_axis} before adding more`, file: entry.file });
+  }
+  for (const broken of brokenCaseReferences(artifacts)) {
+    findings.push({ severity: "warning", code: "CASE_REFERENCE_BROKEN", message: `${broken.reference} names a case ${broken.specification} does not declare`, file: broken.file });
   }
   const graph = buildGraph(artifacts);
   const order = topologicalOrder(graph);
