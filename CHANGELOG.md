@@ -1,5 +1,30 @@
 # Changelog
 
+## 1.3.5 - 2026-08-11
+
+The question-repayment obligation was keyed to the wrong signal, and the first
+real baseline after 1.3.0 made that obvious.
+
+### Changed
+
+- **A question is in a reassessment's scope when its evidence bears on the
+  answer, not when the engine calls the question old.** The obligation shipped
+  in 1.3.0 fired only on `QUESTION_STALE`, and staleness needs three baselines
+  of history to exist. A repository adopting this release stamps every open
+  question at its next baseline, so on the run that verified the mechanism all
+  thirty questions read as newborn and the obligation could not fire until three
+  baselines later — on a ledger that had been growing, unanswered, for six.
+
+  Staleness is now what makes the engine *notice* a question nobody returned to.
+  What creates the obligation is the evidence: a question this flow could have
+  answered and did not is a debt whether it was raised six baselines ago or last
+  week. Reassessment still answers one question with new sources — questions
+  outside its evidence stay open and undiscussed, because a review pass over the
+  whole ledger is not a flow.
+
+- An age of `null` is now stated to mean "the ledger predates age tracking", not
+  "the question is new".
+
 ## 1.3.4 - 2026-08-11
 
 Repository tooling, not the plugin. The manifest validator could not find the

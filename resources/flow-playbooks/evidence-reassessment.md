@@ -21,7 +21,7 @@ Reject “research the market again” without a named decision or claim. Do not
 2. Read `generated/baseline-manifest.json`, `EVIDENCE-LEDGER` and the discovery artifact(s) containing the questioned claim.
 3. Read related `ICP-*`, `PERSONA-*`, `PROBLEM-*`, `COMPETITOR-*`, `QUESTIONS` and open `ISS-*` only when their IDs or content are in scope.
 4. Identify the existing conclusion, its evidence IDs, applicability, observation dates and downstream product assumptions.
-5. Read the stale questions. `ENGINE state --json` reports every open `QST-*` with how many baselines it has been open, and `ENGINE validate` reports `QUESTION_STALE` for each one the product has moved past. Those in this flow's scope are part of its work, not background.
+5. Read the open questions. `ENGINE state --json` lists every open `QST-*` with how many baselines it has been open, and `ENGINE validate` reports `QUESTION_STALE` for the ones the product has moved past. Identify which of them this flow's evidence could bear on: those are part of its work, not background. An age of `null` means the ledger predates age tracking, not that the question is new.
 
 ## 3. Open the temporal flow
 
@@ -71,9 +71,11 @@ Update only affected discovery synthesis:
 
 Legal direct artifact types are discovery details, `QUESTIONS` and `ISS-*`. Do not edit `PRODUCT-REQUIREMENTS`, FTR/UC/FLOW, design, ADR or verification artifacts in this flow.
 
-### Stale questions in scope
+### Questions in scope
 
-For every stale question this flow's evidence touches, reach one of three outcomes before closing. Leaving it untouched is not one of them.
+A question is in this flow's scope when the evidence it gathered bears on the question's answer, or when `ENGINE validate` reports it as `QUESTION_STALE`. Scope is decided by the evidence, not by age: a question the flow could have answered and did not is a debt whether it was raised three baselines ago or last week, and staleness is only the engine's way of noticing the ones nobody came back to.
+
+For every question in scope, reach one of three outcomes before closing. Leaving it untouched is not one of them.
 
 | Outcome | Required write |
 |---|---|
@@ -82,6 +84,8 @@ For every stale question this flow's evidence touches, reach one of three outcom
 | It genuinely remains open | Leave it open and state what evidence would close it and why this reassessment did not produce it |
 
 A question the flow silently steps over is a debt the ledger records and nothing schedules. Report each outcome in section 9. Do not close a question by weakening it into something the current evidence happens to answer.
+
+Questions outside the scope of this flow's evidence stay open and are not discussed. Reassessment answers one question with new sources; it is not a review pass over the whole ledger.
 
 When a new detail or issue is warranted, instantiate it through the pinned catalog:
 
@@ -118,7 +122,7 @@ Report:
 - new/superseded/contradicting `EVD-*` IDs;
 - discovery artifacts changed;
 - whether an `ISS-*` was opened and affected IDs;
-- every stale question in scope with its outcome: resolved by evidence, closed by a decision, or still open with what would close it;
+- every question in scope with its outcome: resolved by evidence, closed by a decision, or still open with what would close it;
 - new `EVR-*` and unchanged active `BL-*`;
 - evidence limits and whether a separately chosen Evolution is warranted.
 
