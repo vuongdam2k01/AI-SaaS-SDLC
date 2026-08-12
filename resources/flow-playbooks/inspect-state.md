@@ -37,6 +37,14 @@ Read, as applicable:
 
 Never run `refresh`, `migrate`, `verify`, `baseline create`, `flow start/close` or any write tool.
 
+When the user asks for a browsable view of the repository, additionally run:
+
+```text
+ENGINE docs build
+```
+
+It renders the current artifacts, relations and generated reports as a static HTML site and is the one permitted engine write here: it writes only the engine cache (`.ai-saas-sdlc/cache/site/`), never a content layer, `generated/`, or state. The site is a projection for reading; it carries no authority and its build result is never evidence.
+
 ## 3. Scope traversal
 
 If an ID is supplied:
@@ -93,6 +101,6 @@ Never claim a test passed without an execution-backed result.
 
 ## 6. Stop and re-entry
 
-Stop after the report. Inspect State never creates a baseline, issue, change or projection.
+Stop after the report. Inspect State never creates a baseline, issue, change or content projection; the only artifact it may leave behind is the cached docs site requested by the user.
 
 It may be invoked again at any time because it is read-only, but unchanged state should produce the same facts. A different report requires changed files/state, new execution/evidence, a different scope or a corrected interpretation—not a self-review loop.

@@ -29,7 +29,7 @@ Reject spelling/tone/formatting-only work; use `refresh --editorial`. Route a co
 
 ## 3. Open or continue the temporal flow
 
-If the same semantic intent already has an active Evolution flow, resume that flow/change ID and skip `flow start`. If another flow is active, stop and report it; never run two semantic changes concurrently.
+If the same semantic intent already has an active Evolution flow, resume that flow/change ID and skip `flow start`. If another flow is active, stop and report it; never run two semantic changes concurrently. When you resume a flow to carry it past the stop it previously recorded, declare the new stop with `--until <stage>` at the first checkpoint of the turn, so the recorded target stops describing a checkpoint the flow has already left.
 
 Run:
 
@@ -52,8 +52,10 @@ These are checkpoints, not lifecycle stages. They add no gate, no review round a
 After finishing each checkpoint's work, record it and say so:
 
 ```text
-ENGINE flow checkpoint --stage <reached> --json
+ENGINE flow checkpoint --stage <reached> [--until <stage>] --json
 ```
+
+Pass `--until` when this turn is carrying the flow past the stop it previously recorded; without it, a checkpoint reached beyond the recorded target raises the target with it rather than leaving a stale stop behind.
 
 Then, in the visible reply, state in one or two lines: the checkpoint just reached, what it produced by ID, and what remains. An author watching a terminal has no other way to see progress; silence for tens of minutes is the failure this is fixing.
 
@@ -131,6 +133,8 @@ Create/update only when the boundary exists:
 
 Instantiate every newly allocated design/ADR artifact with `ENGINE artifact create` and then complete the produced content contract. Editing an existing active artifact does not create a second instance.
 
+Once a repository's IDs carry stable area segments — `SUB-DISPATCH-001`, `SCR-BILLING-002` — consider registering those areas in the optional `areas` list of `sdlc.config.yaml`. Registration is opt-in and undeclared areas stay unconstrained; once declared, an ID naming an unregistered area is reported as a standing `AREA_UNREGISTERED` warning, which is the durable record of a namespace decision made before an ID is baselined and can no longer be renamed.
+
 An ADR marked `accepted` is immutable once baselined, so do not cite verification case IDs it cannot yet see. Name the specification, the acceptance criterion or the rule; name individual `TC-*` only after the cases exist. `ENGINE validate` reports `CASE_REFERENCE_BROKEN` for a qualified case reference that no specification declares, and inside an accepted ADR that finding can never be repaired.
 
 When the semantic intent names a boundary of one of these kinds and you do not allocate an artifact for it, say so explicitly in the closing report: name the boundary, name the artifact type you did not create, and state why the boundary does not exist yet. Silently omitting a named boundary is not an allocation decision, it is an unrecorded one.
@@ -182,7 +186,7 @@ ENGINE verify --all --execute --json
 
 If none are configured, preserve honest `not-configured` state. Never write `RESULT-*` manually or simulate a pass.
 
-When live `PLT-*` targets exist, declare which of them each command produces evidence for with `platforms: [PLT-...]` on the command definition before executing. `ENGINE validate` reports `PLATFORM_EVIDENCE_MISSING` for a live platform target no command declares; a platform this machine genuinely cannot execute stays undeclared and is recorded as unproven in `TEST-POLICY` instead of being declared optimistically. A target may also declare the host its evidence is expected under — the optional `host_os` frontmatter token (`win32`, `darwin`, `linux`) on the `PLT-*` artifact; when every recorded execution declaring the target observed a different host, `validate` reports `PLATFORM_EVIDENCE_CONTRADICTED` as a standing warning. After execution, read `generated/platform-coverage.md` for the joined view of targets, declaring commands, latest executions and observed hosts.
+When live `PLT-*` targets exist, declare which of them each command produces evidence for with `platforms: [PLT-...]` on the command definition before executing. `ENGINE validate` reports `PLATFORM_EVIDENCE_MISSING` for a live platform target no command declares; a platform this machine genuinely cannot execute stays undeclared and is recorded as unproven in `TEST-POLICY` instead of being declared optimistically. A platform the design commits to is `active` even when this machine cannot yet prove it: its unproven-ness lives in the evidence layer — the missing declaration, the `TEST-POLICY` note and the standing `PLATFORM_EVIDENCE_MISSING` warning that records it — never in an artifact left `draft`, because a draft artifact created by the open change blocks that change's own baseline. A target may also declare the host its evidence is expected under — the optional `host_os` frontmatter token (`win32`, `darwin`, `linux`) on the `PLT-*` artifact; when every recorded execution declaring the target observed a different host, `validate` reports `PLATFORM_EVIDENCE_CONTRADICTED` as a standing warning. After execution, read `generated/platform-coverage.md` for the joined view of targets, declaring commands, latest executions and observed hosts.
 
 ## 11. Deterministic close sequence
 

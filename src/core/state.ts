@@ -116,10 +116,19 @@ export async function checkpointFlow(root: string, reached: string, target?: str
     const flow = await loadActiveFlow(root);
     if (!flow) throw new SdlcError("No active flow exists. A checkpoint only describes a flow that is open.");
     const furthest = flow.reached_stage && stageIndex(flow.reached_stage) > stageIndex(reached) ? flow.reached_stage : (reached as FlowStage);
+    // An explicit --until always wins. Absent one, a continued flow that reaches
+    // past its recorded stop raises the target with it, so the record cannot go
+    // on claiming the turn was asked to stop at a checkpoint it has already left.
+    // An absent target (run-to-baseline) is never materialized: leaving it unset
+    // keeps the run-to-baseline meaning intact.
+    const raisedTarget = target === undefined && flow.target_stage && stageIndex(furthest) > stageIndex(flow.target_stage)
+      ? furthest
+      : undefined;
+    const nextTarget = target !== undefined ? (target as FlowStage) : raisedTarget;
     const updated: ActiveFlow = {
       ...flow,
       reached_stage: furthest,
-      ...(target !== undefined ? { target_stage: target as FlowStage } : {})
+      ...(nextTarget !== undefined ? { target_stage: nextTarget } : {})
     };
     await prepareSafeManagedPath(root, projectPaths(root).activeFlow);
     await writeJsonAtomic(projectPaths(root).activeFlow, updated);

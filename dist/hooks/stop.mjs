@@ -13924,7 +13924,7 @@ function platformEvidenceFindings(config, artifacts) {
     findings.push({
       severity: "warning",
       code: "PLATFORM_EVIDENCE_MISSING",
-      message: `${target.id} is a live platform target no configured verification command declares evidence for; add platforms: [${target.id}] to a command that exercises it, or record the unproven platform in TEST-POLICY.`,
+      message: `${target.id} is a live platform target no configured verification command declares evidence for; add platforms: [${target.id}] to a command that exercises it, or record the unproven platform in TEST-POLICY and let this warning stand as its durable record.`,
       file: target.file
     });
   }
@@ -13948,7 +13948,7 @@ function platformContradictionFindings(artifacts, records) {
     findings.push({
       severity: "warning",
       code: "PLATFORM_EVIDENCE_CONTRADICTED",
-      message: `${target.id} declares host_os ${contradiction.token}, but all ${contradiction.observedCount} execution record(s) declaring it observed a different host os (${contradiction.observedHosts.join(", ")}); fix the token, execute a declaring command on a ${contradiction.token} host, or record the limitation in TEST-POLICY.`,
+      message: `${target.id} declares host_os ${contradiction.token}, but all ${contradiction.observedCount} execution record(s) declaring it observed a different host os (${contradiction.observedHosts.join(", ")}); fix the token, execute a declaring command on a ${contradiction.token} host, or record the limitation in TEST-POLICY and let this warning stand as its durable record.`,
       file: target.file
     });
   }

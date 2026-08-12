@@ -2,6 +2,18 @@
 
 See the root [CHANGELOG](../CHANGELOG.md) for the release summary. This contributor view records documentation-impact areas that must remain synchronized with implementation.
 
+## 1.8.0 - 2026-08-12
+
+| Area | Documentation impact |
+|---|---|
+| Read-only projection | `docs build` documented in the command reference, inspect guide and inspect-state playbook/skills as the one permitted Inspect State write; a projection, never authority or evidence |
+| Platform method | Platform pattern and evolution playbook state that a committed-but-unproven platform is `active` with its unproven-ness in the evidence layer, never `draft` |
+| Flow method | Evolution playbook and command reference document that a checkpoint past the recorded stop raises the target; continuation guidance says to pass `--until` when carrying a flow further |
+| Namespace method | Evolution playbook suggests registering `areas` once IDs carry stable area segments |
+| Validation wording | `PLATFORM_EVIDENCE_MISSING`/`PLATFORM_EVIDENCE_CONTRADICTED` messages and the inspect-guide table state the standing warning is the durable record |
+| Guides | Feature guides print `continue FLOW-*` to match `flow next` output |
+| Compatibility | Recorded the byte-frozen RESULT renderer, the message-text-only change on upgrade, and the no-migration doctrine for the pattern text |
+
 ## 1.7.0 - 2026-08-12
 
 | Area | Documentation impact |

@@ -53,6 +53,41 @@ describe("author-controlled flow checkpoints", () => {
     expect(extended.reached_stage).toBe("design");
   });
 
+  it("raises a recorded target when a continued flow reaches past it without a new --until", async () => {
+    const root = await tempProject();
+    roots.push(root);
+    await establishGenesis(root);
+    await startFlow(root, "evolution", "Add approval behavior", "design");
+
+    const past = await checkpointFlow(root, "tests");
+    // The turn declared a stop at design, then the continued flow reached tests.
+    // The record must not go on claiming the stop is design.
+    expect(past.reached_stage).toBe("tests");
+    expect(past.target_stage).toBe("tests");
+  });
+
+  it("does not lower a target when a checkpoint stays short of it", async () => {
+    const root = await tempProject();
+    roots.push(root);
+    await establishGenesis(root);
+    await startFlow(root, "evolution", "Add approval behavior", "baseline");
+
+    const short = await checkpointFlow(root, "design");
+    expect(short.reached_stage).toBe("design");
+    expect(short.target_stage).toBe("baseline");
+  });
+
+  it("never materializes a target on a run-to-baseline flow", async () => {
+    const root = await tempProject();
+    roots.push(root);
+    await establishGenesis(root);
+    await startFlow(root, "evolution", "Add approval behavior");
+
+    const checkpointed = await checkpointFlow(root, "tests");
+    expect(checkpointed.reached_stage).toBe("tests");
+    expect(checkpointed.target_stage).toBeUndefined();
+  });
+
   it("rejects a stage outside the checkpoint vocabulary", async () => {
     const root = await tempProject();
     roots.push(root);

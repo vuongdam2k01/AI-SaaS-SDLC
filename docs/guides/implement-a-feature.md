@@ -65,7 +65,7 @@ What the flow does:
 When the behavior is right, continue. The skill's closing report gives you the exact command; it looks like:
 
 ```text
-/ai-saas-sdlc:evolve-product --until design continue CHG-00N
+/ai-saas-sdlc:evolve-product --until design continue FLOW-00N
 ```
 
 What the flow does:
@@ -88,7 +88,7 @@ What the flow does:
 ### Step 3 — Write the test specifications (`--until tests`)
 
 ```text
-/ai-saas-sdlc:evolve-product --until tests continue CHG-00N
+/ai-saas-sdlc:evolve-product --until tests continue FLOW-00N
 ```
 
 What the flow does:
@@ -106,7 +106,7 @@ What the flow does:
 This step does real work **only if you have wired the docs to your codebase**. See [Wiring up your code](#wiring-up-your-code) below. If nothing is configured, skip to Step 5 — execution is honestly recorded as `not-configured` and nothing is fabricated.
 
 ```text
-/ai-saas-sdlc:evolve-product --until implementation continue CHG-00N
+/ai-saas-sdlc:evolve-product --until implementation continue FLOW-00N
 ```
 
 What the flow does, when implementation sources are configured **and** you have granted access:
@@ -120,7 +120,7 @@ What the flow does, when implementation sources are configured **and** you have 
 ### Step 5 — Lock it in (default `baseline`)
 
 ```text
-/ai-saas-sdlc:evolve-product continue CHG-00N
+/ai-saas-sdlc:evolve-product continue FLOW-00N
 ```
 
 The deterministic close sequence runs: `refresh` → `validate --active` → `baseline create` → `flow close`. You fix any structural, reference or coverage failures it reports and any failed configured test. There is **no prose-review gate**. The result is a successor **`BL-*`** and a closed flow.

@@ -265,7 +265,7 @@ describe("platform host contradiction", () => {
     expect(findings).toHaveLength(1);
     expect(findings[0]).toMatchObject({ severity: "warning", file: "03-design/platforms/PLT-DESKTOP-001.md" });
     expect(findings[0]!.message).toBe(
-      "PLT-DESKTOP-001 declares host_os darwin, but all 2 execution record(s) declaring it observed a different host os (linux, win32); fix the token, execute a declaring command on a darwin host, or record the limitation in TEST-POLICY."
+      "PLT-DESKTOP-001 declares host_os darwin, but all 2 execution record(s) declaring it observed a different host os (linux, win32); fix the token, execute a declaring command on a darwin host, or record the limitation in TEST-POLICY and let this warning stand as its durable record."
     );
   });
 

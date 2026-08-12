@@ -49,9 +49,9 @@ Eleven findings are **warnings** and never block a baseline, because each names 
 | `SPEC_OVERSIZED` | A live IT/ST spec past the case threshold | Splitting the spec |
 | `CASE_REFERENCE_BROKEN` | A qualified `#TC-nn` reference naming a case its specification does not declare | Fixing the reference, or a recorded deferral when it sits in an immutable ADR |
 | `QUESTION_STALE` | An open question that has outlived three baselines | An answer, a decision, or an explicit "still open + what would close it" |
-| `PLATFORM_EVIDENCE_MISSING` | A live `PLT-*` platform target no verification command declares evidence for | `platforms: [PLT-...]` on a command that exercises it, or an unproven-platform note in `TEST-POLICY` |
+| `PLATFORM_EVIDENCE_MISSING` | A live `PLT-*` platform target no verification command declares evidence for | `platforms: [PLT-...]` on a command that exercises it, or an unproven-platform note in `TEST-POLICY` while this warning stands as the record |
 | `PLATFORM_DECLARATION_UNKNOWN` | A `platforms:` declaration naming no live platform target | Fixing the declaration or creating the target |
-| `PLATFORM_EVIDENCE_CONTRADICTED` | A live `PLT-*` whose declared `host_os` token no recorded execution declaring it has ever observed | Fixing the token, executing a declaring command on that host, or a recorded limitation in `TEST-POLICY` |
+| `PLATFORM_EVIDENCE_CONTRADICTED` | A live `PLT-*` whose declared `host_os` token no recorded execution declaring it has ever observed | Fixing the token, executing a declaring command on that host, or a recorded limitation in `TEST-POLICY` while this warning stands as the record |
 | `WIRE_AUTHORITY_UNDECLARED` | A live `API-*` naming no owning interface file while sibling interface files exist | The owning `WIRE-*`/`OPENAPI-CONTRACT` in `depends_on`, or the standing record that the operation is IPC/CLI-only |
 | `SCHEMA_AUTHORITY_UNDECLARED` | A live `ENT-*` naming no owning schema file while sibling `.dbml` files exist | The owning `SCHEMA-*`/`PHYSICAL-SCHEMA` in `depends_on`, or the standing record that the entity lives in a client-local or non-relational store |
 | `TRANSITION_AUTHORITY_UNDECLARED` | A live `SCR-*` naming no owning transition graph while sibling `.mmd` graphs exist | The owning `TRANSITIONS-*`/`SCREEN-TRANSITIONS` in `depends_on` |
@@ -103,7 +103,7 @@ A mutation loop is legal only after a **real event**: a new or changed public so
 
 Inspect State always ends with one runnable next command. Typically it points to:
 
-- **Continue an open flow** → the `--until … continue CHG-*` command it prints.
+- **Continue an open flow** → the `--until … continue FLOW-*` command it prints.
 - **An editorial edit** → the resolved `refresh --editorial` command.
 - **A new event** → [Product Evolution](implement-a-feature.md), [Evidence Reassessment](reassess-evidence.md) or [Reconciliation](reconcile-a-failure.md), depending on what the state revealed.
 - **No action** → sometimes the honest answer is that nothing is owed right now.

@@ -19,6 +19,7 @@ import { resolveRuntimeRoot } from "../core/runtime-root.js";
 import { resolveCatalog } from "../core/pattern-catalog.js";
 import { createArtifactFromPattern } from "../core/artifact-instantiation.js";
 import { STALE_AFTER_BASELINES, baselinesOpen, openQuestions } from "../core/question-ledger.js";
+import { buildDocsSite } from "../core/docs-site.js";
 
 const program = new Command();
 const root = process.cwd();
@@ -33,7 +34,7 @@ function print(value: unknown, json = false): void {
   else console.log(value);
 }
 
-program.name("ai-saas-sdlc").description("Deterministic engine for AI SaaS SDLC documentation flows.").version("1.7.0");
+program.name("ai-saas-sdlc").description("Deterministic engine for AI SaaS SDLC documentation flows.").version("1.8.0");
 
 program.command("init")
   .description("Initialize a centralized documentation repository.")
@@ -97,6 +98,16 @@ program.command("state")
       stale: (baselinesOpen(current.question_first_baseline?.[question.id], current.active_baseline) ?? 0) >= STALE_AFTER_BASELINES
     })).sort((a, b) => (b.baselines_open ?? -1) - (a.baselines_open ?? -1) || a.id.localeCompare(b.id));
     print({ current, active_flow: flow, open_questions: questions }, Boolean(options.json));
+  });
+
+const docs = program.command("docs").description("Generate read-only projections of the documentation repository.");
+docs.command("build")
+  .description("Build a static, dependency-free HTML site from the current artifacts. A projection, never authority.")
+  .option("--out <dir>", "Output directory (default: .ai-saas-sdlc/cache/site)")
+  .option("--json", "Emit JSON")
+  .action(async (options: { out?: string; json?: boolean }) => {
+    const result = await buildDocsSite(root, { out: options.out, mermaidAsset: resolve(runtimeRoot, "dist", "assets", "mermaid.min.js") });
+    print(options.json ? result : `Docs site: ${result.pages} pages (${result.artifact_pages} artifacts, ${result.report_pages} reports, ${result.linked_ids} resolved ID references)\nOpen: ${resolve(result.out, "index.html")}`, Boolean(options.json));
   });
 
 const flow = program.command("flow").description("Manage one of the four temporal flows.");

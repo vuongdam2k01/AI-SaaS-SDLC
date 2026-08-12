@@ -6,6 +6,6 @@ description: Inspect the current baseline, dependency graph, impact, stale artif
 
 Treat the user's invocation text after `$ai-saas-inspect-state` as optional scope. Read and execute [the shared Inspect State playbook](../../../resources/flow-playbooks/inspect-state.md) completely.
 
-Resolve `PLUGIN_ROOT` as three parent directories above this installed `SKILL.md`; invoke the engine as `node "<PLUGIN_ROOT>/bin/ai-saas-sdlc"`. Use read/search tools and only the playbook's read-only engine commands.
+Resolve `PLUGIN_ROOT` as three parent directories above this installed `SKILL.md`; invoke the engine as `node "<PLUGIN_ROOT>/bin/ai-saas-sdlc"`. Use read/search tools and only the playbook's read-only engine commands. When the user asks for a browsable site, `docs build` is additionally permitted; it writes only the engine cache under `.ai-saas-sdlc/cache/site/`.
 
-Do not refresh, migrate, verify, start/close a flow, create an issue or edit a file.
+Do not refresh, migrate, verify, start/close a flow, create an issue or edit a content file.

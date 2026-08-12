@@ -1,6 +1,6 @@
 {
   "name": "ai-saas-sdlc",
-  "version": "1.7.0",
+  "version": "1.8.0",
   "description": "Evidence-grounded AI SaaS documentation and pre-release SDLC flows for Claude Code and Codex.",
   "license": "MIT",
   "author": "vuong.dam",
@@ -44,6 +44,7 @@
     "@vitest/coverage-v8": "^3.2.4",
     "esbuild": "^0.25.8",
     "eslint": "^9.32.0",
+    "mermaid": "^11.16.1",
     "typescript": "^5.9.2",
     "typescript-eslint": "^8.39.0",
     "vitest": "^3.2.4"

@@ -1,5 +1,65 @@
 # Changelog
 
+## 1.8.0 - 2026-08-12
+
+A real Product Evolution flow driven end to end on 1.7.0 surfaced four rough
+edges — none a broken structure, each a place where the method let a defensible
+wrong reading happen or a record drift from the truth. This release files those
+edges down and adds a read-only browsable projection of the repository. It
+opens no new dimension.
+
+### Added
+
+- **`docs build`.** Renders the current artifacts, relations and generated
+  reports as a static, dependency-free HTML site: per-artifact pages with
+  resolved ID links and reverse traceability, an interactive dependency graph,
+  and status-filtered indexes. It is a projection for reading, never authority
+  or evidence, and it is the one write Inspect State is permitted to make. It
+  writes only its output directory (default `.ai-saas-sdlc/cache/site/`),
+  refuses the project root, any managed content directory (`00-05`,
+  `generated/`) and any non-empty directory it did not itself produce. The
+  bundled Mermaid runtime that renders the graph is a build-time dependency
+  shipped as a tracked asset under `dist/assets/`, so the site stays fully
+  offline with no network fetch.
+
+### Fixed
+
+- **A committed-but-unproven platform is `active`, not `draft`.** The platform
+  pattern and the evolution playbook now state it outright: a platform the
+  design commits to but the running machine cannot yet prove stays `active`,
+  and its unproven-ness lives in the evidence layer — the missing declaration,
+  the `TEST-POLICY` note and the standing `PLATFORM_EVIDENCE_MISSING` warning.
+  Left `draft`, an artifact created by the open change blocks that change's own
+  baseline, which is exactly the dead end a real flow reached. Pattern-comment
+  text only, so it reaches newly initialized repositories; no catalog version
+  change.
+- **A continued flow no longer keeps a stale stop.** `flow checkpoint` raises
+  the recorded `target_stage` when a reached checkpoint passes it without a new
+  `--until`. An explicit `--until` still wins, and a run-to-baseline flow (no
+  target) never has one materialized. Without this, a flow resumed past its
+  first turn's stop went on reporting a checkpoint it had already left.
+- **The evidence warnings say the standing warning is the record.**
+  `PLATFORM_EVIDENCE_MISSING` and `PLATFORM_EVIDENCE_CONTRADICTED` now end
+  "…and let this warning stand as its durable record," so the `TEST-POLICY`
+  escape hatch no longer reads as a way to make the warning disappear — it does
+  not, by design.
+- **The evolution playbook suggests the `areas` registry** at the point IDs
+  gain stable area segments, so an opt-in namespace check that nothing pointed
+  at is now actually reachable from a flow.
+- The feature guides print `continue FLOW-*`, matching what `flow next` emits;
+  they previously showed `continue CHG-*`.
+
+### Compatibility
+
+The RESULT renderer is unchanged, so every digest-locked result re-renders
+identically and a pre-1.5.0 repository validates byte-for-byte as before. The
+two warning messages changed text: a repository upgrading to 1.8.0 sees the new
+wording, which carries no code, severity, file or verdict change — the finding
+set is identical bar the message string. The checkpoint fix only corrects a
+stale record field; it changes no stop behavior and no baseline outcome. No
+pattern migration exists: the platform-pattern doctrine text reaches newly
+initialized repositories only, exactly as prior pattern-text changes did.
+
 ## 1.7.0 - 2026-08-12
 
 The 1.4.0–1.6.0 releases each opened a dimension — platform targets, platform

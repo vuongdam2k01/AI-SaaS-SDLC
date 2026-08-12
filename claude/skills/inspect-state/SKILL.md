@@ -8,6 +8,6 @@ disable-model-invocation: true
 
 Treat `$ARGUMENTS` as optional scope. Read and execute [the shared Inspect State playbook](../../../resources/flow-playbooks/inspect-state.md) completely.
 
-Set `ENGINE` to `node "${CLAUDE_PLUGIN_ROOT}/bin/ai-saas-sdlc"`. Use only read/search operations and the playbook's read-only engine commands.
+Set `ENGINE` to `node "${CLAUDE_PLUGIN_ROOT}/bin/ai-saas-sdlc"`. Use only read/search operations and the playbook's read-only engine commands. When the user asks for a browsable site, `ENGINE docs build` is additionally permitted; it writes only the engine cache under `.ai-saas-sdlc/cache/site/`.
 
-Do not refresh, migrate, verify, start/close a flow, create an issue or edit any file.
+Do not refresh, migrate, verify, start/close a flow, create an issue or edit any content file.

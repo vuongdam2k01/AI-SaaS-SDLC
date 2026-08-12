@@ -1,5 +1,5 @@
 import { build } from "esbuild";
-import { chmod, mkdir, rm } from "node:fs/promises";
+import { chmod, cp, mkdir, rm } from "node:fs/promises";
 
 const esmRequireBanner = "import { createRequire as __createRequire } from 'node:module';const require=__createRequire(import.meta.url);";
 
@@ -32,3 +32,9 @@ for (const name of ["session-start", "pre-tool-use", "stop"]) {
 }
 
 await chmod("bin/ai-saas-sdlc", 0o755);
+
+// The docs-site generator vendors Mermaid into generated sites so `.mmd`
+// contracts and mermaid fences render as diagrams while the site stays fully
+// offline. The asset ships inside dist/ next to the bundles.
+await mkdir("dist/assets", { recursive: true });
+await cp("node_modules/mermaid/dist/mermaid.min.js", "dist/assets/mermaid.min.js");
