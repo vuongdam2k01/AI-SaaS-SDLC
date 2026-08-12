@@ -182,7 +182,7 @@ ENGINE verify --all --execute --json
 
 If none are configured, preserve honest `not-configured` state. Never write `RESULT-*` manually or simulate a pass.
 
-When live `PLT-*` targets exist, declare which of them each command produces evidence for with `platforms: [PLT-...]` on the command definition before executing. `ENGINE validate` reports `PLATFORM_EVIDENCE_MISSING` for a live platform target no command declares; a platform this machine genuinely cannot execute stays undeclared and is recorded as unproven in `TEST-POLICY` instead of being declared optimistically.
+When live `PLT-*` targets exist, declare which of them each command produces evidence for with `platforms: [PLT-...]` on the command definition before executing. `ENGINE validate` reports `PLATFORM_EVIDENCE_MISSING` for a live platform target no command declares; a platform this machine genuinely cannot execute stays undeclared and is recorded as unproven in `TEST-POLICY` instead of being declared optimistically. A target may also declare the host its evidence is expected under — the optional `host_os` frontmatter token (`win32`, `darwin`, `linux`) on the `PLT-*` artifact; when every recorded execution declaring the target observed a different host, `validate` reports `PLATFORM_EVIDENCE_CONTRADICTED` as a standing warning. After execution, read `generated/platform-coverage.md` for the joined view of targets, declaring commands, latest executions and observed hosts.
 
 ## 11. Deterministic close sequence
 

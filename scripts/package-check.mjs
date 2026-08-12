@@ -35,6 +35,12 @@ const marketplacePlugin = marketplaceManifest.plugins?.find((plugin) => plugin.n
 if (!marketplacePlugin || packageManifest.version !== pluginManifest.version || pluginManifest.version !== marketplacePlugin.version || pluginManifest.version !== codexManifest.version) {
   throw new Error("package.json, Claude/Codex plugin manifests and marketplace versions must match");
 }
+// The CLI reports its own version literal; releases have forgotten it before,
+// so the four JSON manifests alone are not enough of a cross-check.
+const cliVersion = (await readFile("src/cli/main.ts", "utf8")).match(/\.version\("([^"]+)"\)/)?.[1];
+if (cliVersion !== packageManifest.version) {
+  throw new Error(`src/cli/main.ts .version("${cliVersion}") must match package.json version ${packageManifest.version}`);
+}
 if (codexManifest.skills !== "./codex/skills/") throw new Error("Codex manifest must use the dedicated Codex skill adapters under codex/skills/");
 if (codexManifest.hooks !== undefined && codexManifest.hooks !== "./hooks/hooks.json") throw new Error("Codex hook override must use the shared portable hook path");
 if (pluginManifest.skills !== "./claude/skills/") throw new Error("Claude manifest must use the dedicated manual Claude skill adapters");

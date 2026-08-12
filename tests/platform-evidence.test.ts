@@ -222,3 +222,139 @@ describe("platform evidence declarations", () => {
     expect(isExecutionRecord(forgedHost)).toBe(false);
   });
 });
+
+function hostRecord(id: string, flowId: string, output: string, hostOs: string, platforms: string[]): ExecutionRecord {
+  return {
+    ...legacyRecord(flowId, output),
+    id,
+    output_file: `.ai-saas-sdlc/executions/${id}.log`,
+    ...(platforms.length > 0 ? { platforms } : {}),
+    host: { os: hostOs, release: "10.0.19045", arch: "x64", node: "24.11.1" }
+  };
+}
+
+async function writeExecution(root: string, record: ExecutionRecord, output: string, change: string): Promise<void> {
+  await mkdir(path.join(root, ".ai-saas-sdlc", "executions"), { recursive: true });
+  await writeFile(path.join(root, ".ai-saas-sdlc", "executions", `${record.id}.log`), output, "utf8");
+  await writeFile(path.join(root, ".ai-saas-sdlc", "executions", `${record.id}.json`), `${JSON.stringify(record, null, 2)}\n`, "utf8");
+  await writeFile(path.join(root, "04-verification", "results", `RESULT-${record.id}.md`), renderResultArtifact(record, change), "utf8");
+}
+
+async function setHostOs(root: string, id: string, token: string): Promise<void> {
+  const file = path.join(root, "03-design", "platforms", `${id}.md`);
+  const content = await readFile(file, "utf8");
+  const updated = content.includes("host_os:")
+    ? content.replace(/host_os: [a-z0-9]+/, `host_os: ${token}`)
+    : content.replace("\n---\n", `\nhost_os: ${token}\n---\n`);
+  await writeFile(file, updated, "utf8");
+}
+
+describe("platform host contradiction", () => {
+  it("warns when every observed record declaring the target ran on a different host", async () => {
+    const root = await tempProject();
+    roots.push(root);
+    await establishGenesis(root);
+    const flow = await startFlow(root, "evolution", "Contradicted token");
+    await addLivePlatform(root);
+    await setHostOs(root, "PLT-DESKTOP-001", "darwin");
+    const change = flow.change_id ?? flow.id;
+    await writeExecution(root, hostRecord("EXEC-001", flow.id, "first\n", "win32", ["PLT-DESKTOP-001"]), "first\n", change);
+    await writeExecution(root, hostRecord("EXEC-002", flow.id, "first\n", "linux", ["PLT-DESKTOP-001"]), "first\n", change);
+    const report = await validateProject(root, await scanArtifacts(root));
+    const findings = report.findings.filter((finding) => finding.code === "PLATFORM_EVIDENCE_CONTRADICTED");
+    expect(findings).toHaveLength(1);
+    expect(findings[0]).toMatchObject({ severity: "warning", file: "03-design/platforms/PLT-DESKTOP-001.md" });
+    expect(findings[0]!.message).toBe(
+      "PLT-DESKTOP-001 declares host_os darwin, but all 2 execution record(s) declaring it observed a different host os (linux, win32); fix the token, execute a declaring command on a darwin host, or record the limitation in TEST-POLICY."
+    );
+  });
+
+  it("stays silent when any observed record matches the token", async () => {
+    const root = await tempProject();
+    roots.push(root);
+    await establishGenesis(root);
+    const flow = await startFlow(root, "evolution", "Matched token");
+    await addLivePlatform(root);
+    await setHostOs(root, "PLT-DESKTOP-001", "darwin");
+    const change = flow.change_id ?? flow.id;
+    await writeExecution(root, hostRecord("EXEC-001", flow.id, "first\n", "win32", ["PLT-DESKTOP-001"]), "first\n", change);
+    await writeExecution(root, hostRecord("EXEC-002", flow.id, "first\n", "darwin", ["PLT-DESKTOP-001"]), "first\n", change);
+    const report = await validateProject(root, await scanArtifacts(root));
+    expect(report.findings.some((finding) => finding.code === "PLATFORM_EVIDENCE_CONTRADICTED")).toBe(false);
+  });
+
+  it("stays silent without a token even when hosts mismatch", async () => {
+    const root = await tempProject();
+    roots.push(root);
+    await establishGenesis(root);
+    const flow = await startFlow(root, "evolution", "No token");
+    await addLivePlatform(root);
+    await writeExecution(root, hostRecord("EXEC-001", flow.id, "first\n", "linux", ["PLT-DESKTOP-001"]), "first\n", flow.change_id ?? flow.id);
+    const report = await validateProject(root, await scanArtifacts(root));
+    expect(report.findings.some((finding) => finding.code === "PLATFORM_EVIDENCE_CONTRADICTED")).toBe(false);
+  });
+
+  it("stays silent when no observed record declares the target", async () => {
+    const root = await tempProject();
+    roots.push(root);
+    await establishGenesis(root);
+    const flow = await startFlow(root, "evolution", "Undeclared records");
+    await addLivePlatform(root);
+    await setHostOs(root, "PLT-DESKTOP-001", "darwin");
+    const change = flow.change_id ?? flow.id;
+    await writeExecution(root, hostRecord("EXEC-001", flow.id, "first\n", "win32", ["PLT-OTHER-001"]), "first\n", change);
+    await writeExecution(root, { ...legacyRecord(flow.id, "first\n"), id: "EXEC-002", output_file: ".ai-saas-sdlc/executions/EXEC-002.log" }, "first\n", change);
+    const report = await validateProject(root, await scanArtifacts(root));
+    expect(report.findings.some((finding) => finding.code === "PLATFORM_EVIDENCE_CONTRADICTED")).toBe(false);
+  });
+
+  it("ignores records that declare the target but report no host", async () => {
+    const root = await tempProject();
+    roots.push(root);
+    await establishGenesis(root);
+    const flow = await startFlow(root, "evolution", "Hostless declaration");
+    await addLivePlatform(root);
+    await setHostOs(root, "PLT-DESKTOP-001", "darwin");
+    const hostless = { ...legacyRecord(flow.id, "first\n"), platforms: ["PLT-DESKTOP-001"] };
+    await writeExecution(root, hostless, "first\n", flow.change_id ?? flow.id);
+    const report = await validateProject(root, await scanArtifacts(root));
+    expect(report.findings.some((finding) => finding.code === "PLATFORM_EVIDENCE_CONTRADICTED")).toBe(false);
+  });
+
+  it("stays silent for a non-live target", async () => {
+    const root = await tempProject();
+    roots.push(root);
+    await establishGenesis(root);
+    const flow = await startFlow(root, "evolution", "Superseded target");
+    await addLivePlatform(root);
+    await setHostOs(root, "PLT-DESKTOP-001", "darwin");
+    const file = path.join(root, "03-design", "platforms", "PLT-DESKTOP-001.md");
+    await writeFile(file, (await readFile(file, "utf8")).replace("status: active", "status: superseded"), "utf8");
+    await writeExecution(root, hostRecord("EXEC-001", flow.id, "first\n", "win32", ["PLT-DESKTOP-001"]), "first\n", flow.change_id ?? flow.id);
+    const report = await validateProject(root, await scanArtifacts(root));
+    expect(report.findings.some((finding) => finding.code === "PLATFORM_EVIDENCE_CONTRADICTED")).toBe(false);
+  });
+
+  it("matches on the executing host and contradicts after a token edit, without blocking", async () => {
+    const root = await tempProject();
+    roots.push(root);
+    await establishGenesis(root);
+    await startFlow(root, "evolution", "Real execution round-trip");
+    await addLivePlatform(root);
+    await setHostOs(root, "PLT-DESKTOP-001", process.platform);
+    await patchConfig(root, (config) => {
+      config.verification.unit = [{ id: "unit-fixture", cwd: ".", command: `node -e "process.exit(0)"`, platforms: ["PLT-DESKTOP-001"] }];
+    });
+    await executeVerification(root, await loadConfig(root), ["unit"]);
+    let report = await validateProject(root, await scanArtifacts(root));
+    expect(report.findings.some((finding) => finding.code === "PLATFORM_EVIDENCE_CONTRADICTED")).toBe(false);
+    expect(report.valid).toBe(true);
+    const mismatchToken = process.platform === "darwin" ? "win32" : "darwin";
+    await setHostOs(root, "PLT-DESKTOP-001", mismatchToken);
+    report = await validateProject(root, await scanArtifacts(root));
+    const finding = report.findings.find((item) => item.code === "PLATFORM_EVIDENCE_CONTRADICTED");
+    expect(finding?.severity).toBe("warning");
+    expect(finding?.message).toContain(`(${process.platform})`);
+    expect(report.valid).toBe(true);
+  });
+});

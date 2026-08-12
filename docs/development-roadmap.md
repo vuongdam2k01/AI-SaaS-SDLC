@@ -4,6 +4,7 @@
 
 | Release | Direction |
 |---|---|
+| 1.7.0 | Platform dimension deepened instead of widened: the 1.5.0 candidate `generated/platform-coverage.md` projection ships, emitted only when platform targets exist; platform targets may declare a machine-checkable `host_os` token and `validate` reports `PLATFORM_EVIDENCE_CONTRADICTED` when every recorded execution declaring the target observed a different host; `verify` resynchronizes record-dependent projections; the baseline evidence predicate becomes one shared function |
 | 1.6.0 | Authority surface opened beyond one service: sibling interface/schema/transition files are discovered as first-class contracts with declared per-file ownership and impact convergence, entities declare a persistence authority beyond relational DBML, the architecture overview owns runtime topology, and an opt-in `areas` registry makes ID namespacing checkable |
 | 1.5.0 | Platform claims became checkable: verification commands declare the platform targets they evidence, executions record the declaration beside the observed host, and validate warns about live platforms nothing declares. Candidate follow-up: a `generated/platform-coverage.md` projection joining live targets, declaring commands, latest executions and hosts — emitted only when platform targets exist so existing repositories see no drift |
 | 1.4.0 | Catalog opened beyond web products: `platform_target` owns platform constraints, permissions, distribution/update and local-data migration; `API-*` covers any invocable operation; platform variance is a viewpoint inside UT/IT/ST |
@@ -14,7 +15,7 @@
 |---|---|---|
 | Repository contract | Canonical source patterns separated from project skeleton; consuming repositories pin a verified snapshot | Complete |
 | Dual-host packaging | Matching Claude/Codex manifests, five thin adapters per host and shared packaged resources/engine | Complete |
-| Artifact contracts | 23 scalable catalog types plus active-content contracts for fixed foundations | Complete |
+| Artifact contracts | 23 scalable catalog types at 1.0.0 (24 since 1.4.0's `platform_target`) plus active-content contracts for fixed foundations | Complete |
 | Temporal interfaces | Genesis, Reassessment, Evolution, Reconciliation and read-only Inspect State playbooks | Complete |
 | Deterministic engine | Artifact creation, flow boundaries, impact/history graph, content validation, verification provenance, baselines and projections | Complete |
 | Host safeguards | Portable Claude/Codex hooks with documented trust and engine-enforcement boundary | Complete |

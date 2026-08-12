@@ -30,7 +30,7 @@ function stringArray(value: unknown): string[] {
 
 export function artifactMetadataIssues(data: Record<string, unknown>): string[] {
   const issues: string[] = [];
-  const allowed = new Set(["id", "artifact_type", "title", "status", "created_by_change", "depends_on", "decisions", "supersedes", "writes_to", "implementation", "adr_status", "execution_id"]);
+  const allowed = new Set(["id", "artifact_type", "title", "status", "created_by_change", "depends_on", "decisions", "supersedes", "writes_to", "implementation", "adr_status", "execution_id", "host_os"]);
   for (const field of Object.keys(data)) if (!allowed.has(field)) issues.push(`unknown frontmatter field: ${field}`);
   for (const field of ["id", "artifact_type", "title", "status", "created_by_change"]) {
     if (typeof data[field] !== "string" || data[field].length === 0) issues.push(`${field} must be a non-empty string`);
@@ -47,6 +47,7 @@ export function artifactMetadataIssues(data: Record<string, unknown>): string[] 
   if (data.supersedes !== undefined && data.supersedes !== null && typeof data.supersedes !== "string") issues.push("supersedes must be a string or null");
   if (data.adr_status !== undefined && typeof data.adr_status !== "string") issues.push("adr_status must be a string");
   if (data.execution_id !== undefined && typeof data.execution_id !== "string") issues.push("execution_id must be a string");
+  if (data.host_os !== undefined && (typeof data.host_os !== "string" || !/^[a-z][a-z0-9]*$/.test(data.host_os))) issues.push("host_os must be a lowercase host token such as win32, darwin or linux");
   return issues;
 }
 
@@ -63,6 +64,7 @@ export function toArtifactMeta(data: Record<string, unknown>): ArtifactMeta {
     writes_to: stringArray(data.writes_to),
     implementation: stringArray(data.implementation),
     ...(typeof data.adr_status === "string" ? { adr_status: data.adr_status } : {}),
-    ...(typeof data.execution_id === "string" ? { execution_id: data.execution_id } : {})
+    ...(typeof data.execution_id === "string" ? { execution_id: data.execution_id } : {}),
+    ...(typeof data.host_os === "string" ? { host_os: data.host_os } : {})
   };
 }

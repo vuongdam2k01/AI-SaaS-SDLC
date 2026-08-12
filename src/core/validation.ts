@@ -18,7 +18,8 @@ import { ruleCoverageEntries } from "./coverage-derivation.js";
 import { MAX_CASES_PER_SPEC, specSizeEntries } from "./spec-size.js";
 import { brokenCaseReferences } from "./test-cases.js";
 import { STALE_AFTER_BASELINES, baselinesOpen, openQuestions } from "./question-ledger.js";
-import { platformEvidenceFindings } from "./platform-evidence.js";
+import { platformContradictionFindings, platformEvidenceFindings } from "./platform-evidence.js";
+import { loadExecutionRecords } from "./execution-records.js";
 import { contractAuthorityFindings, expectedContractIdentity } from "./contract-authorities.js";
 import { areaFindings } from "./area-registry.js";
 
@@ -144,6 +145,10 @@ export async function validateProject(root: string, artifacts: Artifact[]): Prom
   // configured commands, because a documentation-only repository that claims
   // platforms is exactly the one that needs the reminder.
   if (config) findings.push(...platformEvidenceFindings(config, artifacts));
+  // The host_os token check needs no config: execution records carry the
+  // declaration they were run under, so a broken config cannot hide a
+  // contradicted platform claim.
+  findings.push(...platformContradictionFindings(artifacts, await loadExecutionRecords(root)));
   // A contract family with sibling files makes ownership a declared fact. An
   // instance that names no authority file may be legitimate — an IPC-only
   // operation, a client-local entity — so the gap is a standing warning rather

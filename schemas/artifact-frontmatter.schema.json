@@ -16,7 +16,8 @@
     "writes_to": { "type": "array", "items": { "$ref": "#/$defs/id" }, "uniqueItems": true },
     "implementation": { "type": "array", "items": { "type": "string", "minLength": 1 }, "uniqueItems": true },
     "adr_status": { "enum": ["proposed", "accepted", "deprecated", "superseded"] },
-    "execution_id": { "type": "string", "pattern": "^EXEC-[0-9]{3,}$" }
+    "execution_id": { "type": "string", "pattern": "^EXEC-[0-9]{3,}$" },
+    "host_os": { "type": "string", "pattern": "^[a-z][a-z0-9]*$" }
   },
   "allOf": [
     {

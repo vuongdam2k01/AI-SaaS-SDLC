@@ -1,13 +1,16 @@
 import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 import fg from "fast-glob";
-import type { Artifact, ArtifactGraph, BaselineManifest } from "./types.js";
+import type { Artifact, ArtifactGraph, BaselineManifest, ExecutionRecord, ProjectConfig } from "./types.js";
+import { isLiveStatus } from "./types.js";
 import type { ImpactReport } from "./impact.js";
 import { topologicalOrder } from "./graph.js";
 import { assertSafeManagedPath, isWithin, prepareSafeManagedPath, projectPaths } from "./paths.js";
 import { pathExists } from "./state.js";
 import { normalizeText, stableJson, uniqueSorted } from "./utils.js";
 import { acceptanceCoverage, evidenceClaimCoverage, ruleCoverage } from "./coverage-derivation.js";
+import { declaredPlatformIds, livePlatformTargets, platformContradiction } from "./platform-evidence.js";
+import { latestExecution, matchesDefinitionEvidence } from "./execution-selection.js";
 
 export interface ProjectionSet { [relative: string]: string }
 
@@ -21,12 +24,70 @@ function table(headers: string[], rows: string[][]): string {
   return `${head}\n${line}\n${rows.map((row) => `| ${row.join(" | ")} |`).join("\n") || `| ${headers.map(() => "—").join(" | ")} |`}\n`;
 }
 
+// The declaration/observation join for one platform target. Every state is
+// derived through the same predicates the validate warnings use, so this view
+// can never disagree with a finding: `missing` mirrors PLATFORM_EVIDENCE_MISSING
+// and `contradicted` calls the exact function behind PLATFORM_EVIDENCE_CONTRADICTED.
+function platformEvidenceState(target: Artifact, declared: Set<string>, records: ExecutionRecord[]): string {
+  if (!isLiveStatus(target.status)) return "not live";
+  if (!declared.has(target.id)) return "missing";
+  const declaring = records.filter((record) => (record.platforms ?? []).includes(target.id));
+  if (declaring.length === 0) return "declared, not executed";
+  if (!declaring.some((record) => record.host)) return "executed, host unrecorded";
+  if (!target.host_os) return "observed";
+  return platformContradiction(target, records) ? "contradicted" : "observed on declared host";
+}
+
+function platformCoverageProjection(artifacts: Artifact[], config: ProjectConfig | null, records: ExecutionRecord[]): string {
+  const targets = artifacts.filter((artifact) => artifact.artifact_type === "platform_target").sort((a, b) => a.id.localeCompare(b.id));
+  const declared = declaredPlatformIds(config);
+  const levels = ["unit", "integration", "system"] as const;
+  const declaringCommands = (targetId: string): string[] =>
+    config ? levels.flatMap((level) => config.verification[level].filter((command) => (command.platforms ?? []).includes(targetId)).map((command) => `${level}:${command.id}`)) : [];
+  const targetRows = targets.map((target) => {
+    const observed = uniqueSorted(records.filter((record) => (record.platforms ?? []).includes(target.id) && record.host).map((record) => record.host?.os ?? ""));
+    return [
+      `\`${target.id}\``,
+      target.status,
+      target.host_os ?? "—",
+      declaringCommands(target.id).map((value) => `\`${value}\``).join(", ") || "none",
+      observed.join(", ") || "—",
+      platformEvidenceState(target, declared, records)
+    ];
+  });
+  const commandRows = config
+    ? levels.flatMap((level) => config.verification[level].filter((command) => command.platforms).map((command) => {
+        const latest = latestExecution(records.filter((record) => record.level === level && matchesDefinitionEvidence(record, command)));
+        return [
+          level,
+          `\`${command.id}\``,
+          (command.platforms ?? []).map((value) => `\`${value}\``).join(", "),
+          latest ? `\`${latest.id}\`` : "none",
+          latest ? String(latest.exit_code) : "—",
+          latest ? latest.host?.os ?? "not recorded" : "—",
+          latest ? latest.ended_at : "—"
+        ];
+      }))
+    : [];
+  const liveTargetIds = new Set(livePlatformTargets(artifacts).map((target) => target.id));
+  const unknown = [...declared].filter((declaration) => !liveTargetIds.has(declaration)).sort();
+  return `# Platform Coverage\n\nDeclarations are human claims; recorded hosts are machine facts. This view joins them without merging them.\n\n## Targets\n\n${table(
+    ["Target", "Status", "Declared host_os", "Declaring commands", "Observed hosts", "Evidence state"],
+    targetRows
+  )}\n## Declaring commands\n\nA row matches executions through the same predicate the baseline verdict uses: identical command identity, text, working directory and platform declaration. Unlike the verdict, it looks across every flow — latest evidence ever, not latest in the active flow.\n\n${table(
+    ["Level", "Command", "Declares", "Latest matching execution", "Exit code", "Observed host", "Finished at"],
+    commandRows
+  )}\n## Unknown declarations\n\n${unknown.map((declaration) => `- \`${declaration}\``).join("\n") || "None."}\n`;
+}
+
 export function buildProjections(
   artifacts: Artifact[],
   graph: ArtifactGraph,
   impact: ImpactReport,
   baseline: BaselineManifest | null,
-  activeChange: string | null
+  activeChange: string | null,
+  config: ProjectConfig | null,
+  records: ExecutionRecord[]
 ): ProjectionSet {
   const projections: ProjectionSet = {};
   projections["artifact-graph.json"] = stableJson(graph);
@@ -52,6 +113,13 @@ export function buildProjections(
   projections["evidence-claim-coverage.md"] = evidenceClaimCoverage(artifacts);
   projections["acceptance-coverage.md"] = acceptanceCoverage(artifacts);
   projections["rule-coverage.md"] = ruleCoverage(artifacts);
+  // Emitted only when platform targets exist, per the roadmap contract: a
+  // repository without them sees no new generated file and therefore no drift.
+  // Gated on existence rather than liveness so the file cannot flip in and out
+  // of the expected set when the last target leaves the live statuses.
+  if (artifacts.some((artifact) => artifact.artifact_type === "platform_target")) {
+    projections["platform-coverage.md"] = platformCoverageProjection(artifacts, config, records);
+  }
 
   const nodesById = new Map(graph.nodes.map((node) => [node.id, node]));
   const featureRows = graph.nodes.filter((node) => node.type === "feature").map((feature) => {

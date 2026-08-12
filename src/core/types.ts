@@ -68,6 +68,13 @@ export interface ArtifactMeta {
   implementation: string[];
   adr_status?: string;
   execution_id?: string;
+  /**
+   * On platform_target artifacts only: the process.platform value under which
+   * evidence records for this target are expected to be observed. A declaration
+   * like every other — an iOS target legitimately declares darwin. Optional so
+   * that every artifact written before this field existed stays valid.
+   */
+  host_os?: string;
 }
 
 export interface Artifact extends ArtifactMeta {

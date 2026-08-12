@@ -1,5 +1,76 @@
 # Changelog
 
+## 1.7.0 - 2026-08-12
+
+The 1.4.0–1.6.0 releases each opened a dimension — platform targets, platform
+evidence, the authority surface — at the depth needed to be usable, and real
+runs showed where usable stops short of checkable. A platform declaration had
+no machine cross-check: the engine recorded `host.os` beside every declaration
+but did not know a macOS target should expect `darwin`, so a wrong declaration
+validated clean forever. And the platform debt a repository owed was visible
+only as scattered warnings, never as one view. This release deepens the opened
+dimensions without opening a new one.
+
+### Added
+
+- **A machine-checkable evidence-host token on platform targets.** A `PLT-*`
+  artifact may declare `host_os` — the `process.platform` value its evidence
+  records are expected to be observed under (`win32`, `darwin`, `linux`; an
+  iOS target exercised from macOS machines declares `darwin`). The token is a
+  declaration like `platforms:` itself, and the recorded host stays a machine
+  fact; the two are still never merged. Automatic inference of the token from
+  the executing machine was rejected because it would blur the
+  declaration/observation boundary 1.5.0 established. Optional everywhere —
+  an artifact without the field validates exactly as before.
+- **`PLATFORM_EVIDENCE_CONTRADICTED` (warning).** When every recorded
+  execution declaring a live target observed a host os different from the
+  target's token, validate reports the aggregate contradiction. One matching
+  observation clears it, and a record that reports no host observes nothing
+  and cannot contradict. A warning, never an error: cross-compiled evidence
+  may legitimately run elsewhere, and the standing warning is the durable
+  record of that judgement. The check needs no configuration — records carry
+  the declaration they were executed under, so a broken config cannot hide a
+  contradicted claim.
+- **`generated/platform-coverage.md`.** The projection the roadmap named at
+  1.5.0 ships: per target — status, token, declaring commands, observed hosts
+  and an evidence state; per declaring command — the latest matching execution
+  with exit code, host and finish time; plus the declarations matching no live
+  target. Every state is derived through the same predicates as the warnings,
+  so the table cannot disagree with a finding. Emitted only when platform
+  targets exist, so a repository without them sees no new file and no drift.
+
+### Changed
+
+- `verify --execute` resynchronizes generated projections after a completed
+  run. Projections now derive from execution records, and without this a
+  mid-flow `validate` would report `GENERATED_DRIFT` between `verify` and the
+  close sequence's `refresh`. This mirrors `baseline create`, which already
+  refreshes internally; it adds no gate and changes no flow.
+- The evidence-matching predicate — same command identity, text, working
+  directory and platform declaration — is one shared function used by the
+  baseline verdict and the coverage projection alike, closing the class of
+  drift 1.5.0 taught between duplicated predicates. The in-flow reuse check
+  keeps its deliberate difference (source snapshot instead of cwd),
+  documented at the shared definition.
+- The command reference and inspect guide enumerate all eleven warnings.
+
+### Compatibility
+
+The RESULT renderer did not change by a single byte: no execution-record
+field was added, and every digest-locked `RESULT-*` in existing repositories
+re-renders identically. `host_os` is optional, allow-listed in both the
+engine guard and the JSON schema, and deliberately absent from baseline
+manifest rows and the editorial-sync comparison: it is a live declaration,
+re-evaluated from artifacts and records on every validate, not baselined
+truth. No pattern migration exists, as before — the pattern text documenting
+`host_os` reaches newly initialized repositories only, while an existing
+repository can still adopt the field by hand, because the check is
+engine-side, not catalog-side. One upgrade consequence is deliberate: a
+repository that already holds platform targets sees `platform-coverage.md`
+reported as drift once — `validate` says `GENERATED_DRIFT` until the first
+`refresh` materializes the file, and every close sequence begins with that
+refresh. A repository without platform targets sees nothing.
+
 ## 1.6.0 - 2026-08-11
 
 An assessment of the plugin against complex products — a desktop client with a

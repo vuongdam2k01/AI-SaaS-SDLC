@@ -8,6 +8,7 @@ import { isRealPathWithin, prepareSafeManagedPath, projectPaths } from "./paths.
 import { loadActiveFlow, loadCurrentState, pathExists, saveCurrentState } from "./state.js";
 import { formatId, readJson, sha256, writeJsonAtomic } from "./utils.js";
 import { isExecutionRecord } from "./record-validation.js";
+import { samePlatformDeclaration } from "./execution-selection.js";
 import { SdlcError } from "./errors.js";
 import { renderResultArtifact } from "./result-artifact.js";
 import { withProjectLock } from "./project-lock.js";
@@ -15,12 +16,9 @@ import { sourceSnapshotHash } from "./implementation-snapshot.js";
 
 type Level = "unit" | "integration" | "system";
 
-/** Order-insensitive equality for platform declarations; absence equals empty. */
-export function samePlatformDeclaration(a: string[] | undefined, b: string[] | undefined): boolean {
-  const left = [...(a ?? [])].sort();
-  const right = [...(b ?? [])].sort();
-  return left.length === right.length && left.every((value, index) => value === right[index]);
-}
+// Re-exported from its shared home so existing importers keep working; the
+// definition lives beside matchesDefinitionEvidence in execution-selection.ts.
+export { samePlatformDeclaration } from "./execution-selection.js";
 
 function allowedRoots(root: string, config: ProjectConfig): string[] {
   return [root, ...config.implementation_sources.map((source) => path.resolve(root, source.path))];

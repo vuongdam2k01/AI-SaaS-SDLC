@@ -25,7 +25,7 @@ afterEach(async () => { while (roots.length) await cleanup(roots.pop()!); });
 async function projections(root: string) {
   const artifacts = await scanArtifacts(root);
   const graph = buildGraph(artifacts);
-  return buildProjections(artifacts, graph, calculateImpact(artifacts, graph, null), null, null);
+  return buildProjections(artifacts, graph, calculateImpact(artifacts, graph, null), null, null, null, []);
 }
 
 describe("release hardening", () => {

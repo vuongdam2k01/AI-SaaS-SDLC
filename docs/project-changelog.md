@@ -2,6 +2,16 @@
 
 See the root [CHANGELOG](../CHANGELOG.md) for the release summary. This contributor view records documentation-impact areas that must remain synchronized with implementation.
 
+## 1.7.0 - 2026-08-12
+
+| Area | Documentation impact |
+|---|---|
+| Platform evidence | Documented the optional `host_os` frontmatter token on `PLT-*` with its declaration-not-observation doctrine and `PLATFORM_EVIDENCE_CONTRADICTED`; pattern contract comment, configuration reference, evolution playbook and feature guide updated |
+| Projections | `generated/platform-coverage.md` documented in the command reference, inspect guide and inspect playbook as the joined targets/commands/executions/hosts view, emitted only when platform targets exist |
+| Verification | `verify` documented as resynchronizing generated projections after completed runs |
+| Validation | Command reference and inspect guide enumerate all eleven warnings |
+| Compatibility | Recorded the byte-frozen RESULT renderer, the optional-everywhere `host_os` shape, the no-migration doctrine for the pattern text, and the one-time coverage drift for repositories that already hold platform targets |
+
 ## 1.6.0 - 2026-08-11
 
 | Area | Documentation impact |

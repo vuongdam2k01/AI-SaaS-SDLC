@@ -41,7 +41,7 @@ It will not turn a warning into a product decision, and it never claims a test p
 
 The engine's `validate` returns non-zero only when there is an **error** — a broken structure: a bad ID, a broken reference, a lifecycle or supersession violation, a coverage gap, a mutated immutable record. Those must be fixed before a baseline.
 
-Ten findings are **warnings** and never block a baseline, because each names a *judgement* or a debt rather than a broken structure. They are reported precisely so that owing them stays visible:
+Eleven findings are **warnings** and never block a baseline, because each names a *judgement* or a debt rather than a broken structure. They are reported precisely so that owing them stays visible:
 
 | Warning | Means | You owe |
 |---|---|---|
@@ -51,6 +51,7 @@ Ten findings are **warnings** and never block a baseline, because each names a *
 | `QUESTION_STALE` | An open question that has outlived three baselines | An answer, a decision, or an explicit "still open + what would close it" |
 | `PLATFORM_EVIDENCE_MISSING` | A live `PLT-*` platform target no verification command declares evidence for | `platforms: [PLT-...]` on a command that exercises it, or an unproven-platform note in `TEST-POLICY` |
 | `PLATFORM_DECLARATION_UNKNOWN` | A `platforms:` declaration naming no live platform target | Fixing the declaration or creating the target |
+| `PLATFORM_EVIDENCE_CONTRADICTED` | A live `PLT-*` whose declared `host_os` token no recorded execution declaring it has ever observed | Fixing the token, executing a declaring command on that host, or a recorded limitation in `TEST-POLICY` |
 | `WIRE_AUTHORITY_UNDECLARED` | A live `API-*` naming no owning interface file while sibling interface files exist | The owning `WIRE-*`/`OPENAPI-CONTRACT` in `depends_on`, or the standing record that the operation is IPC/CLI-only |
 | `SCHEMA_AUTHORITY_UNDECLARED` | A live `ENT-*` naming no owning schema file while sibling `.dbml` files exist | The owning `SCHEMA-*`/`PHYSICAL-SCHEMA` in `depends_on`, or the standing record that the entity lives in a client-local or non-relational store |
 | `TRANSITION_AUTHORITY_UNDECLARED` | A live `SCR-*` naming no owning transition graph while sibling `.mmd` graphs exist | The owning `TRANSITIONS-*`/`SCREEN-TRANSITIONS` in `depends_on` |
@@ -66,6 +67,7 @@ Flows write canonical artifacts by hand, but the engine regenerates the cross-cu
 - **Traceability and artifact graph/index** — how everything connects.
 - **Feature / interaction / implementation maps** — what maps to what code.
 - **`generated/rule-coverage.md`** — which business rules are claimed by a spec and which are the `RULE_UNVERIFIED` commitments.
+- **`generated/platform-coverage.md`** — present once any platform target exists: each target's declaring commands, latest matching executions and observed hosts beside its declared `host_os`, with unknown declarations listed.
 - **Stale-artifact, issue and decision indexes.**
 
 If you ever doubt whether the generated views are current, the engine can tell you without writing anything: `refresh --check` reports drift; it does not fix it.

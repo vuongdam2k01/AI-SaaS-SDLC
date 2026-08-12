@@ -1,6 +1,6 @@
 {
   "name": "ai-saas-sdlc",
-  "version": "1.6.0",
+  "version": "1.7.0",
   "description": "Evidence-grounded AI SaaS documentation and pre-release SDLC flows for Claude Code and Codex.",
   "license": "MIT",
   "author": "vuong.dam",
@@ -35,6 +35,7 @@
   "dependencies": {
     "commander": "^14.0.0",
     "fast-glob": "^3.3.3",
+    "marked": "^16.4.2",
     "yaml": "^2.8.1"
   },
   "devDependencies": {

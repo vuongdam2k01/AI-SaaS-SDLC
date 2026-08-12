@@ -7411,7 +7411,8 @@ function toArtifactMeta(data) {
     writes_to: stringArray(data.writes_to),
     implementation: stringArray(data.implementation),
     ...typeof data.adr_status === "string" ? { adr_status: data.adr_status } : {},
-    ...typeof data.execution_id === "string" ? { execution_id: data.execution_id } : {}
+    ...typeof data.execution_id === "string" ? { execution_id: data.execution_id } : {},
+    ...typeof data.host_os === "string" ? { host_os: data.host_os } : {}
   };
 }
 var import_yaml;

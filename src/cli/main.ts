@@ -33,7 +33,7 @@ function print(value: unknown, json = false): void {
   else console.log(value);
 }
 
-program.name("ai-saas-sdlc").description("Deterministic engine for AI SaaS SDLC documentation flows.").version("1.6.0");
+program.name("ai-saas-sdlc").description("Deterministic engine for AI SaaS SDLC documentation flows.").version("1.7.0");
 
 program.command("init")
   .description("Initialize a centralized documentation repository.")
@@ -170,6 +170,12 @@ program.command("verify")
       ? ["unit", "integration", "system"] as const
       : ([options.unit && "unit", options.integration && "integration", options.system && "system"].filter(Boolean) as Array<"unit" | "integration" | "system">);
     const records = await executeVerification(root, await loadConfig(root), [...levels]);
+    // Projections derive from execution records, so a completed run would leave
+    // record-dependent views (platform coverage) stale until the close
+    // sequence's refresh — and mid-flow `validate` reports stale projections as
+    // GENERATED_DRIFT. Resynchronizing here mirrors `baseline create`, which
+    // already refreshes internally; it adds no gate and changes no flow.
+    await refreshProject(root, false);
     print(records, Boolean(options.json));
     if (records.some((record) => record.exit_code !== 0)) process.exitCode = 1;
   });

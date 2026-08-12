@@ -1,7 +1,9 @@
 import path from "node:path";
 import { readdir } from "node:fs/promises";
-import type { Artifact, BaselineManifest, ChangeRecord } from "./types.js";
+import type { Artifact, BaselineManifest, ChangeRecord, ProjectConfig } from "./types.js";
 import { scanArtifacts } from "./artifacts.js";
+import { loadConfig } from "./config.js";
+import { loadExecutionRecords } from "./execution-records.js";
 import { buildGraph } from "./graph.js";
 import { calculateImpact, type ImpactReport } from "./impact.js";
 import { buildProjections, applyProjections, changeImpactProjection } from "./projections.js";
@@ -41,7 +43,12 @@ async function refreshProjectUnlocked(root: string, check: boolean): Promise<str
   const impact = calculateImpact(artifacts, graph, baseline);
   const flow = await loadActiveFlow(root);
   const activeChange = flow?.change_id && impact.direct.length > 0 ? flow.change_id : null;
-  const projections = buildProjections(artifacts, graph, impact, baseline, activeChange);
+  // A config that fails to parse is reported by validate; projections still
+  // render, with the platform-coverage command columns empty.
+  let config: ProjectConfig | null = null;
+  try { config = await loadConfig(root); } catch { config = null; }
+  const records = await loadExecutionRecords(root);
+  const projections = buildProjections(artifacts, graph, impact, baseline, activeChange, config, records);
   if (await pathExists(projectPaths(root).changes)) {
     await assertSafeManagedPath(root, path.join(projectPaths(root).changes, ".managed-probe"));
     for (const entry of await readdir(projectPaths(root).changes, { withFileTypes: true })) if (entry.isSymbolicLink() && /^CHG-.*\.json$/.test(entry.name)) throw new SdlcError(`Change record cannot be a symlink: ${entry.name}`);

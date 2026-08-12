@@ -19,4 +19,15 @@ describe("frontmatter", () => {
   it("reports unknown metadata instead of silently accepting it", () => {
     expect(artifactMetadataIssues({ id: "FTR-A-001", unexpected_reverse_list: [] })).toContain("unknown frontmatter field: unexpected_reverse_list");
   });
+
+  it("accepts the optional host_os token and rejects malformed ones", () => {
+    const hostIssues = (data: Record<string, unknown>) => artifactMetadataIssues(data).filter((issue) => issue.includes("host_os"));
+    expect(hostIssues({ id: "PLT-WIN-001", host_os: "win32" })).toEqual([]);
+    expect(hostIssues({ id: "PLT-WIN-001" })).toEqual([]);
+    for (const bad of [5, "Win32", "win 32", "-win", null]) {
+      expect(hostIssues({ id: "PLT-WIN-001", host_os: bad })).toEqual(["host_os must be a lowercase host token such as win32, darwin or linux"]);
+    }
+    expect(toArtifactMeta({ id: "PLT-WIN-001", host_os: "darwin" }).host_os).toBe("darwin");
+    expect("host_os" in toArtifactMeta({ id: "PLT-WIN-001" })).toBe(false);
+  });
 });

@@ -3,7 +3,7 @@
 This file applies only while developing this repository. It is not a product artifact and is not copied into initialized documentation repositories.
 
 - Preserve the four mutation flows and one read-only inspector. Engine commands are operations inside those flows, never additional lifecycle stages.
-- Keep `claude/skills` and root `skills` as thin Claude/Codex host adapters. Shared method belongs in `resources/flow-playbooks` and `resources/protocols`.
+- Keep `claude/skills` and `codex/skills` as thin Claude/Codex host adapters. Shared method belongs in `resources/flow-playbooks` and `resources/protocols`.
 - Keep one canonical scalable pattern per artifact type in `resources/artifact-patterns`. The initialized `00-system/patterns` directory is a pinned snapshot; live instances belong only in layers `01` through `05`.
 - Increase information depth without adding gates. No custom research agents, MCP requirements, monitors, interviews, outreach, presales, deployment or runtime operations.
 - Never treat model self-review as evidence. A repeated flow requires a new source, decision, inspected diff, execution result or concrete contradiction.

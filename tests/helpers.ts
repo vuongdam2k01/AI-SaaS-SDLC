@@ -51,7 +51,8 @@ export function artifact(overrides: Partial<Artifact> & Pick<Artifact, "id" | "a
     hash: overrides.hash ?? overrides.id,
     metadata_issues: overrides.metadata_issues ?? [],
     ...(overrides.adr_status ? { adr_status: overrides.adr_status } : {}),
-    ...(overrides.execution_id ? { execution_id: overrides.execution_id } : {})
+    ...(overrides.execution_id ? { execution_id: overrides.execution_id } : {}),
+    ...(overrides.host_os ? { host_os: overrides.host_os } : {})
   };
 }
 

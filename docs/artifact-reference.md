@@ -39,7 +39,7 @@ The pinned catalog contains 24 scalable artifact types.
 | Design | `external_integration` | `INT-*` | Provider, mapping, reliability and secret boundary |
 | Design | `job` | `JOB-*` | Durable or scheduled processing and retry behavior |
 | Design | `event` | `EVT-*` | Versioned event envelope, delivery and consumers |
-| Design | `platform_target` | `PLT-*` | Platform constraints, permissions, distribution/update behavior and local-data migration |
+| Design | `platform_target` | `PLT-*` | Platform constraints, permissions, distribution/update behavior, local-data migration and the optional `host_os` evidence-host token |
 | Verification | `unit_test_backend` | `UT-API-*` or `UT-CORE-*` | Backend and platform-neutral core unit-test specification |
 | Verification | `unit_test_frontend` | `UT-UI-*` | Frontend unit-test specification |
 | Verification | `unit_test_job` | `UT-JOB-*` | Job unit-test specification |

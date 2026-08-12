@@ -181,7 +181,7 @@ Key rules (full detail in the [configuration reference](../configuration-referen
 - An implementation source is the **only** external tree Evolution may map, inspect or edit. The engine enforces real-path containment and rejects symlink escapes. Your host still needs your explicit filesystem permission.
 - The engine never infers commands from `package.json` — it runs **only** the exact strings you declare. `cwd` must resolve to the docs root or a configured source.
 - Leave the arrays empty for documentation-only mode; execution is reported as `not-configured` and no pass is inferred.
-- When the product has live `PLT-*` platform targets, add `platforms: [PLT-...]` to each command that produces evidence for one; the declaration and the observed host land in every `RESULT-*`, and `validate` warns (`PLATFORM_EVIDENCE_MISSING`) about live platforms no command declares.
+- When the product has live `PLT-*` platform targets, add `platforms: [PLT-...]` to each command that produces evidence for one; the declaration and the observed host land in every `RESULT-*`, and `validate` warns (`PLATFORM_EVIDENCE_MISSING`) about live platforms no command declares. A target may also declare its expected evidence host with the optional `host_os` frontmatter token; `validate` warns (`PLATFORM_EVIDENCE_CONTRADICTED`) when every recorded execution declaring it observed a different host, and `generated/platform-coverage.md` shows the whole join once any target exists.
 
 ## What NOT to use this for
 
