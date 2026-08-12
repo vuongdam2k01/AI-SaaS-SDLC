@@ -2,6 +2,14 @@
 
 See the root [CHANGELOG](../CHANGELOG.md) for the release summary. This contributor view records documentation-impact areas that must remain synchronized with implementation.
 
+## 1.8.1 - 2026-08-12
+
+| Area | Documentation impact |
+|---|---|
+| Flow method | Evolution playbook: a foundation the flow fills (TEST-POLICY) is activated in the same flow; a test seam weakening a stated invariant is recorded in TEST-POLICY, never silent |
+| Guides | Feature guide states observed per-stage cost/duration and advises one `--until` stage per turn beyond small features |
+| Compatibility | Text-only patch: no engine, schema, message or catalog change |
+
 ## 1.8.0 - 2026-08-12
 
 | Area | Documentation impact |

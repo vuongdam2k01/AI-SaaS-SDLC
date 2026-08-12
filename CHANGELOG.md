@@ -1,5 +1,37 @@
 # Changelog
 
+## 1.8.1 - 2026-08-12
+
+A certification pass drove the two flows no current-generation repository had
+ever run — Evidence Reassessment and Reconciliation — plus a cold-start build
+review and a source audit of a real evidence ledger. The flows worked; the
+review found method gaps the machine cannot see, and this patch writes the
+three lessons into the method surface. No engine code changed.
+
+### Fixed
+
+- **A filled foundation leaves `draft` in the flow that fills it.** The
+  evolution playbook now states it for `TEST-POLICY` above all: satisfy the
+  completion contract and activate, because a draft artifact is not
+  implementation authority and sits outside the active-content contracts. A
+  real repository baselined with its governing test policy draft and
+  machine-checked nowhere, and needed a Reconciliation to repair it.
+- **A test seam that weakens a stated invariant is a recorded limitation.**
+  The implementation section now requires naming any environment-variable or
+  fixture seam in `TEST-POLICY` beside what it exists to test. A cold-start
+  review read two silent seams as contradictions between the shipped build
+  and its own access rules — which is exactly how any later reviewer would
+  read them.
+- **The feature guide states what a stage actually costs** — observed
+  25–85 minutes and ~$10–45 per genesis/evolution stage, scaling with product
+  size — and advises one `--until` stage per turn beyond small features.
+
+### Compatibility
+
+Playbook and guide text only: no engine change, no schema change, no message
+change, no catalog change. Existing repositories validate byte-identically;
+the new sentences reach sessions when their installed plugin updates.
+
 ## 1.8.0 - 2026-08-12
 
 A real Product Evolution flow driven end to end on 1.7.0 surfaced four rough

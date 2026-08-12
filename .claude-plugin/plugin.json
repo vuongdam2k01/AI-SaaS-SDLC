@@ -2,7 +2,7 @@
   "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
   "name": "ai-saas-sdlc",
   "displayName": "AI SaaS SDLC",
-  "version": "1.8.0",
+  "version": "1.8.1",
   "description": "Evidence-grounded SaaS discovery, specification, impact analysis, and pre-release verification without procedural gate loops.",
   "author": {
     "name": "vuong.dam",

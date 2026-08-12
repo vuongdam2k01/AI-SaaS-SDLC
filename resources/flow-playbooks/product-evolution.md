@@ -163,6 +163,8 @@ Instantiate every new UT/IT/ST specification with `ENGINE artifact create`; `RES
 
 Every active feature must reach active UC, FLOW, UT, IT and ST under the baseline contract. Keep coverage minimal but real.
 
+A foundation this flow substantively fills — `TEST-POLICY` above all — leaves `draft` in the same flow that fills it: satisfy its completion contract and set it `active`. A draft artifact is not implementation authority and sits outside the active-content contracts, so a filled-but-draft policy governs everything while being machine-checked nowhere; a real repository reached its baseline in exactly that state and needed a Reconciliation to repair it.
+
 Run:
 
 ```text
@@ -185,6 +187,8 @@ ENGINE verify --all --execute --json
 ```
 
 If none are configured, preserve honest `not-configured` state. Never write `RESULT-*` manually or simulate a pass.
+
+A controlled test seam — an environment variable, a fixture hook, an injectable provider — that weakens a stated invariant or access rule is itself a recorded limitation: name it in `TEST-POLICY` beside what it exists to test, never leave it silent in the code. A seam nothing records reads as a contradiction between the shipped build and its own contracts to any later reviewer.
 
 When live `PLT-*` targets exist, declare which of them each command produces evidence for with `platforms: [PLT-...]` on the command definition before executing. `ENGINE validate` reports `PLATFORM_EVIDENCE_MISSING` for a live platform target no command declares; a platform this machine genuinely cannot execute stays undeclared and is recorded as unproven in `TEST-POLICY` instead of being declared optimistically. A platform the design commits to is `active` even when this machine cannot yet prove it: its unproven-ness lives in the evidence layer — the missing declaration, the `TEST-POLICY` note and the standing `PLATFORM_EVIDENCE_MISSING` warning that records it — never in an artifact left `draft`, because a draft artifact created by the open change blocks that change's own baseline. A target may also declare the host its evidence is expected under — the optional `host_os` frontmatter token (`win32`, `darwin`, `linux`) on the `PLT-*` artifact; when every recorded execution declaring the target observed a different host, `validate` reports `PLATFORM_EVIDENCE_CONTRADICTED` as a standing warning. After execution, read `generated/platform-coverage.md` for the joined view of targets, declaring commands, latest executions and observed hosts.
 

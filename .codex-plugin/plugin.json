@@ -1,6 +1,6 @@
 {
   "name": "ai-saas-sdlc",
-  "version": "1.8.0",
+  "version": "1.8.1",
   "description": "Evidence-grounded SaaS discovery, specification, impact analysis, and pre-release verification without procedural gate loops.",
   "author": {
     "name": "vuong.dam",

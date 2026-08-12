@@ -127,6 +127,8 @@ The deterministic close sequence runs: `refresh` → `validate --active` → `ba
 
 > **Tip — run it all at once.** For a small, well-understood feature you can skip the checkpoints entirely and just run `/ai-saas-sdlc:evolve-product <intent>`. The checkpoints earn their keep on features big enough that a silent 30-minute turn rewriting many artifacts would be impossible to steer.
 
+> **What a stage actually costs.** Observed across real runs: a genesis or a single evolution stage lands around 25–85 minutes and roughly $10–45 of model usage, scaling with product size — a multi-surface product's design stage sits at the top of that range. For anything beyond a small feature, drive the flow one `--until` stage per turn: you get a review point at every checkpoint, and no single turn grows past what you can steer.
+
 ## How to check it worked
 
 At the end of any turn, the skill prints a **State of the flow** line and **the exact next command** — read from `flow next`, so you never guess. It is either:
