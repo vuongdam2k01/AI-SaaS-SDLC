@@ -88,6 +88,8 @@ Update the singleton discovery documents using evidence IDs, not copied source p
 
 Mark these documents `active` only when they express the current bounded conclusion. An explicit evidence-backed “unknown” is valid content; vague placeholders are not.
 
+`EVIDENCE-LEDGER` is filled the same way and leaves `draft` with them: the engine requires every discovery and product foundation — the ledger included — to be `active` before a Genesis baseline, and a ledger this flow filled with real `EVD-*` entries has no reason to stay draft. The same holds for the product foundations completed in the next section.
+
 ## 7. Allocate horizontal discovery artifacts conditionally
 
 Create details only when they carry information referenced downstream:

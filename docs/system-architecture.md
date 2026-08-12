@@ -12,7 +12,7 @@ AI SaaS SDLC is one shared domain package exposed through two host-specific skil
 | Protocols | `resources/protocols/` | Shared research, behavior, solution, impact, test and repair rules loaded as needed |
 | Source patterns | `resources/artifact-patterns/` | Versioned scalable patterns and data-driven foundation/content contracts |
 | Project skeleton | `resources/project-template/` | Fixed live repository files copied by initialization |
-| Deterministic engine | `src/`, built `dist/`, `bin/ai-saas-sdlc` | State, locks, catalog resolution, creation, graph, validation, verification, baselines and projections |
+| Deterministic engine | `src/`, built `dist/`, `bin/ai-saas-sdlc` | State, locks, catalog resolution, creation, graph, validation, verification, baselines, generated projections and the static docs-site renderer |
 | Portable hooks | `hooks/hooks.json`, `src/hooks/` | Shared session context and narrow preventive checks for Claude Code and Codex |
 
 Both manifests identify the same product/version and route to the same packaged resources and engine. Host adapters contain invocation syntax, not independent copies of the method.
@@ -25,7 +25,8 @@ Initialization produces three distinct truth classes:
 00-system/patterns/   immutable snapshot of the installed authoring contracts
 01-discovery/..05-control/   canonical live product records
 generated/            reproducible indexes, coverage and impact projections
-.ai-saas-sdlc/        engine-owned state, changes, executions and baseline manifest
+.ai-saas-sdlc/        engine-owned state, changes, executions, baseline manifest and
+                      the git-ignored cache/ that holds a built docs site
 ```
 
 The source library is copied and hash-pinned. Once initialized, catalog listing, artifact creation and active-content validation use the consuming snapshot, so upgrading the installed plugin does not silently rewrite the repository's authoring contract. Live artifacts define product truth; generated files and internal records are not edited by the model.
@@ -38,7 +39,7 @@ There are four mutation flows and one read-only interface:
 - Evidence Reassessment advances evidence while retaining product-baseline identity.
 - Product Evolution creates a change and successor product baseline.
 - Reconciliation creates a repair change and successor product baseline.
-- Inspect State reads current state without opening a flow or writing files.
+- Inspect State reads current state without opening a flow or writing any content file; on request it renders the read-only docs site into the engine cache, which is its single sanctioned write.
 
 `EVR-*` identifies public-evidence revision. `BL-*` identifies verified product/document semantics. `CHG-*` exists only for Evolution and Reconciliation. `FLOW-*` identifies every mutation attempt, including a clean cancellation. Git retains representation history but does not replace the engine's temporal records.
 

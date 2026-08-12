@@ -6,6 +6,7 @@ import { scanArtifacts } from "../src/core/artifacts.js";
 import { validateProject } from "../src/core/validation.js";
 import { resolveCatalog } from "../src/core/pattern-catalog.js";
 import { createArtifactFromPattern } from "../src/core/artifact-instantiation.js";
+import { SCALABLE_EXAMPLE_IDS } from "../src/core/artifact-contracts.js";
 import { startFlow } from "../src/core/state.js";
 import { activateArchitectureOverview, addApprovalFeature, materializePatternArtifact } from "./fixtures/complete-saas/fixture.js";
 
@@ -22,6 +23,54 @@ describe("pinned pattern and active-content contracts", () => {
     expect(first.patterns.map((item) => item.artifact_type)).toEqual(second.patterns.map((item) => item.artifact_type));
     expect(first.patterns.map((item) => item.artifact_type)).toEqual([...first.patterns.map((item) => item.artifact_type)].sort());
     expect(first.patterns.every((item) => item.target.includes("{{ID}}") && !item.target.includes(".."))).toBe(true);
+  });
+
+  // Every pattern's frontmatter is copied verbatim into the artifact it creates,
+  // so a pattern shipping a field the engine rejects makes its whole type
+  // uncreatable — the artifact fails validation the instant it exists, before an
+  // author has written a word. The architectural_decision pattern shipped
+  // exactly that defect (status: proposed, no adr_status) through several
+  // releases because every test hand-wrote correct ADR frontmatter instead of
+  // instantiating the pattern.
+  it("creates a metadata-valid artifact from every scalable pattern", async () => {
+    // Discovery details are creatable only in Genesis/Reassessment and the rest
+    // only in the semantic flows, so covering all 23 takes one project per side.
+    const discovery = ["ideal_customer_profile", "persona", "problem", "competitor"];
+    const metadataCodes = ["FRONTMATTER_SCHEMA", "METADATA_REQUIRED", "STATUS_INVALID", "ADR_STATUS_INVALID", "ID_INVALID", "CREATION_ID_INVALID", "ARTIFACT_LOCATION_INVALID", "ARTIFACT_FILENAME_MISMATCH"];
+
+    async function instantiateAll(root: string, types: string[]): Promise<number> {
+      const catalog = await resolveCatalog(root, process.cwd());
+      const created: string[] = [];
+      for (const type of types) {
+        const id = SCALABLE_EXAMPLE_IDS[type];
+        expect(id, `no example ID for ${type}`).toBeTruthy();
+        created.push((await createArtifactFromPattern(root, catalog, type, id!, `Sample ${type}`)).file);
+      }
+      const artifacts = await scanArtifacts(root);
+      for (const file of created) {
+        const artifact = artifacts.find((item) => item.file === file);
+        expect(artifact, `${file} was not scanned back`).toBeTruthy();
+        expect(artifact!.metadata_issues, `${file} frontmatter`).toEqual([]);
+      }
+      const report = await validateProject(root, artifacts);
+      expect(report.findings.filter((finding) => finding.file && created.includes(finding.file) && metadataCodes.includes(finding.code))).toEqual([]);
+      return created.length;
+    }
+
+    const discoveryRoot = await tempProject();
+    roots.push(discoveryRoot);
+    await startFlow(discoveryRoot, "genesis", "Instantiate discovery patterns");
+    const discoveryCount = await instantiateAll(discoveryRoot, discovery);
+
+    const semanticRoot = await tempProject();
+    roots.push(semanticRoot);
+    await establishGenesis(semanticRoot);
+    await startFlow(semanticRoot, "evolution", "Instantiate semantic patterns");
+    const catalog = await resolveCatalog(semanticRoot, process.cwd());
+    const semantic = catalog.patterns
+      .map((pattern) => pattern.artifact_type)
+      .filter((type) => type !== "test_result" && !discovery.includes(type));
+    expect(discoveryCount + (await instantiateAll(semanticRoot, semantic))).toBe(23);
   });
 
   it("confines creation to the active flow, approved type, ID, and canonical path", async () => {

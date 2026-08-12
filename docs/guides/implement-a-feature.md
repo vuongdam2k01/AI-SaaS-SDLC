@@ -72,16 +72,23 @@ What the flow does:
 
 - Runs `impact` to compute the **affected closure** — not just your new feature, but every older feature reached through a shared access rule, invariant, component, subsystem, API, entity, integration, job or event contract. Each item is classified: modify, verify-only, deprecate/retire, material question, or not-affected-with-reason.
 - Allocates design artifacts **only where a real boundary exists** — it does not invent layers:
-  - `SCR-*` for a real user-facing surface — a web route, a desktop window, a mobile screen, or a tray/menu-bar menu with real interaction structure; `CMP-*` only after a second real consumer exists;
+  - `SCR-*` for a real user-facing surface — a web route, a desktop window, a mobile screen, or a tray/menu-bar menu with real interaction structure; when phone, tablet or desktop behavior differs materially, that is one artifact per form factor, not one responsive artifact. In a repository with more than one transition graph, each screen names its owning `03-design/*.mmd` in `depends_on`. `CMP-*` only after a second real consumer exists;
   - `SUB-*` for a non-trivial engine/pipeline/domain capability;
   - `API-*` for the processing semantics of any invocable operation — the owning interface file (OpenAPI by default, a sibling `03-design/interfaces/*.yaml` per further surface) owns the wire contract when it is HTTP, and a multi-file repository names that file in the `API-*`'s `depends_on`; an IPC/bridge/CLI operation owns its full invocation contract in the `API-*` document itself;
-  - `ENT-*` for domain identity/lifecycle (plus DBML for the physical schema);
+  - `ENT-*` for domain identity/lifecycle, each declaring its **persistence authority** — the owning `.dbml` file for relational storage, a `PLT-*#M-NN` row for a device-local store, or an explicit `none — <reason>` for derived state. A document, key-value or client-local entity states its real store; it does not invent a relational mapping;
   - `INT-*` for an external provider boundary; `JOB-*` for durable/scheduled work; `EVT-*` for versioned facts;
   - `PLT-*` for each shipped platform or channel whose constraints, permissions, update behavior or local data differ materially;
   - `ADR-*` **only** for a choice that is multiple-viable, durable, cross-artifact and expensive to reverse.
 - Each new artifact is instantiated from the pinned pattern (`artifact create`) and then filled in — never copied by hand into an arbitrary path.
 - Recomputes `impact` once design relationships settle, in case the closure grew.
 - Records the checkpoint and stops.
+
+> **Two rules with no undo, when a contract family grows past one file.** A product big enough to want a second interface file, a second database or a second screen world hits both:
+>
+> 1. **Add the file first, declare ownership second — inside the same flow.** While a family holds one file the engine derives ownership itself; declaring an owner before the second file exists forms a dependency cycle with that derived edge, and a cycle is a hard error.
+> 2. **A sibling file's name becomes its permanent identity the moment it is baselined.** `billing.yaml` is `WIRE-BILLING` forever; renaming it afterwards reads as deleting a baselined artifact. Name it for its bounded scope — never for a version, a date or a phase.
+>
+> The same applies to the AREA segment inside every ID. It cannot be renamed after baselining either, so if you intend to use the optional `areas` registry in `sdlc.config.yaml`, register the areas in the flow that mints the IDs — not later.
 
 **Review this before continuing.** These are your implementation-detail documents. Check that every boundary your feature actually has got an artifact — and note that the report explicitly *names any boundary it chose not to allocate and why*. If your intent implied an external integration but no `INT-*` appeared, the report will say so; that is where you catch a missing decision.
 
@@ -93,7 +100,7 @@ What the flow does:
 
 What the flow does:
 
-- Derives verification from behavior and the affected regression: `UT-*` (backend/frontend/job unit specs), `IT-*` for real component/persistence/provider/event/job boundaries, `ST-*` for the actor journey and cross-feature behavior.
+- Derives verification from behavior and the affected regression: `UT-*` unit specs — `UT-API-*` behind an invocable operation, `UT-CORE-*` for platform-neutral core logic, `UT-UI-*`, `UT-JOB-*` — plus `IT-*` for real component/persistence/provider/event/job boundaries and `ST-*` for the actor journey and cross-feature behavior.
 - Covers the `AC-*`, the `UC`/`FLOW` error paths, access rules, invariants, error codes, concurrency and degradation — by reference, kept minimal but real.
 - **Preserves and re-selects existing regression tests** pulled in by the closure, so a shared-contract change re-tests the older features it touched.
 - If it is about to extend an `IT-*`/`ST-*` the engine has already flagged `SPEC_OVERSIZED`, it splits it first rather than letting one spec absorb everything.
@@ -157,7 +164,7 @@ You are looking for:
 
 ## Wiring up your code
 
-To make Step 4 do real work, edit `sdlc.config.yaml` at the root of your documentation repository:
+To make Step 4 do real work, edit `sdlc.config.yaml` at the root of your documentation repository. Keep the three header keys `init` wrote (`schema_version`, `project_id`, `research_mode`) — the engine rejects the file if any of them is missing, and it accepts no keys beyond the ones documented here:
 
 ```yaml
 implementation_sources:
@@ -183,6 +190,8 @@ Key rules (full detail in the [configuration reference](../configuration-referen
 - An implementation source is the **only** external tree Evolution may map, inspect or edit. The engine enforces real-path containment and rejects symlink escapes. Your host still needs your explicit filesystem permission.
 - The engine never infers commands from `package.json` — it runs **only** the exact strings you declare. `cwd` must resolve to the docs root or a configured source.
 - Leave the arrays empty for documentation-only mode; execution is reported as `not-configured` and no pass is inferred.
+- A test seam that weakens a stated invariant or access rule — an environment variable that supplies fixture data, an injectable provider — belongs in `TEST-POLICY` beside what it exists to test. Left silent in the code, it reads to any later reviewer as the build contradicting its own contracts.
+- The optional top-level `areas` list registers the AREA segment of your IDs. Declared, every live ID must name a registered area; the warning it raises is a naming decision made visible, and it can only be acted on before the ID is baselined.
 - When the product has live `PLT-*` platform targets, add `platforms: [PLT-...]` to each command that produces evidence for one; the declaration and the observed host land in every `RESULT-*`, and `validate` warns (`PLATFORM_EVIDENCE_MISSING`) about live platforms no command declares. A target may also declare its expected evidence host with the optional `host_os` frontmatter token; `validate` warns (`PLATFORM_EVIDENCE_CONTRADICTED`) when every recorded execution declaring it observed a different host, and `generated/platform-coverage.md` shows the whole join once any target exists.
 
 ## What NOT to use this for

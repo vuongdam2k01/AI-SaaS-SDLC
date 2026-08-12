@@ -42,7 +42,7 @@ You are knowingly changing a contract in a way that is not backward-compatible.
 
 > *"The publish API must now reject any post that has an unresolved change request — callers that used to get a 200 will get a 409."*
 
-- State the compatibility consequence explicitly in your intent. The flow records current-vs-desired behavior and the breaking consequence, and pulls every dependent of the changed `API-*`/`EVT-*`/`ENT-*` contract — or of a changed interface/schema contract file — into regression.
+- State the compatibility consequence explicitly in your intent. The flow records current-vs-desired behavior and the breaking consequence, and pulls every dependent of the changed `API-*`/`EVT-*`/`ENT-*` contract into regression. When the repository holds sibling contract files — `WIRE-*` interface files, `SCHEMA-*` databases, `TRANSITIONS-*` screen graphs — the closure converges through the *owning* file each artifact declares, so a change to one surface reaches its declarers rather than the whole product. An artifact that declares no owner in a multi-file family is reported as `WIRE_/SCHEMA_/TRANSITION_AUTHORITY_UNDECLARED`, which is the moment to declare it or record why it legitimately has none.
 - A breaking contract change is the kind of durable, expensive-to-reverse decision that legitimately earns an `ADR-*`. Expect one, and expect the report to explain why the threshold was met.
 - A client obligation the change introduces (a new required field, an idempotency key, the identity of a superseded record) must be **owned by an artifact** or recorded in `QUESTIONS` as an allocation gap. The flow will not leave a new caller obligation unowned and silent.
 
@@ -54,6 +54,11 @@ Deprecation has two instruments, and using the wrong one states something false 
 - **Rule-level deprecation** — when part of the artifact survives, leave the artifact `active` and deprecate the specific `BR-*` inside it: mark the change that deprecated the rule, its named replacement, and the condition under which it is removed.
 
 Marking a whole feature `deprecated` because one of its rules was replaced claims the rest of it is going away too. Apply the same test to `UC-*`/`FLOW-*`: fully replaced → `superseded`; partly replaced → edited, not retired.
+
+Two status mistakes are worth naming because both look conservative and are not:
+
+- **A committed platform is `active`, not `draft`.** A `PLT-*` you have decided to ship but cannot yet prove belongs in the baseline as a live commitment; its unproven-ness lives in the evidence layer — no `platforms:` declaration, a row in `TEST-POLICY`, and the standing `PLATFORM_EVIDENCE_MISSING` warning that records exactly that. Leaving it `draft` states the design is undecided, and a draft artifact created by the flow's own change blocks that flow's baseline.
+- **A foundation this flow filled leaves `draft` in this flow.** If the change substantively writes `TEST-POLICY` or another foundation, satisfy its completion contract and set it `active` before closing. A filled-but-draft foundation governs downstream work while sitting outside every content contract, so nothing checks the rules it states.
 
 Whichever instrument you use, **every deprecation needs a stated removal condition.** A deprecation with no removal condition is an annotation, not a decision — and the closing report is required to state which artifacts changed status and which carry a rule-level deprecation, each with its removal condition.
 

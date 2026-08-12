@@ -8,7 +8,8 @@ You can point at the problem with real evidence — a path, an artifact ID, a co
 
 - A configured test or execution **failed**.
 - An inspected **code or Git diff** shows the implementation no longer matches the docs.
-- An **interface/schema/provider contract conflict** — two sides expect different shapes.
+- An **interface/schema/provider contract conflict** — two sides expect different shapes. In a repository with sibling contract files, name the file that owns the disputed shape (`WIRE-*`, `SCHEMA-*` or `TRANSITIONS-*`); the repair converges through that owner instead of across the whole surface.
+- A **governing artifact that is not actually governing** — for example a filled `TEST-POLICY` still marked `draft` while every verification specification depends on it. A draft foundation is not implementation authority and sits outside the content contracts, so the rules it states are checked nowhere; that gap is a real, inspectable mismatch and a legitimate reconciliation.
 - A **reproducible user-visible drift** from documented behavior.
 - An explicit **user correction** ("this is wrong, it should…").
 - A specific **specification contradiction**.

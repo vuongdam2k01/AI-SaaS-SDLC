@@ -27,6 +27,8 @@ Use this protocol in Product Evolution or Reconciliation after observable behavi
 
 Absence is valid when the condition is false. A complete solution is not the one with the most files.
 
+Every ID minted here carries an AREA segment between its prefix and its number, and that segment is permanent once baselined. When `sdlc.config.yaml` declares an `areas` registry, an ID naming an unregistered area is reported as `AREA_UNREGISTERED`; when it declares none, the registry is simply unused. Once the areas have settled across the artifacts a change allocates, registering them is the cheapest it will ever be — afterwards the ID cannot be renamed.
+
 ### OS entry points and surfaces
 
 Operating-system entry points — a global shortcut, a file association, a deep link, a share target, a tray action — have no artifact type of their own, deliberately. Allocate them by what each one is:

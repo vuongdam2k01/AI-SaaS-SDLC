@@ -8,7 +8,13 @@ The public interface consists of five explicitly invoked skills. Four are tempor
 | Evidence Reassessment | One named evidence question, new signal, stale claim or contradiction | Evidence ledger, affected discovery synthesis, questions and issues | New `EVR-*`; current `BL-*` identity is retained |
 | Product Evolution | One semantic addition, change, consolidation, breaking change, deprecation or retirement | Product behavior, conditional design, UT/IT/ST, mapped implementation and control records | `CHG-*` and successor `BL-*` |
 | Reconciliation | One concrete failure, inspected drift or contract contradiction | Minimal authoritative repair, issue, regression specification and mapped implementation | `CHG-*` and successor `BL-*` |
-| Inspect State | Optional artifact, change, baseline or project scope | None | Repeatable report over current state |
+| Inspect State | Optional artifact, change, baseline or project scope | None to any content layer; on request it may build the read-only docs site into the engine cache | Repeatable report over current state |
+
+## Checkpoints inside a mutation flow
+
+A mutation flow is not one indivisible turn. It passes five checkpoints in order — `behavior`, `design`, `tests`, `implementation`, `baseline` — and the author decides how far one turn goes with `--until <stage>` on the invoking skill. Absent a stage, the flow runs through to its successor baseline.
+
+Checkpoints are not lifecycle stages and never gate one another: they are the points at which the author can take the turn back, read what exists and decide what happens next. A flow stopped at a checkpoint stays open, which is a normal and valid state, and is continued by invoking the same skill again with the next stage and the flow ID — the exact command is printed by `flow next` and never has to be remembered. A checkpoint recorded past the declared stop raises the target with it, so a continued flow's recorded intent matches where it actually went.
 
 ## Genesis
 
@@ -36,7 +42,9 @@ A choice of new or breaking product behavior leaves Reconciliation and becomes a
 
 ## Inspect State
 
-Inspect State runs only read operations: state, full validation, impact and test selection, plus scoped reads of generated projections and canonical records. It may report structural facts, semantic inferences and unknowns, but it never refreshes, verifies, migrates, opens/closes a flow or edits files.
+Inspect State runs only read operations: state, full validation, impact and test selection, plus scoped reads of generated projections and canonical records. It may report structural facts, semantic inferences and unknowns, but it never refreshes, verifies, migrates, opens or closes a flow, or edits any content file.
+
+It has exactly one sanctioned write, and only when the author asks for a browsable view: `docs build` renders the current artifacts, relations and generated reports as a static HTML site under `.ai-saas-sdlc/cache/site/`. The site is a projection for reading — it writes no content layer, carries no authority, and its build result is never evidence.
 
 ## Closing, cancellation and editorial edits
 
@@ -47,7 +55,7 @@ Spelling, tone and formatting are not mutation events. `refresh --editorial` may
 Because an editorial change runs outside every flow, the session applying it has no skill context and cannot resolve the plugin root. `init` and every writing `refresh` record the resolved engine in `.ai-saas-sdlc/engine.json`:
 
 ```json
-{ "schema_version": 1, "plugin_version": "1.0.0",
+{ "schema_version": 1, "plugin_version": "1.9.0",
   "engine_path": "…/bin/ai-saas-sdlc",
   "editorial_command": "node \"…/bin/ai-saas-sdlc\" refresh --editorial" }
 ```

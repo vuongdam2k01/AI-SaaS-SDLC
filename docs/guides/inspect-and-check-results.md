@@ -8,7 +8,7 @@ Every mutation flow ends by telling you what it did. This guide is about confirm
 /ai-saas-sdlc:inspect-state [optional scope]
 ```
 
-It **never writes** — no refresh, no verify, no baseline, no issue, no file edit. You can run it any time, as often as you like; unchanged state produces the same facts. Scope it, or omit the scope for a whole-project summary:
+It **never writes a content file** — no refresh, no verify, no baseline, no issue, no edit to anything in `00-system/` through `05-control/` or `generated/`. Its one sanctioned write is the browsable site described [below](#browse-the-repository-as-a-site), and only when you ask for it. You can run it any time, as often as you like; unchanged state produces the same facts. Scope it, or omit the scope for a whole-project summary:
 
 | Scope you pass | What you get |
 |---|---|
@@ -71,6 +71,22 @@ Flows write canonical artifacts by hand, but the engine regenerates the cross-cu
 - **Stale-artifact, issue and decision indexes.**
 
 If you ever doubt whether the generated views are current, the engine can tell you without writing anything: `refresh --check` reports drift; it does not fix it.
+
+## Browse the repository as a site
+
+Reading a hundred-artifact repository file by file is the wrong tool for questions like *what depends on this?* Ask Inspect State for a browsable view:
+
+```text
+/ai-saas-sdlc:inspect-state give me a browsable view of the repository
+```
+
+It runs the engine's `docs build`, which renders the current artifacts, their relationships and the generated reports into a static, dependency-free HTML site — one page per artifact with resolved ID links and reverse traceability, an interactive dependency graph, and status-filtered indexes. It prints the path to open; by default the site lands in `.ai-saas-sdlc/cache/site/index.html`.
+
+Three properties matter:
+
+- **It writes only the engine cache.** No content layer, no `generated/`, no state. It refuses to write into a managed content directory or into a directory it did not produce.
+- **It is a projection, never authority.** Nothing in the site is evidence, and no flow reads it back. If the site and an artifact disagree, the artifact is right and the site is stale — rebuild it.
+- **It is disposable.** The cache is git-ignored; delete it any time and rebuild.
 
 ## Checking execution results honestly
 

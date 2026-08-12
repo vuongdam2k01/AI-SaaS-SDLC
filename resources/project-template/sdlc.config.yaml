@@ -7,3 +7,21 @@ verification:
   integration: []
   system: []
 
+# Two optional keys exist beyond the ones above, and no others are accepted.
+#
+# A verification command may declare which platform targets it produces evidence
+# for. The declaration is copied into every execution record beside the observed
+# host, and a live PLT-* no command declares is reported as a standing warning:
+#
+#   verification:
+#     system:
+#       - id: system-journeys
+#         cwd: ../app
+#         command: npm run test:system
+#         platforms: [PLT-WINDOWS-001]
+#
+# A top-level `areas` list registers the AREA segment of artifact IDs. Declared,
+# every live ID must name a registered area; undeclared, IDs stay unconstrained.
+# Register areas before the IDs are baselined — a permanent ID cannot be renamed:
+#
+#   areas: [BILLING, DISPATCH, REPORTING]

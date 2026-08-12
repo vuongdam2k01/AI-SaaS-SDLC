@@ -17,9 +17,8 @@ The deterministic engine operates on the current working directory. In a develop
 
 | Command | Options | Behavior |
 |---|---|---|
-| `flow start` | `--type <genesis\|reassessment\|evolution\|reconciliation>`, `--input <text>`, `--json` | Opens exactly one flow. Evolution and Reconciliation also reserve a `CHG-*`. Flow legality and starting snapshots are engine-enforced. |
+| `flow start` | `--type <genesis\|reassessment\|evolution\|reconciliation>`, `--input <text>`, `--until <stage>`, `--json` | Opens exactly one flow. Evolution and Reconciliation also reserve a `CHG-*`. `--until` declares where this turn stops: `behavior`, `design`, `tests`, `implementation` or `baseline`; absent, the flow runs to a successor baseline. Flow legality and starting snapshots are engine-enforced. |
 | `artifact create` | `--type <catalog-type>`, `--id <ID>`, `--title <title>`, `--json` | Creates one new draft from the pinned pattern at its canonical path. Requires a compatible active flow, checks type/ID/path/title, refuses collisions and rejects `test_result`. |
-| `flow start` | `--type`, `--input`, `--until <stage>`, `--json` | Opens one temporal flow. `--until` declares where this turn stops: `behavior`, `design`, `tests`, `implementation` or `baseline`. Absent, the flow runs to a successor baseline. |
 | `flow checkpoint` | `--stage <stage>`, `--until <stage>`, `--json` | Records how far the open flow has come, and optionally retargets where it stops. Checkpoints only move forward; a checkpoint recorded past the declared stop raises the target with it, so a continued flow never keeps a stale stop. |
 | `flow next` | `--json` | Reports the open flow's progress and the exact command to run next. Read-only. |
 | `refresh` | `--check`, `--editorial`, `--json` | Rebuilds generated projections, including `rule-coverage.md`. `--check` reports drift without writing. `--editorial` first accepts an eligible body-only representation change. The two flags cannot be combined. Any writing form also records the resolved engine at `.ai-saas-sdlc/engine.json`. |

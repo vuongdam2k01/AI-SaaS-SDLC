@@ -2,7 +2,7 @@
 
 AI SaaS SDLC is a dual Claude Code and Codex plugin for turning a raw SaaS idea into an evidence-grounded, implementation-ready and continuously maintained documentation repository.
 
-It is deliberately event-driven rather than stage-gated. Four mutation flows follow the product through time: Genesis, Evidence Reassessment, Product Evolution and Reconciliation. Inspect State is read-only. There are no user interviews, outreach, presales, custom research agents, MCP requirements, runtime/deployment operations or automatic prose-review loops.
+It is deliberately event-driven rather than stage-gated. Four mutation flows follow the product through time: Genesis, Evidence Reassessment, Product Evolution and Reconciliation. Inspect State reads without mutating, its one exception being the browsable HTML site it can render into the engine's own cache on request. There are no user interviews, outreach, presales, custom research agents, MCP requirements, runtime/deployment operations or automatic prose-review loops.
 
 ## What it produces
 
@@ -12,11 +12,14 @@ An initialized documentation repository separates five kinds of truth:
 00-system/       pinned authoring patterns and repository rules
 01-discovery/    raw idea, attributable public evidence and market synthesis
 02-product/      requirements, access, invariants, FTR, UC and FLOW behavior
-03-design/       architecture, UX, SCR, CMP, SUB, API, ENT, INT, JOB, EVT and PLT design
+03-design/       architecture, UX, SCR, CMP, SUB, API, ENT, INT, JOB, EVT and PLT design,
+                 plus the interface, schema and transition contract files they own
 04-verification/ actual UT, IT, ST specifications and execution-backed RESULT records
 05-control/      unresolved questions, ISS repairs and immutable accepted ADR history
 generated/       reproducible indexes, traceability, coverage and impact projections
 ```
+
+Contract files are first-class artifacts, not attachments: `03-design/interfaces/*.yaml` become `WIRE-*`, `03-design/data/*.dbml` become `SCHEMA-*` and `03-design/*.mmd` become `TRANSITIONS-*`, hashed and baselined like everything else, with each operation, entity and screen naming its owning file once a family holds more than one. `generated/` holds the machine-owned views — traceability, artifact graph and index, rule and acceptance coverage, feature and implementation maps, stale artifacts, issue and decision indexes, and `platform-coverage.md` once the product declares a platform target.
 
 Reusable patterns and live artifacts are different layers. Canonical pattern sources live in the plugin at `resources/artifact-patterns/`; initialization pins their exact snapshot to `00-system/patterns/`. `04-verification/` contains only real test specifications and results for the product. See [Pattern to Instance](docs/pattern-to-instance.md).
 
@@ -85,9 +88,11 @@ A loop is legal only after a new public source, changed source, explicit product
 The bundled executable handles structure and provenance; the model handles research, synthesis and design reasoning.
 
 ```text
-ai-saas-sdlc init
+ai-saas-sdlc init [--project-id <id>] [--idea <text>]
 ai-saas-sdlc state [--json]
-ai-saas-sdlc flow start --type <genesis|reassessment|evolution|reconciliation>
+ai-saas-sdlc flow start --type <genesis|reassessment|evolution|reconciliation> [--input <text>] [--until <stage>]
+ai-saas-sdlc flow checkpoint --stage <stage> [--until <stage>]
+ai-saas-sdlc flow next [--json]
 ai-saas-sdlc flow close
 ai-saas-sdlc patterns list [--json]
 ai-saas-sdlc artifact create --type <type> --id <ID> --title <title>
@@ -97,8 +102,11 @@ ai-saas-sdlc tests select [--json]
 ai-saas-sdlc verify [--unit|--integration|--system|--all] --execute
 ai-saas-sdlc baseline create
 ai-saas-sdlc refresh [--check|--editorial]
+ai-saas-sdlc docs build [--out <dir>]
 ai-saas-sdlc migrate [--check]
 ```
+
+A flow passes five checkpoints — `behavior`, `design`, `tests`, `implementation`, `baseline` — and `--until <stage>` declares where one turn stops; `flow next` prints the exact command that continues it. `docs build` renders the current repository as a static HTML site under `.ai-saas-sdlc/cache/site/`: a projection for reading, never authority or evidence.
 
 It validates permanent IDs, canonical paths, required sections/tables, local trace IDs, references, lifecycle, historical graph edges, immutable raw input and accepted ADRs, execution provenance and generated projections. It never performs a tone review or decides whether prose is “good enough.”
 

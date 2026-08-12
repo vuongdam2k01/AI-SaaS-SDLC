@@ -20,7 +20,7 @@ The fixed non-Markdown contracts `SDLC-CONFIG`, `OPENAPI-CONTRACT`, `PHYSICAL-SC
 
 ## Scalable records
 
-The pinned catalog contains 24 scalable artifact types.
+The pinned catalog contains 24 scalable artifact types. Each catalog generation carries a version — `patterns list` reports the one a repository actually pinned — and a live artifact whose type its pinned catalog predates is reported as `CONTENT_CONTRACT_UNPINNED`, an error, because an artifact no content contract covers looks validated without being validated.
 
 | Layer | Catalog type | Permanent ID | Responsibility |
 |---|---|---|---|
@@ -34,7 +34,7 @@ The pinned catalog contains 24 scalable artifact types.
 | Design | `screen` | `SCR-*` | Screen regions, controls, actions, validation and transitions |
 | Design | `component` | `CMP-*` | Reused interaction contract for real consumers |
 | Design | `subsystem` | `SUB-*` | Non-trivial capability boundary and implementation mapping |
-| Design | `api_processing` | `API-*` | Authorization, processing, transactions and side effects |
+| Design | `api_processing` | `API-*` | Authorization, processing, transactions and side effects for any invocable operation — HTTP, IPC, bridge or command line; the owning interface file holds the wire contract for HTTP, and the `API-*` document owns the full invocation contract for everything else |
 | Design | `entity` | `ENT-*` | Domain identity, state, invariants and declared persistence authority |
 | Design | `external_integration` | `INT-*` | Provider, mapping, reliability and secret boundary |
 | Design | `job` | `JOB-*` | Durable or scheduled processing and retry behavior |

@@ -36,6 +36,8 @@ intent
 
 New scalable artifacts start as pinned-pattern drafts. They become active only after their content contracts and references are complete. An ADR appears only for multiple viable, durable or expensive-to-reverse alternatives. Unconfigured test execution remains `not-configured` rather than an inferred pass.
 
+The arrow above is one turn only when the author wants it to be. The same sequence passes five checkpoints — `behavior`, `design`, `tests`, `implementation`, `baseline` — and `--until <stage>` stops the turn at any of them, leaving the flow open in a normal, resumable state. On a product of real size that is the usual shape: one checkpoint per turn, each ending with the exact command that continues it.
+
 ## t3: Later feature or shared change
 
 Another Evolution may add, refine, consolidate, break, deprecate or retire behavior. The engine compares the worktree with the current baseline and unions old/new relationship graphs. A shared access rule, invariant, component, subsystem, API, entity, integration, job, event, ADR or interface/schema contract-file change can therefore reach earlier features and their regression tests.
@@ -63,7 +65,7 @@ The engine retains the failed `EXEC-*`/`RESULT-*`. A repaired rerun receives a n
 
 ## Any time: Inspect State
 
-Inspect State reads state, validation, impact, test selection, projections and scoped canonical/control artifacts. It reports facts, inferences and unknowns without changing files or temporal state.
+Inspect State reads state, validation, impact, test selection, projections and scoped canonical/control artifacts. It reports facts, inferences and unknowns without changing any content file or temporal state. Asked for a browsable view, it additionally renders the repository as a static HTML site under `.ai-saas-sdlc/cache/site/` — a projection for reading, never authority or evidence.
 
 ## Editorial edits and legal repetition
 

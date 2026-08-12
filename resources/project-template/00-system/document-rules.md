@@ -36,6 +36,8 @@ Every Markdown artifact has YAML frontmatter with:
 
 Design and verification artifacts add `implementation` when code/test mapping is meaningful. Data-writing designs add `writes_to` using authoritative entity/table identifiers.
 
+Three fields belong to one artifact family each and are accepted nowhere else: `adr_status` on a decision (`proposed`, `accepted`, `deprecated` or `superseded`, independent of the artifact's own `status`); `host_os` on a platform target (the lowercase `process.platform` token its execution evidence is expected to be observed under); and `execution_id` on an engine-rendered result. No other frontmatter field is accepted — an unknown field is a validation error, not a private extension point.
+
 ## Content rules
 
 - Use English, precise domain language, observable conditions, explicit units, and exact error/state semantics.

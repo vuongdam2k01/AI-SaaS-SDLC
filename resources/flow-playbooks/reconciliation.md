@@ -73,6 +73,10 @@ Repair only:
 
 plus affected downstream relationships/regression. Create a successor ADR when an accepted decision changes. Do not edit evidence ledger, regenerate discovery, rewrite unrelated docs or alter a correct specification to make a bug look compliant.
 
+When the mismatch involves a contract file, name the file that actually owns the disputed shape. Interface, schema and transition families may hold sibling files with their own identities — `03-design/interfaces/*.yaml` as `WIRE-*`, `03-design/data/*.dbml` as `SCHEMA-*`, `03-design/*.mmd` as `TRANSITIONS-*` — and impact converges per owning file, so a repair scoped to one file must not be widened to the whole surface. A live `API-*`/`ENT-*`/`SCR-*` in a multi-file family that names no owner is reported as `WIRE_/SCHEMA_/TRANSITION_AUTHORITY_UNDECLARED`; repairing an undeclared ownership is a legitimate reconciliation when the missing declaration is the mismatch.
+
+A foundation this flow substantively fills or corrects — `TEST-POLICY` above all — leaves `draft` in the same flow: satisfy its completion contract and set it `active`. A draft foundation is not implementation authority and sits outside the active-content contracts, so its rules are machine-checked nowhere, and the baseline draft-block only catches drafts the current change created.
+
 Instantiate any new issue, successor ADR or test specification through `ENGINE artifact create`; do not copy pattern files manually.
 
 For code/config-only repair, retain the issue as the semantic trace; the engine requires successful execution before baselining it.
@@ -85,6 +89,8 @@ Follow `resources/protocols/test-derivation.md`:
 - retain old tests selected by impact;
 - add IT/ST only when the boundary/journey is material;
 - update implementation mappings.
+
+Before appending a case to an existing `IT-*` or `ST-*`, check whether `ENGINE validate` already reports it as `SPEC_OVERSIZED`; split it first rather than growing the file the engine has already called oversized. When live `PLT-*` targets exist and this repair adds or changes a verification command, declare which targets each command evidences with `platforms: [PLT-...]` before executing — a repair that leaves the declaration stale reads as unproven platform evidence for the whole product, not just for the repair.
 
 Run:
 

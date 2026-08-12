@@ -2,7 +2,8 @@
 id: {{ID}}
 artifact_type: architectural_decision
 title: {{TITLE}}
-status: proposed
+status: draft
+adr_status: proposed
 created_by_change: {{CREATED_BY_CHANGE}}
 depends_on: [ARCHITECTURE-OVERVIEW]
 decisions: []
@@ -12,7 +13,7 @@ supersedes:
 
 # {{ID}} — {{TITLE}}
 
-<!-- Contract: records one durable architectural choice, its drivers, credible alternatives, consequences, and verification obligations. It is not a status update, implementation plan, product requirement, or repository convention already owned elsewhere. Create when a materially consequential technical choice must remain explainable across future changes. ID is ADR-<AREA>-<NNN>; path is 05-control/decisions/<ID>.md. This artifact owns the decision rationale; affected design contracts own resulting detailed behavior. Upstream: architecture, quality, invariants, affected design, and evidence. Consumers: architecture/design artifacts, implementation, tests, and later ADRs. Lifecycle: proposed -> accepted -> superseded or rejected; accepted content is immutable except clarifications that do not change the decision. -->
+<!-- Contract: records one durable architectural choice, its drivers, credible alternatives, consequences, and verification obligations. It is not a status update, implementation plan, product requirement, or repository convention already owned elsewhere. Create when a materially consequential technical choice must remain explainable across future changes. ID is ADR-<AREA>-<NNN>; path is 05-control/decisions/<ID>.md. This artifact owns the decision rationale; affected design contracts own resulting detailed behavior. Upstream: architecture, quality, invariants, affected design, and evidence. Consumers: architecture/design artifacts, implementation, tests, and later ADRs. Lifecycle: an ADR carries two fields. `status` is the artifact lifecycle — `draft` while the choice is still being formed, `active` once it governs; `adr_status` is the decision state — `proposed`, then `accepted`, `deprecated` or `superseded`. An accepted ADR stays `active` forever, including after a successor supersedes it, because accepted content is immutable except clarifications that do not change the decision; the reverse edge is derived into the generated decision index rather than written back here. There is no `rejected` state: a choice not taken is recorded as a rejected option inside the ADR that made the decision. -->
 
 ## Purpose and boundary
 

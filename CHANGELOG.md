@@ -1,5 +1,82 @@
 # Changelog
 
+## 1.9.0 - 2026-08-12
+
+Five feature releases moved the engine and left the documentation behind it at
+uneven distances — some files current, some frozen at the release that last
+happened to touch them. A full audit of every reference doc, guide, playbook,
+protocol and pinned system contract against the code found the drift, and
+three defects hiding inside it: contracts that state rules the engine does not
+implement are not merely stale, they instruct a flow to do something that
+fails.
+
+### Fixed
+
+- **The decision pattern shipped frontmatter the engine rejects.** Pattern
+  frontmatter is copied verbatim into the artifact it creates, and
+  `architectural-decision.pattern.md` carried `status: proposed` — not one of
+  the five legal artifact statuses — and no `adr_status` at all. Every
+  `artifact create --type architectural_decision` therefore produced an
+  artifact failing `STATUS_INVALID` and `ADR_STATUS_INVALID` the instant it
+  existed. It now ships `status: draft` with `adr_status: proposed`, and a new
+  test instantiates *every* scalable pattern and asserts the result validates,
+  so no pattern can ship this defect again. Every earlier test hand-wrote ADR
+  frontmatter, which is exactly why nothing caught it.
+- **The lifecycle contract taught a vocabulary the engine has no notion of.**
+  `ARTIFACT-LIFECYCLE` presented `proposed`, `rejected` and `generated` as
+  artifact states; `rejected` exists nowhere in the engine, results are written
+  `active`, and the two states the evolution playbook depends on —
+  `deprecated` and `retired` — were missing from the table entirely. The
+  state set now matches what validation accepts, `adr_status` is documented as
+  the separate field it is, and the filled-foundation rule from 1.8.1 is stated
+  where lifecycle is defined.
+- **Genesis never activated the evidence ledger it fills.** The engine requires
+  every discovery and product foundation, the ledger included, to be `active`
+  before a Genesis baseline; the playbook's activation step named only the six
+  synthesis documents, so the first close sequence failed on a mandatory
+  foundation. The ledger is now named where it is filled.
+
+### Changed
+
+- **The method surface states the current contract.** The Inspect State
+  playbook reported six of the eleven warnings and now reports all of them;
+  Reconciliation gained sibling-file ownership, the oversized-spec check,
+  platform declarations and the filled-foundation rule it had never been told
+  about; test derivation gained `host_os`, `PLATFORM_EVIDENCE_CONTRADICTED`,
+  `generated/platform-coverage.md` and the test-seam rule; both allocating
+  protocols now state that an ID's AREA segment is permanent once baselined.
+- **The pinned system contracts describe what a repository actually holds.**
+  `VALIDATION-RULES` now separates errors from warnings and names all eleven
+  with what each means; the glossary defines sibling contract file, platform
+  target, evidence host token, platform coverage, runtime topology, area and
+  checkpoint, and expands the artifact prefixes; document rules state the three
+  type-specific frontmatter fields; and the config template shows the two
+  optional keys — `platforms` and `areas` — that a repository could previously
+  only discover by reading the reference docs.
+- **The reference docs and guides cover the last five releases.** The flow
+  reference gained the checkpoint model it never had; `docs build` is stated
+  consistently everywhere as the inspector's one sanctioned write; the README's
+  engine block lists every command and option; the feature guide states the two
+  rules with no undo (add the sibling file before declaring ownership, and a
+  sibling filename is permanent once baselined), replaces the DBML-only entity
+  framing with persistence authority, and names `UT-CORE-*`; the lifecycle
+  guide states that a committed platform is `active`, not `draft`.
+- The pinned catalog version moves to `4` so `patterns list` reports which
+  generation a repository holds.
+
+### Compatibility
+
+No engine code changed and no message, schema or validation rule changed:
+existing repositories validate byte-identically. The corrected decision
+pattern, lifecycle contract, validation rules, glossary, document rules and
+config template are pinned per repository, so they reach newly initialized
+repositories only, per the no-migration doctrine — an existing repository
+keeps the catalog it pinned, including the broken decision pattern, and the
+practical remedy there is to write the two frontmatter fields by hand when
+creating an ADR. Playbooks, protocols, reference docs and guides are read from
+the installed plugin, so every repository gets the corrected method as soon as
+its plugin updates.
+
 ## 1.8.1 - 2026-08-12
 
 A certification pass drove the two flows no current-generation repository had

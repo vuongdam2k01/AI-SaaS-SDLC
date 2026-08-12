@@ -14,12 +14,13 @@ Every guide follows the same shape: when to use it, the one command to type, a w
 | A competitor moved, a claim looks stale, a new market signal appeared | [Reassess market evidence](reassess-evidence.md) | `/ai-saas-sdlc:reassess-evidence` |
 | A test failed, code drifted from the docs, two contracts disagree | [Fix a failure or mismatch](reconcile-a-failure.md) | `/ai-saas-sdlc:reconcile` |
 | You want to know where things stand, what's affected, what's owed | [Inspect state and check results](inspect-and-check-results.md) | `/ai-saas-sdlc:inspect-state` |
+| You want to read the whole repository in a browser | [Inspect state and check results](inspect-and-check-results.md#browse-the-repository-as-a-site) | `/ai-saas-sdlc:inspect-state` |
 
 If you are brand new, read [Start a new product](start-a-new-product.md) first — it also covers install, the documentation-repository model, and how to point the plugin at your code.
 
 ## The mental model in one paragraph
 
-You keep a **separate documentation repository**. It advances only in response to real events: a public source, an explicit product decision, an inspected code diff, an execution result, or a concrete contradiction. Four skills *mutate* that repository — Genesis, Product Evolution, Evidence Reassessment, Reconciliation — and each one ends by recording a new **baseline**. A fifth skill, Inspect State, only *reads*. There is no approval pipeline and no stage gate: repeating Product Evolution over time *is* how the product scales. Spelling and formatting are not events; those use `refresh --editorial` and open no flow.
+You keep a **separate documentation repository**. It advances only in response to real events: a public source, an explicit product decision, an inspected code diff, an execution result, or a concrete contradiction. Four skills *mutate* that repository — Genesis, Product Evolution, Evidence Reassessment, Reconciliation — and each one ends by recording a new **baseline**. A fifth skill, Inspect State, only *reads* — its single exception is building a browsable HTML copy into the engine's own cache when you ask for one. There is no approval pipeline and no stage gate: repeating Product Evolution over time *is* how the product scales. Spelling and formatting are not events; those use `refresh --editorial` and open no flow.
 
 ## Two habits that make every guide work
 
@@ -34,3 +35,5 @@ You keep a **separate documentation repository**. It advances only in response t
 - [Configuration reference](../configuration-reference.md) — `sdlc.config.yaml`, implementation sources, verification commands.
 - [End-to-end timeline](../end-to-end-timeline.md) — the same journey told as a timeline (t0 … tn).
 - [Pattern to instance](../pattern-to-instance.md) — why patterns and live artifacts are separate layers.
+
+The engine also regenerates cross-cutting views into `generated/` after every flow — traceability, the artifact graph and index, rule and acceptance coverage, feature and implementation maps, stale artifacts, issue and decision indexes, and `platform-coverage.md` once the product ships on a declared platform. Read them; never edit them.

@@ -37,7 +37,30 @@ Validation evaluates project artifacts as contracts. It detects structural absen
 - `depends_on`, ADR, operationId, entity/schema, error, access, invariant, feature acceptance, and test-case references resolve.
 - Dependency edges are direct, meaningful, and acyclic across normative artifacts.
 - Wire fields are not redefined outside the owning interface file; physical schema is not redefined outside the owning DBML file; shared access/error/UX/invariant rules are referenced rather than duplicated.
+- A contract family holding sibling files declares ownership: each live operation, entity and screen names its owning interface file, schema file or transition graph in `depends_on`, and impact converges through that edge rather than across the whole surface.
 - Unit-test exclusions are assigned to an integration or system test when the excluded claim remains required.
+
+## Reported severity
+
+Validation reports two severities and they mean different things. An **error** is a broken structure — a bad ID, an unresolved reference, a lifecycle or supersession violation, a mutated immutable record, a coverage gap, generated projections out of sync. Errors block a baseline and must be repaired.
+
+A **warning** names a judgement or a debt rather than a broken structure, never blocks a baseline, and is itself the durable record of what is owed. Eleven exist:
+
+| Warning | Means |
+|---|---|
+| `RULE_UNVERIFIED` | A declared business rule no specification claims. |
+| `SPEC_OVERSIZED` | A live IT/ST specification past the case threshold. |
+| `CASE_REFERENCE_BROKEN` | A qualified case reference naming a case its specification does not declare. |
+| `QUESTION_STALE` | An open question that has outlived three baselines. |
+| `PLATFORM_EVIDENCE_MISSING` | A live platform target no verification command declares evidence for. |
+| `PLATFORM_DECLARATION_UNKNOWN` | A `platforms:` declaration naming no live platform target. |
+| `PLATFORM_EVIDENCE_CONTRADICTED` | A declared `host_os` token no recorded execution declaring that target has observed. |
+| `WIRE_AUTHORITY_UNDECLARED` | A live operation naming no owning interface file while siblings exist. |
+| `SCHEMA_AUTHORITY_UNDECLARED` | A live entity naming no owning schema file while siblings exist. |
+| `TRANSITION_AUTHORITY_UNDECLARED` | A live screen naming no owning transition graph while siblings exist. |
+| `AREA_UNREGISTERED` | A live ID naming an area outside the optional `areas` registry. |
+
+Closing a warning by weakening the artifact that raised it is not a repair. Several are legitimately permanent: an unproven platform, an IPC-only operation with no wire owner, a client-local entity with no schema owner.
 
 ## Completion contract
 
@@ -45,3 +68,4 @@ Validation evaluates project artifacts as contracts. It detects structural absen
 - [x] Active-content validation rejects placeholders and heading-only documents.
 - [x] Shared patterns, fixed foundations, local IDs, references, and generated results are covered.
 - [x] Validation observes contracts without creating product or execution evidence.
+- [x] Errors and warnings are distinguished, and every warning is named with what it means.

@@ -30,6 +30,8 @@ If the requested change mixes independent outcomes, split them into traceable fe
 
 Instantiate every new scalable artifact with `ENGINE artifact create --type <type> --id <ID> --title "<title>"`; the active flow supplies change attribution and the pinned catalog supplies the only valid pattern/path. Then complete the generated instance. Updates to existing artifacts retain their IDs/files.
 
+An ID's AREA segment is permanent once baselined, and when `sdlc.config.yaml` declares an `areas` registry every live ID must name a registered area or be reported as `AREA_UNREGISTERED`. Choose the area deliberately at creation rather than renaming later, which is not possible.
+
 ### Feature
 
 Create a new `FTR-*` for a new independently traceable outcome. Update the existing feature for a compatible refinement. Deprecate/retire or supersede it for removal/replacement; never reuse its ID.

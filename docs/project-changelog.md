@@ -2,6 +2,18 @@
 
 See the root [CHANGELOG](../CHANGELOG.md) for the release summary. This contributor view records documentation-impact areas that must remain synchronized with implementation.
 
+## 1.9.0 - 2026-08-12
+
+| Area | Documentation impact |
+|---|---|
+| Pattern defect | Decision pattern ships `status: draft` + `adr_status: proposed`; a test instantiates every scalable pattern and asserts the result validates |
+| Lifecycle contract | `ARTIFACT-LIFECYCLE` state set matches the engine (`draft`/`active`/`deprecated`/`retired`/`superseded`, plus `open`/`resolved` for issues); `adr_status` documented as a separate field; no `rejected` or `generated` state |
+| Genesis | Evidence ledger named in the activation step the engine's baseline gate requires |
+| Method surface | Inspect State reports all eleven warnings; Reconciliation gains sibling ownership, oversized-spec check, platform declarations and the filled-foundation rule; test derivation gains `host_os`, `PLATFORM_EVIDENCE_CONTRADICTED` and platform coverage; both allocating protocols state the permanence of the AREA segment |
+| Pinned system contracts | `VALIDATION-RULES` separates errors from warnings and names all eleven; glossary defines the 1.4–1.8 terms and expands artifact prefixes; document rules list `adr_status`/`host_os`/`execution_id`; config template shows the optional `platforms` and `areas` keys |
+| Reference and guides | Flow reference gains the checkpoint model; `docs build` stated consistently as the inspector's one write; README engine block completed; feature guide gains the sibling-file ordering and permanent-name rules, persistence authority and `UT-CORE-*`; lifecycle guide states a committed platform is `active` |
+| Compatibility | No engine, schema, message or validation change; pinned contracts reach new repositories only, method files reach every repository on plugin update; catalog version 4 |
+
 ## 1.8.1 - 2026-08-12
 
 | Area | Documentation impact |
