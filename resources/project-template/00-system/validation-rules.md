@@ -44,7 +44,7 @@ Validation evaluates project artifacts as contracts. It detects structural absen
 
 Validation reports two severities and they mean different things. An **error** is a broken structure — a bad ID, an unresolved reference, a lifecycle or supersession violation, a mutated immutable record, a coverage gap, generated projections out of sync. Errors block a baseline and must be repaired.
 
-A **warning** names a judgement or a debt rather than a broken structure, never blocks a baseline, and is itself the durable record of what is owed. Fifteen exist:
+A **warning** names a judgement or a debt rather than a broken structure, never blocks a baseline, and is itself the durable record of what is owed. Seventeen exist:
 
 | Warning | Means |
 |---|---|
@@ -63,8 +63,10 @@ A **warning** names a judgement or a debt rather than a broken structure, never 
 | `EVD_RETRIEVAL_BROKEN` | A cited `RET-*` record that is absent, failed, or retrieved a different URL. |
 | `RESEARCH_CAPABILITY_UNDERUSED` | Instrument discovery surfaced a cited URL no engine retrieval inspected. |
 | `RETRIEVAL_RUNG_DEGRADED` | A failed engine retrieval no later success covers — the record of a fallback to host tools. |
+| `IMPLEMENTATION_MAPPING_MISSING` | With implementation sources configured, an active feature none of whose declaring artifacts maps to code — specified but not yet implemented. |
+| `IMPLEMENTATION_LEVEL_UNPROVEN` | With implementation sources configured, a feature whose active UT, IT or ST specifications include none mapped to an implemented test — the level is specified but unproven. |
 
-Closing a warning by weakening the artifact that raised it is not a repair. Several are legitimately permanent: an unproven platform, an IPC-only operation with no wire owner, a client-local entity with no schema owner, a degraded retrieval whose source stayed unreachable.
+Closing a warning by weakening the artifact that raised it is not a repair. Several are legitimately permanent: an unproven platform, an IPC-only operation with no wire owner, a client-local entity with no schema owner, a degraded retrieval whose source stayed unreachable, a feature validated on paper before anyone builds it.
 
 ## Completion contract
 

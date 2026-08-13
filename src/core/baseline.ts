@@ -75,14 +75,15 @@ async function createBaselineUnlocked(root: string): Promise<BaselineManifest> {
       ];
       const missingTypes = coverage.filter((item) => !item.types.some((candidate) => types.has(candidate))).map((item) => item.label);
       if (missingTypes.length > 0) throw new SdlcError(`${feature.id} lacks active downstream coverage: ${missingTypes.join(", ")}`);
-      if (config.implementation_sources.length > 0) {
-        const featureArtifacts = artifacts.filter((artifact) => closure.has(artifact.id) && !/(?:^|_)test(?:_|$)/.test(artifact.artifact_type));
-        if (!featureArtifacts.some((artifact) => artifact.implementation.length > 0)) throw new SdlcError(`${feature.id} has no implementation mapping despite configured implementation sources.`);
-        for (const [label, accepted] of [["UT", ["unit_test_backend", "unit_test_frontend", "unit_test_job"]], ["IT", ["integration_test"]], ["ST", ["system_test"]]] as const) {
-          const covered = artifacts.filter((artifact) => closure.has(artifact.id) && accepted.some((type) => type === artifact.artifact_type) && artifact.status === "active");
-          if (!covered.some((artifact) => artifact.implementation.length > 0)) throw new SdlcError(`${feature.id} has no ${label} implementation mapping despite configured implementation sources.`);
-        }
-      }
+      // Before 1.11.0 configured implementation sources turned mapping presence
+      // into a baseline error over every active feature — which made wiring a
+      // codebase retroactively demand whole-repository conformance in a single
+      // flow, and made a documentation-only evolution of a new feature illegal
+      // in a wired repository (a mapping cannot even be authored before its
+      // target file exists on disk). Mapping absence is now a standing warning
+      // (IMPLEMENTATION_MAPPING_MISSING / IMPLEMENTATION_LEVEL_UNPROVEN in
+      // implementation-evidence.ts): partiality is recorded, never blocking,
+      // never silent — the platform-evidence doctrine applied to code.
     }
   }
   await refreshProject(root, false);

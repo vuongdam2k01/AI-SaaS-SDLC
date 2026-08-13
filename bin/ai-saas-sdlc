@@ -17721,6 +17721,244 @@ var init_execution_selection = __esm({
   }
 });
 
+// src/core/implementation-evidence.ts
+function activeFeatures(artifacts) {
+  return artifacts.filter((artifact2) => artifact2.artifact_type === "feature" && artifact2.status === "active").sort((a, b2) => a.id.localeCompare(b2.id));
+}
+function featureImplementationState(feature, artifacts, graph) {
+  const closureIds = new Set(reverseClosure(graph, [feature.id]));
+  const own = artifacts.filter((artifact2) => closureIds.has(artifact2.id) && artifact2.depends_on.includes(feature.id));
+  const anyOwnMapped = own.some((artifact2) => !TEST_TYPE_SEGMENT.test(artifact2.artifact_type) && artifact2.implementation.length > 0);
+  const mappable = own.filter((artifact2) => DESIGN_TYPES.has(artifact2.artifact_type) && artifact2.status === "active").sort((a, b2) => a.id.localeCompare(b2.id));
+  const mapped = mappable.filter((artifact2) => artifact2.implementation.length > 0);
+  const levels = IMPLEMENTATION_LEVELS.map(({ level, types }) => {
+    const specs = own.filter((artifact2) => types.includes(artifact2.artifact_type) && artifact2.status === "active").sort((a, b2) => a.id.localeCompare(b2.id));
+    return { level, specs, mapped: specs.filter((spec) => spec.implementation.length > 0) };
+  });
+  return { feature, closureIds, mappable, mapped, anyOwnMapped, levels };
+}
+function unprovenLevels(state) {
+  return state.levels.filter(({ specs, mapped }) => specs.length > 0 && mapped.length === 0);
+}
+function implementationMappingFindings(config, artifacts, graph) {
+  if (config.implementation_sources.length === 0) return [];
+  const findings = [];
+  for (const feature of activeFeatures(artifacts)) {
+    const state = featureImplementationState(feature, artifacts, graph);
+    if (!state.anyOwnMapped) {
+      findings.push({
+        severity: "warning",
+        code: "IMPLEMENTATION_MAPPING_MISSING",
+        message: `${feature.id} has no implementation mapping on any artifact declaring it despite configured implementation sources; map the implementing artifacts when the feature is built, or let this warning stand as the durable record that it is specified but not yet implemented.`,
+        file: feature.file
+      });
+      continue;
+    }
+    for (const { level, specs } of unprovenLevels(state)) {
+      findings.push({
+        severity: "warning",
+        code: "IMPLEMENTATION_LEVEL_UNPROVEN",
+        message: `${feature.id} has active ${level} specification(s) (${specs.map((spec) => spec.id).join(", ")}) but none maps to an implemented test; implement and map the level, or let this warning stand as the durable record that ${level} for this feature is specified but unproven.`,
+        file: feature.file
+      });
+    }
+  }
+  return findings;
+}
+var IMPLEMENTATION_LEVELS, TEST_TYPE_SEGMENT, DESIGN_TYPES;
+var init_implementation_evidence = __esm({
+  "src/core/implementation-evidence.ts"() {
+    "use strict";
+    init_graph();
+    IMPLEMENTATION_LEVELS = [
+      { level: "UT", types: ["unit_test_backend", "unit_test_frontend", "unit_test_job"] },
+      { level: "IT", types: ["integration_test"] },
+      { level: "ST", types: ["system_test"] }
+    ];
+    TEST_TYPE_SEGMENT = /(?:^|_)test(?:_|$)/;
+    DESIGN_TYPES = /* @__PURE__ */ new Set(["screen", "component", "subsystem", "api_processing", "entity", "external_integration", "job", "event", "platform_target"]);
+  }
+});
+
+// src/core/implementation-projections.ts
+function table2(headers3, rows) {
+  const head = `| ${headers3.join(" | ")} |`;
+  const divider = `| ${headers3.map(() => "---").join(" | ")} |`;
+  const body = rows.length > 0 ? rows.map((row) => `| ${row.join(" | ")} |`).join("\n") : `| ${headers3.map(() => "\u2014").join(" | ")} |`;
+  return `${head}
+${divider}
+${body}
+`;
+}
+function cell2(values) {
+  return values.length > 0 ? values.map((value) => `\`${value}\``).join(", ") : "\u2014";
+}
+function projectionCell(value) {
+  return value.replaceAll("|", "\\|");
+}
+function implementationCoverageProjection(artifacts, graph, config, records) {
+  const states = activeFeatures(artifacts).map((feature) => featureImplementationState(feature, artifacts, graph));
+  const featureRows = states.map((state) => {
+    const unproven = unprovenLevels(state).map(({ level }) => level);
+    const mappingState = !state.anyOwnMapped ? "unmapped" : unproven.length > 0 ? `partial: ${unproven.join(", ")} unproven` : "fully mapped";
+    return [
+      `\`${state.feature.id}\``,
+      `${state.mapped.length}/${state.mappable.length}`,
+      ...state.levels.map(({ specs, mapped }) => specs.length === 0 ? "\u2014" : `${mapped.length}/${specs.length}`),
+      mappingState
+    ];
+  });
+  const commandRows = CONFIG_LEVELS.flatMap(
+    ({ key, label }) => config.verification[key].map((command) => {
+      const latest = latestExecution(records.filter((record2) => record2.level === key && matchesDefinitionEvidence(record2, command)));
+      return [
+        label,
+        `\`${command.id}\``,
+        latest ? `\`${latest.id}\`` : "none",
+        latest ? String(latest.exit_code) : "\u2014",
+        latest ? latest.ended_at : "\u2014"
+      ];
+    })
+  );
+  const seen = /* @__PURE__ */ new Set();
+  const unmapped = [];
+  for (const state of states) {
+    for (const candidate of state.mappable) {
+      if (candidate.implementation.length > 0 || seen.has(candidate.id)) continue;
+      seen.add(candidate.id);
+      const features = states.filter((other) => other.closureIds.has(candidate.id)).map((other) => other.feature.id);
+      unmapped.push([`\`${candidate.id}\``, candidate.artifact_type, cell2(features)]);
+    }
+  }
+  unmapped.sort((a, b2) => (a[0] ?? "").localeCompare(b2[0] ?? ""));
+  return `# Implementation Coverage
+
+Mapping states derive through the same predicates as the IMPLEMENTATION_MAPPING_MISSING and IMPLEMENTATION_LEVEL_UNPROVEN warnings, so this view never disagrees with a finding. A mapping is a declared path, not a verdict; execution evidence lives in the commands table and in RESULT records.
+
+## Features
+
+${table2(
+    ["Feature", "Design mapped", "UT specs mapped", "IT specs mapped", "ST specs mapped", "Mapping state"],
+    featureRows
+  )}
+## Configured commands
+
+A row matches executions through the same predicate the baseline verdict uses \u2014 identical command identity, text, working directory and platform declaration \u2014 but looks across every flow: latest evidence ever, not latest in the active flow.
+
+${table2(
+    ["Level", "Command", "Latest matching execution", "Exit code", "Finished at"],
+    commandRows
+  )}
+## Unmapped active design artifacts
+
+${table2(["Artifact", "Type", "In closure of"], unmapped)}`;
+}
+function bodyIds(body, pattern) {
+  return [...new Set(body.match(pattern) ?? [])].sort();
+}
+function testCaseTableLines(body) {
+  const normalized = body.replace(/\r\n/g, "\n");
+  const section = normalized.split(/^## Test cases\s*$/m)[1];
+  if (!section) return [];
+  const untilNextHeading = section.split(/^## /m)[0] ?? "";
+  return untilNextHeading.split("\n").filter((line) => line.trimStart().startsWith("|"));
+}
+function implementationPlanProjections(artifacts, graph, config) {
+  const projections = {};
+  const byId = new Map(artifacts.map((artifact2) => [artifact2.id, artifact2]));
+  const order = topologicalOrder(graph).order;
+  const foundations = FOUNDATION_REFERENCES.map((reference) => ({
+    ...reference,
+    artifact: artifacts.find((artifact2) => artifact2.artifact_type === reference.artifactType)
+  }));
+  for (const feature of activeFeatures(artifacts)) {
+    const state = featureImplementationState(feature, artifacts, graph);
+    const closureInOrder = order.filter((id2) => state.closureIds.has(id2)).map((id2) => byId.get(id2)).filter((artifact2) => Boolean(artifact2));
+    const closureRows = closureInOrder.map((artifact2) => [
+      `\`${artifact2.id}\``,
+      artifact2.artifact_type,
+      artifact2.status,
+      `\`${artifact2.file}\``,
+      artifact2.implementation.length > 0 ? artifact2.implementation.map((mapping) => `\`${projectionCell(mapping)}\``).join(", ") : "\u2014",
+      cell2(artifact2.depends_on.filter((dependency) => CONTRACT_DEPENDENCY.test(dependency)))
+    ]);
+    const closureBodies = closureInOrder.map((artifact2) => artifact2.body).join("\n");
+    const foundationSections = foundations.map(({ heading, pattern, artifact: artifact2 }) => {
+      const vocabulary = artifact2 ? bodyIds(artifact2.body, pattern) : [];
+      const referenced = vocabulary.filter((id2) => new RegExp(`\\b${id2}\\b`).test(closureBodies));
+      return `### ${heading}
+
+${referenced.map((id2) => `- \`${id2}\``).join("\n") || "None referenced by this closure."}
+`;
+    });
+    const specSections = IMPLEMENTATION_LEVELS.map(({ level }) => {
+      const specs = state.levels.find((candidate) => candidate.level === level)?.specs ?? [];
+      const bodies = specs.map((spec) => {
+        const lines = testCaseTableLines(spec.body);
+        return `#### \`${spec.id}\` \u2014 ${spec.title}
+
+Source: \`${spec.file}\`${spec.implementation.length > 0 ? `
+Mapped: ${spec.implementation.map((mapping) => `\`${projectionCell(mapping)}\``).join(", ")}` : "\nMapped: not yet"}
+
+${lines.length > 0 ? `${lines.join("\n")}
+` : "No test-case table found.\n"}`;
+      });
+      return `### ${level}
+
+${bodies.join("\n") || "No active specifications at this level.\n"}`;
+    });
+    const commandSections = CONFIG_LEVELS.map(({ key, label }) => {
+      const commands = config.verification[key];
+      if (commands.length === 0) return `- **${label}**: no configured command`;
+      return `- **${label}**:
+${commands.map((command) => `  - \`${command.id}\`: \`${projectionCell(command.command)}\` (cwd \`${projectionCell(command.cwd)}\`)`).join("\n")}`;
+    });
+    projections[`implementation-plan/${feature.id}.md`] = `# Implementation Plan: ${feature.id}
+
+${feature.title}
+
+Derived work packet joining this feature's closure in dependency order with its mappings, contract files, referenced foundation rows, covering specifications and configured commands. A view for reading and planning \u2014 the artifacts and contract files own their content, and nothing here is authority or evidence.
+
+## Closure in dependency order
+
+${table2(
+      ["Artifact", "Type", "Status", "File", "Implementation mappings", "Contract dependencies"],
+      closureRows
+    )}
+## Foundation rows referenced by this closure
+
+${foundationSections.join("\n")}
+## Covering specifications
+
+${specSections.join("\n")}
+## Configured verification commands
+
+${commandSections.join("\n")}
+`;
+  }
+  return projections;
+}
+var CONFIG_LEVELS, CONTRACT_DEPENDENCY, FOUNDATION_REFERENCES;
+var init_implementation_projections = __esm({
+  "src/core/implementation-projections.ts"() {
+    "use strict";
+    init_implementation_evidence();
+    init_execution_selection();
+    init_graph();
+    CONFIG_LEVELS = [
+      { key: "unit", label: "UT" },
+      { key: "integration", label: "IT" },
+      { key: "system", label: "ST" }
+    ];
+    CONTRACT_DEPENDENCY = /^(?:WIRE|SCHEMA|TRANSITIONS)-/;
+    FOUNDATION_REFERENCES = [
+      { artifactType: "access_control", heading: "Access rules referenced", pattern: /\bACCESS-\d[A-Z0-9-]*\b/g },
+      { artifactType: "system_invariants", heading: "System invariants referenced", pattern: /\bINV-\d[A-Z0-9-]*\b/g },
+      { artifactType: "error_catalog", heading: "Error codes referenced", pattern: /\bERROR-[A-Z][A-Z0-9]*-\d+\b/g }
+    ];
+  }
+});
+
 // src/core/projections.ts
 import { mkdir as mkdir3, readFile as readFile6, rm as rm2, writeFile as writeFile3 } from "node:fs/promises";
 import path9 from "node:path";
@@ -17736,7 +17974,7 @@ ${impact.direct.map((id2) => `- \`${id2}\``).join("\n") || "None."}
 ${impact.affected.map((id2) => `- \`${id2}\``).join("\n") || "None."}
 `;
 }
-function table2(headers3, rows) {
+function table3(headers3, rows) {
   const head = `| ${headers3.join(" | ")} |`;
   const line = `| ${headers3.map(() => "---").join(" | ")} |`;
   return `${head}
@@ -17789,7 +18027,7 @@ Declarations are human claims; recorded hosts are machine facts. This view joins
 
 ## Targets
 
-${table2(
+${table3(
     ["Target", "Status", "Declared host_os", "Declaring commands", "Observed hosts", "Evidence state"],
     targetRows
   )}
@@ -17797,7 +18035,7 @@ ${table2(
 
 A row matches executions through the same predicate the baseline verdict uses: identical command identity, text, working directory and platform declaration. Unlike the verdict, it looks across every flow \u2014 latest evidence ever, not latest in the active flow.
 
-${table2(
+${table3(
     ["Level", "Command", "Declares", "Latest matching execution", "Exit code", "Observed host", "Finished at"],
     commandRows
   )}
@@ -17806,13 +18044,13 @@ ${table2(
 ${unknown.map((declaration) => `- \`${declaration}\``).join("\n") || "None."}
 `;
 }
-function projectionCell(value) {
+function projectionCell2(value) {
   return value.replaceAll("|", "\\|");
 }
 function retrievalCoverageSections(retrievals, queries) {
   const retrievalRows = retrievals.map((record2) => [
     `\`${record2.id}\``,
-    projectionCell(record2.url),
+    projectionCell2(record2.url),
     `${record2.instrument}${record2.escalation ? " (escalated)" : ""}`,
     record2.via,
     String(record2.capability_rung),
@@ -17823,9 +18061,9 @@ function retrievalCoverageSections(retrievals, queries) {
     `\`${record2.id}\``,
     record2.kind,
     record2.pass ?? "\u2014",
-    projectionCell(record2.query || record2.url || ""),
+    projectionCell2(record2.query || record2.url || ""),
     record2.ok ? String(record2.result_count) : "failed",
-    (record2.unresponsive_engines ?? []).map(projectionCell).join(", ") || "\u2014"
+    (record2.unresponsive_engines ?? []).map(projectionCell2).join(", ") || "\u2014"
   ]);
   const count = (predicate) => ({
     searxng: queries.filter((record2) => record2.instrument === "searxng" && predicate(record2.ok)).length,
@@ -17840,13 +18078,13 @@ function retrievalCoverageSections(retrievals, queries) {
 
 Engine-performed page retrievals; each row is an immutable record under \`.ai-saas-sdlc/retrievals/\` with a hashed stored body.
 
-${table2(
+${table3(
     ["Record", "URL", "Instrument", "Via", "Rung", "Outcome", "Body"],
     retrievalRows
   )}
 ## Query passes
 
-${table2(
+${table3(
     ["Record", "Kind", "Pass", "Query", "Results", "Unresponsive engines"],
     queryRows
   )}
@@ -17863,7 +18101,7 @@ function buildProjections(artifacts, graph, impact, baseline2, activeChange, con
   projections["artifact-graph.json"] = stableJson(graph);
   projections["artifact-index.md"] = `# Artifact Index
 
-${table2(
+${table3(
     ["ID", "Type", "Status", "Source"],
     graph.nodes.map((node) => [`\`${node.id}\``, node.type, node.status, `\`${node.file}\``])
   )}`;
@@ -17871,7 +18109,7 @@ ${table2(
 
 Relations are declared by the downstream artifact. Reverse views are generated.
 
-${table2(
+${table3(
     ["Downstream", "Relation", "Upstream"],
     graph.edges.map((edge) => [`\`${edge.from}\``, edge.relation, `\`${edge.to}\``])
   )}`;
@@ -17883,7 +18121,7 @@ ${table2(
 - Evidence entries: **${evidenceIds.length}**
 - Research mode: **public-web-only**
 
-${table2(
+${table3(
     ["Area", "Artifact", "Status"],
     discoveryTypes.map((type) => {
       const artifact2 = artifacts.find((item) => item.artifact_type === type);
@@ -17904,18 +18142,18 @@ ${table2(
   });
   projections["feature-coverage.md"] = `# Feature Coverage
 
-${table2(["Feature", "Status", "Direct downstream types"], featureRows)}`;
+${table3(["Feature", "Status", "Direct downstream types"], featureRows)}`;
   const writers = /* @__PURE__ */ new Map();
   for (const node of graph.nodes) for (const target of node.writes_to) writers.set(target, [...writers.get(target) ?? [], node.id]);
   projections["interaction-map.md"] = `# Interaction Map
 
-${table2(
+${table3(
     ["Shared target", "Writers", "Conflict review"],
     [...writers.entries()].sort(([a], [b2]) => a.localeCompare(b2)).map(([target, ids2]) => [target, uniqueSorted(ids2).map((id2) => `\`${id2}\``).join(", "), ids2.length > 1 ? "required" : "single writer"])
   )}`;
   projections["implementation-map.md"] = `# Implementation Map
 
-${table2(
+${table3(
     ["Artifact", "Implementation paths"],
     graph.nodes.filter((node) => node.implementation.length > 0).map((node) => [`\`${node.id}\``, node.implementation.map((value) => `\`${value}\``).join(", ")])
   )}`;
@@ -17924,6 +18162,10 @@ ${table2(
 
 ${order.order.map((id2, index) => `${index + 1}. \`${id2}\``).join("\n") || "No artifacts."}
 `;
+  if (config && config.implementation_sources.length > 0) {
+    projections["implementation-coverage.md"] = implementationCoverageProjection(artifacts, graph, config, records);
+    Object.assign(projections, implementationPlanProjections(artifacts, graph, config));
+  }
   projections["stale-artifacts.md"] = `# Stale Artifacts
 
 Baseline: **${baseline2?.id ?? "none"}**
@@ -17932,7 +18174,7 @@ ${impact.stale.map((id2) => `- \`${id2}\``).join("\n") || "No indirectly affecte
 `;
   projections["issue-index.md"] = `# Issue Index
 
-${table2(
+${table3(
     ["ID", "Status", "Title"],
     artifacts.filter((item) => item.artifact_type === "issue").map((item) => [`\`${item.id}\``, item.status, item.title])
   )}`;
@@ -17944,7 +18186,7 @@ ${table2(
   }
   projections["decision-index.md"] = `# Decision Index
 
-${table2(
+${table3(
     ["ID", "Decision status", "Artifact status", "In force", "Title", "Supersedes", "Superseded by"],
     decisions.map((item) => {
       const successors = supersededBy.get(item.id) ?? [];
@@ -18027,6 +18269,7 @@ var init_projections = __esm({
     init_coverage_derivation();
     init_platform_evidence();
     init_execution_selection();
+    init_implementation_projections();
   }
 });
 
@@ -19333,7 +19576,7 @@ function markdownTables(section) {
   const tables = [];
   for (let index = 0; index < lines.length - 1; index += 1) {
     if (!/^\s*\|.*\|\s*$/.test(lines[index]) || !/^\s*\|(?:\s*:?-+:?\s*\|)+\s*$/.test(lines[index + 1])) continue;
-    const split = (line) => line.trim().slice(1, -1).split("|").map((cell2) => cell2.trim());
+    const split = (line) => line.trim().slice(1, -1).split("|").map((cell3) => cell3.trim());
     const rows = [];
     let cursor = index + 2;
     while (cursor < lines.length && /^\s*\|.*\|\s*$/.test(lines[cursor])) rows.push(split(lines[cursor++]));
@@ -19342,8 +19585,8 @@ function markdownTables(section) {
   }
   return tables;
 }
-function completedRows(table3) {
-  return table3.rows.filter(completedRow);
+function completedRows(table4) {
+  return table4.rows.filter(completedRow);
 }
 function meaningful(value) {
   const stripped = value.replace(/<!--[\s\S]*?-->/g, "").replace(/^\s*\|(?:\s*:?-+:?\s*\|)+\s*$/gm, "").trim();
@@ -19353,10 +19596,10 @@ function sectionBody(body, heading) {
   return allSections(body).find((candidate) => headingKey(candidate.title) === headingKey(heading))?.body ?? null;
 }
 function dataRows(section) {
-  return section.split("\n").filter((line) => /^\s*\|.*\|\s*$/.test(line) && !/^\s*\|(?:\s*:?-+:?\s*\|)+\s*$/.test(line)).map((line) => line.trim().slice(1, -1).split("|").map((cell2) => cell2.trim()));
+  return section.split("\n").filter((line) => /^\s*\|.*\|\s*$/.test(line) && !/^\s*\|(?:\s*:?-+:?\s*\|)+\s*$/.test(line)).map((line) => line.trim().slice(1, -1).split("|").map((cell3) => cell3.trim()));
 }
 function completedRow(row) {
-  return row.some((cell2) => meaningful(cell2)) && !row.some((cell2) => /\{\{|<PLACEHOLDER|\bTBD\b|\[TODO/i.test(cell2));
+  return row.some((cell3) => meaningful(cell3)) && !row.some((cell3) => /\{\{|<PLACEHOLDER|\bTBD\b|\[TODO/i.test(cell3));
 }
 
 // src/core/content-contracts.ts
@@ -19364,7 +19607,7 @@ function deriveContract(template) {
   const templateSections = sections(template);
   const requiredTables = [];
   for (const section of allSections(template)) {
-    for (const table3 of markdownTables(section.body)) requiredTables.push({ heading: section.title, columns: table3.columns, min_rows: 1 });
+    for (const table4 of markdownTables(section.body)) requiredTables.push({ heading: section.title, columns: table4.columns, min_rows: 1 });
   }
   return {
     required_headings: templateSections.map((section) => section.title),
@@ -19413,10 +19656,10 @@ async function validateAgainstContract(artifact2, contract, template) {
   for (const required of contract.required_tables) {
     const section = allByHeading.get(headingKey(required.heading));
     if (!section) continue;
-    const table3 = markdownTables(section.body).find((candidate) => tableMatches(candidate.columns, required.columns));
-    if (!table3) findings.push({ severity: "error", code: "CONTENT_TABLE_MISSING", message: `${artifact2.id} is missing the required table under ${required.heading}`, file: artifact2.file });
+    const table4 = markdownTables(section.body).find((candidate) => tableMatches(candidate.columns, required.columns));
+    if (!table4) findings.push({ severity: "error", code: "CONTENT_TABLE_MISSING", message: `${artifact2.id} is missing the required table under ${required.heading}`, file: artifact2.file });
     else {
-      const validRows = completedRows(table3);
+      const validRows = completedRows(table4);
       if (validRows.length < required.min_rows) findings.push({ severity: "error", code: "CONTENT_TABLE_EMPTY", message: `${artifact2.id} requires ${required.min_rows} completed row(s) under ${required.heading}`, file: artifact2.file });
     }
   }
@@ -19569,6 +19812,7 @@ function baselinesOpen(firstBaseline, activeBaseline) {
 
 // src/core/validation.ts
 init_platform_evidence();
+init_implementation_evidence();
 init_execution_records();
 init_retrieval_records();
 
@@ -19793,6 +20037,7 @@ async function validateProject(root2, artifacts) {
   findings.push(...contractAuthorityFindings(artifacts));
   if (config) findings.push(...areaFindings(config, artifacts));
   const graph = buildGraph(artifacts);
+  if (config) findings.push(...implementationMappingFindings(config, artifacts, graph));
   const order = topologicalOrder(graph);
   if (order.cycles.length > 0) findings.push({ severity: "error", code: "DEPENDENCY_CYCLE", message: `Dependency cycle contains: ${order.cycles.join(", ")}` });
   for (const artifact2 of artifacts) {
@@ -20163,14 +20408,6 @@ ${tests2.missing.map((item) => `- ${item}`).join("\n")}`);
       ];
       const missingTypes = coverage.filter((item) => !item.types.some((candidate) => types.has(candidate))).map((item) => item.label);
       if (missingTypes.length > 0) throw new SdlcError(`${feature.id} lacks active downstream coverage: ${missingTypes.join(", ")}`);
-      if (config.implementation_sources.length > 0) {
-        const featureArtifacts = artifacts.filter((artifact2) => closure.has(artifact2.id) && !/(?:^|_)test(?:_|$)/.test(artifact2.artifact_type));
-        if (!featureArtifacts.some((artifact2) => artifact2.implementation.length > 0)) throw new SdlcError(`${feature.id} has no implementation mapping despite configured implementation sources.`);
-        for (const [label, accepted] of [["UT", ["unit_test_backend", "unit_test_frontend", "unit_test_job"]], ["IT", ["integration_test"]], ["ST", ["system_test"]]]) {
-          const covered = artifacts.filter((artifact2) => closure.has(artifact2.id) && accepted.some((type) => type === artifact2.artifact_type) && artifact2.status === "active");
-          if (!covered.some((artifact2) => artifact2.implementation.length > 0)) throw new SdlcError(`${feature.id} has no ${label} implementation mapping despite configured implementation sources.`);
-        }
-      }
     }
   }
   await refreshProject(root2, false);
@@ -22100,7 +22337,7 @@ function indexPage(pages, graph, projectLabel) {
     list.push(page);
     byLayer.set(layer, list);
   }
-  const table3 = (entries) => {
+  const table4 = (entries) => {
     const rows = entries.sort((a, b2) => a.artifact.id.localeCompare(b2.artifact.id)).map((page) => {
       const artifact2 = page.artifact;
       return `<tr data-search="${escapeHtml(`${artifact2.id} ${artifact2.title} ${artifact2.artifact_type} ${artifact2.status}`.toLowerCase())}"><td><a href="${page.route}">${escapeHtml(artifact2.id)}</a></td><td>${escapeHtml(artifact2.title)}</td><td><code>${escapeHtml(artifact2.artifact_type)}</code></td><td>${badge(artifact2.status)}</td></tr>`;
@@ -22118,7 +22355,7 @@ function indexPage(pages, graph, projectLabel) {
     const parts = [`<h2>${LAYER_LABELS[layer] ?? `Layer ${layer}`}</h2>`];
     for (const group of [...byGroup.keys()].sort((a, b2) => a === "" ? -1 : b2 === "" ? 1 : a.localeCompare(b2))) {
       if (group !== "") parts.push(`<h3 class="group-heading">${escapeHtml(group)}/</h3>`);
-      parts.push(table3(byGroup.get(group)));
+      parts.push(table4(byGroup.get(group)));
     }
     return parts.join("");
   }).join("");
@@ -23572,7 +23809,7 @@ function print(value, json = false) {
   if (json || typeof value !== "string") console.log(JSON.stringify(value, null, 2));
   else console.log(value);
 }
-program2.name("ai-saas-sdlc").description("Deterministic engine for AI SaaS SDLC documentation flows.").version("1.10.0");
+program2.name("ai-saas-sdlc").description("Deterministic engine for AI SaaS SDLC documentation flows.").version("1.11.0");
 program2.command("init").description("Initialize a centralized documentation repository.").option("--project-id <id>", "Stable project identifier").option("--idea <text>", "Raw idea preserved verbatim", "").action(async (options) => {
   const projectId = options.projectId ?? root.split(/[\\/]/).at(-1)?.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") ?? "saas-project";
   await withProjectLock(root, async () => {

@@ -2,6 +2,18 @@
 
 See the root [CHANGELOG](../CHANGELOG.md) for the release summary. This contributor view records documentation-impact areas that must remain synchronized with implementation.
 
+## 1.11.0 - 2026-08-13
+
+| Area | Documentation impact |
+|---|---|
+| Engine gate | Per-feature baseline errors over mapping presence removed from `baseline.ts` with an in-place rationale comment; `implementation-evidence.ts` owns the shared predicates and the two standing warnings; `implementation-projections.ts` owns the dashboard and per-feature work packets, wired source-gated into `projections.ts` |
+| Commands | Command reference warning paragraph counts seventeen and names the two implementation warnings |
+| Configuration | Configuration reference *Implementation-source boundary* gains the mapping-is-evidence contract and both projections |
+| Flow method | Evolution playbook section 10 states the implementation-evidence doctrine beside the platform one; Inspect State reports the two warnings with `implementation-coverage.md` as the joined view |
+| Pinned system contracts | `VALIDATION-RULES` warning table grows to seventeen; glossary gains *Implementation coverage* and *Work packet* rows |
+| Guides | Feature guide: wiring sources owes nothing at once, warnings and the two generated views named; inspect guide table grows to seventeen (including the four 1.10.0 research warnings it had missed) and lists both projections; guides index names them |
+| Compatibility | Pure relaxation: previously-blocked baselines (docs-only feature in a wired repository) now pass with warnings; no previously-passing baseline changes outcome; unwired repositories byte-identical (asserted by the neutrality test); no schema or message change otherwise |
+
 ## 1.10.0 - 2026-08-12
 
 | Area | Documentation impact |

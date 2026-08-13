@@ -37,4 +37,4 @@ You keep a **separate documentation repository**. It advances only in response t
 - [End-to-end timeline](../end-to-end-timeline.md) — the same journey told as a timeline (t0 … tn).
 - [Pattern to instance](../pattern-to-instance.md) — why patterns and live artifacts are separate layers.
 
-The engine also regenerates cross-cutting views into `generated/` after every flow — traceability, the artifact graph and index, rule and acceptance coverage, feature and implementation maps, stale artifacts, issue and decision indexes, and `platform-coverage.md` once the product ships on a declared platform. Read them; never edit them.
+The engine also regenerates cross-cutting views into `generated/` after every flow — traceability, the artifact graph and index, rule and acceptance coverage, feature and implementation maps, stale artifacts, issue and decision indexes, `platform-coverage.md` once the product ships on a declared platform, and `implementation-coverage.md` plus one `implementation-plan/<FTR-ID>.md` work packet per feature once implementation sources are configured. Read them; never edit them.

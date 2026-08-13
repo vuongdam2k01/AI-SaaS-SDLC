@@ -159,7 +159,7 @@ You are looking for:
 
 - The new `FTR-*` `active`, tracing down to active `UC/FLOW/UT/IT/ST`.
 - The affected older features and their regression obligations listed under the closure.
-- **Validation errors: 0.** Warnings are informative: `RULE_UNVERIFIED` (a business rule no spec claims yet), `SPEC_OVERSIZED` (a spec to split), `QUESTION_STALE` (an old open question). These are work owed, reported precisely so it stays visible — they do not block the baseline.
+- **Validation errors: 0.** Warnings are informative: `RULE_UNVERIFIED` (a business rule no spec claims yet), `SPEC_OVERSIZED` (a spec to split), `QUESTION_STALE` (an old open question), and — once implementation sources are configured — `IMPLEMENTATION_MAPPING_MISSING` (a feature specified but not yet built) and `IMPLEMENTATION_LEVEL_UNPROVEN` (a test level specified but not yet implemented). These are work owed, reported precisely so it stays visible — they do not block the baseline.
 - `RESULT-*` verdicts, or an honest `not-configured` if you have no verification wired up.
 
 ## Wiring up your code
@@ -193,6 +193,7 @@ Key rules (full detail in the [configuration reference](../configuration-referen
 - A test seam that weakens a stated invariant or access rule — an environment variable that supplies fixture data, an injectable provider — belongs in `TEST-POLICY` beside what it exists to test. Left silent in the code, it reads to any later reviewer as the build contradicting its own contracts.
 - The optional top-level `areas` list registers the AREA segment of your IDs. Declared, every live ID must name a registered area; the warning it raises is a naming decision made visible, and it can only be acted on before the ID is baselined.
 - When the product has live `PLT-*` platform targets, add `platforms: [PLT-...]` to each command that produces evidence for one; the declaration and the observed host land in every `RESULT-*`, and `validate` warns (`PLATFORM_EVIDENCE_MISSING`) about live platforms no command declares. A target may also declare its expected evidence host with the optional `host_os` frontmatter token; `validate` warns (`PLATFORM_EVIDENCE_CONTRADICTED`) when every recorded execution declaring it observed a different host, and `generated/platform-coverage.md` shows the whole join once any target exists.
+- Wiring sources does **not** demand that everything already specified gets built at once. Mapping absence is a standing warning, never a baseline error: `IMPLEMENTATION_MAPPING_MISSING` records a feature that is specified but not yet implemented, `IMPLEMENTATION_LEVEL_UNPROVEN` records a test level that is specified but not yet implemented, and both stand honestly across baselines until the work lands. Read `generated/implementation-coverage.md` for the per-feature state and `generated/implementation-plan/<FTR-ID>.md` for a ready-made work packet per feature.
 
 ## What NOT to use this for
 

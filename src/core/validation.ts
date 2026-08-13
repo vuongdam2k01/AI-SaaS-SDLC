@@ -19,6 +19,7 @@ import { MAX_CASES_PER_SPEC, specSizeEntries } from "./spec-size.js";
 import { brokenCaseReferences } from "./test-cases.js";
 import { STALE_AFTER_BASELINES, baselinesOpen, openQuestions } from "./question-ledger.js";
 import { platformContradictionFindings, platformEvidenceFindings } from "./platform-evidence.js";
+import { implementationMappingFindings } from "./implementation-evidence.js";
 import { loadExecutionRecords } from "./execution-records.js";
 import { loadQueryRecords, loadRetrievalRecords } from "./retrieval-records.js";
 import { retrievalEvidenceFindings } from "./retrieval-evidence.js";
@@ -167,6 +168,13 @@ export async function validateProject(root: string, artifacts: Artifact[]): Prom
   // fail on a name.
   if (config) findings.push(...areaFindings(config, artifacts));
   const graph = buildGraph(artifacts);
+  // With implementation sources configured, a feature nothing maps and a
+  // specified level nothing implements are standing records, not gates: a
+  // per-segment flow closes its baseline honestly and the warning ledger
+  // carries what remains. Warnings, never errors — the platform-evidence
+  // doctrine applied to implementation, and what keeps documentation-first
+  // repositories legal after they wire a codebase.
+  if (config) findings.push(...implementationMappingFindings(config, artifacts, graph));
   const order = topologicalOrder(graph);
   if (order.cycles.length > 0) findings.push({ severity: "error", code: "DEPENDENCY_CYCLE", message: `Dependency cycle contains: ${order.cycles.join(", ")}` });
   for (const artifact of artifacts) {

@@ -56,6 +56,8 @@ implementation:
 
 The source ID must exist, the relative target must remain inside that source, and the mapped path must exist.
 
+Mapping presence is evidence, never a gate. With sources configured, `validate` reports `IMPLEMENTATION_MAPPING_MISSING` for an active feature none of whose declaring artifacts carries a mapping, and `IMPLEMENTATION_LEVEL_UNPROVEN` for a feature whose active UT, IT or ST specifications include none mapped to an implemented test. Both are standing warnings of the platform-evidence doctrine: a documentation-first repository wires a codebase without owing whole-repository conformance, a feature is implemented one segment at a time with each baseline recording honestly what remains, and a feature validated on paper before anyone builds it is a legitimate permanent state whose warning is its durable record. Once sources are configured, `generated/implementation-coverage.md` renders the per-feature join — design and specification mappings, latest executions per level and the unmapped complement — and `generated/implementation-plan/<FTR-ID>.md` renders one work packet per active feature: its closure in dependency order with mappings, owning contract files, referenced foundation rows, covering specifications and configured commands.
+
 ## Verification commands
 
 The engine does not infer commands from package files or document prose. `verify --execute` runs only the exact strings declared under the selected UT, IT or ST level. A command's `cwd` must resolve to the documentation root or a configured implementation source.

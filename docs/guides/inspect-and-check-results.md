@@ -41,7 +41,7 @@ It will not turn a warning into a product decision, and it never claims a test p
 
 The engine's `validate` returns non-zero only when there is an **error** — a broken structure: a bad ID, a broken reference, a lifecycle or supersession violation, a coverage gap, a mutated immutable record. Those must be fixed before a baseline.
 
-Eleven findings are **warnings** and never block a baseline, because each names a *judgement* or a debt rather than a broken structure. They are reported precisely so that owing them stays visible:
+Seventeen findings are **warnings** and never block a baseline, because each names a *judgement* or a debt rather than a broken structure. They are reported precisely so that owing them stays visible:
 
 | Warning | Means | You owe |
 |---|---|---|
@@ -56,6 +56,12 @@ Eleven findings are **warnings** and never block a baseline, because each names 
 | `SCHEMA_AUTHORITY_UNDECLARED` | A live `ENT-*` naming no owning schema file while sibling `.dbml` files exist | The owning `SCHEMA-*`/`PHYSICAL-SCHEMA` in `depends_on`, or the standing record that the entity lives in a client-local or non-relational store |
 | `TRANSITION_AUTHORITY_UNDECLARED` | A live `SCR-*` naming no owning transition graph while sibling `.mmd` graphs exist | The owning `TRANSITIONS-*`/`SCREEN-TRANSITIONS` in `depends_on` |
 | `AREA_UNREGISTERED` | A live artifact ID naming an area outside the optional `areas` registry in `sdlc.config.yaml` | Registering the area, or picking a registered one before the ID is baselined |
+| `EVD_RETRIEVAL_MISSING` | An engine-retrieved URL whose evidence entry does not cite its `RET-*` record | The `- Retrieval: RET-...` line on the entry |
+| `EVD_RETRIEVAL_BROKEN` | A cited `RET-*` record that is absent, failed, or retrieved a different URL | Fixing the citation or re-retrieving the source |
+| `RESEARCH_CAPABILITY_UNDERUSED` | Instrument discovery surfaced a cited URL no engine retrieval inspected | Retrieving the page through the engine, or the standing record that host tools carried it |
+| `RETRIEVAL_RUNG_DEGRADED` | A failed engine retrieval no later success covers | A later successful retrieval, or the standing record of the fallback to host tools |
+| `IMPLEMENTATION_MAPPING_MISSING` | With implementation sources configured, an active feature none of whose declaring artifacts maps to code | Mappings when the feature is built, or the standing record that it is specified but not yet implemented |
+| `IMPLEMENTATION_LEVEL_UNPROVEN` | With implementation sources configured, a feature level (UT/IT/ST) whose active specifications include none mapped to an implemented test | Implementing and mapping the level, or the standing record that it is specified but unproven |
 
 Seeing warnings after a flow closes is expected and healthy. Seeing **errors: 0** is the bar for "it worked."
 
@@ -68,6 +74,8 @@ Flows write canonical artifacts by hand, but the engine regenerates the cross-cu
 - **Feature / interaction / implementation maps** — what maps to what code.
 - **`generated/rule-coverage.md`** — which business rules are claimed by a spec and which are the `RULE_UNVERIFIED` commitments.
 - **`generated/platform-coverage.md`** — present once any platform target exists: each target's declaring commands, latest matching executions and observed hosts beside its declared `host_os`, with unknown declarations listed.
+- **`generated/implementation-coverage.md`** — present once implementation sources are configured: per active feature, how much of its own design surface and each test level is mapped to code, the latest execution per configured command, and the unmapped complement. Derived through the same predicates as the `IMPLEMENTATION_*` warnings, so it never disagrees with a finding.
+- **`generated/implementation-plan/<FTR-ID>.md`** — one work packet per active feature, same gating: the closure in dependency order with mappings and owning contract files, the foundation rows the closure references, the covering UT/IT/ST specifications with their test-case tables, and the configured commands.
 - **Stale-artifact, issue and decision indexes.**
 
 If you ever doubt whether the generated views are current, the engine can tell you without writing anything: `refresh --check` reports drift; it does not fix it.

@@ -1,5 +1,54 @@
 # Changelog
 
+## 1.11.0 - 2026-08-13
+
+Configuring `implementation_sources` used to change the baseline contract
+retroactively: every active feature suddenly owed one mapped design artifact
+and one mapped UT, IT and ST specification, so a repository that validated its
+documentation first — the adoption path this plugin advertises — could wire a
+codebase only by implementing everything in a single flow. A documentation-only
+evolution of a new feature was likewise illegal in a wired repository, because
+a mapping cannot even be authored before its target file exists on disk. This
+release applies the platform-evidence doctrine to implementation: partiality
+is recorded, never blocking, never silent. Unwired repositories are
+byte-identical to 1.10.0.
+
+### Changed
+
+- **Mapping presence is evidence, never a gate.** The per-feature baseline
+  errors over implementation mappings are gone. In their place `validate`
+  reports two standing warnings, derived per feature from the artifacts that
+  declare it: `IMPLEMENTATION_MAPPING_MISSING` (an active feature none of
+  whose declaring artifacts maps to a configured source — specified but not
+  yet implemented) and `IMPLEMENTATION_LEVEL_UNPROVEN` (a feature whose
+  active UT, IT or ST specifications include none mapped to an implemented
+  test — the level is specified but unproven). Closure decides reach;
+  declaration decides ownership: a shared entity pulls sibling artifacts into
+  a feature's closure, so an artifact proves only the features it names in
+  `depends_on`, and one feature's mappings can never silence another
+  feature's warnings. A feature validated on paper before anyone builds it is
+  a legitimate permanent state whose warning is its durable record — which is
+  what makes docs-first wiring, per-feature catch-up and per-segment
+  implementation (code now, test levels later) all legal, each baseline
+  naming honestly what remains.
+
+### Added
+
+- **`generated/implementation-coverage.md`.** The per-feature implementation
+  dashboard, emitted only when implementation sources are configured so
+  existing repositories see no drift: how much of each feature's own design
+  surface and each test level is mapped, the latest matching execution per
+  configured command across every flow, and the complement of active design
+  artifacts nothing maps. Every state derives through the same predicates as
+  the warnings, so the view can never disagree with a finding.
+- **`generated/implementation-plan/<FTR-ID>.md`.** One work packet per active
+  feature, same gating: the feature's closure in dependency order with its
+  mappings and owning contract files, the ACCESS-CONTROL, SYSTEM-INVARIANTS
+  and ERROR-CATALOG rows the closure references, the covering UT/IT/ST
+  specifications with their verbatim test-case tables, and the configured
+  verification commands — the join an implementer previously recomputed by
+  hand from six documents.
+
 ## 1.10.0 - 2026-08-12
 
 The research doctrine has said since 1.0.0 that a source discovered but not

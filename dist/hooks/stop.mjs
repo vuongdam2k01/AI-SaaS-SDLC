@@ -13534,6 +13534,48 @@ function buildGraph(artifacts) {
   ]).sort((a, b) => `${a.from}:${a.to}:${a.relation}`.localeCompare(`${b.from}:${b.to}:${b.relation}`));
   return { schema_version: 1, nodes, edges };
 }
+function reverseClosure(graph, seeds) {
+  const reverse = /* @__PURE__ */ new Map();
+  const convergenceForward = /* @__PURE__ */ new Map();
+  const typeById = new Map(graph.nodes.map((node) => [node.id, node.type]));
+  const contractNodeCounts = /* @__PURE__ */ new Map();
+  for (const node of graph.nodes) {
+    if (CONTRACT_ARTIFACT_TYPES.has(node.type)) contractNodeCounts.set(node.type, (contractNodeCounts.get(node.type) ?? 0) + 1);
+  }
+  const declaredAuthorityTarget = (id2) => {
+    const type = typeById.get(id2);
+    return type !== void 0 && CONTRACT_ARTIFACT_TYPES.has(type) && (contractNodeCounts.get(type) ?? 0) >= 2;
+  };
+  for (const edge of graph.edges) {
+    const values = reverse.get(edge.to) ?? /* @__PURE__ */ new Set();
+    values.add(edge.from);
+    reverse.set(edge.to, values);
+    if (edge.relation === "writes_to" || edge.relation === "supersedes" || edge.relation === "depends_on" && CONTRACT_ARTIFACT_TYPES.has(typeById.get(edge.from) ?? "") || edge.relation === "depends_on" && declaredAuthorityTarget(edge.to)) {
+      const targets = convergenceForward.get(edge.from) ?? /* @__PURE__ */ new Set();
+      targets.add(edge.to);
+      convergenceForward.set(edge.from, targets);
+    }
+  }
+  const seen = new Set(seeds);
+  const queue = [...seen];
+  while (queue.length > 0) {
+    const current = queue.shift();
+    if (!current) continue;
+    for (const dependent of reverse.get(current) ?? []) {
+      if (!seen.has(dependent)) {
+        seen.add(dependent);
+        queue.push(dependent);
+      }
+    }
+    for (const convergence of convergenceForward.get(current) ?? []) {
+      if (!seen.has(convergence)) {
+        seen.add(convergence);
+        queue.push(convergence);
+      }
+    }
+  }
+  return [...seen].sort((a, b) => a.localeCompare(b));
+}
 function topologicalOrder(graph) {
   const nodes = new Set(graph.nodes.map((node) => node.id));
   const indegree = new Map([...nodes].map((id2) => [id2, 0]));
@@ -14035,6 +14077,75 @@ var init_execution_selection = __esm({
   }
 });
 
+// src/core/implementation-evidence.ts
+function activeFeatures(artifacts) {
+  return artifacts.filter((artifact) => artifact.artifact_type === "feature" && artifact.status === "active").sort((a, b) => a.id.localeCompare(b.id));
+}
+function featureImplementationState(feature, artifacts, graph) {
+  const closureIds = new Set(reverseClosure(graph, [feature.id]));
+  const own = artifacts.filter((artifact) => closureIds.has(artifact.id) && artifact.depends_on.includes(feature.id));
+  const anyOwnMapped = own.some((artifact) => !TEST_TYPE_SEGMENT.test(artifact.artifact_type) && artifact.implementation.length > 0);
+  const mappable = own.filter((artifact) => DESIGN_TYPES.has(artifact.artifact_type) && artifact.status === "active").sort((a, b) => a.id.localeCompare(b.id));
+  const mapped = mappable.filter((artifact) => artifact.implementation.length > 0);
+  const levels = IMPLEMENTATION_LEVELS.map(({ level, types }) => {
+    const specs = own.filter((artifact) => types.includes(artifact.artifact_type) && artifact.status === "active").sort((a, b) => a.id.localeCompare(b.id));
+    return { level, specs, mapped: specs.filter((spec) => spec.implementation.length > 0) };
+  });
+  return { feature, closureIds, mappable, mapped, anyOwnMapped, levels };
+}
+function unprovenLevels(state) {
+  return state.levels.filter(({ specs, mapped }) => specs.length > 0 && mapped.length === 0);
+}
+function implementationMappingFindings(config, artifacts, graph) {
+  if (config.implementation_sources.length === 0) return [];
+  const findings = [];
+  for (const feature of activeFeatures(artifacts)) {
+    const state = featureImplementationState(feature, artifacts, graph);
+    if (!state.anyOwnMapped) {
+      findings.push({
+        severity: "warning",
+        code: "IMPLEMENTATION_MAPPING_MISSING",
+        message: `${feature.id} has no implementation mapping on any artifact declaring it despite configured implementation sources; map the implementing artifacts when the feature is built, or let this warning stand as the durable record that it is specified but not yet implemented.`,
+        file: feature.file
+      });
+      continue;
+    }
+    for (const { level, specs } of unprovenLevels(state)) {
+      findings.push({
+        severity: "warning",
+        code: "IMPLEMENTATION_LEVEL_UNPROVEN",
+        message: `${feature.id} has active ${level} specification(s) (${specs.map((spec) => spec.id).join(", ")}) but none maps to an implemented test; implement and map the level, or let this warning stand as the durable record that ${level} for this feature is specified but unproven.`,
+        file: feature.file
+      });
+    }
+  }
+  return findings;
+}
+var IMPLEMENTATION_LEVELS, TEST_TYPE_SEGMENT, DESIGN_TYPES;
+var init_implementation_evidence = __esm({
+  "src/core/implementation-evidence.ts"() {
+    "use strict";
+    init_graph();
+    IMPLEMENTATION_LEVELS = [
+      { level: "UT", types: ["unit_test_backend", "unit_test_frontend", "unit_test_job"] },
+      { level: "IT", types: ["integration_test"] },
+      { level: "ST", types: ["system_test"] }
+    ];
+    TEST_TYPE_SEGMENT = /(?:^|_)test(?:_|$)/;
+    DESIGN_TYPES = /* @__PURE__ */ new Set(["screen", "component", "subsystem", "api_processing", "entity", "external_integration", "job", "event", "platform_target"]);
+  }
+});
+
+// src/core/implementation-projections.ts
+var init_implementation_projections = __esm({
+  "src/core/implementation-projections.ts"() {
+    "use strict";
+    init_implementation_evidence();
+    init_execution_selection();
+    init_graph();
+  }
+});
+
 // src/core/projections.ts
 var import_fast_glob6;
 var init_projections = __esm({
@@ -14049,6 +14160,7 @@ var init_projections = __esm({
     init_coverage_derivation();
     init_platform_evidence();
     init_execution_selection();
+    init_implementation_projections();
   }
 });
 
@@ -14970,6 +15082,7 @@ function baselinesOpen(firstBaseline, activeBaseline) {
 
 // src/core/validation.ts
 init_platform_evidence();
+init_implementation_evidence();
 init_execution_records();
 init_retrieval_records();
 
@@ -15194,6 +15307,7 @@ async function validateProject(root2, artifacts) {
   findings.push(...contractAuthorityFindings(artifacts));
   if (config) findings.push(...areaFindings(config, artifacts));
   const graph = buildGraph(artifacts);
+  if (config) findings.push(...implementationMappingFindings(config, artifacts, graph));
   const order = topologicalOrder(graph);
   if (order.cycles.length > 0) findings.push({ severity: "error", code: "DEPENDENCY_CYCLE", message: `Dependency cycle contains: ${order.cycles.join(", ")}` });
   for (const artifact of artifacts) {

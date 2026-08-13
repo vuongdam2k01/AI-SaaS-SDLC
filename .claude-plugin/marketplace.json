@@ -6,12 +6,12 @@
     "url": "https://github.com/vuongdam2k01"
   },
   "description": "Marketplace for the AI SaaS SDLC Claude Code plugin.",
-  "version": "1.10.0",
+  "version": "1.11.0",
   "plugins": [
     {
       "name": "ai-saas-sdlc",
       "source": "./",
-      "version": "1.10.0",
+      "version": "1.11.0",
       "description": "Evidence-grounded SaaS discovery through pre-release implementation verification.",
       "author": { "name": "vuong.dam" },
       "license": "MIT",

@@ -11,6 +11,7 @@ import { normalizeText, stableJson, uniqueSorted } from "./utils.js";
 import { acceptanceCoverage, evidenceClaimCoverage, ruleCoverage } from "./coverage-derivation.js";
 import { declaredPlatformIds, livePlatformTargets, platformContradiction } from "./platform-evidence.js";
 import { latestExecution, matchesDefinitionEvidence } from "./execution-selection.js";
+import { implementationCoverageProjection, implementationPlanProjections } from "./implementation-projections.js";
 
 export interface ProjectionSet { [relative: string]: string }
 
@@ -189,6 +190,13 @@ export function buildProjections(
   )}`;
   const order = topologicalOrder(graph);
   projections["implementation-order.md"] = `# Implementation Order\n\n${order.order.map((id, index) => `${index + 1}. \`${id}\``).join("\n") || "No artifacts."}\n`;
+  // Emitted only when implementation sources are configured, the same contract
+  // as platform-coverage: a documentation-only repository sees no new generated
+  // file and therefore no drift on upgrade.
+  if (config && config.implementation_sources.length > 0) {
+    projections["implementation-coverage.md"] = implementationCoverageProjection(artifacts, graph, config, records);
+    Object.assign(projections, implementationPlanProjections(artifacts, graph, config));
+  }
   projections["stale-artifacts.md"] = `# Stale Artifacts\n\nBaseline: **${baseline?.id ?? "none"}**\n\n${impact.stale.map((id) => `- \`${id}\``).join("\n") || "No indirectly affected artifacts."}\n`;
   projections["issue-index.md"] = `# Issue Index\n\n${table(
     ["ID", "Status", "Title"],
