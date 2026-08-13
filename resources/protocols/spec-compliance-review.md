@@ -21,6 +21,8 @@ A row the segment deliberately defers (a `code` segment does not implement `TC-*
 
 Adversarial posture: assume the implementation may have been produced by a model and look for its habits — phantom tests that execute code without proving behavior, parallel reimplementations of existing utilities, caught-and-swallowed errors, type suppressions, scope drift beyond the segment. Findings carry `file:line` or are void, same filter.
 
+The pass begins with its own edge-case scout over the changed files — dependents, data-flow risks, boundary conditions, async races, state mutations — never trusting the implementer's blast-radius summary. Then it runs the segment's overlays from `implementation-review-checklists.md` (base always; API, client, data and the security sweep by boundary type) in two tiers: critical blocks, informational reports. Before submitting, the reviewer verifies its own sweep covered: concurrency, error propagation (every throw caught or explicitly passed), caller-assumption vs callee-guarantee mismatches, backwards compatibility of exported surfaces, boundary validation, the dual auth check (identity AND permission), query efficiency, and data leakage.
+
 ## Suppression list
 
 Review output is signal-dense or it is noise. Do **not** flag:

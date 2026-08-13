@@ -19022,7 +19022,7 @@ var SKILL_FOR_FLOW = {
   evolution: "/ai-saas-sdlc:evolve-product",
   reconciliation: "/ai-saas-sdlc:reconcile"
 };
-async function suggestSegment(root2) {
+async function suggestNextSegment(root2) {
   try {
     const config = await loadConfig(root2);
     if (config.implementation_sources.length === 0) return void 0;
@@ -19069,7 +19069,7 @@ async function flowGuidance(root2) {
         reason: "No baseline exists. Genesis establishes the first one."
       };
     }
-    const suggestion = await suggestSegment(root2);
+    const suggestion = await suggestNextSegment(root2);
     return {
       active_flow: null,
       flow_type: null,
@@ -24165,7 +24165,7 @@ function print(value, json = false) {
   if (json || typeof value !== "string") console.log(JSON.stringify(value, null, 2));
   else console.log(value);
 }
-program2.name("ai-saas-sdlc").description("Deterministic engine for AI SaaS SDLC documentation flows.").version("1.14.0");
+program2.name("ai-saas-sdlc").description("Deterministic engine for AI SaaS SDLC documentation flows.").version("1.15.0");
 program2.command("init").description("Initialize a centralized documentation repository.").option("--project-id <id>", "Stable project identifier").option("--idea <text>", "Raw idea preserved verbatim", "").action(async (options) => {
   const projectId = options.projectId ?? root.split(/[\\/]/).at(-1)?.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") ?? "saas-project";
   await withProjectLock(root, async () => {

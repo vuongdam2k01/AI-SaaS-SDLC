@@ -1,5 +1,62 @@
 # Changelog
 
+## 1.15.0 - 2026-08-13
+
+The 1.12.0 implementation surface carried the discipline of building — spec
+compliance, verification iron laws, honest failure — but deliberately thin
+craft: a decision that conflated two different things inside domain knowledge.
+Framework facts age and were rightly excluded; the durable engineering
+judgment underneath them — decision rules, invariants, budgets, checklists —
+ages slowly and had no home. This release distills that judgment into the
+method as nine protocols the playbook loads by situation, plus the session
+hook surfacing implementation debt. Method-only beyond one hook line: no
+engine change, no gate, no required tooling, no framework facts.
+
+### Added
+
+- **Progressive craft loading.** The implementation playbook gains a
+  load-by-situation table: scouting, review, verification always; debugging
+  on any failure; delegation before any spawn; design/content for screens;
+  and five craft protocols by boundary type. Craft rules are explicitly
+  subordinate to repository documents — where they disagree, the document
+  wins and the disagreement routes like any discovery.
+- **`implementation-debugging.md`.** The full diagnosis method: the
+  six-question root-cause gate (verbatim symptom, reproduction, expected vs
+  actual, cause with file:line, why now, blast radius), four phases in order
+  (investigate, compare, hypothesize with competing hypotheses, repair with a
+  failing reproduction first), the three-strike architecture rule routing to
+  Reconciliation/ADR, situational techniques (backward tracing, defense in
+  depth with TEST-POLICY-recorded seams, polluter bisection), and the red-flag
+  and rationalization tables.
+- **`implementation-delegation.md`.** Subagents as engineering, not
+  ceremony: the four mechanisms that justify a spawn, a trigger table keyed
+  to segment moments, the eight-field packet, roles-as-enforcement (the
+  reviewer never edits; runner prose is never evidence), parallel ownership
+  safety inside one flow, capability-to-judgment tiering, and the status
+  protocol with concerns carried verbatim — all readable as a self-checklist
+  on hosts without subagents.
+- **Five craft protocols.** `craft-api-and-backend` (security defaults,
+  API invariants, bounded lists, idempotency, timeouts-and-backoff,
+  observability budgets), `craft-data` (embed-vs-reference, 3NF-then-evidence,
+  ESR indexing and its costs, plan-verified query shape, tested-rollback
+  migrations), `craft-auth-and-payments` (session/token hardening, single-use
+  token races, PKCE never downgraded, webhook signature-then-record
+  discipline, provider-truth reconciliation with ambiguity rejected, money in
+  minor units with provenance), `craft-client` (three-tier state ownership,
+  cache-key contracts, waterfall elimination, layout-stable loading, one
+  notification voice), `craft-testing` (distribution judgment within the
+  UT/IT/ST levels, behavior-not-internals assertions, determinism
+  non-negotiables, visual/accessibility viewpoints).
+- **`implementation-review-checklists.md`.** The overlay library the review
+  quality pass loads by boundary type — base critical/informational, API,
+  client, data, and a security sweep with masked reporting and never-auto-fix
+  — plus the reviewer's own edge-case scout and pre-submit sweep, wired into
+  `spec-compliance-review.md`.
+- **Session-start implementation debt.** The portable SessionStart hook now
+  surfaces the same evidence-scored `suggested_segment` that `flow next`
+  computes, so an implement author sees the owed work before asking.
+  Fail-open, one line, absent when unwired or debt-free.
+
 ## 1.14.0 - 2026-08-13
 
 A SaaS product's shippable surface is more than passing tests: screens carry

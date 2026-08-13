@@ -39,9 +39,10 @@ const SKILL_FOR_FLOW: Record<string, string> = {
  * weights rather than model judgement: an unmapped design artifact outweighs
  * an unproven level, and UT outweighs IT/ST because everything downstream
  * leans on it. Information only — the hint never changes next_command and a
- * repository without sources or without debt produces none.
+ * repository without sources or without debt produces none. Exported for the
+ * SessionStart hook, which surfaces the same suggestion at session start.
  */
-async function suggestSegment(root: string): Promise<SegmentSuggestion | undefined> {
+export async function suggestNextSegment(root: string): Promise<SegmentSuggestion | undefined> {
   try {
     const config = await loadConfig(root);
     if (config.implementation_sources.length === 0) return undefined;
@@ -98,7 +99,7 @@ export async function flowGuidance(root: string): Promise<FlowGuidance> {
         reason: "No baseline exists. Genesis establishes the first one."
       };
     }
-    const suggestion = await suggestSegment(root);
+    const suggestion = await suggestNextSegment(root);
     return {
       active_flow: null, flow_type: null, target_stage: null, reached_stage: null,
       remaining_stages: [], baseline_created: null,

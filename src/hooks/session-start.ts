@@ -2,6 +2,7 @@ import { readHookInput, emit } from "./io.js";
 import { loadActiveFlow, loadCurrentState, pathExists } from "../core/state.js";
 import { projectPaths } from "../core/paths.js";
 import { resolveResearchCapability } from "../core/research-capability.js";
+import { suggestNextSegment } from "../core/flow-guidance.js";
 
 await readHookInput();
 const root = process.cwd();
@@ -21,12 +22,23 @@ if (await pathExists(projectPaths(root).current)) {
     } catch {
       research = "";
     }
+    // The same suggestion flow next computes; surfacing it at session start
+    // means an implement author sees the evidence-scored next segment before
+    // asking. Fail-open: a broken config or tree silences only this line.
+    let implementation = "";
+    try {
+      const suggestion = !flow ? await suggestNextSegment(root) : undefined;
+      if (suggestion) implementation = `Implementation debt (${suggestion.feature}: ${suggestion.reason}); evidence-scored next segment: /ai-saas-sdlc:implement ${suggestion.feature} ${suggestion.segment}.`;
+    } catch {
+      implementation = "";
+    }
     const summary = [
       "AI SaaS SDLC repository detected.",
       `Active product baseline: ${state.active_baseline ?? "none"}.`,
       `Evidence revision: EVR-${String(state.evidence_revision).padStart(3, "0")}.`,
       flow ? `Active flow: ${flow.type} (${flow.id}${flow.change_id ? `, ${flow.change_id}` : ""}).` : "No active semantic flow.",
       ...(research ? [research] : []),
+      ...(implementation ? [implementation] : []),
       "Generated projections and execution-backed results must not be edited manually."
     ].join(" ");
     emit({ hookSpecificOutput: { hookEventName: "SessionStart", additionalContext: summary.slice(0, 1200) } });

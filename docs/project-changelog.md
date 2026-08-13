@@ -2,6 +2,14 @@
 
 See the root [CHANGELOG](../CHANGELOG.md) for the release summary. This contributor view records documentation-impact areas that must remain synchronized with implementation.
 
+## 1.15.0 - 2026-08-13
+
+| Area | Documentation impact |
+|---|---|
+| Method | Nine additions under `resources/protocols/`: `implementation-debugging`, `implementation-delegation`, `implementation-review-checklists`, `craft-api-and-backend`, `craft-data`, `craft-auth-and-payments`, `craft-client`, `craft-testing`; `spec-compliance-review` gains the edge-case scout, overlay wiring and pre-submit sweep; the implementation playbook gains the load-by-situation table and routes debugging/delegation to their owners |
+| Hooks/engine | `suggestNextSegment` exported from `flow-guidance.ts`; SessionStart prints the implementation-debt line (fail-open) |
+| Compatibility | Method + one advisory hook line; no schema, gate, message or validation change |
+
 ## 1.14.0 - 2026-08-13
 
 | Area | Documentation impact |

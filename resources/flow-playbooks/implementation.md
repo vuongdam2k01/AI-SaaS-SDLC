@@ -49,6 +49,26 @@ Use the returned `CHG-*` as `created_by_change` for anything the flow creates. C
 
 Follow `resources/protocols/implementation-scouting.md`. Five outputs, stated before any edit: conventions to match (with `file:line`), the blast radius, the doc↔code delta keyed by artifact ID, existing partial implementations, and the seams present. Scouting here answers "what does the codebase already do about this spec", never "what should the product do" — the documents answer that, and doubting them routes to another flow.
 
+### Protocols, loaded by situation
+
+The method is progressive: this playbook is the spine, and each protocol loads exactly when its situation arises — reading all of them up front is noise, skipping the one whose trigger fired is the failure.
+
+| Load | When |
+|---|---|
+| `implementation-scouting.md` | Every segment, before the first edit |
+| `spec-compliance-review.md` + `implementation-review-checklists.md` | Every segment, at review — the checklist file's overlay for the segment's boundary types |
+| `implementation-verification.md` | Every segment, at verify and before any completion claim |
+| `implementation-debugging.md` | Any failure met while implementing — red run, wrong output, broken build |
+| `implementation-delegation.md` | Before the first subagent spawn of the flow; as a self-checklist when the host has none |
+| `design-implementation.md` + `content-implementation.md` | Segments touching `SCR-*`/`CMP-*` surfaces |
+| `craft-api-and-backend.md` | Segments touching `API-*`, `SUB-*`, `JOB-*`, `EVT-*` |
+| `craft-data.md` | Segments touching `ENT-*` or `SCHEMA-*` files |
+| `craft-auth-and-payments.md` | Segments touching `ACCESS-CONTROL`-governed surfaces or payment/external-provider `INT-*` |
+| `craft-client.md` | Client-side state, data-fetching or form work beyond the screen brief |
+| `craft-testing.md` | `ut`/`it`/`st` segments, before deriving test code from the spec tables |
+
+The craft files carry version-agnostic engineering judgment — decision rules, invariants, budgets — never framework facts that age; where a craft rule and a repository document disagree, the document wins and the disagreement routes like any discovery (§9).
+
 ## 5. The segment contract
 
 | Segment | Maps | Executes | Expected to leave standing |
@@ -68,7 +88,7 @@ When the segment includes an `SCR-*` surface, additionally follow `resources/pro
 1. Edit only mapped paths and paths the segment is adding, inside configured roots. Preserve the Engineering profile's conventions; where the profile is silent and the codebase shows a convention, follow the codebase and record the convention in the profile.
 2. Update `implementation:` mappings on every artifact the segment implements, and the Implementation-mapping tables inside test specifications (case IDs → test path → test name — the sync-back is part of the work, not an afterthought). Derive nothing by memory: after mapping, re-read `generated/implementation-coverage.md` and confirm the state moved.
 3. Consult host capability, never require it: enumerate the host's installed skills against the live catalog when the segment touches a domain one covers (a framework, a database, browser verification); use what exists, continue with this playbook when nothing matches, and name in the closing report what was consulted. Never instruct the author to install anything.
-4. Delegation is optional and bounded. When the host supports subagents and the work genuinely splits, pass an eight-field packet: task, files to read, files it may modify, acceptance criteria (the spec rows), constraints, work-context path, report destination, scope flags. Do not pass conversation history; give exact paths. Require the status protocol `DONE | DONE_WITH_CONCERNS | BLOCKED | NEEDS_CONTEXT` and never retry an unchanged failing prompt. Absent subagent support — Codex included — do the same work in the main agent; the packet fields are then the checklist you hold yourself to.
+4. Delegation is optional and bounded, and `resources/protocols/implementation-delegation.md` owns its rules: the four mechanisms that justify a spawn, the trigger table, the eight-field packet, roles-as-enforcement (a reviewer never edits), parallel ownership safety and the status protocol. Absent subagent support — Codex included — the same protocol reads as the checklist the main agent holds itself to, and no delegation is ever faked.
 5. A test seam that weakens a stated invariant or access rule is recorded in `TEST-POLICY` beside what it exists to test, never left silent in code.
 
 ## 7. Spec-compliance review, first and blocking
@@ -91,7 +111,7 @@ The per-segment definition of done, all five proofs before the close sequence:
 4. no new lint, type or build failure anywhere the declared commands reach;
 5. public contracts (`openapi.yaml`, `.dbml`, `.mmd`, exported interfaces) unchanged — or the change happened docs-first in an evolution that owns it.
 
-A configured test that fails is never edited into compliance. If the code is wrong, fix the code in this flow. If the specification is wrong, that is a contract contradiction: record it and route to `reconcile`. If a regression in an old feature surfaces, STOP and present the author two to four concrete options (fix the dependents here; revert the segment; accept and record) — never silently patch around it. After three failed fix attempts at the same defect, stop treating it as a defect: record an `ISS-*`, question the design, and route to `reconcile` or an ADR through `evolve-product`.
+A configured test that fails is never edited into compliance. If the code is wrong, diagnose under `resources/protocols/implementation-debugging.md` — the six-question root-cause gate and the four phases, no fix before the cause is named — then repair in this flow. If the specification is wrong, that is a contract contradiction: record it and route to `reconcile`. If a regression in an old feature surfaces, STOP and present the author two to four concrete options (fix the dependents here; revert the segment; accept and record) — never silently patch around it. The debugging protocol's three-strike rule stands: after three failed attempts at the same defect, record the `ISS-*`, question the design, and route to `reconcile` or an ADR through `evolve-product`.
 
 ## 9. Discovery during implementation
 
