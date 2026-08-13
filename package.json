@@ -1,6 +1,6 @@
 {
   "name": "ai-saas-sdlc",
-  "version": "1.16.1",
+  "version": "1.17.0",
   "description": "Evidence-grounded AI SaaS documentation and pre-release SDLC flows for Claude Code and Codex.",
   "license": "MIT",
   "author": "vuong.dam",

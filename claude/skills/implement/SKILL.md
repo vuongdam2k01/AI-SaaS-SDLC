@@ -12,4 +12,6 @@ Treat `$ARGUMENTS` as one feature ID plus an optional segment (`code`, comma-joi
 
 Set `ENGINE` to `node "${CLAUDE_PLUGIN_ROOT}/bin/ai-saas-sdlc"`. Use Claude Code file/search tools to inspect documentation and only configured implementation roots; use the terminal only for documented engine operations and exact configured verification commands.
 
+On this host the delegation protocol's roles ship as four plugin agents — `implementation-scout`, `spec-compliance-reviewer`, `implementation-debugger`, `implementation-counsel` — the preferred delegates whenever `resources/protocols/implementation-delegation.md` calls for a spawn. Every engine operation stays in this controlling session; a delegate never runs one.
+
 Without configured `implementation_sources`, stop and point the author at the wire-a-codebase guide instead of inventing anything. Never write `RESULT-*`, simulate a pass, or auto-approve on any self-assessed score. Expected standing warnings (`IMPLEMENTATION_LEVEL_UNPROVEN` for deferred levels) are the honest remainder — name them, do not fight them.

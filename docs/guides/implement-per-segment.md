@@ -36,6 +36,10 @@ Do **not** hold "code done, tests pending" by leaving a flow open at the `implem
 5. **Verifies for real**: `verify --all --execute` — your exact declared commands, fresh `EXEC-*`/`RESULT-*` records, failures kept as history. Test segments prove each new test can fail; no test is ever edited into compliance.
 6. **Closes**: `refresh` → `validate` → `baseline create` → `flow close`, reporting execution IDs, warnings cleared, warnings still standing, and the exact next command.
 
+## Hosts
+
+On Claude Code the delegation protocol's roles ship as four plugin agents — scout, reviewer, debugger, counsel — spawned only when `implementation-delegation.md` calls for one; on Codex the same protocol reads as the main agent's self-checklist, and nothing is ever reported as delegated that was not. On both hosts the enforcement authority is the engine (validation, execution records, baselines) — hooks are defense-in-depth, and the Codex plugin ships none.
+
 ## When implementation disagrees with the documents
 
 Building is where specs meet reality, and the flow has three named exits instead of improvisation:

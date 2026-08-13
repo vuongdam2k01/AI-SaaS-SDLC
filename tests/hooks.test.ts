@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it } from "vitest";
 import { spawnSync } from "node:child_process";
-import { readFile, writeFile } from "node:fs/promises";
+import { mkdir, mkdtemp, readFile, writeFile } from "node:fs/promises";
+import os from "node:os";
 import path from "node:path";
 import YAML from "yaml";
 import { cleanup, pluginRoot, tempProject } from "./helpers.js";
@@ -31,10 +32,40 @@ async function fixture(name: string): Promise<Record<string, unknown>> {
 
 describe("hooks", () => {
   it("emits nothing in an uninitialized repository", async () => {
-    const root = await import("node:fs/promises").then(({ mkdtemp }) => mkdtemp(path.join(process.env.TEMP ?? ".", "uninitialized-sdlc-")));
+    const root = await mkdtemp(path.join(os.tmpdir(), "uninitialized-sdlc-"));
     roots.push(root);
     expect(hook("session-start", root, {})).toBe("");
     expect(hookRaw("pre-tool-use", root, "{malformed")).toBe("");
+  });
+
+  it("passes through generated-path mutations in a repository the engine does not manage", async () => {
+    const root = await mkdtemp(path.join(os.tmpdir(), "unrelated-repo-"));
+    roots.push(root);
+    await mkdir(path.join(root, "generated"), { recursive: true });
+    await writeFile(path.join(root, "generated", "x.md"), "# theirs\n", "utf8");
+    expect(hook("pre-tool-use", root, { cwd: root, tool_name: "Write", tool_input: { file_path: "generated/x.md" } })).toBe("");
+    expect(hook("pre-tool-use", root, { cwd: root, tool_name: "Bash", tool_input: { command: "git add generated/x.md" } })).toBe("");
+    expect(hook("pre-tool-use", root, { cwd: root, tool_name: "Edit", tool_input: { file_path: "01-discovery/original-idea.md" } })).toBe("");
+  });
+
+  it("denies .ai-saas-sdlc fabrication even where the engine manages nothing", async () => {
+    const root = await mkdtemp(path.join(os.tmpdir(), "unrelated-repo-"));
+    roots.push(root);
+    const direct = hook("pre-tool-use", root, { cwd: root, tool_name: "Write", tool_input: { file_path: ".ai-saas-sdlc/state/current.json" } });
+    expect(JSON.parse(direct).hookSpecificOutput.permissionDecision).toBe("deny");
+    const indirect = hook("pre-tool-use", root, { cwd: root, tool_name: "Bash", tool_input: { command: "node mutate.js .ai-saas-sdlc/state/current.json" } });
+    expect(JSON.parse(indirect).hookSpecificOutput.permissionDecision).toBe("deny");
+    const patch = hook("pre-tool-use", root, { cwd: root, tool_name: "apply_patch", tool_input: { command: "*** Begin Patch\n*** Add File: .ai-saas-sdlc/executions/EXEC-999.json\n@@\n+{}\n*** End Patch" } });
+    expect(JSON.parse(patch).hookSpecificOutput.permissionDecision).toBe("deny");
+  });
+
+  it("emits the session summary when invoked with the compact source", async () => {
+    const root = await tempProject();
+    roots.push(root);
+    const session = hook("session-start", root, { cwd: root, hook_event_name: "SessionStart", source: "compact", permission_mode: "default" });
+    const parsed = JSON.parse(session);
+    expect(parsed.hookSpecificOutput.hookEventName).toBe("SessionStart");
+    expect(parsed.hookSpecificOutput.additionalContext).toContain("AI SaaS SDLC repository detected.");
   });
 
   it("blocks direct result and immutable input edits but allows editorial files", async () => {
@@ -58,6 +89,8 @@ describe("hooks", () => {
     expect(JSON.parse(internalBash).hookSpecificOutput.permissionDecision).toBe("deny");
     const indirectBash = hook("pre-tool-use", root, { cwd: root, tool_name: "Bash", tool_input: { command: `node -e "writeFileSync('.ai-' + 'saas-sdlc/state/current.json', 'x')"` } });
     expect(JSON.parse(indirectBash).hookSpecificOutput.permissionDecision).toBe("deny");
+    const generatedBash = hook("pre-tool-use", root, { cwd: root, tool_name: "Bash", tool_input: { command: "rm -rf generated" } });
+    expect(JSON.parse(generatedBash).hookSpecificOutput.permissionDecision).toBe("deny");
     expect(hook("pre-tool-use", root, { ...await fixture("pre-editorial-edit.json"), cwd: root })).toBe("");
     const adr = path.join(root, "05-control", "decisions", "ADR-TEST-001.md");
     await writeFile(adr, "---\nid: ADR-TEST-001\nartifact_type: architectural_decision\ntitle: Accepted\nstatus: active\nadr_status: accepted\ncreated_by_change: CHG-001\ndepends_on: []\ndecisions: []\nsupersedes:\n---\n# Accepted\n", "utf8");

@@ -1,5 +1,54 @@
 # Changelog
 
+## 1.17.0 - 2026-08-13
+
+The host-capability audit (`plans/reports/evaluator-2026-08-13-host-capability-audit.md`)
+became shippable mechanism. The implement flow's delegation roles now exist as
+four thin Claude agent adapters with harness-enforced tool boundaries, the
+PreToolUse hook learned to tell an engine-managed repository from everyone
+else's, SessionStart context survives compaction, and the delegation method
+carries the measured economics it previously only implied.
+
+### Added
+
+- Four agent adapters under `claude/agents/`, routed by the Claude manifest:
+  `implementation-scout` (read-only, cheap tier), `spec-compliance-reviewer`
+  (read-only — it physically cannot edit), `implementation-debugger`
+  (reproduces with Bash, never edits, never runs engine operations) and
+  `implementation-counsel` (a one-turn, zero-question second opinion at the
+  three-strike or design-fork boundary; advises only). Bodies are role wiring
+  over the shared protocols — no method text lives in them. The Codex plugin
+  stays skills-only and the delegation protocol remains its self-checklist.
+- Method distillations at their owning anchors: delegation economics (three
+  to five delegates, one-to-two-thousand-token summaries, roughly fifteen
+  times single-conversation cost, spent only on reads and independent
+  verifications), the counsel spawn row and role boundary, the reviewer
+  anti-chase rule, the never-weaken-a-spec rule for test segments, the
+  scout's untrusted-content and `[UNVERIFIED]` re-grep disciplines, and the
+  counsel consult at the debugging protocol's three-strike rule.
+- Package check enforces the new surface: exactly four agent files, exact
+  per-role tool lists with no editing tools anywhere, filename-equals-name,
+  single-line descriptions, the cheap tier pinned only on the scout, manifest
+  routing in lockstep with disk, and the SessionStart matcher string; the
+  Codex manifest additionally rejects an `agents` field and the dual-host
+  test pins the routing.
+
+### Fixed
+
+- PreToolUse protections are sentinel-gated on the `.ai-saas-sdlc/`
+  directory: unrelated repositories no longer receive engine-branded denials
+  for their own `generated/` paths, and a Genesis `--idea` containing a
+  boundary-delimited word like "generated" no longer wedges `init` itself.
+  The internal-directory rules stay unconditional everywhere — fabricating
+  engine state is denied even outside managed repositories. Accepted
+  residuals, stated: pre-init fabrication of result-shaped files now falls to
+  explicit validation and the Stop hook rather than PreToolUse, and the
+  sentinel anchors to the session's working directory, which the operating
+  model already fixes at the docs root.
+- The SessionStart hook matcher covers `compact` and `fork`, so baseline,
+  flow, debt and next-segment context is re-injected after compaction —
+  previously it was silently lost in exactly the longest flows.
+
 ## 1.16.1 - 2026-08-13
 
 The implementation extension was certified end to end through the real

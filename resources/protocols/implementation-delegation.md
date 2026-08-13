@@ -11,8 +11,9 @@ How an implementation flow uses subagents when the host provides them, and how t
 | Test execution | Suite run + failure triage | A runner whose report is the recorded evidence, never its prose |
 | Review (§7) | Always available as the preferred shape | An **independent reviewer with no edit authority** — findings only, fixes happen afterwards in the implementer's hands |
 | Any failure met twice | Same failure despite a fix | An evidence-gathering debugger carrying everything known so far, under the debugging protocol |
+| The three-strike boundary, or a design fork the documents do not settle | Two repair attempts failed, or an ADR-threshold choice no document owns | A one-turn counsel on the strongest available tier — zero questions, TL;DR first, honest alternatives, assumptions with confidence; it advises only, the flow owns the fix |
 
-The commonest failure is the right role spawned late — explorers after the context is already lost, the reviewer after the work is declared done. Spawn at the trigger, not at the regret. And keep concurrency to a handful: a wall of agents produces reports faster than anyone can verify them.
+The commonest failure is the right role spawned late — explorers after the context is already lost, the reviewer after the work is declared done. Spawn at the trigger, not at the regret. And keep concurrency to a handful — three to five delegates at once, each returning a summary of one to two thousand tokens, never a transcript: multi-agent work costs roughly fifteen times a single conversation, so parallelism is spent only on reads and independent verifications, scaled to the task's real complexity. A wall of agents produces reports faster than anyone can verify them.
 
 ## The packet — a subagent's entire world
 
@@ -35,6 +36,7 @@ Context isolation is the point, not a limitation: summarize only the decisions t
 - **The reviewer re-scouts before reviewing.** Its first act is its own edge-case pass over the changed files — dependents, data-flow risks, boundary conditions, async races, state mutations — never trusting the implementer's summary of the blast radius.
 - **The runner's prose is not evidence.** Test outcomes enter the record through the engine's `verify --execute`; a delegate's summary of a run it performed some other way proves nothing and is not accepted.
 - **Match capability to judgment, cost to mechanics.** Discovery, suite-running and mechanical sweeps take the cheap tier; review, design judgment and diagnosis take the strong tier. Never budget-route judgment.
+- **Counsel never edits, never asks.** Its single turn returns judgment — recommendation, alternatives with honest costs, assumptions carried with confidence — and judgment is never evidence: execution records and the author's recorded decisions remain the only proof.
 
 ## Parallel safety
 

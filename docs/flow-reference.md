@@ -1,6 +1,6 @@
 # Flow Reference
 
-The public interface consists of six explicitly invoked skills over exactly four temporal mutation flows; Inspect State is read-only, and Implementation is Product Evolution invoked with a declared implementation intent rather than a fifth flow. Engine commands are operations inside these interfaces, not extra lifecycle stages.
+The public interface consists of six explicitly invoked skills over exactly four temporal mutation flows; Inspect State is read-only, and Implementation is Product Evolution invoked with a declared implementation intent rather than a fifth flow. Engine commands are operations inside these interfaces, not extra lifecycle stages. Four Claude-host agent adapters (scout, reviewer, debugger, counsel) exist only as delegates inside implementation delegation — they are not interfaces and start nothing.
 
 | Interface | Accepted event | Allowed mutation | Temporal result |
 |---|---|---|---|

@@ -44,13 +44,18 @@ if (cliVersion !== packageManifest.version) {
 if (codexManifest.skills !== "./codex/skills/") throw new Error("Codex manifest must use the dedicated Codex skill adapters under codex/skills/");
 if (codexManifest.hooks !== undefined && codexManifest.hooks !== "./hooks/hooks.json") throw new Error("Codex hook override must use the shared portable hook path");
 if (pluginManifest.skills !== "./claude/skills/") throw new Error("Claude manifest must use the dedicated manual Claude skill adapters");
-for (const unsupported of ["mcpServers", "apps"]) if (unsupported in codexManifest) throw new Error(`Unsupported Codex manifest field: ${unsupported}`);
+const expectedAgents = ["implementation-scout", "spec-compliance-reviewer", "implementation-debugger", "implementation-counsel"].map((name) => `./claude/agents/${name}.md`);
+if (!Array.isArray(pluginManifest.agents) || [...pluginManifest.agents].sort().join() !== [...expectedAgents].sort().join()) {
+  throw new Error("Claude manifest must route exactly the four read-only implement-flow agents under claude/agents/");
+}
+for (const unsupported of ["mcpServers", "apps", "agents"]) if (unsupported in codexManifest) throw new Error(`Unsupported Codex manifest field: ${unsupported}`);
 for (const [event, groups] of Object.entries(hooksManifest.hooks ?? {})) {
   if (!Array.isArray(groups)) throw new Error(`Hook event ${event} must contain matcher groups`);
   for (const group of groups) for (const handler of group.hooks ?? []) {
     if (typeof handler.command !== "string" || handler.command.trim() === "" || "args" in handler) throw new Error(`Hook ${event} must use a single portable command string`);
   }
 }
+if (hooksManifest.hooks?.SessionStart?.[0]?.matcher !== "startup|resume|clear|compact|fork") throw new Error("SessionStart matcher must cover startup|resume|clear|compact|fork");
 
 for (const forbidden of ["agents", ".mcp.json", ".claude/settings.json", "settings.json"]) {
   try {
@@ -61,7 +66,7 @@ for (const forbidden of ["agents", ".mcp.json", ".claude/settings.json", "settin
   }
 }
 
-const textFiles = await fg(["codex/skills/**/*.{md,yaml}", "claude/skills/**/*.md", "hooks/**/*.json", ".claude-plugin/*.json", ".codex-plugin/*.json", "resources/{flow-playbooks,protocols}/**/*.md"]);
+const textFiles = await fg(["codex/skills/**/*.{md,yaml}", "claude/skills/**/*.md", "claude/agents/*.md", "hooks/**/*.json", ".claude-plugin/*.json", ".codex-plugin/*.json", "resources/{flow-playbooks,protocols}/**/*.md"]);
 for (const file of textFiles) {
   const content = await readFile(file, "utf8");
   for (const match of content.matchAll(/\]\(([^)]+)\)/g)) {
@@ -79,6 +84,31 @@ if (claudeSkills.length !== 6) throw new Error(`Expected 6 Claude skills, found 
 for (const file of claudeSkills) {
   const content = await readFile(file, "utf8");
   if (!/^---\r?\n[\s\S]*?disable-model-invocation:\s*true\r?\n---/m.test(content)) throw new Error(`Skill must be manual: ${file}`);
+}
+
+const agentExpectations = {
+  "implementation-scout.md": { tools: "Read, Grep, Glob", model: "haiku" },
+  "spec-compliance-reviewer.md": { tools: "Read, Grep, Glob" },
+  "implementation-debugger.md": { tools: "Read, Grep, Glob, Bash" },
+  "implementation-counsel.md": { tools: "Read, Grep, Glob, WebFetch, WebSearch" }
+};
+const agentFiles = await fg("claude/agents/*.md");
+if (agentFiles.length !== 4) throw new Error(`Expected 4 Claude agents, found ${agentFiles.length}`);
+for (const file of agentFiles) {
+  const expected = agentExpectations[path.basename(file)];
+  if (!expected) throw new Error(`Unexpected agent file: ${file}`);
+  const content = await readFile(file, "utf8");
+  const frontmatter = content.match(/^---\r?\n([\s\S]*?)\r?\n---/);
+  if (!frontmatter) throw new Error(`Agent metadata is incomplete: ${file}`);
+  const name = frontmatter[1].match(/^name:[ \t]*(.+)$/m)?.[1]?.trim();
+  if (name !== path.basename(file, ".md")) throw new Error(`Agent name must equal its filename stem: ${file}`);
+  const description = frontmatter[1].match(/^description:[ \t]*(.+)$/m)?.[1]?.trim();
+  if (!description || /^[|>]/.test(description)) throw new Error(`Agent description must be a single inline line: ${file}`);
+  const tools = frontmatter[1].match(/^tools:[ \t]*(.+)$/m)?.[1]?.trim();
+  if (tools !== expected.tools) throw new Error(`Agent ${file} must declare tools exactly "${expected.tools}"`);
+  if (/\b(?:Edit|Write|MultiEdit|NotebookEdit)\b/.test(tools)) throw new Error(`Agent ${file} must not carry editing tools`);
+  const model = frontmatter[1].match(/^model:[ \t]*(.+)$/m)?.[1]?.trim() ?? null;
+  if (expected.model ? model !== expected.model : model !== null) throw new Error(expected.model ? `Agent ${file} must pin model: ${expected.model}` : `Agent ${file} must not pin a model`);
 }
 
 const codexSkills = await fg("codex/skills/*/SKILL.md");
@@ -184,4 +214,4 @@ try {
   await rm(isolatedParent, { recursive: true, force: true });
 }
 
-console.log(`Package check passed: ${claudeSkills.length} Claude skills, ${codexSkills.length} Codex skills, ${patterns.length} artifact patterns, ${schemaFiles.length} schemas, ${textFiles.length} metadata files.`);
+console.log(`Package check passed: ${claudeSkills.length} Claude skills, ${agentFiles.length} Claude agents, ${codexSkills.length} Codex skills, ${patterns.length} artifact patterns, ${schemaFiles.length} schemas, ${textFiles.length} metadata files.`);

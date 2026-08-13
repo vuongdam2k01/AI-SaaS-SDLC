@@ -7,6 +7,7 @@ AI SaaS SDLC is one shared domain package exposed through two host-specific skil
 | Layer | Location | Responsibility |
 |---|---|---|
 | Claude adapters | `claude/skills/` | Six manual slash-command skills and Claude tool-name mapping |
+| Claude agents | `claude/agents/` | Four read-only-by-default implement-flow delegate adapters (scout, reviewer, debugger, counsel); role wiring only, method stays under `resources/` |
 | Codex adapters | `codex/skills/` | Six explicit Codex skills plus `agents/openai.yaml` presentation metadata. Kept out of the repository root so a Claude host never auto-discovers them alongside `claude/skills/` |
 | Flow playbooks | `resources/flow-playbooks/` | Complete accepted-input, read, transform, write, close and re-entry behavior |
 | Protocols | `resources/protocols/` | Shared research, behavior, solution, impact, test and repair rules loaded as needed |

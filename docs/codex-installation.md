@@ -32,7 +32,7 @@ Claude adapters live under `claude/skills/` and resolve the executable through `
 
 ## Codex
 
-The repository is a skills-only Codex plugin with `.codex-plugin/plugin.json`, six skills under `codex/skills/` and presentation metadata under each skill's `agents/openai.yaml`.
+The repository is a skills-only Codex plugin with `.codex-plugin/plugin.json`, six skills under `codex/skills/` and presentation metadata under each skill's `agents/openai.yaml`. It stays skills-only by design: the Claude-side implement-flow agent adapters have no Codex analog, and the delegation protocol reads as the main agent's self-checklist there.
 
 For a development checkout, add this repository as a local marketplace source using the Codex plugin management available in your environment, refresh Codex, and install `ai-saas-sdlc` from that local source. This repository does not publish or modify a user's personal marketplace as part of its build. OpenAI's current local-plugin workflow is described in [Build plugins](https://developers.openai.com/codex/build-plugins).
 
@@ -63,4 +63,4 @@ The shared hooks improve context and prevent common direct edits on both hosts. 
 
 ## Package validation
 
-`npm run check` validates and tests the engine, both manifest shapes, all twelve host adapters, Codex skill/UI metadata, in-root references and installed-package root resolution. Run `npm run validate:manifests` separately with the Claude CLI installed to stage the package and apply strict Claude validation to both the plugin and marketplace manifests.
+`npm run check` validates and tests the engine, both manifest shapes, all twelve host skill adapters, the four Claude agent adapters, Codex skill/UI metadata, in-root references and installed-package root resolution. Run `npm run validate:manifests` separately with the Claude CLI installed to stage the package and apply strict Claude validation to both the plugin and marketplace manifests.

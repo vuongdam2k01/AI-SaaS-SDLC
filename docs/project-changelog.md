@@ -2,6 +2,17 @@
 
 See the root [CHANGELOG](../CHANGELOG.md) for the release summary. This contributor view records documentation-impact areas that must remain synchronized with implementation.
 
+## 1.17.0 - 2026-08-13
+
+| Area | Documentation impact |
+|---|---|
+| Claude adapters | `claude/agents/` ships four delegate adapters (scout, reviewer, debugger, counsel); `claude/skills/implement/SKILL.md` names them as the delegation protocol's preferred delegates on this host |
+| Hooks | `hooks/hooks.json` SessionStart matcher gains `compact\|fork`; `src/hooks/pre-tool-use.ts` gates repo-shaped protections on the `.ai-saas-sdlc/` sentinel while keeping internal-directory rules unconditional |
+| Method | Delegation economics and the counsel role in `implementation-delegation.md`; reviewer anti-chase in `spec-compliance-review.md`; never-weaken-a-spec in `craft-testing.md`; untrusted-content and `[UNVERIFIED]` re-grep in `implementation-scouting.md`; counsel consult in `implementation-debugging.md` |
+| Validation | package-check enforces the four-agent surface and the SessionStart matcher; the Codex manifest rejects an `agents` field; `tests/dual-host-packaging.test.ts` pins the manifest routing; `tests/hooks.test.ts` pins unmanaged-repo pass-through, unconditional internal denial and the compact-source summary |
+| Docs | README, system-architecture, flow-reference, codex-installation, development-roadmap, the implement-per-segment guide, CLAUDE.md and AGENTS.md state the agent surface and the Codex asymmetry |
+| Compatibility | No engine schema, message, gate or catalog change; hook behavior changes are scoped to unmanaged repositories and post-compaction context |
+
 ## 1.16.1 - 2026-08-13
 
 | Area | Documentation impact |

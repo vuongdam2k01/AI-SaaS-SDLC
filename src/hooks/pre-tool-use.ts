@@ -4,7 +4,7 @@ import { readHookInput, emit } from "./io.js";
 import { parseFrontmatter, toArtifactMeta } from "../core/frontmatter.js";
 import { loadConfig } from "../core/config.js";
 import { loadActiveFlow, pathExists } from "../core/state.js";
-import { isWithin, projectPaths } from "../core/paths.js";
+import { INTERNAL_DIR, isWithin, projectPaths } from "../core/paths.js";
 import fg from "fast-glob";
 
 const input = await readHookInput();
@@ -18,12 +18,16 @@ function normalized(value: string): string {
   return absolute.replaceAll("\\", "/").toLowerCase();
 }
 
+function protectedInternal(value: string): string | null {
+  if (!normalized(value).includes(`/${INTERNAL_DIR}/`)) return null;
+  return "Internal state, change and execution records are engine-owned and cannot be edited directly.";
+}
+
 function protectedStatic(value: string): string | null {
   const file = normalized(value);
   if (file.includes("/generated/")) return "Generated projections are machine-owned. Change canonical artifacts and run ai-saas-sdlc refresh.";
   if (file.includes("/00-system/patterns/")) return "Pinned artifact patterns are engine-owned and may only change through an explicit engine migration.";
   if (file.includes("/04-verification/results/")) return "Test results are execution-backed. Run ai-saas-sdlc verify --execute.";
-  if (file.includes("/.ai-saas-sdlc/")) return "Internal state, change and execution records are engine-owned and cannot be edited directly.";
   return null;
 }
 
@@ -75,9 +79,20 @@ if (toolName === "apply_patch" && typeof toolInput.command === "string") {
   for (const match of toolInput.command.matchAll(/^\*\*\* Move to:\s*(.+?)\s*$/gm)) candidatePaths.push(match[1]!);
 }
 
+// The plugin is enabled in every repository the host opens, so these string
+// rules only mean something inside an engine-managed docs repository. The one
+// exception is the internal directory itself: its name is unique to this
+// engine, and fabricating state under it is denied everywhere. The
+// implementation-source block below keeps its own stricter current.json
+// sentinel because it must load config and state anyway.
+const managedRepo = await pathExists(path.join(root, INTERNAL_DIR));
+
 let reason: string | null = null;
 if (mutatingDirectTool.has(toolName)) {
-  for (const candidate of candidatePaths) reason ??= protectedStatic(candidate) ?? await protectedOriginal(candidate) ?? await protectedAdr(candidate) ?? await protectedTerminalArtifact(candidate);
+  for (const candidate of candidatePaths) {
+    reason ??= protectedInternal(candidate);
+    if (managedRepo) reason ??= protectedStatic(candidate) ?? await protectedOriginal(candidate) ?? await protectedAdr(candidate) ?? await protectedTerminalArtifact(candidate);
+  }
 }
 
 let implementationRoots: string[] = [];
@@ -112,14 +127,17 @@ if (!reason && toolName === "Bash" && typeof toolInput.command === "string") {
   if (!reason) {
     const lower = command.replaceAll("\\", "/").toLowerCase();
     const deobfuscated = lower.replace(/[\s"'`+${}()[\]\\]/g, "");
-    if (/(?:^|[\s"'=/])\.ai-saas-sdlc(?:[\s"'/$]|$)/.test(lower) || deobfuscated.includes(".ai-saas-sdlc")) reason = "Internal state and machine-owned files cannot be mutated through shell indirection; use direct file tools for canonical artifacts and the bundled engine for managed files.";
-    else if (/(?:^|[\s"'=/])generated(?:[\s"'/$]|$)/.test(lower)) reason = "Generated projections are machine-owned; use the Read tool to inspect them and the engine to refresh them.";
-    else if (lower.includes("00-system/patterns")) reason = "Pinned artifact patterns are engine-owned and may only change through an explicit engine migration.";
-    else if (lower.includes("04-verification/results")) reason = "Test results are execution-backed; use the Read tool to inspect them and verify --execute to create them.";
-    else if (lower.includes("01-discovery/original-idea.md")) reason = "Use a direct file edit to capture the Genesis input once; shell access to original-idea.md is blocked.";
-    if (!reason && lower.includes("adr-")) {
-      const adrFiles = await fg("05-control/decisions/ADR-*.md", { cwd: root, absolute: true });
-      for (const adrFile of adrFiles) if (lower.includes(path.basename(adrFile).toLowerCase())) reason ??= await protectedAdr(adrFile);
+    if (/(?:^|[\s"'=/])\.ai-saas-sdlc(?:[\s"'/$]|$)/.test(lower) || deobfuscated.includes(".ai-saas-sdlc")) {
+      reason = "Internal state and machine-owned files cannot be mutated through shell indirection; use direct file tools for canonical artifacts and the bundled engine for managed files.";
+    } else if (managedRepo) {
+      if (/(?:^|[\s"'=/])generated(?:[\s"'/$]|$)/.test(lower)) reason = "Generated projections are machine-owned; use the Read tool to inspect them and the engine to refresh them.";
+      else if (lower.includes("00-system/patterns")) reason = "Pinned artifact patterns are engine-owned and may only change through an explicit engine migration.";
+      else if (lower.includes("04-verification/results")) reason = "Test results are execution-backed; use the Read tool to inspect them and verify --execute to create them.";
+      else if (lower.includes("01-discovery/original-idea.md")) reason = "Use a direct file edit to capture the Genesis input once; shell access to original-idea.md is blocked.";
+      if (!reason && lower.includes("adr-")) {
+        const adrFiles = await fg("05-control/decisions/ADR-*.md", { cwd: root, absolute: true });
+        for (const adrFile of adrFiles) if (lower.includes(path.basename(adrFile).toLowerCase())) reason ??= await protectedAdr(adrFile);
+      }
     }
   }
 }

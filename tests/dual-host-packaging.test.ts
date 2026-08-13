@@ -26,13 +26,20 @@ function sharedPlaybook(source: string): string {
 }
 
 describe("dual-host packaging", () => {
-  it("ships equivalent Claude and Codex manifests and five thin adapters", async () => {
+  it("ships equivalent Claude and Codex manifests and thin host adapters", async () => {
     const codex = JSON.parse(await readFile(path.join(pluginRoot, ".codex-plugin", "plugin.json"), "utf8"));
     const claude = JSON.parse(await readFile(path.join(pluginRoot, ".claude-plugin", "plugin.json"), "utf8"));
     expect({ name: codex.name, version: codex.version }).toEqual({ name: claude.name, version: claude.version });
     expect(codex.skills).toBe("./codex/skills/");
     expect(codex.hooks).toBeUndefined();
     expect(claude.skills).toBe("./claude/skills/");
+    expect(claude.agents).toEqual([
+      "./claude/agents/implementation-scout.md",
+      "./claude/agents/spec-compliance-reviewer.md",
+      "./claude/agents/implementation-debugger.md",
+      "./claude/agents/implementation-counsel.md"
+    ]);
+    expect(codex.agents).toBeUndefined();
 
     const hooks = JSON.parse(await readFile(path.join(pluginRoot, "hooks", "hooks.json"), "utf8"));
     for (const groups of Object.values(hooks.hooks) as Array<Array<{ hooks: Array<Record<string, unknown>> }>>) {

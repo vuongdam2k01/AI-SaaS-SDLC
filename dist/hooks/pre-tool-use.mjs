@@ -13524,12 +13524,15 @@ function normalized(value) {
   const absolute = path2.isAbsolute(value) ? value : path2.resolve(root, value);
   return absolute.replaceAll("\\", "/").toLowerCase();
 }
+function protectedInternal(value) {
+  if (!normalized(value).includes(`/${INTERNAL_DIR}/`)) return null;
+  return "Internal state, change and execution records are engine-owned and cannot be edited directly.";
+}
 function protectedStatic(value) {
   const file = normalized(value);
   if (file.includes("/generated/")) return "Generated projections are machine-owned. Change canonical artifacts and run ai-saas-sdlc refresh.";
   if (file.includes("/00-system/patterns/")) return "Pinned artifact patterns are engine-owned and may only change through an explicit engine migration.";
   if (file.includes("/04-verification/results/")) return "Test results are execution-backed. Run ai-saas-sdlc verify --execute.";
-  if (file.includes("/.ai-saas-sdlc/")) return "Internal state, change and execution records are engine-owned and cannot be edited directly.";
   return null;
 }
 async function protectedOriginal(value) {
@@ -13575,9 +13578,13 @@ if (toolName === "apply_patch" && typeof toolInput.command === "string") {
   for (const match of toolInput.command.matchAll(/^\*\*\* (?:Add|Update|Delete) File:\s*(.+?)\s*$/gm)) candidatePaths.push(match[1]);
   for (const match of toolInput.command.matchAll(/^\*\*\* Move to:\s*(.+?)\s*$/gm)) candidatePaths.push(match[1]);
 }
+var managedRepo = await pathExists(path2.join(root, INTERNAL_DIR));
 var reason = null;
 if (mutatingDirectTool.has(toolName)) {
-  for (const candidate of candidatePaths) reason ??= protectedStatic(candidate) ?? await protectedOriginal(candidate) ?? await protectedAdr(candidate) ?? await protectedTerminalArtifact(candidate);
+  for (const candidate of candidatePaths) {
+    reason ??= protectedInternal(candidate);
+    if (managedRepo) reason ??= protectedStatic(candidate) ?? await protectedOriginal(candidate) ?? await protectedAdr(candidate) ?? await protectedTerminalArtifact(candidate);
+  }
 }
 var implementationRoots = [];
 var implementationMarkers = [];
@@ -13609,14 +13616,17 @@ if (!reason && toolName === "Bash" && typeof toolInput.command === "string") {
   if (!reason) {
     const lower = command.replaceAll("\\", "/").toLowerCase();
     const deobfuscated = lower.replace(/[\s"'`+${}()[\]\\]/g, "");
-    if (/(?:^|[\s"'=/])\.ai-saas-sdlc(?:[\s"'/$]|$)/.test(lower) || deobfuscated.includes(".ai-saas-sdlc")) reason = "Internal state and machine-owned files cannot be mutated through shell indirection; use direct file tools for canonical artifacts and the bundled engine for managed files.";
-    else if (/(?:^|[\s"'=/])generated(?:[\s"'/$]|$)/.test(lower)) reason = "Generated projections are machine-owned; use the Read tool to inspect them and the engine to refresh them.";
-    else if (lower.includes("00-system/patterns")) reason = "Pinned artifact patterns are engine-owned and may only change through an explicit engine migration.";
-    else if (lower.includes("04-verification/results")) reason = "Test results are execution-backed; use the Read tool to inspect them and verify --execute to create them.";
-    else if (lower.includes("01-discovery/original-idea.md")) reason = "Use a direct file edit to capture the Genesis input once; shell access to original-idea.md is blocked.";
-    if (!reason && lower.includes("adr-")) {
-      const adrFiles = await (0, import_fast_glob4.default)("05-control/decisions/ADR-*.md", { cwd: root, absolute: true });
-      for (const adrFile of adrFiles) if (lower.includes(path2.basename(adrFile).toLowerCase())) reason ??= await protectedAdr(adrFile);
+    if (/(?:^|[\s"'=/])\.ai-saas-sdlc(?:[\s"'/$]|$)/.test(lower) || deobfuscated.includes(".ai-saas-sdlc")) {
+      reason = "Internal state and machine-owned files cannot be mutated through shell indirection; use direct file tools for canonical artifacts and the bundled engine for managed files.";
+    } else if (managedRepo) {
+      if (/(?:^|[\s"'=/])generated(?:[\s"'/$]|$)/.test(lower)) reason = "Generated projections are machine-owned; use the Read tool to inspect them and the engine to refresh them.";
+      else if (lower.includes("00-system/patterns")) reason = "Pinned artifact patterns are engine-owned and may only change through an explicit engine migration.";
+      else if (lower.includes("04-verification/results")) reason = "Test results are execution-backed; use the Read tool to inspect them and verify --execute to create them.";
+      else if (lower.includes("01-discovery/original-idea.md")) reason = "Use a direct file edit to capture the Genesis input once; shell access to original-idea.md is blocked.";
+      if (!reason && lower.includes("adr-")) {
+        const adrFiles = await (0, import_fast_glob4.default)("05-control/decisions/ADR-*.md", { cwd: root, absolute: true });
+        for (const adrFile of adrFiles) if (lower.includes(path2.basename(adrFile).toLowerCase())) reason ??= await protectedAdr(adrFile);
+      }
     }
   }
 }

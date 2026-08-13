@@ -23,7 +23,7 @@ Propose no repair until every question has a one-concrete-sentence answer. Any a
 
 **4. Repair.** First a failing reproduction (in this method: the spec's test case, executed and red). Then one change addressing the identified cause — no "while I'm here" improvements. Then the proof per the verification protocol: exact pre-fix commands re-run, red turned green, blast radius swept.
 
-**The three-strike rule.** Count repair attempts. Under three: return to phase 1 carrying the new information. At three: stop treating it as a defect — each failed fix revealing new coupling is the signature of a design problem. Record the `ISS-*`, name the architectural question, and route to Reconciliation or an ADR through Evolution. The author decides; a fourth silent attempt is prohibited.
+**The three-strike rule.** Count repair attempts. Under three: return to phase 1 carrying the new information. At three: stop treating it as a defect — each failed fix revealing new coupling is the signature of a design problem. Record the `ISS-*`, name the architectural question, and route to Reconciliation or an ADR through Evolution. The author decides; a fourth silent attempt is prohibited. On a host with delegation, one fresh-context counsel consult (delegation protocol) may sharpen the `ISS-*` and the routing first — one turn, zero questions, alternatives with honest costs — and it never substitutes for the author's decision.
 
 ## Techniques, loaded by situation
 

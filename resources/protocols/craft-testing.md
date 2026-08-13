@@ -1,6 +1,6 @@
 # Craft: Test Segments
 
-Judgment for `ut`/`it`/`st` segments — deriving real test code from the specification tables. Testing levels remain exactly UT, IT and ST; everything here is distribution and discipline *within* them, never a new level. The spec rows are the source; a test asserting what no row states is an EXTRA finding, and a row no test implements stays visible as unimplemented.
+Judgment for `ut`/`it`/`st` segments — deriving real test code from the specification tables. Testing levels remain exactly UT, IT and ST; everything here is distribution and discipline *within* them, never a new level. The spec rows are the source; a test asserting what no row states is an EXTRA finding, and a row no test implements stays visible as unimplemented. A failing case is never made to pass by weakening its spec: a spec change travels through the flow with recorded provenance, never inside the edit that turns a run green.
 
 ## Distribution judgment
 
