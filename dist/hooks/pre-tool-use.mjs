@@ -13528,6 +13528,15 @@ function normalized(value) {
   const absolute = path2.isAbsolute(value) ? value : path2.resolve(root, value);
   return absolute.replaceAll("\\", "/").toLowerCase();
 }
+async function withinManagedRepository(start) {
+  let current = path2.resolve(start);
+  for (; ; ) {
+    if (await pathExists(path2.join(current, INTERNAL_DIR))) return true;
+    const parent = path2.dirname(current);
+    if (parent === current) return false;
+    current = parent;
+  }
+}
 function protectedInternal(value) {
   if (!normalized(value).includes(`/${INTERNAL_DIR}/`)) return null;
   return "Internal state, change and execution records are engine-owned and cannot be edited directly.";
@@ -13582,7 +13591,7 @@ if (toolName === "apply_patch" && typeof toolInput.command === "string") {
   for (const match of toolInput.command.matchAll(/^\*\*\* (?:Add|Update|Delete) File:\s*(.+?)\s*$/gm)) candidatePaths.push(match[1]);
   for (const match of toolInput.command.matchAll(/^\*\*\* Move to:\s*(.+?)\s*$/gm)) candidatePaths.push(match[1]);
 }
-var managedRepo = await pathExists(path2.join(root, INTERNAL_DIR));
+var managedRepo = await withinManagedRepository(root);
 var reason = null;
 if (mutatingDirectTool.has(toolName)) {
   for (const candidate of candidatePaths) {

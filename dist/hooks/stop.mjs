@@ -14144,20 +14144,32 @@ var init_mapping_hashes = __esm({
 });
 
 // src/core/test-report.ts
+function cellValue(cell) {
+  return (cell ?? "").replace(/`/g, "").trim();
+}
 function mappingTableLines(spec) {
   const normalized = spec.body.replace(/\r\n/g, "\n");
   const section = normalized.split(/^## Implementation mapping\s*$/m)[1];
   if (!section) return [];
-  return (section.split(/^## /m)[0] ?? "").split("\n");
+  const lines = [];
+  let fenced = false;
+  for (const line of (section.split(/^## /m)[0] ?? "").split("\n")) {
+    if (/^\s*(?:```|~~~)/.test(line)) {
+      fenced = !fenced;
+      continue;
+    }
+    if (!fenced) lines.push(line);
+  }
+  return lines;
 }
 function implementationMappingRows(spec) {
   const rows = [];
   for (const line of mappingTableLines(spec)) {
     const cells = line.split("|").map((cell) => cell.trim());
-    if (cells.length < 6 || /^Case IDs?$/.test(cells[1] ?? "") || /^-+$/.test(cells[1] ?? "")) continue;
+    if (cells.length < 6 || /^Case IDs?$/.test(cells[1] ?? "") || DIVIDER_CELL.test(cells[1] ?? "")) continue;
     const caseIds2 = [...(cells[1] ?? "").matchAll(/\bTC-[0-9]+\b/g)].map((match) => match[0]);
-    const symbol = (cells[3] ?? "").replace(/`/g, "").trim();
-    const testPath = (cells[2] ?? "").replace(/`/g, "").trim();
+    const symbol = cellValue(cells[3]);
+    const testPath = cellValue(cells[2]);
     if (caseIds2.length === 0 || symbol.length === 0 || symbol.startsWith("<") || testPath.startsWith("<")) continue;
     rows.push({ spec_id: spec.id, case_ids: caseIds2, symbol, test_path: testPath });
   }
@@ -14167,23 +14179,31 @@ function ignoredImplementationMappingRows(spec) {
   const ignored = [];
   for (const line of mappingTableLines(spec)) {
     const trimmed = line.trim();
-    if (!trimmed.startsWith("|")) continue;
-    const cells = line.split("|").map((cell) => cell.trim());
-    if (/^Case IDs?$/.test(cells[1] ?? "") || /^-+$/.test(cells[1] ?? "")) continue;
-    const content = cells.slice(1, -1);
-    if (content.every((cell) => cell.length === 0 || cell.startsWith("<") || /^-+$/.test(cell))) continue;
+    const bounded = trimmed.startsWith("|");
+    if (!bounded && (trimmed.match(/\|/g) ?? []).length < 3) continue;
+    const cells = trimmed.split("|").map((cell) => cell.trim());
+    const content = bounded ? cells.slice(1, -1) : cells;
+    const first = content[0] ?? "";
+    if (/^Case IDs?$/.test(first) || DIVIDER_CELL.test(cellValue(first))) continue;
+    if (content.every((cell) => {
+      const value = cellValue(cell);
+      return value.length === 0 || value.startsWith("<") || DIVIDER_CELL.test(value);
+    })) continue;
     let reason = null;
-    if (cells.length < 6) reason = "expected at least four columns";
-    else if ([...(cells[1] ?? "").matchAll(/\bTC-[0-9]+\b/g)].length === 0) reason = "no TC-nn case ID in the first column";
-    else if ((cells[2] ?? "").replace(/`/g, "").trim().length === 0 || (cells[2] ?? "").trim().startsWith("<")) reason = "test path is empty or a placeholder";
-    else if ((cells[3] ?? "").replace(/`/g, "").trim().length === 0 || (cells[3] ?? "").trim().startsWith("<")) reason = "test symbol is empty or a placeholder";
+    if (!bounded) reason = "table rows must use leading and trailing pipes";
+    else if (content.length < 4) reason = "expected at least four columns";
+    else if ([...first.matchAll(/\bTC-[0-9]+\b/g)].length === 0) reason = "no TC-nn case ID in the first column";
+    else if (cellValue(content[1]).length === 0 || cellValue(content[1]).startsWith("<")) reason = "test path is empty or a placeholder";
+    else if (cellValue(content[2]).length === 0 || cellValue(content[2]).startsWith("<")) reason = "test symbol is empty or a placeholder";
     if (reason) ignored.push({ spec_id: spec.id, snippet: trimmed.slice(0, 120), reason });
   }
   return ignored;
 }
+var DIVIDER_CELL;
 var init_test_report = __esm({
   "src/core/test-report.ts"() {
     "use strict";
+    DIVIDER_CELL = /^:?-+:?$/;
   }
 });
 
@@ -14257,12 +14277,13 @@ async function implementationSymbolFindings(root2, config, artifacts) {
         file: spec.file
       });
     }
+    const unresolved = [];
     for (const row of implementationMappingRows(spec)) {
       let found = false;
       let existsSomewhere = false;
       for (const sourceRoot of sourceRoots) {
         const candidate = path11.resolve(sourceRoot, row.test_path);
-        if (!candidate.startsWith(sourceRoot) || !await pathExists(candidate)) continue;
+        if (!isWithin(sourceRoot, candidate) || !await pathExists(candidate)) continue;
         existsSomewhere = true;
         try {
           if ((await readFile8(candidate, "utf8")).includes(row.symbol)) {
@@ -14279,14 +14300,19 @@ async function implementationSymbolFindings(root2, config, artifacts) {
           message: `${spec.id} maps ${row.case_ids.join(", ")} to test symbol "${row.symbol}" in ${row.test_path}, but the symbol does not occur in that file (approximate textual check); fix the mapping row or the test name so the case can be located.`,
           file: spec.file
         });
-      } else if (!existsSomewhere && spec.implementation.length > 0) {
-        findings.push({
-          severity: "warning",
-          code: "IMPLEMENTATION_MAPPING_PATH_MISSING",
-          message: `${spec.id} maps ${row.case_ids.join(", ")} to ${row.test_path}, but that path exists under no configured implementation source while the specification declares implementation mappings \u2014 a transposed or stale row; fix the test path so the case can be located.`,
-          file: spec.file
-        });
+      } else if (!existsSomewhere) {
+        unresolved.push(row.test_path);
       }
+    }
+    if (unresolved.length > 0 && spec.implementation.length > 0) {
+      const shown = unresolved.slice(0, 5).join(", ");
+      const rest = unresolved.length > 5 ? `, and ${unresolved.length - 5} more` : "";
+      findings.push({
+        severity: "warning",
+        code: "IMPLEMENTATION_MAPPING_PATH_MISSING",
+        message: `${spec.id} declares implementation mappings, but ${unresolved.length} mapping row path(s) exist under no configured implementation source (${shown}${rest}); test paths are relative to the configured source root itself, never prefixed with the source ID, so fix the paths or the rows naming files that were never written.`,
+        file: spec.file
+      });
     }
   }
   return findings;
@@ -14299,6 +14325,7 @@ var init_implementation_evidence = __esm({
     init_mapping_hashes();
     init_test_report();
     init_state();
+    init_paths();
     IMPLEMENTATION_LEVELS = [
       { level: "UT", types: ["unit_test_backend", "unit_test_frontend", "unit_test_job"] },
       { level: "IT", types: ["integration_test"] },

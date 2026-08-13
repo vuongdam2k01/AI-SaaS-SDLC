@@ -61,6 +61,16 @@ describe("hooks", () => {
     expect(hook("pre-tool-use", root, { cwd: root, tool_name: "Bash", tool_input: { command: "node mutate.js .ai-saas-sdlc/state/current.json" } })).toBe("");
   });
 
+  it("keeps shell protections when the session starts in a subdirectory of the repository", async () => {
+    const root = await tempProject();
+    roots.push(root);
+    const sub = path.join(root, "04-verification");
+    const denied = hook("pre-tool-use", sub, { cwd: sub, tool_name: "Bash", tool_input: { command: `node -e "writeFileSync('../.ai-saas-sdlc/state/current.json', 'x')"` } });
+    expect(JSON.parse(denied).hookSpecificOutput.permissionDecision).toBe("deny");
+    const generated = hook("pre-tool-use", sub, { cwd: sub, tool_name: "Bash", tool_input: { command: "rm -rf generated" } });
+    expect(JSON.parse(generated).hookSpecificOutput.permissionDecision).toBe("deny");
+  });
+
   it("prints the exact resume command for an open implementation flow", async () => {
     const root = await tempProject();
     roots.push(root);

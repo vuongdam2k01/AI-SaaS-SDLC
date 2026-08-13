@@ -13789,6 +13789,7 @@ var init_implementation_evidence = __esm({
     init_mapping_hashes();
     init_test_report();
     init_state();
+    init_paths();
     IMPLEMENTATION_LEVELS = [
       { level: "UT", types: ["unit_test_backend", "unit_test_frontend", "unit_test_job"] },
       { level: "IT", types: ["integration_test"] },
@@ -13974,20 +13975,24 @@ init_implementation_evidence();
 init_mapping_hashes();
 init_project();
 function parseImplementationInput(input) {
-  const match = input.match(/^\s*implement\s+(FTR-[A-Za-z0-9-]+)\s*,\s*segment\s+([a-z]+(?:\s*,\s*[a-z]+)*)\s*$/i);
+  const match = input.match(/^\s*implement\s+(FTR-[A-Za-z0-9-]+)\s*[,;:]?\s*segments?\s*[:=]?\s*([a-z]+(?:\s*,\s*[a-z]+)*)\s*[.,;]?\s*$/i);
   if (!match) return null;
   const segment = match[2].toLowerCase().replace(/\s/g, "");
   const legal = /* @__PURE__ */ new Set(["code", "ut", "it", "st", "all"]);
   return segment.split(",").every((token) => legal.has(token)) ? { feature: match[1].toUpperCase(), segment } : null;
 }
-function implementationResumeCommand(flow) {
+function implementContinuation(flow) {
   if (flow.type !== "evolution" || flow.intent !== "implementation") return null;
   const parsed = parseImplementationInput(flow.input);
-  if (!parsed) return null;
+  return parsed ? `/ai-saas-sdlc:implement ${parsed.feature} ${parsed.segment}` : "/ai-saas-sdlc:implement <FTR-ID> <segment>";
+}
+function implementationResumeCommand(flow) {
+  if (flow.baseline_created) return null;
+  const continuation = implementContinuation(flow);
+  if (!continuation) return null;
   const reached = flow.reached_stage ?? null;
   const next = (reached ? FLOW_STAGES.filter((stage) => stageIndex(stage) > stageIndex(reached)) : [...FLOW_STAGES])[0];
-  const prefix = `/ai-saas-sdlc:implement ${parsed.feature} ${parsed.segment}`;
-  return next ? `${prefix} --until ${next} continue ${flow.id}` : `${prefix} continue ${flow.id}`;
+  return next ? `${continuation} --until ${next} continue ${flow.id}` : null;
 }
 async function suggestNextSegment(root2) {
   try {

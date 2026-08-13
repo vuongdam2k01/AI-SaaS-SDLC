@@ -10,7 +10,7 @@ import { executeVerification } from "../src/core/verification.js";
 import { createBaseline } from "../src/core/baseline.js";
 import { closeFlow, startFlow } from "../src/core/state.js";
 import { renderResultArtifact } from "../src/core/result-artifact.js";
-import { parseJunit, parseTap, joinCasesToSpecs } from "../src/core/test-report.js";
+import { parseJunit, parseTap, joinCasesToSpecs, implementationMappingRows, ignoredImplementationMappingRows } from "../src/core/test-report.js";
 import { loadBaseline } from "../src/core/project.js";
 import { addApprovalFeature } from "./fixtures/complete-saas/fixture.js";
 import type { ExecutionRecord } from "../src/core/types.js";
@@ -89,6 +89,66 @@ describe("test report parsing and joining", () => {
     expect(joined[0]).toMatchObject({ spec_id: "UT-API-APPROVAL-001", case_ids: ["TC-01"] });
     expect(joined[1]).toMatchObject({ spec_id: "UT-API-APPROVAL-001", case_ids: ["TC-02", "TC-03"] });
     expect(joined[2]).toMatchObject({ spec_id: null, case_ids: null });
+  });
+});
+
+describe("mapping table parsing", () => {
+  function spec(id: string, lines: string[]) {
+    return artifact({ id, artifact_type: "unit_test_backend", body: ["## Implementation mapping", "", ...lines].join("\n") });
+  }
+
+  it("accepts a formatter's alignment divider without reporting it as an ignored row", () => {
+    const aligned = spec("UT-API-ALIGNED-001", [
+      "| Case IDs | Test path | Test name or symbol | Production symbol |",
+      "|:---|:---:|---:|---|",
+      "| TC-01 | tests/approval.test.ts | commits a decision | commitDecision |"
+    ]);
+    expect(ignoredImplementationMappingRows(aligned)).toEqual([]);
+    expect(implementationMappingRows(aligned)).toHaveLength(1);
+  });
+
+  it("names the drops it used to swallow: backticked placeholders and pipe-less tables", () => {
+    const backticked = spec("UT-API-BACKTICK-001", [
+      "| Case IDs | Test path | Test name or symbol | Production symbol |",
+      "|---|---|---|---|",
+      "| TC-01 | `tests/approval.test.ts` | `<test name>` | `commitDecision` |"
+    ]);
+    expect(implementationMappingRows(backticked)).toEqual([]);
+    expect(ignoredImplementationMappingRows(backticked)[0]?.reason).toContain("placeholder");
+
+    const pipeless = spec("UT-API-PIPELESS-001", [
+      "Case IDs | Test path | Test name or symbol | Production symbol",
+      "--- | --- | --- | ---",
+      "TC-01 | tests/approval.test.ts | commits a decision | commitDecision"
+    ]);
+    expect(implementationMappingRows(pipeless)).toEqual([]);
+    const ignored = ignoredImplementationMappingRows(pipeless);
+    expect(ignored).toHaveLength(1);
+    expect(ignored[0]!.reason).toContain("leading and trailing pipes");
+  });
+
+  it("treats a fenced example as documentation, neither parsed nor flagged", () => {
+    const fenced = spec("UT-API-FENCED-001", [
+      "| Case IDs | Test path | Test name or symbol | Production symbol |",
+      "|---|---|---|---|",
+      "| TC-01 | tests/approval.test.ts | commits a decision | commitDecision |",
+      "",
+      "```text",
+      "| TC-99 | example/only.test.ts | an example row | exampleSymbol |",
+      "```"
+    ]);
+    expect(ignoredImplementationMappingRows(fenced)).toEqual([]);
+    expect(implementationMappingRows(fenced).map((row) => row.test_path)).toEqual(["tests/approval.test.ts"]);
+  });
+
+  it("leaves an untouched template row silent", () => {
+    const template = spec("UT-API-TEMPLATE-001", [
+      "| Case IDs | Test path | Test name or symbol | Production symbol |",
+      "|---|---|---|---|",
+      "| <TC IDs> | <repository-relative test path> | <test name> | <source symbol> |"
+    ]);
+    expect(ignoredImplementationMappingRows(template)).toEqual([]);
+    expect(implementationMappingRows(template)).toEqual([]);
   });
 });
 

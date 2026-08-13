@@ -99,11 +99,27 @@ export interface MappingRow {
  * `| Case IDs | Test path | Test name or symbol | Production symbol |`.
  * The symbol column is the join key a report's case names are matched against.
  */
+/** A divider cell, including the alignment forms a markdown formatter writes. */
+const DIVIDER_CELL = /^:?-+:?$/;
+
+/** Cell text as the parser reads it: backticks are decoration, not content. */
+function cellValue(cell: string | undefined): string {
+  return (cell ?? "").replace(/`/g, "").trim();
+}
+
 function mappingTableLines(spec: Artifact): string[] {
   const normalized = spec.body.replace(/\r\n/g, "\n");
   const section = normalized.split(/^## Implementation mapping\s*$/m)[1];
   if (!section) return [];
-  return (section.split(/^## /m)[0] ?? "").split("\n");
+  const lines: string[] = [];
+  let fenced = false;
+  for (const line of (section.split(/^## /m)[0] ?? "").split("\n")) {
+    // A fenced block inside the section is an example, not mapping: it must
+    // neither be parsed as a live row nor reported as an ignored one.
+    if (/^\s*(?:```|~~~)/.test(line)) { fenced = !fenced; continue; }
+    if (!fenced) lines.push(line);
+  }
+  return lines;
 }
 
 export function implementationMappingRows(spec: Artifact): MappingRow[] {
@@ -113,10 +129,10 @@ export function implementationMappingRows(spec: Artifact): MappingRow[] {
     // A table line splits into ["", cell, cell, cell, cell, ""]; skip the
     // header ("Case IDs" or the singular authors sometimes write) and its
     // divider.
-    if (cells.length < 6 || /^Case IDs?$/.test(cells[1] ?? "") || /^-+$/.test(cells[1] ?? "")) continue;
+    if (cells.length < 6 || /^Case IDs?$/.test(cells[1] ?? "") || DIVIDER_CELL.test(cells[1] ?? "")) continue;
     const caseIds = [...(cells[1] ?? "").matchAll(/\bTC-[0-9]+\b/g)].map((match) => match[0]);
-    const symbol = (cells[3] ?? "").replace(/`/g, "").trim();
-    const testPath = (cells[2] ?? "").replace(/`/g, "").trim();
+    const symbol = cellValue(cells[3]);
+    const testPath = cellValue(cells[2]);
     if (caseIds.length === 0 || symbol.length === 0 || symbol.startsWith("<") || testPath.startsWith("<")) continue;
     rows.push({ spec_id: spec.id, case_ids: caseIds, symbol, test_path: testPath });
   }
@@ -140,16 +156,21 @@ export function ignoredImplementationMappingRows(spec: Artifact): IgnoredMapping
   const ignored: IgnoredMappingRow[] = [];
   for (const line of mappingTableLines(spec)) {
     const trimmed = line.trim();
-    if (!trimmed.startsWith("|")) continue;
-    const cells = line.split("|").map((cell) => cell.trim());
-    if (/^Case IDs?$/.test(cells[1] ?? "") || /^-+$/.test(cells[1] ?? "")) continue;
-    const content = cells.slice(1, -1);
-    if (content.every((cell) => cell.length === 0 || cell.startsWith("<") || /^-+$/.test(cell))) continue;
+    const bounded = trimmed.startsWith("|");
+    // A table written without leading and trailing pipes is valid markdown and
+    // is dropped whole by the parser, so it is diagnosed rather than ignored.
+    if (!bounded && (trimmed.match(/\|/g) ?? []).length < 3) continue;
+    const cells = trimmed.split("|").map((cell) => cell.trim());
+    const content = bounded ? cells.slice(1, -1) : cells;
+    const first = content[0] ?? "";
+    if (/^Case IDs?$/.test(first) || DIVIDER_CELL.test(cellValue(first))) continue;
+    if (content.every((cell) => { const value = cellValue(cell); return value.length === 0 || value.startsWith("<") || DIVIDER_CELL.test(value); })) continue;
     let reason: string | null = null;
-    if (cells.length < 6) reason = "expected at least four columns";
-    else if ([...(cells[1] ?? "").matchAll(/\bTC-[0-9]+\b/g)].length === 0) reason = "no TC-nn case ID in the first column";
-    else if ((cells[2] ?? "").replace(/`/g, "").trim().length === 0 || (cells[2] ?? "").trim().startsWith("<")) reason = "test path is empty or a placeholder";
-    else if ((cells[3] ?? "").replace(/`/g, "").trim().length === 0 || (cells[3] ?? "").trim().startsWith("<")) reason = "test symbol is empty or a placeholder";
+    if (!bounded) reason = "table rows must use leading and trailing pipes";
+    else if (content.length < 4) reason = "expected at least four columns";
+    else if ([...first.matchAll(/\bTC-[0-9]+\b/g)].length === 0) reason = "no TC-nn case ID in the first column";
+    else if (cellValue(content[1]).length === 0 || cellValue(content[1]).startsWith("<")) reason = "test path is empty or a placeholder";
+    else if (cellValue(content[2]).length === 0 || cellValue(content[2]).startsWith("<")) reason = "test symbol is empty or a placeholder";
     if (reason) ignored.push({ spec_id: spec.id, snippet: trimmed.slice(0, 120), reason });
   }
   return ignored;

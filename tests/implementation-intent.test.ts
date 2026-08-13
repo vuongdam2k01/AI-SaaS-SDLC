@@ -7,7 +7,7 @@ import { loadConfig } from "../src/core/config.js";
 import { executeVerification } from "../src/core/verification.js";
 import { createBaseline } from "../src/core/baseline.js";
 import { closeFlow, loadActiveFlow, startFlow } from "../src/core/state.js";
-import { flowGuidance } from "../src/core/flow-guidance.js";
+import { flowGuidance, implementationResumeCommand } from "../src/core/flow-guidance.js";
 import { isActiveFlow } from "../src/core/record-validation.js";
 import { addApprovalFeature } from "./fixtures/complete-saas/fixture.js";
 
@@ -62,6 +62,30 @@ describe("implementation intent", () => {
     // The implement skill's grammar is positional, so the continuation must
     // carry the feature and segment recovered from the flow's verbatim input.
     expect(guidance.next_command).toBe(`/ai-saas-sdlc:implement FTR-APPROVAL-001 code --until behavior continue ${flow.id}`);
+    await closeFlow(root);
+  });
+
+  it("keeps the continuation honest when the input is loose, and stops resuming a baselined segment", async () => {
+    const root = await tempProject();
+    roots.push(root);
+    await establishGenesis(root);
+    // Trailing punctuation is what an author actually types; the continuation
+    // must still carry the feature the skill's positional grammar requires.
+    const flow = await startFlow(root, "evolution", "implement FTR-APPROVAL-001, segment code.", undefined, "implementation");
+    expect((await flowGuidance(root)).next_command).toContain("/ai-saas-sdlc:implement FTR-APPROVAL-001 code --until");
+    // Once a baseline exists the flow closes; re-running the segment is the
+    // re-entry the playbook forbids, so the hook must offer no resume.
+    expect(implementationResumeCommand({ ...flow, baseline_created: "BL-014" })).toBeNull();
+    expect(implementationResumeCommand({ ...flow, reached_stage: "baseline" })).toBeNull();
+    await closeFlow(root);
+
+    const unreadable = await startFlow(root, "evolution", "implement the approval thing", undefined, "implementation");
+    const guidance = await flowGuidance(root);
+    // Never a command whose first positional argument is a flag.
+    expect(guidance.next_command).not.toMatch(/^\/ai-saas-sdlc:implement --until/);
+    expect(guidance.next_command).toContain("<FTR-ID>");
+    expect(guidance.reason).toContain("does not name a feature and segment");
+    expect(implementationResumeCommand(unreadable)).toContain("<FTR-ID>");
     await closeFlow(root);
   });
 

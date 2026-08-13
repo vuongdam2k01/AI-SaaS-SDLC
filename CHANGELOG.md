@@ -1,5 +1,45 @@
 # Changelog
 
+## 1.18.1 - 2026-08-14
+
+The 1.17–1.18 work was verified the way this repository defines verification:
+an adversarial read executed against the real parsers, a regression test per
+defect proven red against the committed tree, then a full lifecycle driven
+through the packaged binary from an empty directory. Nine defects surfaced,
+six of them in code shipped in 1.18.0, and all nine are fixed here. Evidence
+matrix in `plans/reports/certifier-2026-08-14-post-hardening-certification.md`.
+
+### Fixed
+
+- Mapping-table diagnostics no longer misfire or under-fire: a GFM alignment
+  divider (`|:---|:---:|`) is a divider, not an ignored row — previously any
+  author who ran a markdown formatter earned a permanent warning about a
+  table that parsed perfectly; backticked placeholders and pipe-less tables
+  are now named instead of dropped silently; and a fenced example inside the
+  section is documentation, so it is neither reported nor — as it was —
+  parsed as a live mapping row.
+- Mapping-path containment uses `isWithin` rather than a string prefix, so a
+  source `app` no longer swallows a sibling `app-tools` and suppresses the
+  unresolved-path finding. That finding is now one per specification listing
+  its unresolved paths, and it names the convention (paths are relative to
+  the configured source root, never prefixed with the source ID) rather than
+  asserting a transposition.
+- `flow next` and the SessionStart hook agree in every state: neither offers
+  to resume a segment whose baseline exists, and an input the parser cannot
+  read yields a `<FTR-ID> <segment>` shape with the reason explaining it,
+  never a command whose first positional argument is a flag. The input parser
+  also tolerates a missing comma, a colon and trailing punctuation.
+- The PreToolUse sentinel walks ancestors, so a session started in a
+  subdirectory of the documentation repository keeps every protection —
+  1.18.0's Bash narrowing had widened a pre-existing cwd hole.
+- The init marker guard reads the directory once, matches regular files by
+  name and extension, covers Kotlin-DSL Gradle, `.csproj`/`.sln`, `Makefile`,
+  `mix.exs`, `Package.swift`, `setup.py` and `deno.json`, ignores a directory
+  merely bearing a marker's name, and refuses advisorily: a documentation
+  toolchain legitimately carries `package.json` or `requirements.txt`, so the
+  message says the directory *looks like* a code project and points at
+  `--force`.
+
 ## 1.18.0 - 2026-08-13
 
 A systematic hunt for the defect class the model-allocation challenge exposed

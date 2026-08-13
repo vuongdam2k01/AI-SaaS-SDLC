@@ -18,6 +18,21 @@ function normalized(value: string): string {
   return absolute.replaceAll("\\", "/").toLowerCase();
 }
 
+/**
+ * A session may legitimately start in a subdirectory of the documentation
+ * repository, so the sentinel walks ancestors: keying it on the working
+ * directory alone would silently drop every protection one `cd` down.
+ */
+async function withinManagedRepository(start: string): Promise<boolean> {
+  let current = path.resolve(start);
+  for (;;) {
+    if (await pathExists(path.join(current, INTERNAL_DIR))) return true;
+    const parent = path.dirname(current);
+    if (parent === current) return false;
+    current = parent;
+  }
+}
+
 function protectedInternal(value: string): string | null {
   if (!normalized(value).includes(`/${INTERNAL_DIR}/`)) return null;
   return "Internal state, change and execution records are engine-owned and cannot be edited directly.";
@@ -87,7 +102,7 @@ if (toolName === "apply_patch" && typeof toolInput.command === "string") {
 // text machine-wide denies innocent mentions of the directory name. The
 // implementation-source block below keeps its own stricter current.json
 // sentinel because it must load config and state anyway.
-const managedRepo = await pathExists(path.join(root, INTERNAL_DIR));
+const managedRepo = await withinManagedRepository(root);
 
 let reason: string | null = null;
 if (mutatingDirectTool.has(toolName)) {

@@ -69,12 +69,17 @@ describe("graduated implementation gates", () => {
     await wireSource(root);
     const specFile = path.join(root, "04-verification", "unit-tests", "backend", "UT-API-APPROVAL-001.md");
     const body = (await readFile(specFile, "utf8")).replace(/\r\n/g, "\n");
+    // A sibling directory sharing the source's name prefix is outside the
+    // source: a row reaching it must not count as resolved.
+    await mkdir(path.join(root, "app-tools"), { recursive: true });
+    await writeFile(path.join(root, "app-tools", "probe.test.ts"), "// commitDecision\n", "utf8");
     const table = [
       "| Case ID | Test path | Test name or symbol | Production symbol |",
       "|---|---|---|---|",
       "| TC-01 | tests/nowhere.test.ts | commits a decision | commitDecision |",
       "| TC02 | tests/approval-decision.test.ts | rejects | commitDecision |",
-      "| TC-03 | tests/approval-decision.test.ts | missing-a-column |"
+      "| TC-03 | tests/approval-decision.test.ts | missing-a-column |",
+      "| TC-04 | ../app-tools/probe.test.ts | commits a decision | commitDecision |"
     ].join("\n");
     await writeFile(specFile, body.replace(/## Implementation mapping[\s\S]*?(?=\n## |$)/, `## Implementation mapping\n\n${table}\n\n`), "utf8");
     await mapArtifact(root, "04-verification/unit-tests/backend/UT-API-APPROVAL-001.md", ["app:tests/approval-decision.test.ts"]);
@@ -83,11 +88,16 @@ describe("graduated implementation gates", () => {
     // The singular "Case ID" header still parses; TC-01's path resolves under
     // no source (a transposed or stale row on a spec that declares mappings);
     // the TC02 and three-column rows are present but unparseable.
-    expect(codes).toContain("IMPLEMENTATION_MAPPING_PATH_MISSING");
     expect(codes).toContain("IMPLEMENTATION_MAPPING_ROW_IGNORED");
     const ignored = report.findings.filter((finding) => finding.code === "IMPLEMENTATION_MAPPING_ROW_IGNORED");
     expect(ignored.some((finding) => finding.message.includes("no TC-nn"))).toBe(true);
     expect(ignored.some((finding) => finding.message.includes("four columns"))).toBe(true);
+    // One finding per specification, listing every unresolved path — including
+    // the one that escaped through the sibling-prefix directory.
+    const pathMissing = report.findings.filter((finding) => finding.code === "IMPLEMENTATION_MAPPING_PATH_MISSING");
+    expect(pathMissing).toHaveLength(1);
+    expect(pathMissing[0]!.message).toContain("tests/nowhere.test.ts");
+    expect(pathMissing[0]!.message).toContain("app-tools/probe.test.ts");
   });
 
   it("stays byte-identical for a repository without implementation sources", async () => {

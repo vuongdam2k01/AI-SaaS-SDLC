@@ -2,6 +2,15 @@
 
 See the root [CHANGELOG](../CHANGELOG.md) for the release summary. This contributor view records documentation-impact areas that must remain synchronized with implementation.
 
+## 1.18.1 - 2026-08-14
+
+| Area | Documentation impact |
+|---|---|
+| Engine | Mapping-table parsing (alignment dividers, backticks, pipe-less rows, fenced examples), `isWithin` containment, one path-missing finding per specification, resume/continuation agreement, ancestor-walking hook sentinel, rewritten init marker guard |
+| Validation | New regression tests in `proof-depth`, `implementation-gates`, `implementation-intent`, `project-integration` and `hooks`, each proven red against the committed 1.18.0 tree first |
+| Docs | `plans/reports/certifier-2026-08-14-post-hardening-certification.md` records the defects, the real-binary evidence and three adjudications, including that the singular `Case ID` header the parser tolerates is rejected by the pinned content contract |
+| Compatibility | Message and diagnostic changes only; no schema, gate, catalog or record-shape change |
+
 ## 1.18.0 - 2026-08-13
 
 | Area | Documentation impact |

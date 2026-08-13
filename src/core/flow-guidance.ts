@@ -42,22 +42,41 @@ const SKILL_FOR_FLOW: Record<string, string> = {
  * caller falls back to the generic continuation string.
  */
 export function parseImplementationInput(input: string): { feature: string; segment: string } | null {
-  const match = input.match(/^\s*implement\s+(FTR-[A-Za-z0-9-]+)\s*,\s*segment\s+([a-z]+(?:\s*,\s*[a-z]+)*)\s*$/i);
+  // Tolerant of what an author actually types around the playbook's form —
+  // a missing comma, a colon, trailing punctuation — because the alternative
+  // is a continuation command the skill's positional grammar cannot read.
+  const match = input.match(/^\s*implement\s+(FTR-[A-Za-z0-9-]+)\s*[,;:]?\s*segments?\s*[:=]?\s*([a-z]+(?:\s*,\s*[a-z]+)*)\s*[.,;]?\s*$/i);
   if (!match) return null;
   const segment = match[2]!.toLowerCase().replace(/\s/g, "");
   const legal = new Set(["code", "ut", "it", "st", "all"]);
   return segment.split(",").every((token) => legal.has(token)) ? { feature: match[1]!.toUpperCase(), segment } : null;
 }
 
-/** Shared by flow guidance and the SessionStart hook so the two cannot drift. */
-export function implementationResumeCommand(flow: ActiveFlow): string | null {
+/**
+ * The implement-skill invocation prefix for an implementation-intent flow, or
+ * null for any other flow. An input the parser cannot read still yields a
+ * syntactically valid command shape: the skill's grammar is positional, so a
+ * bare `--until` in first position would be read as the feature ID.
+ */
+function implementContinuation(flow: ActiveFlow): string | null {
   if (flow.type !== "evolution" || flow.intent !== "implementation") return null;
   const parsed = parseImplementationInput(flow.input);
-  if (!parsed) return null;
+  return parsed ? `/ai-saas-sdlc:implement ${parsed.feature} ${parsed.segment}` : "/ai-saas-sdlc:implement <FTR-ID> <segment>";
+}
+
+/**
+ * The resume command for an open implementation segment, shared with the
+ * SessionStart hook so the two cannot drift. Null once the flow has produced
+ * its baseline or has no stage left: re-running the segment then is exactly
+ * the re-entry the playbook forbids, and `flow next` says `flow close`.
+ */
+export function implementationResumeCommand(flow: ActiveFlow): string | null {
+  if (flow.baseline_created) return null;
+  const continuation = implementContinuation(flow);
+  if (!continuation) return null;
   const reached = flow.reached_stage ?? null;
   const next = (reached ? FLOW_STAGES.filter((stage) => stageIndex(stage) > stageIndex(reached)) : [...FLOW_STAGES])[0];
-  const prefix = `/ai-saas-sdlc:implement ${parsed.feature} ${parsed.segment}`;
-  return next ? `${prefix} --until ${next} continue ${flow.id}` : `${prefix} continue ${flow.id}`;
+  return next ? `${continuation} --until ${next} continue ${flow.id}` : null;
 }
 
 /**
@@ -164,14 +183,16 @@ export async function flowGuidance(root: string): Promise<FlowGuidance> {
 
   const next = remaining[0]!;
   const stoppedShort = target !== null && reached !== null && stageIndex(reached) >= stageIndex(target);
-  const parsed = flow.type === "evolution" && flow.intent === "implementation" ? parseImplementationInput(flow.input) : null;
-  const continuation = parsed ? `/ai-saas-sdlc:implement ${parsed.feature} ${parsed.segment}` : skill;
+  const continuation = implementContinuation(flow) ?? skill;
+  const unreadableInput = continuation.includes("<FTR-ID>")
+    ? ` This flow's input does not name a feature and segment in the form 'implement <FTR-ID>, segment <segment>', so fill both in before running the command.`
+    : "";
   return {
     active_flow: flow.id, flow_type: flow.type, target_stage: target, reached_stage: reached,
     remaining_stages: remaining, baseline_created: null,
     next_command: `${continuation} --until ${next} continue ${flow.id}`,
-    reason: stoppedShort
+    reason: (stoppedShort
       ? `${flow.id} stopped at its requested checkpoint '${reached}' and is still open. Review what exists, then continue.`
-      : `${flow.id} is open and has not yet reached '${next}'.`
+      : `${flow.id} is open and has not yet reached '${next}'.`) + unreadableInput
   };
 }

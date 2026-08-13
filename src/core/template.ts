@@ -1,4 +1,4 @@
-import { lstat, mkdir, readFile, realpath, writeFile } from "node:fs/promises";
+import { lstat, mkdir, readdir, readFile, realpath, writeFile } from "node:fs/promises";
 import path from "node:path";
 import fg from "fast-glob";
 import type { CurrentState } from "./types.js";
@@ -50,18 +50,39 @@ async function copyPlan(root: string, templateRoot: string, patternRoot: string)
   return plan;
 }
 
-// Well-known code-project markers. A docs repository never carries one, and
-// the commonest wrong-cwd mistake is running init inside the application
-// repository the docs are meant to describe.
-const CODE_PROJECT_MARKERS = ["package.json", "pnpm-workspace.yaml", "go.mod", "Cargo.toml", "pyproject.toml", "requirements.txt", "pom.xml", "build.gradle", "Gemfile", "composer.json"];
+// Well-known code-project markers. The commonest wrong-cwd mistake is running
+// init inside the application repository the docs are meant to describe, and
+// the refusal is advisory: a documentation-site toolchain legitimately carries
+// some of these, which is what --force is for.
+const CODE_PROJECT_MARKERS = new Set([
+  "package.json", "pnpm-workspace.yaml", "deno.json", "composer.json", "gemfile", "go.mod", "cargo.toml",
+  "pyproject.toml", "requirements.txt", "setup.py", "pom.xml", "build.gradle", "build.gradle.kts",
+  "settings.gradle", "settings.gradle.kts", "makefile", "cmakelists.txt", "mix.exs", "package.swift"
+]);
+const CODE_PROJECT_EXTENSIONS = new Set([".sln", ".slnx", ".csproj", ".fsproj", ".vbproj", ".xcodeproj"]);
+
+async function codeProjectMarkers(root: string): Promise<string[]> {
+  let entries;
+  try {
+    entries = await readdir(root, { withFileTypes: true });
+  } catch {
+    // An unreadable directory is the copy plan's problem to report, not this
+    // advisory guard's.
+    return [];
+  }
+  return entries
+    .filter((entry) => entry.isFile())
+    .map((entry) => entry.name)
+    .filter((name) => CODE_PROJECT_MARKERS.has(name.toLowerCase()) || CODE_PROJECT_EXTENSIONS.has(path.extname(name).toLowerCase()))
+    .sort();
+}
 
 async function initializeProjectUnlocked(root: string, templateRoot: string, patternRoot: string, projectId: string, idea: string, force: boolean): Promise<void> {
   if (!/^[a-z0-9][a-z0-9-]*$/.test(projectId)) throw new SdlcError("project_id must use lowercase letters, numbers, and hyphens.");
   if (await pathExists(projectPaths(root).config)) throw new SdlcError("Repository is already initialized.");
   if (!force) {
-    const found: string[] = [];
-    for (const marker of CODE_PROJECT_MARKERS) if (await pathExists(path.join(root, marker))) found.push(marker);
-    if (found.length > 0) throw new SdlcError(`Refusing to initialize: ${found.join(", ")} marks this directory as a code project. ai-saas-sdlc init belongs in a separate, empty documentation repository. Pass --force to override.`);
+    const found = await codeProjectMarkers(root);
+    if (found.length > 0) throw new SdlcError(`Refusing to initialize: ${found.join(", ")} — this directory looks like a code project, and this engine manages a separate documentation repository. If this really is your documentation repository, re-run with --force.`);
   }
   const plan = await copyPlan(root, templateRoot, patternRoot);
   const conflicts: string[] = [];

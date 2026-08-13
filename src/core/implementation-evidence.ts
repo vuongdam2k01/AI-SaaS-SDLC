@@ -5,6 +5,7 @@ import { reverseClosure } from "./graph.js";
 import { driftedMappings } from "./mapping-hashes.js";
 import { ignoredImplementationMappingRows, implementationMappingRows } from "./test-report.js";
 import { pathExists } from "./state.js";
+import { isWithin } from "./paths.js";
 
 /**
  * Implementation levels and the specification types whose active instances
@@ -167,12 +168,16 @@ export async function implementationSymbolFindings(root: string, config: Project
         file: spec.file
       });
     }
+    const unresolved: string[] = [];
     for (const row of implementationMappingRows(spec)) {
       let found = false;
       let existsSomewhere = false;
       for (const sourceRoot of sourceRoots) {
         const candidate = path.resolve(sourceRoot, row.test_path);
-        if (!candidate.startsWith(sourceRoot) || !(await pathExists(candidate))) continue;
+        // Containment, not a string prefix: source `app` must not swallow a
+        // sibling `app-tools`, or a row pointing outside every source would be
+        // read anyway and silence the unresolved-path finding below.
+        if (!isWithin(sourceRoot, candidate) || !(await pathExists(candidate))) continue;
         existsSomewhere = true;
         try {
           if ((await readFile(candidate, "utf8")).includes(row.symbol)) { found = true; break; }
@@ -187,18 +192,24 @@ export async function implementationSymbolFindings(root: string, config: Project
           message: `${spec.id} maps ${row.case_ids.join(", ")} to test symbol "${row.symbol}" in ${row.test_path}, but the symbol does not occur in that file (approximate textual check); fix the mapping row or the test name so the case can be located.`,
           file: spec.file
         });
-      } else if (!existsSomewhere && spec.implementation.length > 0) {
-        // Gated on the spec's own frontmatter claim: a spec that declares
-        // implementation mappings has promised its rows resolve, so a path
-        // found under no configured root is a transposed or stale row — while
-        // honestly not-yet-implemented specs (sentinel paths) stay silent.
-        findings.push({
-          severity: "warning",
-          code: "IMPLEMENTATION_MAPPING_PATH_MISSING",
-          message: `${spec.id} maps ${row.case_ids.join(", ")} to ${row.test_path}, but that path exists under no configured implementation source while the specification declares implementation mappings — a transposed or stale row; fix the test path so the case can be located.`,
-          file: spec.file
-        });
+      } else if (!existsSomewhere) {
+        unresolved.push(row.test_path);
       }
+    }
+    // One finding per specification, not per row: a partially implemented
+    // level legitimately names files that do not exist yet, and the first-time
+    // mistake is the path convention rather than any single row. Gated on the
+    // spec's own frontmatter claim, so honestly unimplemented specs stay
+    // silent.
+    if (unresolved.length > 0 && spec.implementation.length > 0) {
+      const shown = unresolved.slice(0, 5).join(", ");
+      const rest = unresolved.length > 5 ? `, and ${unresolved.length - 5} more` : "";
+      findings.push({
+        severity: "warning",
+        code: "IMPLEMENTATION_MAPPING_PATH_MISSING",
+        message: `${spec.id} declares implementation mappings, but ${unresolved.length} mapping row path(s) exist under no configured implementation source (${shown}${rest}); test paths are relative to the configured source root itself, never prefixed with the source ID, so fix the paths or the rows naming files that were never written.`,
+        file: spec.file
+      });
     }
   }
   return findings;

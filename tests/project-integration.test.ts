@@ -34,9 +34,32 @@ describe("project initialization", () => {
     roots.push(root);
     await writeFile(path.join(root, "package.json"), "{}\n", "utf8");
     const template = path.join(process.cwd(), "resources", "project-template");
-    await expect(initializeProject(root, template, "test-project", "Idea")).rejects.toThrow("marks this directory as a code project");
+    await expect(initializeProject(root, template, "test-project", "Idea")).rejects.toThrow("this directory looks like a code project");
     await initializeProject(root, template, "test-project", "Idea", undefined, { force: true });
     expect(await readFile(path.join(root, "sdlc.config.yaml"), "utf8")).toContain("test-project");
+  });
+
+  it("detects the marker families the first list missed and ignores a directory wearing a marker's name", async () => {
+    const template = path.join(process.cwd(), "resources", "project-template");
+    const kotlin = await mkdtemp(path.join(os.tmpdir(), "kotlin-repo-"));
+    roots.push(kotlin);
+    await writeFile(path.join(kotlin, "build.gradle.kts"), "plugins {}\n", "utf8");
+    await expect(initializeProject(kotlin, template, "test-project", "Idea")).rejects.toThrow("build.gradle.kts");
+
+    const dotnet = await mkdtemp(path.join(os.tmpdir(), "dotnet-repo-"));
+    roots.push(dotnet);
+    await writeFile(path.join(dotnet, "Approval.csproj"), "<Project />\n", "utf8");
+    await expect(initializeProject(dotnet, template, "test-project", "Idea")).rejects.toThrow("Approval.csproj");
+
+    // A directory that merely bears a marker's name is not a code project, and
+    // a marker one level up belongs to another repository.
+    const docs = await mkdtemp(path.join(os.tmpdir(), "docs-repo-"));
+    roots.push(docs);
+    await mkdir(path.join(docs, "package.json"), { recursive: true });
+    const nested = path.join(docs, "product-docs");
+    await mkdir(nested, { recursive: true });
+    await initializeProject(nested, template, "test-project", "Idea");
+    expect(await readFile(path.join(nested, "sdlc.config.yaml"), "utf8")).toContain("test-project");
   });
 
   it("produces byte-identical projects for the same input", async () => {
