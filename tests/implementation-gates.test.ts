@@ -60,6 +60,36 @@ async function implementationFindings(root: string) {
 }
 
 describe("graduated implementation gates", () => {
+  it("names ignored mapping rows and unresolvable mapped paths instead of dropping them silently", async () => {
+    const root = await tempProject();
+    roots.push(root);
+    await establishGenesis(root);
+    await startFlow(root, "evolution", "Mapping diagnostics");
+    await addApprovalFeature(root);
+    await wireSource(root);
+    const specFile = path.join(root, "04-verification", "unit-tests", "backend", "UT-API-APPROVAL-001.md");
+    const body = (await readFile(specFile, "utf8")).replace(/\r\n/g, "\n");
+    const table = [
+      "| Case ID | Test path | Test name or symbol | Production symbol |",
+      "|---|---|---|---|",
+      "| TC-01 | tests/nowhere.test.ts | commits a decision | commitDecision |",
+      "| TC02 | tests/approval-decision.test.ts | rejects | commitDecision |",
+      "| TC-03 | tests/approval-decision.test.ts | missing-a-column |"
+    ].join("\n");
+    await writeFile(specFile, body.replace(/## Implementation mapping[\s\S]*?(?=\n## |$)/, `## Implementation mapping\n\n${table}\n\n`), "utf8");
+    await mapArtifact(root, "04-verification/unit-tests/backend/UT-API-APPROVAL-001.md", ["app:tests/approval-decision.test.ts"]);
+    const report = await validateProject(root, await scanArtifacts(root));
+    const codes = report.findings.filter((finding) => finding.file?.includes("UT-API-APPROVAL-001")).map((finding) => finding.code);
+    // The singular "Case ID" header still parses; TC-01's path resolves under
+    // no source (a transposed or stale row on a spec that declares mappings);
+    // the TC02 and three-column rows are present but unparseable.
+    expect(codes).toContain("IMPLEMENTATION_MAPPING_PATH_MISSING");
+    expect(codes).toContain("IMPLEMENTATION_MAPPING_ROW_IGNORED");
+    const ignored = report.findings.filter((finding) => finding.code === "IMPLEMENTATION_MAPPING_ROW_IGNORED");
+    expect(ignored.some((finding) => finding.message.includes("no TC-nn"))).toBe(true);
+    expect(ignored.some((finding) => finding.message.includes("four columns"))).toBe(true);
+  });
+
   it("stays byte-identical for a repository without implementation sources", async () => {
     const root = await tempProject();
     roots.push(root);

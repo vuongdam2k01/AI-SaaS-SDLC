@@ -99,16 +99,21 @@ export interface MappingRow {
  * `| Case IDs | Test path | Test name or symbol | Production symbol |`.
  * The symbol column is the join key a report's case names are matched against.
  */
-export function implementationMappingRows(spec: Artifact): MappingRow[] {
+function mappingTableLines(spec: Artifact): string[] {
   const normalized = spec.body.replace(/\r\n/g, "\n");
   const section = normalized.split(/^## Implementation mapping\s*$/m)[1];
   if (!section) return [];
+  return (section.split(/^## /m)[0] ?? "").split("\n");
+}
+
+export function implementationMappingRows(spec: Artifact): MappingRow[] {
   const rows: MappingRow[] = [];
-  for (const line of (section.split(/^## /m)[0] ?? "").split("\n")) {
+  for (const line of mappingTableLines(spec)) {
     const cells = line.split("|").map((cell) => cell.trim());
     // A table line splits into ["", cell, cell, cell, cell, ""]; skip the
-    // header and its divider.
-    if (cells.length < 6 || cells[1] === "Case IDs" || /^-+$/.test(cells[1] ?? "")) continue;
+    // header ("Case IDs" or the singular authors sometimes write) and its
+    // divider.
+    if (cells.length < 6 || /^Case IDs?$/.test(cells[1] ?? "") || /^-+$/.test(cells[1] ?? "")) continue;
     const caseIds = [...(cells[1] ?? "").matchAll(/\bTC-[0-9]+\b/g)].map((match) => match[0]);
     const symbol = (cells[3] ?? "").replace(/`/g, "").trim();
     const testPath = (cells[2] ?? "").replace(/`/g, "").trim();
@@ -116,6 +121,38 @@ export function implementationMappingRows(spec: Artifact): MappingRow[] {
     rows.push({ spec_id: spec.id, case_ids: caseIds, symbol, test_path: testPath });
   }
   return rows;
+}
+
+export interface IgnoredMappingRow {
+  spec_id: string;
+  snippet: string;
+  reason: string;
+}
+
+/**
+ * The rows `implementationMappingRows` silently drops, classified. A silent
+ * drop is indistinguishable from "not written yet" to the author, so each
+ * dropped row that carries real content becomes a named reason; untouched
+ * template rows (every filled cell still a `<placeholder>`) stay silent —
+ * they are scaffolding, not mistakes.
+ */
+export function ignoredImplementationMappingRows(spec: Artifact): IgnoredMappingRow[] {
+  const ignored: IgnoredMappingRow[] = [];
+  for (const line of mappingTableLines(spec)) {
+    const trimmed = line.trim();
+    if (!trimmed.startsWith("|")) continue;
+    const cells = line.split("|").map((cell) => cell.trim());
+    if (/^Case IDs?$/.test(cells[1] ?? "") || /^-+$/.test(cells[1] ?? "")) continue;
+    const content = cells.slice(1, -1);
+    if (content.every((cell) => cell.length === 0 || cell.startsWith("<") || /^-+$/.test(cell))) continue;
+    let reason: string | null = null;
+    if (cells.length < 6) reason = "expected at least four columns";
+    else if ([...(cells[1] ?? "").matchAll(/\bTC-[0-9]+\b/g)].length === 0) reason = "no TC-nn case ID in the first column";
+    else if ((cells[2] ?? "").replace(/`/g, "").trim().length === 0 || (cells[2] ?? "").trim().startsWith("<")) reason = "test path is empty or a placeholder";
+    else if ((cells[3] ?? "").replace(/`/g, "").trim().length === 0 || (cells[3] ?? "").trim().startsWith("<")) reason = "test symbol is empty or a placeholder";
+    if (reason) ignored.push({ spec_id: spec.id, snippet: trimmed.slice(0, 120), reason });
+  }
+  return ignored;
 }
 
 /**

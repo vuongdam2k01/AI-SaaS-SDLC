@@ -64,6 +64,8 @@ Nineteen findings are **warnings** and never block a baseline, because each name
 | `IMPLEMENTATION_LEVEL_UNPROVEN` | With implementation sources configured, a feature level (UT/IT/ST) whose active specifications include none mapped to an implemented test | Implementing and mapping the level, or the standing record that it is specified but unproven |
 | `IMPLEMENTATION_DRIFT` | A mapped file whose content left the baseline behind while every artifact declaring it did not | Bringing the documents level through a flow that owns the change, reverting the code, or a Reconciliation on the recorded divergence |
 | `IMPLEMENTATION_SYMBOL_MISSING` | A spec mapping row whose test symbol does not occur in the file the row names (approximate textual check) | Fixing the mapping row or the test name so the case can be located |
+| `IMPLEMENTATION_MAPPING_ROW_IGNORED` | A mapping-table row present but unparseable (column count, malformed case ID, placeholder mixed with content) | Fixing the row so its cases can join execution reports |
+| `IMPLEMENTATION_MAPPING_PATH_MISSING` | On a frontmatter-mapped spec, a row whose test path exists under no configured source | Fixing the transposed or stale test path |
 
 Seeing warnings after a flow closes is expected and healthy. Seeing **errors: 0** is the bar for "it worked."
 

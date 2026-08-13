@@ -67,6 +67,8 @@ A **warning** names a judgement or a debt rather than a broken structure, never 
 | `IMPLEMENTATION_LEVEL_UNPROVEN` | With implementation sources configured, a feature whose active UT, IT or ST specifications include none mapped to an implemented test — the level is specified but unproven. |
 | `IMPLEMENTATION_DRIFT` | A mapped file whose content left the baseline behind while every artifact declaring it did not — code moved, documents did not. |
 | `IMPLEMENTATION_SYMBOL_MISSING` | A specification mapping row whose test symbol does not occur in the file the row names (approximate textual check). |
+| `IMPLEMENTATION_MAPPING_ROW_IGNORED` | An Implementation-mapping table row that is present but unparseable: wrong column count, malformed case ID, or placeholder cells mixed with real content. |
+| `IMPLEMENTATION_MAPPING_PATH_MISSING` | On a specification that declares frontmatter mappings, a table row whose test path exists under no configured implementation source — a transposed or stale row. |
 
 Closing a warning by weakening the artifact that raised it is not a repair. Several are legitimately permanent: an unproven platform, an IPC-only operation with no wire owner, a client-local entity with no schema owner, a degraded retrieval whose source stayed unreachable, a feature validated on paper before anyone builds it.
 

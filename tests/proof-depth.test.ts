@@ -141,6 +141,51 @@ describe("execution hardening and report ingestion", () => {
     expect(legacyRendered).toContain("| Total test cases | not reported by configured command |");
   });
 
+  it("honours per-command timeout overrides, truncates by real bytes, and caps only marked passed sets", async () => {
+    const root = await tempProject();
+    roots.push(root);
+    await establishGenesis(root);
+    await startFlow(root, "evolution", "Budget overrides");
+    await mkdir(path.join(root, "app"), { recursive: true });
+    // Machine policy stays generous; the command's own budget is what fires.
+    await writeFile(path.join(root, ".ai-saas-sdlc", "verification-tools.json"), JSON.stringify({ command_timeout_ms: 60000, output_max_bytes: 200 }), "utf8");
+    await patchConfig(root, (config) => {
+      config.implementation_sources = [{ id: "app", path: "./app" }];
+      config.verification.unit = [
+        { id: "slow", cwd: ".", command: `node -e "setTimeout(() => {}, 60000)"`, timeout_ms: 300 },
+        { id: "multibyte", cwd: ".", command: `node -e "process.stdout.write('é'.repeat(500))"` }
+      ];
+    });
+    const records = await executeVerification(root, await loadConfig(root), ["unit"]);
+    const slow = records.find((record) => record.command_id === "slow")!;
+    expect(slow.timed_out).toBe(true);
+    const multibyte = records.find((record) => record.command_id === "multibyte")!;
+    expect(multibyte.output_truncated).toBe(true);
+    const log = await readFile(path.join(root, ".ai-saas-sdlc", "executions", `${multibyte.id}.log`), "utf8");
+    // Byte-accurate truncation never flushes a split sequence as U+FFFD.
+    expect(log).not.toContain("�");
+    // The renderer caps on the record field alone; failures are never hidden.
+    const manyCases = Array.from({ length: 60 }, (_, index) => ({ name: `case ${index}`, status: "passed" as "passed" | "failed" | "skipped", time_ms: null, spec_id: null, case_ids: null }));
+    manyCases.push({ name: "the failure", status: "failed", time_ms: null, spec_id: null, case_ids: null });
+    const base = {
+      schema_version: 1 as const, flow_id: "FLOW-001", level: "unit" as const, command_id: "big",
+      command: "node --test", cwd: ".", started_at: "2026-01-01T00:00:00.000Z", ended_at: "2026-01-01T00:00:01.000Z",
+      exit_code: 1, output_hash: sha256("y"), output_file: ".ai-saas-sdlc/executions/EXEC-098.log",
+      git_commit: null, source_snapshot_hash: "2".repeat(64), cases: manyCases
+    };
+    const capped = renderResultArtifact({ ...base, id: "EXEC-098", case_row_cap: 50 } as ExecutionRecord, "CHG-001");
+    expect(capped).toContain("10 more passed cases");
+    expect(capped).toContain("| the failure |");
+    const uncapped = renderResultArtifact({ ...base, id: "EXEC-097" } as ExecutionRecord, "CHG-001");
+    expect(uncapped).not.toContain("more passed cases");
+    expect(uncapped).toContain("| case 59 |");
+    // A zero or negative override is a config error, not a disabled budget.
+    await patchConfig(root, (config) => {
+      config.verification.unit = [{ id: "bad", cwd: ".", command: "node --version", timeout_ms: 0 }];
+    });
+    await expect(loadConfig(root)).rejects.toThrow("timeout_ms");
+  });
+
   it("records a declared report the command never produced as report_error without changing the outcome", async () => {
     const root = await tempProject();
     roots.push(root);

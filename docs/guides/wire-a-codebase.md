@@ -41,7 +41,7 @@ verification:
       command: npm run test:system
 ```
 
-The engine runs **only** these exact strings, never anything inferred. Each level's command should exist and exit zero on the fresh scaffold (an empty passing suite is a fine start) — every future evolution re-runs all of them as its regression contract.
+The engine runs **only** these exact strings, never anything inferred. Note the direction: `cwd` points each command at the application repository, but the engine itself always runs at the docs root — the configured commands are the only thing that reaches across. A slow suite may carry its own `timeout_ms` here, overriding the machine budget for that command alone. Each level's command should exist and exit zero on the fresh scaffold (an empty passing suite is a fine start) — every future evolution re-runs all of them as its regression contract.
 
 Wiring changes what `validate` reports, deliberately: every active feature now carries `IMPLEMENTATION_MAPPING_MISSING` — the standing, honest record that it is specified but not yet implemented. **Nothing is blocked by this.** Warnings are the ledger of what is owed, and `generated/implementation-coverage.md` now shows the same state as a per-feature dashboard, with one `generated/implementation-plan/<FTR-ID>.md` work packet per feature.
 

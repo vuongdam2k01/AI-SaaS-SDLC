@@ -2,6 +2,17 @@
 
 See the root [CHANGELOG](../CHANGELOG.md) for the release summary. This contributor view records documentation-impact areas that must remain synchronized with implementation.
 
+## 1.18.0 - 2026-08-13
+
+| Area | Documentation impact |
+|---|---|
+| Engine | `state.ts` uninitialized message names the docs-repo precondition; `init --force` + code-marker refusal; `flow next` implementation continuation carries feature/segment; per-command `timeout_ms`; byte-accurate output caps; `case_row_cap` record field; two mapping-row warnings |
+| Hooks | Bash keyword rules (internal directory included) gated on the managed-repo sentinel; SessionStart open-flow line carries intent, stages and the exact resume command |
+| Method | Implementation playbook gains docs-root precondition, resume mechanics, cold-start reconstruction, refresh-before-re-read, read budgets, delegation-outcome report bullet; delegation protocol gains the packet template, delegate refusal rule and bounded controller loop; scouting gains the first-ten blast-radius cap |
+| Adapters | All twelve host skills state the docs-root precondition; the four agents carry the packet-absent refusal rule; implement accepts the `continue FLOW-*` trailer |
+| Docs | configuration-reference (timeout_ms, new warnings), command-reference (init --force, flow next, twenty-one warnings), validation-rules template, inspect guide/playbook warning lists, wire-a-codebase direction note |
+| Compatibility | Config accepts a new optional command key; execution records may carry `case_row_cap` (one-way ratchet like `timed_out`); old records and baselines render and validate unchanged |
+
 ## 1.17.1 - 2026-08-13
 
 | Area | Documentation impact |

@@ -1,4 +1,5 @@
 import { spawn } from "node:child_process";
+import { StringDecoder } from "node:string_decoder";
 import { readFile, readdir, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
@@ -88,16 +89,27 @@ async function runCommand(command: CommandDefinition, cwd: string, policy: Verif
   return new Promise((resolve) => {
     const child = spawn(command.command, { cwd, shell: true, env: process.env });
     let output = "";
+    let bytes = 0;
     let truncated = false;
     let timedOut = false;
     let settled = false;
-    const append = (chunk: Buffer): void => {
-      if (policy.output_max_bytes > 0 && output.length >= policy.output_max_bytes) { truncated = true; return; }
-      output += chunk.toString();
-      if (policy.output_max_bytes > 0 && output.length > policy.output_max_bytes) {
-        output = output.slice(0, policy.output_max_bytes);
-        truncated = true;
-      }
+    // Byte-accurate accounting with a per-stream decoder: the old code
+    // compared UTF-16 code units against a byte budget and split multibyte
+    // sequences at chunk boundaries — invisible on ASCII fixtures, corrupting
+    // on real suites that emit box drawing and check marks across megabytes.
+    // A sequence split exactly at the cap stays held in the decoder rather
+    // than flushing as U+FFFD.
+    const makeAppend = (): ((chunk: Buffer) => void) => {
+      const decoder = new StringDecoder("utf8");
+      return (chunk: Buffer): void => {
+        if (policy.output_max_bytes > 0) {
+          const remaining = policy.output_max_bytes - bytes;
+          if (remaining <= 0) { truncated = true; return; }
+          if (chunk.length > remaining) { truncated = true; chunk = chunk.subarray(0, remaining); }
+        }
+        bytes += chunk.length;
+        output += decoder.write(chunk);
+      };
     };
     const timer = policy.command_timeout_ms > 0
       ? setTimeout(() => {
@@ -121,8 +133,8 @@ async function runCommand(command: CommandDefinition, cwd: string, policy: Verif
       if (timer) clearTimeout(timer);
       resolve(run);
     };
-    child.stdout.on("data", append);
-    child.stderr.on("data", append);
+    child.stdout.on("data", makeAppend());
+    child.stderr.on("data", makeAppend());
     child.on("error", (error) => settle({ exitCode: 1, output: `${output}\n${String(error)}`, started, ended: new Date().toISOString(), spawnError: true, timedOut, truncated }));
     child.on("close", (code) => settle({ exitCode: code ?? 1, output, started, ended: new Date().toISOString(), spawnError: false, timedOut, truncated }));
   });
@@ -210,7 +222,7 @@ async function executeVerificationUnlocked(root: string, config: ProjectConfig, 
     await saveCurrentState(root, state);
     const sourceCommit = gitCommit(cwd);
     const sourceSnapshot = sourceSnapshotBefore;
-    const result = await runCommand(definition, cwd, policy);
+    const result = await runCommand(definition, cwd, { ...policy, command_timeout_ms: definition.timeout_ms ?? policy.command_timeout_ms });
     const reportFields = await ingestReport(definition, cwd, roots, artifacts, level);
     const record: ExecutionRecord = {
       schema_version: 1,
@@ -237,6 +249,10 @@ async function executeVerificationUnlocked(root: string, config: ProjectConfig, 
       ...(result.timedOut ? { timed_out: true } : {}),
       ...(result.truncated ? { output_truncated: true } : {}),
       ...(result.spawnError ? { spawn_error: true } : {}),
+      // Written only when a large passed set exists; the RESULT renderer caps
+      // its passed rows on this field alone, so every record without it —
+      // including everything older engines wrote — renders byte-identically.
+      ...((reportFields.cases?.filter((item) => item.status === "passed").length ?? 0) > 50 ? { case_row_cap: 50 } : {}),
       ...reportFields
     };
     // Recheck immediately before persistence in case a directory changed during execution.

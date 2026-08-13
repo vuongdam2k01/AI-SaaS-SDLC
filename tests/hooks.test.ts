@@ -4,7 +4,7 @@ import { mkdir, mkdtemp, readFile, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import YAML from "yaml";
-import { cleanup, pluginRoot, tempProject } from "./helpers.js";
+import { cleanup, establishGenesis, pluginRoot, tempProject } from "./helpers.js";
 import { loadCurrentState, saveCurrentState, startFlow } from "../src/core/state.js";
 
 const roots: string[] = [];
@@ -48,15 +48,28 @@ describe("hooks", () => {
     expect(hook("pre-tool-use", root, { cwd: root, tool_name: "Edit", tool_input: { file_path: "01-discovery/original-idea.md" } })).toBe("");
   });
 
-  it("denies .ai-saas-sdlc fabrication even where the engine manages nothing", async () => {
+  it("denies direct-tool .ai-saas-sdlc fabrication everywhere but leaves unmanaged shell mentions alone", async () => {
     const root = await mkdtemp(path.join(os.tmpdir(), "unrelated-repo-"));
     roots.push(root);
     const direct = hook("pre-tool-use", root, { cwd: root, tool_name: "Write", tool_input: { file_path: ".ai-saas-sdlc/state/current.json" } });
     expect(JSON.parse(direct).hookSpecificOutput.permissionDecision).toBe("deny");
-    const indirect = hook("pre-tool-use", root, { cwd: root, tool_name: "Bash", tool_input: { command: "node mutate.js .ai-saas-sdlc/state/current.json" } });
-    expect(JSON.parse(indirect).hookSpecificOutput.permissionDecision).toBe("deny");
     const patch = hook("pre-tool-use", root, { cwd: root, tool_name: "apply_patch", tool_input: { command: "*** Begin Patch\n*** Add File: .ai-saas-sdlc/executions/EXEC-999.json\n@@\n+{}\n*** End Patch" } });
     expect(JSON.parse(patch).hookSpecificOutput.permissionDecision).toBe("deny");
+    // A Bash command merely mentioning the directory name in an unmanaged
+    // repository passes through — keyword rules are managed-repo only.
+    expect(hook("pre-tool-use", root, { cwd: root, tool_name: "Bash", tool_input: { command: `git commit -m "fix .ai-saas-sdlc parser"` } })).toBe("");
+    expect(hook("pre-tool-use", root, { cwd: root, tool_name: "Bash", tool_input: { command: "node mutate.js .ai-saas-sdlc/state/current.json" } })).toBe("");
+  });
+
+  it("prints the exact resume command for an open implementation flow", async () => {
+    const root = await tempProject();
+    roots.push(root);
+    await establishGenesis(root);
+    await startFlow(root, "evolution", "implement FTR-APPROVAL-001, segment ut", undefined, "implementation");
+    const session = hook("session-start", root, { cwd: root, hook_event_name: "SessionStart", source: "resume", permission_mode: "default" });
+    const context = JSON.parse(session).hookSpecificOutput.additionalContext as string;
+    expect(context).toContain("intent implementation");
+    expect(context).toContain("Resume: /ai-saas-sdlc:implement FTR-APPROVAL-001 ut --until behavior continue FLOW-");
   });
 
   it("emits the session summary when invoked with the compact source", async () => {

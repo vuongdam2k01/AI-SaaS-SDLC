@@ -59,7 +59,9 @@ describe("implementation intent", () => {
     expect(persisted?.intent).toBe("implementation");
     expect(isActiveFlow(persisted)).toBe(true);
     const guidance = await flowGuidance(root);
-    expect(guidance.next_command).toBe(`/ai-saas-sdlc:implement --until behavior continue ${flow.id}`);
+    // The implement skill's grammar is positional, so the continuation must
+    // carry the feature and segment recovered from the flow's verbatim input.
+    expect(guidance.next_command).toBe(`/ai-saas-sdlc:implement FTR-APPROVAL-001 code --until behavior continue ${flow.id}`);
     await closeFlow(root);
   });
 

@@ -50,9 +50,19 @@ async function copyPlan(root: string, templateRoot: string, patternRoot: string)
   return plan;
 }
 
-async function initializeProjectUnlocked(root: string, templateRoot: string, patternRoot: string, projectId: string, idea: string): Promise<void> {
+// Well-known code-project markers. A docs repository never carries one, and
+// the commonest wrong-cwd mistake is running init inside the application
+// repository the docs are meant to describe.
+const CODE_PROJECT_MARKERS = ["package.json", "pnpm-workspace.yaml", "go.mod", "Cargo.toml", "pyproject.toml", "requirements.txt", "pom.xml", "build.gradle", "Gemfile", "composer.json"];
+
+async function initializeProjectUnlocked(root: string, templateRoot: string, patternRoot: string, projectId: string, idea: string, force: boolean): Promise<void> {
   if (!/^[a-z0-9][a-z0-9-]*$/.test(projectId)) throw new SdlcError("project_id must use lowercase letters, numbers, and hyphens.");
   if (await pathExists(projectPaths(root).config)) throw new SdlcError("Repository is already initialized.");
+  if (!force) {
+    const found: string[] = [];
+    for (const marker of CODE_PROJECT_MARKERS) if (await pathExists(path.join(root, marker))) found.push(marker);
+    if (found.length > 0) throw new SdlcError(`Refusing to initialize: ${found.join(", ")} marks this directory as a code project. ai-saas-sdlc init belongs in a separate, empty documentation repository. Pass --force to override.`);
+  }
   const plan = await copyPlan(root, templateRoot, patternRoot);
   const conflicts: string[] = [];
   for (const item of plan) {
@@ -100,6 +110,6 @@ async function initializeProjectUnlocked(root: string, templateRoot: string, pat
   ]);
 }
 
-export async function initializeProject(root: string, templateRoot: string, projectId: string, idea: string, patternRoot = path.resolve(templateRoot, "..", "artifact-patterns")): Promise<void> {
-  return withProjectLock(root, () => initializeProjectUnlocked(root, templateRoot, patternRoot, projectId, idea));
+export async function initializeProject(root: string, templateRoot: string, projectId: string, idea: string, patternRoot = path.resolve(templateRoot, "..", "artifact-patterns"), options?: { force?: boolean }): Promise<void> {
+  return withProjectLock(root, () => initializeProjectUnlocked(root, templateRoot, patternRoot, projectId, idea, options?.force === true));
 }

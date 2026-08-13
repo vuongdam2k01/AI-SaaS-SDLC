@@ -8,6 +8,6 @@ Treat the user's invocation text after `$ai-saas-evolve-product` as the semantic
 
 The invocation may name where this turn stops, as `--until <stage>` over `behavior|design|tests|implementation|baseline`, or in plain words. Honour it: reach that checkpoint, record it with `flow checkpoint`, report progress and the next command, and leave the flow open. Without one, run to a successor baseline.
 
-Resolve `PLUGIN_ROOT` as three parent directories above this installed `SKILL.md`; invoke the engine as `node "<PLUGIN_ROOT>/bin/ai-saas-sdlc"`. Use Codex file/search tools for documentation and only configured implementation roots. Execute only playbook engine operations and exact configured verification commands.
+Run this session at the root of the dedicated documentation repository — never inside an application codebase. Resolve `PLUGIN_ROOT` as three parent directories above this installed `SKILL.md`; invoke the engine as `node "<PLUGIN_ROOT>/bin/ai-saas-sdlc"`. Use Codex file/search tools for documentation and only configured implementation roots. Execute only playbook engine operations and exact configured verification commands.
 
 Do not allocate unconditional artifacts, invent extra lifecycle flows or run prose-review gates. Wording-only edits bypass this skill.

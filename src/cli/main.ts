@@ -29,7 +29,11 @@ const root = process.cwd();
 const runtimeRoot = resolveRuntimeRoot(import.meta.url);
 
 if (Number(process.versions.node.split(".")[0]) < 22) {
-  throw new SdlcError(`Node.js 22 or newer is required; found ${process.versions.node}.`);
+  // A clean single line instead of a top-level throw: this is the one error
+  // aimed at users who have not met the prerequisites yet, and it must not
+  // arrive buried in a bundle stack trace.
+  console.error(`Node.js 22 or newer is required; found ${process.versions.node}.`);
+  process.exit(1);
 }
 
 function print(value: unknown, json = false): void {
@@ -37,13 +41,14 @@ function print(value: unknown, json = false): void {
   else console.log(value);
 }
 
-program.name("ai-saas-sdlc").description("Deterministic engine for AI SaaS SDLC documentation flows.").version("1.17.1");
+program.name("ai-saas-sdlc").description("Deterministic engine for AI SaaS SDLC documentation flows.").version("1.18.0");
 
 program.command("init")
   .description("Initialize a centralized documentation repository.")
   .option("--project-id <id>", "Stable project identifier")
   .option("--idea <text>", "Raw idea preserved verbatim", "")
-  .action(async (options: { projectId?: string; idea: string }) => {
+  .option("--force", "Initialize even though the directory contains a code-project marker")
+  .action(async (options: { projectId?: string; idea: string; force?: boolean }) => {
     const projectId = options.projectId ?? root.split(/[\\/]/).at(-1)?.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") ?? "saas-project";
     await withProjectLock(root, async () => {
       await initializeProject(
@@ -51,7 +56,8 @@ program.command("init")
         resolve(runtimeRoot, "resources", "project-template"),
         projectId,
         options.idea,
-        resolve(runtimeRoot, "resources", "artifact-patterns")
+        resolve(runtimeRoot, "resources", "artifact-patterns"),
+        { force: options.force === true }
       );
       await refreshProject(root, false);
       await recordEnginePointer(root, runtimeRoot, program.version() ?? "0.0.0");
@@ -194,6 +200,10 @@ program.command("verify")
     // already refreshes internally; it adds no gate and changes no flow.
     await refreshProject(root, false);
     print(records, Boolean(options.json));
+    // On stderr so --json stdout stays machine-parseable: without this line a
+    // long suite killed at the budget looks exactly like a broken build.
+    const timedOut = records.filter((record) => record.timed_out).map((record) => record.id);
+    if (timedOut.length > 0) console.error(`Timed out: ${timedOut.join(", ")}. Raise command_timeout_ms in .ai-saas-sdlc/verification-tools.json, or set timeout_ms on the command in sdlc.config.yaml.`);
     if (records.some((record) => record.exit_code !== 0)) process.exitCode = 1;
   });
 

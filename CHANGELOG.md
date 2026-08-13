@@ -1,5 +1,58 @@
 # Changelog
 
+## 1.18.0 - 2026-08-13
+
+A systematic hunt for the defect class the model-allocation challenge exposed
+— decisions calibrated from the authoring context that fail on real installed
+usage — across engine, hooks, method and adapters. Three parallel audits and
+a blast-radius pass produced the findings; every fix shipped with its test.
+
+### Added
+
+- Per-command `timeout_ms` in `sdlc.config.yaml` verification commands,
+  overriding the machine policy for that command alone; `verify --execute`
+  prints a stderr hint naming timed-out executions and both remedies.
+- Two mapping-table warnings: `IMPLEMENTATION_MAPPING_ROW_IGNORED` (a row
+  present but unparseable — previously dropped silently, indistinguishable
+  from "not written yet") and `IMPLEMENTATION_MAPPING_PATH_MISSING` (on a
+  frontmatter-mapped specification, a row whose test path resolves under no
+  source — the transposed-columns signature). The header accepts the singular
+  "Case ID" authors sometimes write.
+- The delegation packet as a copyable template, a delegate-side refusal rule
+  (no packet → `NEEDS_CONTEXT`, wired into all four agent bodies including a
+  counsel carve-out from its zero-questions rule), a bounded controller-side
+  failure loop (one enriched re-send, then inline or escalate), delegation
+  outcomes in the closing report, resume mechanics and cold-start
+  reconstruction in the implementation playbook, and the docs-root
+  precondition stated on the invocation path of all twelve host skills.
+- `init --force`; without it, initialization refuses a directory carrying a
+  code-project marker (package.json, go.mod, …) — the wrong-cwd error had
+  been recommending exactly that destructive `init`, and the new
+  uninitialized-repository message now names the real precondition.
+
+### Changed
+
+- `flow next` for an implementation-intent flow prints a continuation the
+  implement skill can actually parse — feature and segment recovered from the
+  flow's verbatim input — and the SessionStart summary for an open flow now
+  carries intent, reached/target stages and the exact resume command.
+- RESULT artifacts cap passed-case rows at 50 via a record field written only
+  by new engines on large sets (failures are never capped); records without
+  the field — everything older engines wrote — render byte-identically. An
+  old engine validating a new capped record reports a schema mismatch: the
+  same one-way ratchet as the `timed_out`/`report` fields.
+- Verification output accounting is byte-accurate with per-stream decoders:
+  the old cap compared UTF-16 units against a byte budget and could split
+  multibyte sequences into U+FFFD on real suites.
+- The Bash keyword rules in PreToolUse — the internal-directory rule included
+  — now apply only inside a managed repository, revising 1.17.0's
+  "unconditional everywhere" wording for the shell channel: matching command
+  text machine-wide denied innocent mentions like
+  `git commit -m "fix .ai-saas-sdlc parser"` in unrelated projects (confirmed
+  by execution). Direct-tool and apply_patch path rules stay unconditional.
+- The Node version guard prints one clean line instead of a bundle stack
+  trace.
+
 ## 1.17.1 - 2026-08-13
 
 The author's challenge to 1.17.0's model allocation held up: `inherit` on the

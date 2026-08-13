@@ -39,13 +39,21 @@ function validReport(value: unknown): boolean {
   return value.format === "junit" || value.format === "tap";
 }
 
+function validTimeout(value: unknown): boolean {
+  if (value === undefined) return true;
+  // Positive only: a per-command override may raise or lower the budget but
+  // never disable it — disabling stays a machine-policy right.
+  return typeof value === "number" && Number.isInteger(value) && value >= 1;
+}
+
 function validCommand(value: unknown): boolean {
   return isRecord(value)
-    && exactKeys(value, ["id", "cwd", "command", "platforms", "report"])
+    && exactKeys(value, ["id", "cwd", "command", "platforms", "report", "timeout_ms"])
     && safeId(value.id)
     && [value.cwd, value.command].every((item) => typeof item === "string" && item.length > 0)
     && validPlatforms(value.platforms)
-    && validReport(value.report);
+    && validReport(value.report)
+    && validTimeout(value.timeout_ms);
 }
 
 function validConfig(value: unknown): value is ProjectConfig {
@@ -71,6 +79,6 @@ export async function loadConfig(root: string): Promise<ProjectConfig> {
   } catch (error) {
     throw new SdlcError(`Cannot read ${file}: ${String(error)}`);
   }
-  if (!validConfig(parsed)) throw new SdlcError("Invalid sdlc.config.yaml: expected schema_version 1, kebab-case project/source/command IDs, public-web-only research, implementation_sources, unit/integration/system command arrays, optional non-empty artifact-ID platforms lists, optional per-command report declarations ({path, format: junit|tap}), and an optional non-empty uppercase areas registry.");
+  if (!validConfig(parsed)) throw new SdlcError("Invalid sdlc.config.yaml: expected schema_version 1, kebab-case project/source/command IDs, public-web-only research, implementation_sources, unit/integration/system command arrays, optional non-empty artifact-ID platforms lists, optional per-command report declarations ({path, format: junit|tap}), optional positive-integer per-command timeout_ms overrides, and an optional non-empty uppercase areas registry.");
   return parsed;
 }

@@ -26,14 +26,14 @@ The segment is a contract between author and model carried by the invocation. Th
 
 ## 2. Mandatory reads
 
-Engine-computed context replaces improvised discovery; read it before touching anything:
+The session runs at the root of the documentation repository — every path below is docs-root-relative, and a session opened inside the application codebase has nothing legal to read or write here. Engine-computed context replaces improvised discovery; read it before touching anything:
 
 1. `ENGINE state --json` — active baseline, no incompatible open flow.
 2. `generated/implementation-plan/<FTR-ID>.md` — the work packet: closure in dependency order, mappings, owning contract files, referenced ACCESS-CONTROL/SYSTEM-INVARIANTS/ERROR-CATALOG rows, covering specifications with their test-case tables, configured commands.
 3. `generated/implementation-coverage.md` — the feature's current mapping state and the latest execution per configured command.
 4. The `Engineering profile` section of `ARCHITECTURE-OVERVIEW` — language, framework, package manager, repository layout, test frameworks per level, migration tool. Empty or missing profile on a first implementation: fill it in this flow (it is an owned section of an active foundation, a normal edit) from what the codebase itself evidences.
 5. `TEST-POLICY`, and the foundation rows the packet names.
-6. The owning contract files (`openapi.yaml`, `.dbml`, `.mmd`) for every operation, entity and screen in the segment.
+6. The owning contract files (`openapi.yaml`, `.dbml`, `.mmd`) for every operation, entity and screen in the segment — read per operation, entity and screen; a section that answers suffices, and wholesale file reads are context spent answering nothing.
 
 ## 3. Open the flow
 
@@ -43,6 +43,8 @@ ENGINE flow start --type evolution --intent implementation --input "implement <F
 
 Use the returned `CHG-*` as `created_by_change` for anything the flow creates. Checkpoints and `--until` keep their evolution semantics; for an implementation intent the `behavior`, `design` and `tests` checkpoints are read-and-confirm passes over documents that already exist, and the real work sits at `implementation`.
 
+If an implementation-intent flow for this same feature and segment is already open, resume it instead of running `flow start` — the engine refuses a second flow. `ENGINE state --json` returns the open flow with its verbatim `input` (feature and segment), its `intent` and its `reached_stage`, and `ENGINE flow next` prints the exact continuation command. A different open flow stops this invocation: report it and let the author decide.
+
 **A segment is a small closing flow, never a parked one.** It opens, maps, executes, baselines with honest standing warnings and closes — usually in one turn. Parking a flow open at the `implementation` checkpoint as a way to hold "code done, tests pending" is an anti-pattern: it monopolizes the repository's only flow slot and blocks documentation work; the warning ledger is the correct holder of that state.
 
 ## 4. Scout the delta
@@ -51,7 +53,7 @@ Follow `resources/protocols/implementation-scouting.md`. Five outputs, stated be
 
 ### Protocols, loaded by situation
 
-The method is progressive: this playbook is the spine, and each protocol loads exactly when its situation arises — reading all of them up front is noise, skipping the one whose trigger fired is the failure.
+The method is progressive: this playbook is the spine, and each protocol loads exactly when its situation arises — reading all of them up front is noise, skipping the one whose trigger fired is the failure, and loading a protocol whose trigger has not fired is the same failure in the other direction.
 
 | Load | When |
 |---|---|
@@ -86,7 +88,7 @@ Every segment runs the same close sequence; segments differ only in what they ma
 When the segment includes an `SCR-*` surface, additionally follow `resources/protocols/design-implementation.md` (the screen brief assembled from owned sources, the countable self-review gate, host-capability visual verification) and `resources/protocols/content-implementation.md` (every string bound to the artifact that owns its meaning; no placeholder text ships).
 
 1. Edit only mapped paths and paths the segment is adding, inside configured roots. Preserve the Engineering profile's conventions; where the profile is silent and the codebase shows a convention, follow the codebase and record the convention in the profile.
-2. Update `implementation:` mappings on every artifact the segment implements, and the Implementation-mapping tables inside test specifications (case IDs → test path → test name — the sync-back is part of the work, not an afterthought). Derive nothing by memory: after mapping, re-read `generated/implementation-coverage.md` and confirm the state moved.
+2. Update `implementation:` mappings on every artifact the segment implements, and the Implementation-mapping tables inside test specifications (case IDs → test path → test name — the sync-back is part of the work, not an afterthought). Derive nothing by memory: after mapping, run `ENGINE refresh` and then re-read `generated/implementation-coverage.md` to confirm the state moved — projections regenerate only on refresh and verify, so the un-refreshed file still shows the pre-mapping state.
 3. Consult host capability, never require it: enumerate the host's installed skills against the live catalog when the segment touches a domain one covers (a framework, a database, browser verification); use what exists, continue with this playbook when nothing matches, and name in the closing report what was consulted. Never instruct the author to install anything.
 4. Delegation is optional and bounded, and `resources/protocols/implementation-delegation.md` owns its rules: the four mechanisms that justify a spawn, the trigger table, the eight-field packet, roles-as-enforcement (a reviewer never edits), parallel ownership safety and the status protocol. Absent subagent support — Codex included — the same protocol reads as the checklist the main agent holds itself to, and no delegation is ever faked. Hosts that surface plugin-shipped agent adapters for these roles use them as the preferred delegates; the packet contract is identical either way.
 5. A test seam that weakens a stated invariant or access rule is recorded in `TEST-POLICY` beside what it exists to test, never left silent in code.
@@ -143,6 +145,7 @@ Report:
 - warnings expected and now standing, warnings cleared this segment;
 - discoveries recorded (`ISS-*`, `QST-*`) and where they were routed;
 - host capabilities consulted, or none;
+- delegation outcomes — spawns, roles and statuses, including `BLOCKED` and abandoned delegates; or none;
 - successor `BL-*`.
 
 The repository and its records are the authority on all of the above; if a claim in the report cannot be traced to an artifact, a mapping, a record or a validate finding, the claim does not go in the report. End with the state of the flow and the exact next command from `ENGINE flow next --json` — including its `suggested_segment` hint when one exists, so the author sees what the evidence says is owed next. Never end with "let me know how you would like to proceed."
@@ -150,6 +153,8 @@ The repository and its records are the authority on all of the above; if a claim
 ## 12. Stop and re-entry
 
 Stop when the segment as invoked is delivered and its baseline closed, or at the requested `--until` checkpoint. Legal re-entry is a new invocation naming a feature and segment, a failed execution, an inspected drift or a recorded contradiction — never a desire to polish delivered code.
+
+Cold re-entry reconstructs from files, never from recall: `ENGINE state --json` carries the open flow's verbatim input (feature, segment), intent and reached stage; artifact frontmatter carries the mappings already made; `EXEC-*`/`RESULT-*` records carry what actually ran; `ENGINE refresh` brings the projections current. The turn-local layer — scouting outputs, the compliance table, review-cycle and repair-attempt counts — is re-derived from the current tree, and a count that cannot be re-derived restarts at zero rather than being remembered.
 
 | The thought | The answer |
 |---|---|

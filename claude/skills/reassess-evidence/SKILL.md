@@ -10,6 +10,7 @@ Treat `$ARGUMENTS` as the concrete question/signal. Read and execute [the shared
 
 Host mapping:
 
+- run this session at the root of the dedicated documentation repository — never inside an application codebase;
 - set `ENGINE` to `node "${CLAUDE_PLUGIN_ROOT}/bin/ai-saas-sdlc"`;
 - run `ENGINE research probe --json` when the flow opens; at rung 1 or above use the `ENGINE research` commands to the depth the playbook's protocol requires (`research diff` answers "has this page changed?"), and cite each engine-retrieved page's `RET-*` record in its evidence entry;
 - at rung 0, use Claude Code `WebSearch` and `WebFetch` for real source discovery/inspection, exactly as before;

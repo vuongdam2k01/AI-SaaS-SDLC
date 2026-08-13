@@ -40,6 +40,12 @@ export interface CommandDefinition {
   /** Live platform_target IDs this command produces execution evidence for. */
   platforms?: string[];
   /**
+   * Optional override of the machine policy's per-command timeout in
+   * milliseconds, so a long system suite raises its own budget without
+   * touching unit commands or other machines' policies.
+   */
+  timeout_ms?: number;
+  /**
    * Where the command writes its machine-readable test report, relative to
    * its cwd. Declared, the engine parses it after every run and records
    * per-case results; undeclared, case counts honestly stay unreported.
@@ -233,6 +239,8 @@ export interface ExecutionRecord {
   output_truncated?: boolean;
   /** The command never ran (missing binary, bad cwd) — an environment failure, not a test failure. */
   spawn_error?: boolean;
+  /** Present only when the passed-case set is large; the RESULT renderer shows this many passed rows (failures are never capped). */
+  case_row_cap?: number;
   /** Parsed from the command's declared report file; absent when none is declared. */
   report?: { path: string; format: "junit" | "tap"; hash: string; total: number; passed: number; failed: number; skipped: number };
   /** A declared report the engine could not read or parse; the run's outcome is unaffected. */

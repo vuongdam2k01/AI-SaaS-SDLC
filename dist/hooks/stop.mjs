@@ -13641,8 +13641,12 @@ function validReport(value) {
   if (typeof value.path !== "string" || value.path.length === 0) return false;
   return value.format === "junit" || value.format === "tap";
 }
+function validTimeout(value) {
+  if (value === void 0) return true;
+  return typeof value === "number" && Number.isInteger(value) && value >= 1;
+}
 function validCommand(value) {
-  return isRecord(value) && exactKeys(value, ["id", "cwd", "command", "platforms", "report"]) && safeId(value.id) && [value.cwd, value.command].every((item) => typeof item === "string" && item.length > 0) && validPlatforms(value.platforms) && validReport(value.report);
+  return isRecord(value) && exactKeys(value, ["id", "cwd", "command", "platforms", "report", "timeout_ms"]) && safeId(value.id) && [value.cwd, value.command].every((item) => typeof item === "string" && item.length > 0) && validPlatforms(value.platforms) && validReport(value.report) && validTimeout(value.timeout_ms);
 }
 function validConfig(value) {
   if (!isRecord(value) || !exactKeys(value, ["schema_version", "project_id", "research_mode", "implementation_sources", "verification", "areas"])) return false;
@@ -13666,7 +13670,7 @@ async function loadConfig(root2) {
   } catch (error) {
     throw new SdlcError(`Cannot read ${file}: ${String(error)}`);
   }
-  if (!validConfig(parsed)) throw new SdlcError("Invalid sdlc.config.yaml: expected schema_version 1, kebab-case project/source/command IDs, public-web-only research, implementation_sources, unit/integration/system command arrays, optional non-empty artifact-ID platforms lists, optional per-command report declarations ({path, format: junit|tap}), and an optional non-empty uppercase areas registry.");
+  if (!validConfig(parsed)) throw new SdlcError("Invalid sdlc.config.yaml: expected schema_version 1, kebab-case project/source/command IDs, public-web-only research, implementation_sources, unit/integration/system command arrays, optional non-empty artifact-ID platforms lists, optional per-command report declarations ({path, format: junit|tap}), optional positive-integer per-command timeout_ms overrides, and an optional non-empty uppercase areas registry.");
   return parsed;
 }
 var import_yaml2;
@@ -13712,8 +13716,9 @@ function validHost(value) {
   return record(value) && exactKeys2(value, ["os", "release", "arch", "node"]) && ["os", "release", "arch", "node"].every((key) => typeof value[key] === "string" && value[key].length > 0);
 }
 function isExecutionRecord(value) {
-  if (!record(value) || !exactKeys2(value, ["schema_version", "id", "flow_id", "level", "command_id", "command", "cwd", "started_at", "ended_at", "exit_code", "output_hash", "output_file", "git_commit", "source_snapshot_hash", "platforms", "host", "timed_out", "output_truncated", "spawn_error", "report", "report_error", "cases"])) return false;
+  if (!record(value) || !exactKeys2(value, ["schema_version", "id", "flow_id", "level", "command_id", "command", "cwd", "started_at", "ended_at", "exit_code", "output_hash", "output_file", "git_commit", "source_snapshot_hash", "platforms", "host", "timed_out", "output_truncated", "spawn_error", "case_row_cap", "report", "report_error", "cases"])) return false;
   for (const flag of [value.timed_out, value.output_truncated, value.spawn_error]) if (flag !== void 0 && typeof flag !== "boolean") return false;
+  if (value.case_row_cap !== void 0 && (!Number.isInteger(value.case_row_cap) || value.case_row_cap < 1)) return false;
   if (value.report_error !== void 0 && (typeof value.report_error !== "string" || value.report_error.length === 0)) return false;
   const report = value.report;
   if (report !== void 0 && (!record(report) || !exactKeys2(report, ["path", "format", "hash", "total", "passed", "failed", "skipped"]) || typeof report.path !== "string" || report.path.length === 0 || !["junit", "tap"].includes(String(report.format)) || typeof report.hash !== "string" || !/^[a-f0-9]{64}$/.test(report.hash) || ![report.total, report.passed, report.failed, report.skipped].every((count) => Number.isInteger(count) && count >= 0))) return false;
@@ -13867,7 +13872,7 @@ async function pathExists(file) {
 }
 async function loadCurrentState(root2) {
   const file = projectPaths(root2).current;
-  if (!await pathExists(file)) throw new SdlcError("Repository is not initialized. Run ai-saas-sdlc init.");
+  if (!await pathExists(file)) throw new SdlcError("No AI SaaS SDLC documentation repository here (missing .ai-saas-sdlc/state/current.json). This engine manages a separate, dedicated documentation repository: run ai-saas-sdlc init inside an empty docs repository \u2014 never inside a code repository \u2014 or cd to the existing docs repository.");
   await assertSafeManagedPath(root2, file);
   const candidate = await readJson(file);
   if (!candidate || typeof candidate !== "object" || Array.isArray(candidate)) throw new SdlcError(`Invalid state schema: ${file}`);
@@ -14139,14 +14144,17 @@ var init_mapping_hashes = __esm({
 });
 
 // src/core/test-report.ts
-function implementationMappingRows(spec) {
+function mappingTableLines(spec) {
   const normalized = spec.body.replace(/\r\n/g, "\n");
   const section = normalized.split(/^## Implementation mapping\s*$/m)[1];
   if (!section) return [];
+  return (section.split(/^## /m)[0] ?? "").split("\n");
+}
+function implementationMappingRows(spec) {
   const rows = [];
-  for (const line of (section.split(/^## /m)[0] ?? "").split("\n")) {
+  for (const line of mappingTableLines(spec)) {
     const cells = line.split("|").map((cell) => cell.trim());
-    if (cells.length < 6 || cells[1] === "Case IDs" || /^-+$/.test(cells[1] ?? "")) continue;
+    if (cells.length < 6 || /^Case IDs?$/.test(cells[1] ?? "") || /^-+$/.test(cells[1] ?? "")) continue;
     const caseIds2 = [...(cells[1] ?? "").matchAll(/\bTC-[0-9]+\b/g)].map((match) => match[0]);
     const symbol = (cells[3] ?? "").replace(/`/g, "").trim();
     const testPath = (cells[2] ?? "").replace(/`/g, "").trim();
@@ -14154,6 +14162,24 @@ function implementationMappingRows(spec) {
     rows.push({ spec_id: spec.id, case_ids: caseIds2, symbol, test_path: testPath });
   }
   return rows;
+}
+function ignoredImplementationMappingRows(spec) {
+  const ignored = [];
+  for (const line of mappingTableLines(spec)) {
+    const trimmed = line.trim();
+    if (!trimmed.startsWith("|")) continue;
+    const cells = line.split("|").map((cell) => cell.trim());
+    if (/^Case IDs?$/.test(cells[1] ?? "") || /^-+$/.test(cells[1] ?? "")) continue;
+    const content = cells.slice(1, -1);
+    if (content.every((cell) => cell.length === 0 || cell.startsWith("<") || /^-+$/.test(cell))) continue;
+    let reason = null;
+    if (cells.length < 6) reason = "expected at least four columns";
+    else if ([...(cells[1] ?? "").matchAll(/\bTC-[0-9]+\b/g)].length === 0) reason = "no TC-nn case ID in the first column";
+    else if ((cells[2] ?? "").replace(/`/g, "").trim().length === 0 || (cells[2] ?? "").trim().startsWith("<")) reason = "test path is empty or a placeholder";
+    else if ((cells[3] ?? "").replace(/`/g, "").trim().length === 0 || (cells[3] ?? "").trim().startsWith("<")) reason = "test symbol is empty or a placeholder";
+    if (reason) ignored.push({ spec_id: spec.id, snippet: trimmed.slice(0, 120), reason });
+  }
+  return ignored;
 }
 var init_test_report = __esm({
   "src/core/test-report.ts"() {
@@ -14223,6 +14249,14 @@ async function implementationSymbolFindings(root2, config, artifacts) {
   const sourceRoots = config.implementation_sources.map((source) => path11.resolve(root2, source.path));
   const specTypes = new Set(IMPLEMENTATION_LEVELS.flatMap(({ types }) => [...types]));
   for (const spec of artifacts.filter((artifact) => specTypes.has(artifact.artifact_type) && artifact.status === "active")) {
+    for (const ignoredRow of ignoredImplementationMappingRows(spec)) {
+      findings.push({
+        severity: "warning",
+        code: "IMPLEMENTATION_MAPPING_ROW_IGNORED",
+        message: `${spec.id} has an Implementation-mapping row that is present but ignored (${ignoredRow.reason}): "${ignoredRow.snippet}"; fix the row so its cases can join execution reports.`,
+        file: spec.file
+      });
+    }
     for (const row of implementationMappingRows(spec)) {
       let found = false;
       let existsSomewhere = false;
@@ -14243,6 +14277,13 @@ async function implementationSymbolFindings(root2, config, artifacts) {
           severity: "warning",
           code: "IMPLEMENTATION_SYMBOL_MISSING",
           message: `${spec.id} maps ${row.case_ids.join(", ")} to test symbol "${row.symbol}" in ${row.test_path}, but the symbol does not occur in that file (approximate textual check); fix the mapping row or the test name so the case can be located.`,
+          file: spec.file
+        });
+      } else if (!existsSomewhere && spec.implementation.length > 0) {
+        findings.push({
+          severity: "warning",
+          code: "IMPLEMENTATION_MAPPING_PATH_MISSING",
+          message: `${spec.id} maps ${row.case_ids.join(", ")} to ${row.test_path}, but that path exists under no configured implementation source while the specification declares implementation mappings \u2014 a transposed or stale row; fix the test path so the case can be located.`,
           file: spec.file
         });
       }
@@ -14397,9 +14438,14 @@ function renderResultArtifact(record2, change) {
   const failedCases = (record2.cases ?? []).filter((item) => item.status === "failed");
   const failure = record2.exit_code === 0 ? `| Command ${record2.command_id} | No command-level failure observed; exit code was 0. | Exit code 0 | ${tableCell(evidence)} | none recorded by execution engine |` : failedCases.length > 0 ? failedCases.map((item) => `| ${tableCell(`${item.spec_id ?? "unmatched specification"}${item.case_ids ? ` ${item.case_ids.join(", ")}` : ""}`)} | ${tableCell(`Reported failed: ${item.name}`)} | Case passes in the declared report | ${tableCell(evidence)} | none recorded by execution engine |`).join("\n") : `| Command ${record2.command_id}; case mapping ${NOT_REPORTED} | Configured command exited with code ${record2.exit_code}. | Exit code 0 | ${tableCell(evidence)} | none recorded by execution engine |`;
   const aggregate = record2.report ? { total: String(record2.report.total), passed: String(record2.report.passed), failed: String(record2.report.failed), skipped: String(record2.report.skipped) } : { total: NOT_REPORTED, passed: NOT_REPORTED, failed: NOT_REPORTED, skipped: NOT_REPORTED };
-  const caseRows = (record2.cases ?? []).map(
+  const allCases = record2.cases ?? [];
+  let passedShown = 0;
+  const visibleCases = record2.case_row_cap === void 0 ? allCases : allCases.filter((item) => item.status !== "passed" || passedShown++ < record2.case_row_cap);
+  const hiddenPassed = allCases.length - visibleCases.length;
+  const caseRows = visibleCases.map(
     (item) => `| ${tableCell(item.spec_id ?? "not matched to a specification")} | ${tableCell(item.case_ids?.join(", ") ?? "\u2014")} | ${item.status} | ${item.time_ms === null ? "not reported" : `${item.time_ms} ms`} | ${tableCell(item.name)} |`
-  ).join("\n");
+  ).join("\n") + (hiddenPassed > 0 ? `
+| capped at ${record2.case_row_cap} passed rows | \u2014 | passed | not shown | ${tableCell(`${hiddenPassed} more passed cases; the full set is in ${recordFile}`)} |` : "");
   return `---
 id: RESULT-${record2.id}
 artifact_type: test_result

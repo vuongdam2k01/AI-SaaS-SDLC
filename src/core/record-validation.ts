@@ -55,8 +55,9 @@ function validHost(value: unknown): boolean {
 }
 
 export function isExecutionRecord(value: unknown): value is ExecutionRecord {
-  if (!record(value) || !exactKeys(value, ["schema_version", "id", "flow_id", "level", "command_id", "command", "cwd", "started_at", "ended_at", "exit_code", "output_hash", "output_file", "git_commit", "source_snapshot_hash", "platforms", "host", "timed_out", "output_truncated", "spawn_error", "report", "report_error", "cases"])) return false;
+  if (!record(value) || !exactKeys(value, ["schema_version", "id", "flow_id", "level", "command_id", "command", "cwd", "started_at", "ended_at", "exit_code", "output_hash", "output_file", "git_commit", "source_snapshot_hash", "platforms", "host", "timed_out", "output_truncated", "spawn_error", "case_row_cap", "report", "report_error", "cases"])) return false;
   for (const flag of [value.timed_out, value.output_truncated, value.spawn_error]) if (flag !== undefined && typeof flag !== "boolean") return false;
+  if (value.case_row_cap !== undefined && (!Number.isInteger(value.case_row_cap) || (value.case_row_cap as number) < 1)) return false;
   if (value.report_error !== undefined && (typeof value.report_error !== "string" || value.report_error.length === 0)) return false;
   const report = value.report;
   if (report !== undefined && (!record(report) || !exactKeys(report, ["path", "format", "hash", "total", "passed", "failed", "skipped"])

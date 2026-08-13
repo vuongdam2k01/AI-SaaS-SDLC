@@ -35,6 +35,9 @@ var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__ge
 ));
 
 // src/core/types.ts
+function stageIndex(stage) {
+  return FLOW_STAGES.indexOf(stage);
+}
 function statusesForArtifactType(artifactType) {
   return artifactType === "issue" ? ISSUE_STATUSES : ARTIFACT_STATUSES;
 }
@@ -13537,8 +13540,12 @@ function validReport(value) {
   if (typeof value.path !== "string" || value.path.length === 0) return false;
   return value.format === "junit" || value.format === "tap";
 }
+function validTimeout(value) {
+  if (value === void 0) return true;
+  return typeof value === "number" && Number.isInteger(value) && value >= 1;
+}
 function validCommand(value) {
-  return isRecord(value) && exactKeys2(value, ["id", "cwd", "command", "platforms", "report"]) && safeId(value.id) && [value.cwd, value.command].every((item) => typeof item === "string" && item.length > 0) && validPlatforms(value.platforms) && validReport(value.report);
+  return isRecord(value) && exactKeys2(value, ["id", "cwd", "command", "platforms", "report", "timeout_ms"]) && safeId(value.id) && [value.cwd, value.command].every((item) => typeof item === "string" && item.length > 0) && validPlatforms(value.platforms) && validReport(value.report) && validTimeout(value.timeout_ms);
 }
 function validConfig(value) {
   if (!isRecord(value) || !exactKeys2(value, ["schema_version", "project_id", "research_mode", "implementation_sources", "verification", "areas"])) return false;
@@ -13562,7 +13569,7 @@ async function loadConfig(root2) {
   } catch (error) {
     throw new SdlcError(`Cannot read ${file}: ${String(error)}`);
   }
-  if (!validConfig(parsed)) throw new SdlcError("Invalid sdlc.config.yaml: expected schema_version 1, kebab-case project/source/command IDs, public-web-only research, implementation_sources, unit/integration/system command arrays, optional non-empty artifact-ID platforms lists, optional per-command report declarations ({path, format: junit|tap}), and an optional non-empty uppercase areas registry.");
+  if (!validConfig(parsed)) throw new SdlcError("Invalid sdlc.config.yaml: expected schema_version 1, kebab-case project/source/command IDs, public-web-only research, implementation_sources, unit/integration/system command arrays, optional non-empty artifact-ID platforms lists, optional per-command report declarations ({path, format: junit|tap}), optional positive-integer per-command timeout_ms overrides, and an optional non-empty uppercase areas registry.");
   return parsed;
 }
 var import_yaml2;
@@ -13600,7 +13607,7 @@ async function pathExists(file) {
 }
 async function loadCurrentState(root2) {
   const file = projectPaths(root2).current;
-  if (!await pathExists(file)) throw new SdlcError("Repository is not initialized. Run ai-saas-sdlc init.");
+  if (!await pathExists(file)) throw new SdlcError("No AI SaaS SDLC documentation repository here (missing .ai-saas-sdlc/state/current.json). This engine manages a separate, dedicated documentation repository: run ai-saas-sdlc init inside an empty docs repository \u2014 never inside a code repository \u2014 or cd to the existing docs repository.");
   await assertSafeManagedPath(root2, file);
   const candidate = await readJson(file);
   if (!candidate || typeof candidate !== "object" || Array.isArray(candidate)) throw new SdlcError(`Invalid state schema: ${file}`);
@@ -13966,6 +13973,22 @@ init_graph();
 init_implementation_evidence();
 init_mapping_hashes();
 init_project();
+function parseImplementationInput(input) {
+  const match = input.match(/^\s*implement\s+(FTR-[A-Za-z0-9-]+)\s*,\s*segment\s+([a-z]+(?:\s*,\s*[a-z]+)*)\s*$/i);
+  if (!match) return null;
+  const segment = match[2].toLowerCase().replace(/\s/g, "");
+  const legal = /* @__PURE__ */ new Set(["code", "ut", "it", "st", "all"]);
+  return segment.split(",").every((token) => legal.has(token)) ? { feature: match[1].toUpperCase(), segment } : null;
+}
+function implementationResumeCommand(flow) {
+  if (flow.type !== "evolution" || flow.intent !== "implementation") return null;
+  const parsed = parseImplementationInput(flow.input);
+  if (!parsed) return null;
+  const reached = flow.reached_stage ?? null;
+  const next = (reached ? FLOW_STAGES.filter((stage) => stageIndex(stage) > stageIndex(reached)) : [...FLOW_STAGES])[0];
+  const prefix = `/ai-saas-sdlc:implement ${parsed.feature} ${parsed.segment}`;
+  return next ? `${prefix} --until ${next} continue ${flow.id}` : `${prefix} continue ${flow.id}`;
+}
 async function suggestNextSegment(root2) {
   try {
     const config = await loadConfig(root2);
@@ -14022,11 +14045,12 @@ if (await pathExists(projectPaths(root).current)) {
     } catch {
       implementation = "";
     }
+    const resume = flow ? implementationResumeCommand(flow) : null;
     const summary = [
       "AI SaaS SDLC repository detected.",
       `Active product baseline: ${state.active_baseline ?? "none"}.`,
       `Evidence revision: EVR-${String(state.evidence_revision).padStart(3, "0")}.`,
-      flow ? `Active flow: ${flow.type} (${flow.id}${flow.change_id ? `, ${flow.change_id}` : ""}).` : "No active semantic flow.",
+      flow ? `Active flow: ${flow.type}${flow.intent ? ` (intent ${flow.intent})` : ""} (${flow.id}${flow.change_id ? `, ${flow.change_id}` : ""}); reached ${flow.reached_stage ?? "none"}, target ${flow.target_stage ?? "baseline"}.${resume ? ` Resume: ${resume}` : ""}` : "No active semantic flow.",
       ...research ? [research] : [],
       ...implementation ? [implementation] : [],
       "Generated projections and execution-backed results must not be edited manually."

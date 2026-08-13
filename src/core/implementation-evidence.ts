@@ -3,7 +3,7 @@ import path from "node:path";
 import type { Artifact, ArtifactGraph, BaselineManifest, ProjectConfig, ValidationFinding } from "./types.js";
 import { reverseClosure } from "./graph.js";
 import { driftedMappings } from "./mapping-hashes.js";
-import { implementationMappingRows } from "./test-report.js";
+import { ignoredImplementationMappingRows, implementationMappingRows } from "./test-report.js";
 import { pathExists } from "./state.js";
 
 /**
@@ -157,6 +157,16 @@ export async function implementationSymbolFindings(root: string, config: Project
   const sourceRoots = config.implementation_sources.map((source) => path.resolve(root, source.path));
   const specTypes = new Set<string>(IMPLEMENTATION_LEVELS.flatMap(({ types }) => [...types]));
   for (const spec of artifacts.filter((artifact) => specTypes.has(artifact.artifact_type) && artifact.status === "active")) {
+    // A row present but silently unparseable is invisible debt: the author
+    // cannot tell a transposed table from an unwritten one.
+    for (const ignoredRow of ignoredImplementationMappingRows(spec)) {
+      findings.push({
+        severity: "warning",
+        code: "IMPLEMENTATION_MAPPING_ROW_IGNORED",
+        message: `${spec.id} has an Implementation-mapping row that is present but ignored (${ignoredRow.reason}): "${ignoredRow.snippet}"; fix the row so its cases can join execution reports.`,
+        file: spec.file
+      });
+    }
     for (const row of implementationMappingRows(spec)) {
       let found = false;
       let existsSomewhere = false;
@@ -175,6 +185,17 @@ export async function implementationSymbolFindings(root: string, config: Project
           severity: "warning",
           code: "IMPLEMENTATION_SYMBOL_MISSING",
           message: `${spec.id} maps ${row.case_ids.join(", ")} to test symbol "${row.symbol}" in ${row.test_path}, but the symbol does not occur in that file (approximate textual check); fix the mapping row or the test name so the case can be located.`,
+          file: spec.file
+        });
+      } else if (!existsSomewhere && spec.implementation.length > 0) {
+        // Gated on the spec's own frontmatter claim: a spec that declares
+        // implementation mappings has promised its rows resolve, so a path
+        // found under no configured root is a transposed or stale row — while
+        // honestly not-yet-implemented specs (sentinel paths) stay silent.
+        findings.push({
+          severity: "warning",
+          code: "IMPLEMENTATION_MAPPING_PATH_MISSING",
+          message: `${spec.id} maps ${row.case_ids.join(", ")} to ${row.test_path}, but that path exists under no configured implementation source while the specification declares implementation mappings — a transposed or stale row; fix the test path so the case can be located.`,
           file: spec.file
         });
       }

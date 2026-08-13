@@ -35,6 +35,7 @@
     "timed_out": { "type": "boolean" },
     "output_truncated": { "type": "boolean" },
     "spawn_error": { "type": "boolean" },
+    "case_row_cap": { "type": "integer", "minimum": 1 },
     "report": {
       "type": "object",
       "additionalProperties": false,

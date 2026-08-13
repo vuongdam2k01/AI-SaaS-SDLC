@@ -25,7 +25,7 @@ export async function pathExists(file: string): Promise<boolean> {
 
 export async function loadCurrentState(root: string): Promise<CurrentState> {
   const file = projectPaths(root).current;
-  if (!(await pathExists(file))) throw new SdlcError("Repository is not initialized. Run ai-saas-sdlc init.");
+  if (!(await pathExists(file))) throw new SdlcError("No AI SaaS SDLC documentation repository here (missing .ai-saas-sdlc/state/current.json). This engine manages a separate, dedicated documentation repository: run ai-saas-sdlc init inside an empty docs repository — never inside a code repository — or cd to the existing docs repository.");
   await assertSafeManagedPath(root, file);
   const candidate = await readJson<unknown>(file);
   if (!candidate || typeof candidate !== "object" || Array.isArray(candidate)) throw new SdlcError(`Invalid state schema: ${file}`);

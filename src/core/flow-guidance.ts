@@ -1,5 +1,5 @@
 import { FLOW_STAGES, stageIndex } from "./types.js";
-import type { FlowStage } from "./types.js";
+import type { ActiveFlow, FlowStage } from "./types.js";
 import { loadActiveFlow, loadCurrentState } from "./state.js";
 import { loadConfig } from "./config.js";
 import { scanArtifacts } from "./artifacts.js";
@@ -33,6 +33,32 @@ const SKILL_FOR_FLOW: Record<string, string> = {
   evolution: "/ai-saas-sdlc:evolve-product",
   reconciliation: "/ai-saas-sdlc:reconcile"
 };
+
+/**
+ * The implement skill's argument grammar is positional (<FTR-ID> [segment]),
+ * so its continuation command must carry both. They are recoverable only from
+ * the flow's verbatim input, written by the playbook as
+ * "implement <FTR-ID>, segment <segment>"; anything else returns null and the
+ * caller falls back to the generic continuation string.
+ */
+export function parseImplementationInput(input: string): { feature: string; segment: string } | null {
+  const match = input.match(/^\s*implement\s+(FTR-[A-Za-z0-9-]+)\s*,\s*segment\s+([a-z]+(?:\s*,\s*[a-z]+)*)\s*$/i);
+  if (!match) return null;
+  const segment = match[2]!.toLowerCase().replace(/\s/g, "");
+  const legal = new Set(["code", "ut", "it", "st", "all"]);
+  return segment.split(",").every((token) => legal.has(token)) ? { feature: match[1]!.toUpperCase(), segment } : null;
+}
+
+/** Shared by flow guidance and the SessionStart hook so the two cannot drift. */
+export function implementationResumeCommand(flow: ActiveFlow): string | null {
+  if (flow.type !== "evolution" || flow.intent !== "implementation") return null;
+  const parsed = parseImplementationInput(flow.input);
+  if (!parsed) return null;
+  const reached = flow.reached_stage ?? null;
+  const next = (reached ? FLOW_STAGES.filter((stage) => stageIndex(stage) > stageIndex(reached)) : [...FLOW_STAGES])[0];
+  const prefix = `/ai-saas-sdlc:implement ${parsed.feature} ${parsed.segment}`;
+  return next ? `${prefix} --until ${next} continue ${flow.id}` : `${prefix} continue ${flow.id}`;
+}
 
 /**
  * Which feature most deserves the next implementation segment, by explicit
@@ -138,10 +164,12 @@ export async function flowGuidance(root: string): Promise<FlowGuidance> {
 
   const next = remaining[0]!;
   const stoppedShort = target !== null && reached !== null && stageIndex(reached) >= stageIndex(target);
+  const parsed = flow.type === "evolution" && flow.intent === "implementation" ? parseImplementationInput(flow.input) : null;
+  const continuation = parsed ? `/ai-saas-sdlc:implement ${parsed.feature} ${parsed.segment}` : skill;
   return {
     active_flow: flow.id, flow_type: flow.type, target_stage: target, reached_stage: reached,
     remaining_stages: remaining, baseline_created: null,
-    next_command: `${skill} --until ${next} continue ${flow.id}`,
+    next_command: `${continuation} --until ${next} continue ${flow.id}`,
     reason: stoppedShort
       ? `${flow.id} stopped at its requested checkpoint '${reached}' and is still open. Review what exists, then continue.`
       : `${flow.id} is open and has not yet reached '${next}'.`

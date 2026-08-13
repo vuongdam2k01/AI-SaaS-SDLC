@@ -28,6 +28,19 @@ A spawn carries all eight fields; the subagent sees no conversation history, so 
 7. **Report destination** — inline result, or the turn's report; never a claim without its evidence reference.
 8. **Scope flags** — any author-passed narrowing, verbatim; a delegate that never sees the flag silently reverts to full scope.
 
+A delegate that receives no packet — or a packet whose named files it cannot read — returns `NEEDS_CONTEXT` naming the missing field; improvising a packet on the delegate side is prohibited. On the controlling side, copy the template rather than recalling the fields — the field a prose-recalled packet drops is exactly the one the delegate silently works without:
+
+```text
+Task: <one verifiable outcome>
+Files to read: <exact paths>
+Files you may modify: <exact paths, or none>
+Acceptance criteria: <the spec rows themselves>
+Constraints: <patterns to follow, boundaries not to cross; never any engine operation>
+Work context: docs root <path>; packet <path>; protocol <absolute path to the role's protocol file>
+Report: <inline | the turn's report> — every claim with its evidence reference
+Scope flags: <author-passed narrowing, verbatim, or none>
+```
+
 Context isolation is the point, not a limitation: summarize only the decisions the subtask needs, keep coordination, merge choices and author approvals in the controlling session.
 
 ## Roles as enforcement, not as theater
@@ -53,3 +66,5 @@ Concerns/Blockers: when present
 ```
 
 `BLOCKED` and `NEEDS_CONTEXT` are handled by changing context, scope or approach — re-sending a failing prompt unchanged is a loop, not a retry. `DONE_WITH_CONCERNS` items are carried into the closing report **verbatim**: concerns from a fresh-context agent are signal, not noise.
+
+The controller's side of that loop is bounded like every other loop in this method: at most one enriched re-send per delegate, and a delegate blocked twice is never spawned a third time identically — the work moves inline or escalates per the trigger table. Partial work left by a blocked implementer is inspected by the controller and explicitly kept or reverted, never silently absorbed. Every `BLOCKED` or `NEEDS_CONTEXT` outcome is named in the closing report alongside the successes.

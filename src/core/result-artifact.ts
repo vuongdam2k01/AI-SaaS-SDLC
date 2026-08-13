@@ -43,9 +43,20 @@ export function renderResultArtifact(record: ExecutionRecord, change: string): s
   const aggregate = record.report
     ? { total: String(record.report.total), passed: String(record.report.passed), failed: String(record.report.failed), skipped: String(record.report.skipped) }
     : { total: NOT_REPORTED, passed: NOT_REPORTED, failed: NOT_REPORTED, skipped: NOT_REPORTED };
-  const caseRows = (record.cases ?? []).map((item) =>
+  // The cap is keyed on the record field alone — never on the case count —
+  // because this artifact is re-rendered and hash-compared on every validate:
+  // a content-conditional cap would invalidate committed results written by
+  // earlier engines. Failed and skipped rows are never capped; failures are
+  // the evidence this artifact exists to carry.
+  const allCases = record.cases ?? [];
+  let passedShown = 0;
+  const visibleCases = record.case_row_cap === undefined
+    ? allCases
+    : allCases.filter((item) => item.status !== "passed" || passedShown++ < record.case_row_cap!);
+  const hiddenPassed = allCases.length - visibleCases.length;
+  const caseRows = visibleCases.map((item) =>
     `| ${tableCell(item.spec_id ?? "not matched to a specification")} | ${tableCell(item.case_ids?.join(", ") ?? "—")} | ${item.status} | ${item.time_ms === null ? "not reported" : `${item.time_ms} ms`} | ${tableCell(item.name)} |`
-  ).join("\n");
+  ).join("\n") + (hiddenPassed > 0 ? `\n| capped at ${record.case_row_cap} passed rows | — | passed | not shown | ${tableCell(`${hiddenPassed} more passed cases; the full set is in ${recordFile}`)} |` : "");
   return `---
 id: RESULT-${record.id}
 artifact_type: test_result

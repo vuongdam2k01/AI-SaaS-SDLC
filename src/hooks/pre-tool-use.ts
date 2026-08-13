@@ -79,10 +79,12 @@ if (toolName === "apply_patch" && typeof toolInput.command === "string") {
   for (const match of toolInput.command.matchAll(/^\*\*\* Move to:\s*(.+?)\s*$/gm)) candidatePaths.push(match[1]!);
 }
 
-// The plugin is enabled in every repository the host opens, so these string
-// rules only mean something inside an engine-managed docs repository. The one
-// exception is the internal directory itself: its name is unique to this
-// engine, and fabricating state under it is denied everywhere. The
+// The plugin is enabled in every repository the host opens, so these rules
+// only mean something inside an engine-managed docs repository. The one
+// exception is the path-keyed internal-directory rule for direct file tools:
+// the dirname is unique to this engine and fabricating state under it is
+// denied everywhere. Bash keyword rules are NOT excepted — matching command
+// text machine-wide denies innocent mentions of the directory name. The
 // implementation-source block below keeps its own stricter current.json
 // sentinel because it must load config and state anyway.
 const managedRepo = await pathExists(path.join(root, INTERNAL_DIR));
@@ -124,12 +126,17 @@ if (!reason && toolName === "Bash" && typeof toolInput.command === "string") {
   if (!implementationFlow && implementationMarkers.some((marker) => marker.length > 0 && command.replaceAll("\\", "/").toLowerCase().includes(marker))) {
     reason = "Configured implementation sources may only be inspected or edited inside Product Evolution or Reconciliation.";
   }
-  if (!reason) {
+  if (!reason && managedRepo) {
+    // All shell string rules — the internal-directory one included — apply
+    // only inside a managed repository: keyword matching on a command LINE
+    // (unlike the path-keyed direct-tool rules above, which stay global)
+    // otherwise denies innocent mentions machine-wide, e.g.
+    // `git commit -m "fix .ai-saas-sdlc parser"` in an unrelated project.
     const lower = command.replaceAll("\\", "/").toLowerCase();
     const deobfuscated = lower.replace(/[\s"'`+${}()[\]\\]/g, "");
     if (/(?:^|[\s"'=/])\.ai-saas-sdlc(?:[\s"'/$]|$)/.test(lower) || deobfuscated.includes(".ai-saas-sdlc")) {
       reason = "Internal state and machine-owned files cannot be mutated through shell indirection; use direct file tools for canonical artifacts and the bundled engine for managed files.";
-    } else if (managedRepo) {
+    } else {
       if (/(?:^|[\s"'=/])generated(?:[\s"'/$]|$)/.test(lower)) reason = "Generated projections are machine-owned; use the Read tool to inspect them and the engine to refresh them.";
       else if (lower.includes("00-system/patterns")) reason = "Pinned artifact patterns are engine-owned and may only change through an explicit engine migration.";
       else if (lower.includes("04-verification/results")) reason = "Test results are execution-backed; use the Read tool to inspect them and verify --execute to create them.";

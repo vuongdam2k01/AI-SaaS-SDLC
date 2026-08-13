@@ -9413,8 +9413,9 @@ function validHost(value) {
   return record(value) && exactKeys(value, ["os", "release", "arch", "node"]) && ["os", "release", "arch", "node"].every((key) => typeof value[key] === "string" && value[key].length > 0);
 }
 function isExecutionRecord(value) {
-  if (!record(value) || !exactKeys(value, ["schema_version", "id", "flow_id", "level", "command_id", "command", "cwd", "started_at", "ended_at", "exit_code", "output_hash", "output_file", "git_commit", "source_snapshot_hash", "platforms", "host", "timed_out", "output_truncated", "spawn_error", "report", "report_error", "cases"])) return false;
+  if (!record(value) || !exactKeys(value, ["schema_version", "id", "flow_id", "level", "command_id", "command", "cwd", "started_at", "ended_at", "exit_code", "output_hash", "output_file", "git_commit", "source_snapshot_hash", "platforms", "host", "timed_out", "output_truncated", "spawn_error", "case_row_cap", "report", "report_error", "cases"])) return false;
   for (const flag of [value.timed_out, value.output_truncated, value.spawn_error]) if (flag !== void 0 && typeof flag !== "boolean") return false;
+  if (value.case_row_cap !== void 0 && (!Number.isInteger(value.case_row_cap) || value.case_row_cap < 1)) return false;
   if (value.report_error !== void 0 && (typeof value.report_error !== "string" || value.report_error.length === 0)) return false;
   const report = value.report;
   if (report !== void 0 && (!record(report) || !exactKeys(report, ["path", "format", "hash", "total", "passed", "failed", "skipped"]) || typeof report.path !== "string" || report.path.length === 0 || !["junit", "tap"].includes(String(report.format)) || typeof report.hash !== "string" || !/^[a-f0-9]{64}$/.test(report.hash) || ![report.total, report.passed, report.failed, report.skipped].every((count) => Number.isInteger(count) && count >= 0))) return false;
@@ -17139,8 +17140,12 @@ function validReport(value) {
   if (typeof value.path !== "string" || value.path.length === 0) return false;
   return value.format === "junit" || value.format === "tap";
 }
+function validTimeout(value) {
+  if (value === void 0) return true;
+  return typeof value === "number" && Number.isInteger(value) && value >= 1;
+}
 function validCommand(value) {
-  return isRecord(value) && exactKeys2(value, ["id", "cwd", "command", "platforms", "report"]) && safeId(value.id) && [value.cwd, value.command].every((item) => typeof item === "string" && item.length > 0) && validPlatforms(value.platforms) && validReport(value.report);
+  return isRecord(value) && exactKeys2(value, ["id", "cwd", "command", "platforms", "report", "timeout_ms"]) && safeId(value.id) && [value.cwd, value.command].every((item) => typeof item === "string" && item.length > 0) && validPlatforms(value.platforms) && validReport(value.report) && validTimeout(value.timeout_ms);
 }
 function validConfig(value) {
   if (!isRecord(value) || !exactKeys2(value, ["schema_version", "project_id", "research_mode", "implementation_sources", "verification", "areas"])) return false;
@@ -17164,7 +17169,7 @@ async function loadConfig(root2) {
   } catch (error) {
     throw new SdlcError(`Cannot read ${file}: ${String(error)}`);
   }
-  if (!validConfig(parsed)) throw new SdlcError("Invalid sdlc.config.yaml: expected schema_version 1, kebab-case project/source/command IDs, public-web-only research, implementation_sources, unit/integration/system command arrays, optional non-empty artifact-ID platforms lists, optional per-command report declarations ({path, format: junit|tap}), and an optional non-empty uppercase areas registry.");
+  if (!validConfig(parsed)) throw new SdlcError("Invalid sdlc.config.yaml: expected schema_version 1, kebab-case project/source/command IDs, public-web-only research, implementation_sources, unit/integration/system command arrays, optional non-empty artifact-ID platforms lists, optional per-command report declarations ({path, format: junit|tap}), optional positive-integer per-command timeout_ms overrides, and an optional non-empty uppercase areas registry.");
   return parsed;
 }
 var import_yaml2;
@@ -17834,14 +17839,17 @@ function summarize(cases) {
     cases
   };
 }
-function implementationMappingRows(spec) {
+function mappingTableLines(spec) {
   const normalized = spec.body.replace(/\r\n/g, "\n");
   const section = normalized.split(/^## Implementation mapping\s*$/m)[1];
   if (!section) return [];
+  return (section.split(/^## /m)[0] ?? "").split("\n");
+}
+function implementationMappingRows(spec) {
   const rows = [];
-  for (const line of (section.split(/^## /m)[0] ?? "").split("\n")) {
+  for (const line of mappingTableLines(spec)) {
     const cells = line.split("|").map((cell3) => cell3.trim());
-    if (cells.length < 6 || cells[1] === "Case IDs" || /^-+$/.test(cells[1] ?? "")) continue;
+    if (cells.length < 6 || /^Case IDs?$/.test(cells[1] ?? "") || /^-+$/.test(cells[1] ?? "")) continue;
     const caseIds2 = [...(cells[1] ?? "").matchAll(/\bTC-[0-9]+\b/g)].map((match) => match[0]);
     const symbol = (cells[3] ?? "").replace(/`/g, "").trim();
     const testPath = (cells[2] ?? "").replace(/`/g, "").trim();
@@ -17849,6 +17857,24 @@ function implementationMappingRows(spec) {
     rows.push({ spec_id: spec.id, case_ids: caseIds2, symbol, test_path: testPath });
   }
   return rows;
+}
+function ignoredImplementationMappingRows(spec) {
+  const ignored = [];
+  for (const line of mappingTableLines(spec)) {
+    const trimmed = line.trim();
+    if (!trimmed.startsWith("|")) continue;
+    const cells = line.split("|").map((cell3) => cell3.trim());
+    if (/^Case IDs?$/.test(cells[1] ?? "") || /^-+$/.test(cells[1] ?? "")) continue;
+    const content = cells.slice(1, -1);
+    if (content.every((cell3) => cell3.length === 0 || cell3.startsWith("<") || /^-+$/.test(cell3))) continue;
+    let reason = null;
+    if (cells.length < 6) reason = "expected at least four columns";
+    else if ([...(cells[1] ?? "").matchAll(/\bTC-[0-9]+\b/g)].length === 0) reason = "no TC-nn case ID in the first column";
+    else if ((cells[2] ?? "").replace(/`/g, "").trim().length === 0 || (cells[2] ?? "").trim().startsWith("<")) reason = "test path is empty or a placeholder";
+    else if ((cells[3] ?? "").replace(/`/g, "").trim().length === 0 || (cells[3] ?? "").trim().startsWith("<")) reason = "test symbol is empty or a placeholder";
+    if (reason) ignored.push({ spec_id: spec.id, snippet: trimmed.slice(0, 120), reason });
+  }
+  return ignored;
 }
 function joinCasesToSpecs(cases, specs) {
   const rows = specs.flatMap((spec) => implementationMappingRows(spec));
@@ -17929,6 +17955,14 @@ async function implementationSymbolFindings(root2, config, artifacts) {
   const sourceRoots = config.implementation_sources.map((source) => path10.resolve(root2, source.path));
   const specTypes = new Set(IMPLEMENTATION_LEVELS.flatMap(({ types }) => [...types]));
   for (const spec of artifacts.filter((artifact2) => specTypes.has(artifact2.artifact_type) && artifact2.status === "active")) {
+    for (const ignoredRow of ignoredImplementationMappingRows(spec)) {
+      findings.push({
+        severity: "warning",
+        code: "IMPLEMENTATION_MAPPING_ROW_IGNORED",
+        message: `${spec.id} has an Implementation-mapping row that is present but ignored (${ignoredRow.reason}): "${ignoredRow.snippet}"; fix the row so its cases can join execution reports.`,
+        file: spec.file
+      });
+    }
     for (const row of implementationMappingRows(spec)) {
       let found = false;
       let existsSomewhere = false;
@@ -17949,6 +17983,13 @@ async function implementationSymbolFindings(root2, config, artifacts) {
           severity: "warning",
           code: "IMPLEMENTATION_SYMBOL_MISSING",
           message: `${spec.id} maps ${row.case_ids.join(", ")} to test symbol "${row.symbol}" in ${row.test_path}, but the symbol does not occur in that file (approximate textual check); fix the mapping row or the test name so the case can be located.`,
+          file: spec.file
+        });
+      } else if (!existsSomewhere && spec.implementation.length > 0) {
+        findings.push({
+          severity: "warning",
+          code: "IMPLEMENTATION_MAPPING_PATH_MISSING",
+          message: `${spec.id} maps ${row.case_ids.join(", ")} to ${row.test_path}, but that path exists under no configured implementation source while the specification declares implementation mappings \u2014 a transposed or stale row; fix the test path so the case can be located.`,
           file: spec.file
         });
       }
@@ -18582,7 +18623,7 @@ async function pathExists(file) {
 }
 async function loadCurrentState(root2) {
   const file = projectPaths(root2).current;
-  if (!await pathExists(file)) throw new SdlcError("Repository is not initialized. Run ai-saas-sdlc init.");
+  if (!await pathExists(file)) throw new SdlcError("No AI SaaS SDLC documentation repository here (missing .ai-saas-sdlc/state/current.json). This engine manages a separate, dedicated documentation repository: run ai-saas-sdlc init inside an empty docs repository \u2014 never inside a code repository \u2014 or cd to the existing docs repository.");
   await assertSafeManagedPath(root2, file);
   const candidate = await readJson(file);
   if (!candidate || typeof candidate !== "object" || Array.isArray(candidate)) throw new SdlcError(`Invalid state schema: ${file}`);
@@ -18953,9 +18994,15 @@ async function copyPlan(root2, templateRoot, patternRoot) {
   for (const item of plan) await assertSafeSource(item.substitute ? templateRoot : patternRoot, item.source);
   return plan;
 }
-async function initializeProjectUnlocked(root2, templateRoot, patternRoot, projectId, idea) {
+var CODE_PROJECT_MARKERS = ["package.json", "pnpm-workspace.yaml", "go.mod", "Cargo.toml", "pyproject.toml", "requirements.txt", "pom.xml", "build.gradle", "Gemfile", "composer.json"];
+async function initializeProjectUnlocked(root2, templateRoot, patternRoot, projectId, idea, force) {
   if (!/^[a-z0-9][a-z0-9-]*$/.test(projectId)) throw new SdlcError("project_id must use lowercase letters, numbers, and hyphens.");
   if (await pathExists(projectPaths(root2).config)) throw new SdlcError("Repository is already initialized.");
+  if (!force) {
+    const found = [];
+    for (const marker of CODE_PROJECT_MARKERS) if (await pathExists(path13.join(root2, marker))) found.push(marker);
+    if (found.length > 0) throw new SdlcError(`Refusing to initialize: ${found.join(", ")} marks this directory as a code project. ai-saas-sdlc init belongs in a separate, empty documentation repository. Pass --force to override.`);
+  }
   const plan = await copyPlan(root2, templateRoot, patternRoot);
   const conflicts = [];
   for (const item of plan) {
@@ -19000,8 +19047,8 @@ async function initializeProjectUnlocked(root2, templateRoot, patternRoot, proje
     mkdir4(paths.cache, { recursive: true })
   ]);
 }
-async function initializeProject(root2, templateRoot, projectId, idea, patternRoot = path13.resolve(templateRoot, "..", "artifact-patterns")) {
-  return withProjectLock(root2, () => initializeProjectUnlocked(root2, templateRoot, patternRoot, projectId, idea));
+async function initializeProject(root2, templateRoot, projectId, idea, patternRoot = path13.resolve(templateRoot, "..", "artifact-patterns"), options) {
+  return withProjectLock(root2, () => initializeProjectUnlocked(root2, templateRoot, patternRoot, projectId, idea, options?.force === true));
 }
 
 // src/cli/main.ts
@@ -19022,6 +19069,13 @@ var SKILL_FOR_FLOW = {
   evolution: "/ai-saas-sdlc:evolve-product",
   reconciliation: "/ai-saas-sdlc:reconcile"
 };
+function parseImplementationInput(input) {
+  const match = input.match(/^\s*implement\s+(FTR-[A-Za-z0-9-]+)\s*,\s*segment\s+([a-z]+(?:\s*,\s*[a-z]+)*)\s*$/i);
+  if (!match) return null;
+  const segment = match[2].toLowerCase().replace(/\s/g, "");
+  const legal = /* @__PURE__ */ new Set(["code", "ut", "it", "st", "all"]);
+  return segment.split(",").every((token) => legal.has(token)) ? { feature: match[1].toUpperCase(), segment } : null;
+}
 async function suggestNextSegment(root2) {
   try {
     const config = await loadConfig(root2);
@@ -19112,6 +19166,8 @@ async function flowGuidance(root2) {
   }
   const next = remaining[0];
   const stoppedShort = target !== null && reached !== null && stageIndex(reached) >= stageIndex(target);
+  const parsed = flow2.type === "evolution" && flow2.intent === "implementation" ? parseImplementationInput(flow2.input) : null;
+  const continuation = parsed ? `/ai-saas-sdlc:implement ${parsed.feature} ${parsed.segment}` : skill;
   return {
     active_flow: flow2.id,
     flow_type: flow2.type,
@@ -19119,7 +19175,7 @@ async function flowGuidance(root2) {
     reached_stage: reached,
     remaining_stages: remaining,
     baseline_created: null,
-    next_command: `${skill} --until ${next} continue ${flow2.id}`,
+    next_command: `${continuation} --until ${next} continue ${flow2.id}`,
     reason: stoppedShort ? `${flow2.id} stopped at its requested checkpoint '${reached}' and is still open. Review what exists, then continue.` : `${flow2.id} is open and has not yet reached '${next}'.`
   };
 }
@@ -19234,9 +19290,14 @@ function renderResultArtifact(record2, change) {
   const failedCases = (record2.cases ?? []).filter((item) => item.status === "failed");
   const failure = record2.exit_code === 0 ? `| Command ${record2.command_id} | No command-level failure observed; exit code was 0. | Exit code 0 | ${tableCell(evidence)} | none recorded by execution engine |` : failedCases.length > 0 ? failedCases.map((item) => `| ${tableCell(`${item.spec_id ?? "unmatched specification"}${item.case_ids ? ` ${item.case_ids.join(", ")}` : ""}`)} | ${tableCell(`Reported failed: ${item.name}`)} | Case passes in the declared report | ${tableCell(evidence)} | none recorded by execution engine |`).join("\n") : `| Command ${record2.command_id}; case mapping ${NOT_REPORTED} | Configured command exited with code ${record2.exit_code}. | Exit code 0 | ${tableCell(evidence)} | none recorded by execution engine |`;
   const aggregate = record2.report ? { total: String(record2.report.total), passed: String(record2.report.passed), failed: String(record2.report.failed), skipped: String(record2.report.skipped) } : { total: NOT_REPORTED, passed: NOT_REPORTED, failed: NOT_REPORTED, skipped: NOT_REPORTED };
-  const caseRows = (record2.cases ?? []).map(
+  const allCases = record2.cases ?? [];
+  let passedShown = 0;
+  const visibleCases = record2.case_row_cap === void 0 ? allCases : allCases.filter((item) => item.status !== "passed" || passedShown++ < record2.case_row_cap);
+  const hiddenPassed = allCases.length - visibleCases.length;
+  const caseRows = visibleCases.map(
     (item) => `| ${tableCell(item.spec_id ?? "not matched to a specification")} | ${tableCell(item.case_ids?.join(", ") ?? "\u2014")} | ${item.status} | ${item.time_ms === null ? "not reported" : `${item.time_ms} ms`} | ${tableCell(item.name)} |`
-  ).join("\n");
+  ).join("\n") + (hiddenPassed > 0 ? `
+| capped at ${record2.case_row_cap} passed rows | \u2014 | passed | not shown | ${tableCell(`${hiddenPassed} more passed cases; the full set is in ${recordFile}`)} |` : "");
   return `---
 id: RESULT-${record2.id}
 artifact_type: test_result
@@ -20410,6 +20471,7 @@ init_config();
 
 // src/core/verification.ts
 import { spawn } from "node:child_process";
+import { StringDecoder } from "node:string_decoder";
 import { readFile as readFile17, readdir as readdir5, writeFile as writeFile6 } from "node:fs/promises";
 import os from "node:os";
 import path22 from "node:path";
@@ -20484,19 +20546,27 @@ async function runCommand(command, cwd, policy) {
   return new Promise((resolve3) => {
     const child = spawn(command.command, { cwd, shell: true, env: process.env });
     let output = "";
+    let bytes = 0;
     let truncated = false;
     let timedOut = false;
     let settled = false;
-    const append = (chunk) => {
-      if (policy.output_max_bytes > 0 && output.length >= policy.output_max_bytes) {
-        truncated = true;
-        return;
-      }
-      output += chunk.toString();
-      if (policy.output_max_bytes > 0 && output.length > policy.output_max_bytes) {
-        output = output.slice(0, policy.output_max_bytes);
-        truncated = true;
-      }
+    const makeAppend = () => {
+      const decoder = new StringDecoder("utf8");
+      return (chunk) => {
+        if (policy.output_max_bytes > 0) {
+          const remaining = policy.output_max_bytes - bytes;
+          if (remaining <= 0) {
+            truncated = true;
+            return;
+          }
+          if (chunk.length > remaining) {
+            truncated = true;
+            chunk = chunk.subarray(0, remaining);
+          }
+        }
+        bytes += chunk.length;
+        output += decoder.write(chunk);
+      };
     };
     const timer = policy.command_timeout_ms > 0 ? setTimeout(() => {
       timedOut = true;
@@ -20514,8 +20584,8 @@ async function runCommand(command, cwd, policy) {
       if (timer) clearTimeout(timer);
       resolve3(run);
     };
-    child.stdout.on("data", append);
-    child.stderr.on("data", append);
+    child.stdout.on("data", makeAppend());
+    child.stderr.on("data", makeAppend());
     child.on("error", (error) => settle({ exitCode: 1, output: `${output}
 ${String(error)}`, started, ended: (/* @__PURE__ */ new Date()).toISOString(), spawnError: true, timedOut, truncated }));
     child.on("close", (code) => settle({ exitCode: code ?? 1, output, started, ended: (/* @__PURE__ */ new Date()).toISOString(), spawnError: false, timedOut, truncated }));
@@ -20595,7 +20665,7 @@ async function executeVerificationUnlocked(root2, config, levels) {
     await saveCurrentState(root2, state);
     const sourceCommit = gitCommit(cwd);
     const sourceSnapshot = sourceSnapshotBefore;
-    const result = await runCommand(definition, cwd, policy);
+    const result = await runCommand(definition, cwd, { ...policy, command_timeout_ms: definition.timeout_ms ?? policy.command_timeout_ms });
     const reportFields = await ingestReport(definition, cwd, roots, artifacts, level);
     const record2 = {
       schema_version: 1,
@@ -20622,6 +20692,10 @@ async function executeVerificationUnlocked(root2, config, levels) {
       ...result.timedOut ? { timed_out: true } : {},
       ...result.truncated ? { output_truncated: true } : {},
       ...result.spawnError ? { spawn_error: true } : {},
+      // Written only when a large passed set exists; the RESULT renderer caps
+      // its passed rows on this field alone, so every record without it —
+      // including everything older engines wrote — renders byte-identically.
+      ...(reportFields.cases?.filter((item) => item.status === "passed").length ?? 0) > 50 ? { case_row_cap: 50 } : {},
       ...reportFields
     };
     await prepareSafeManagedPath(root2, logFile);
@@ -24159,14 +24233,15 @@ var program2 = new Command();
 var root = process.cwd();
 var runtimeRoot = resolveRuntimeRoot(import.meta.url);
 if (Number(process.versions.node.split(".")[0]) < 22) {
-  throw new SdlcError(`Node.js 22 or newer is required; found ${process.versions.node}.`);
+  console.error(`Node.js 22 or newer is required; found ${process.versions.node}.`);
+  process.exit(1);
 }
 function print(value, json = false) {
   if (json || typeof value !== "string") console.log(JSON.stringify(value, null, 2));
   else console.log(value);
 }
-program2.name("ai-saas-sdlc").description("Deterministic engine for AI SaaS SDLC documentation flows.").version("1.17.1");
-program2.command("init").description("Initialize a centralized documentation repository.").option("--project-id <id>", "Stable project identifier").option("--idea <text>", "Raw idea preserved verbatim", "").action(async (options) => {
+program2.name("ai-saas-sdlc").description("Deterministic engine for AI SaaS SDLC documentation flows.").version("1.18.0");
+program2.command("init").description("Initialize a centralized documentation repository.").option("--project-id <id>", "Stable project identifier").option("--idea <text>", "Raw idea preserved verbatim", "").option("--force", "Initialize even though the directory contains a code-project marker").action(async (options) => {
   const projectId = options.projectId ?? root.split(/[\\/]/).at(-1)?.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") ?? "saas-project";
   await withProjectLock(root, async () => {
     await initializeProject(
@@ -24174,7 +24249,8 @@ program2.command("init").description("Initialize a centralized documentation rep
       resolve2(runtimeRoot, "resources", "project-template"),
       projectId,
       options.idea,
-      resolve2(runtimeRoot, "resources", "artifact-patterns")
+      resolve2(runtimeRoot, "resources", "artifact-patterns"),
+      { force: options.force === true }
     );
     await refreshProject(root, false);
     await recordEnginePointer(root, runtimeRoot, program2.version() ?? "0.0.0");
@@ -24251,6 +24327,8 @@ program2.command("verify").description("Execute only verification commands decla
   const records = await executeVerification(root, await loadConfig(root), [...levels]);
   await refreshProject(root, false);
   print(records, Boolean(options.json));
+  const timedOut = records.filter((record2) => record2.timed_out).map((record2) => record2.id);
+  if (timedOut.length > 0) console.error(`Timed out: ${timedOut.join(", ")}. Raise command_timeout_ms in .ai-saas-sdlc/verification-tools.json, or set timeout_ms on the command in sdlc.config.yaml.`);
   if (records.some((record2) => record2.exit_code !== 0)) process.exitCode = 1;
 });
 function positiveInt(flag) {

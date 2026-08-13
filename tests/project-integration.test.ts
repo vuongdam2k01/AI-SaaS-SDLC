@@ -29,6 +29,16 @@ describe("project initialization", () => {
     await expect(initializeProject(root, path.join(process.cwd(), "resources", "project-template"), "test-project", "Idea")).rejects.toThrow("already initialized");
   });
 
+  it("refuses to initialize a directory that looks like a code project unless forced", async () => {
+    const root = await mkdtemp(path.join(os.tmpdir(), "code-repo-"));
+    roots.push(root);
+    await writeFile(path.join(root, "package.json"), "{}\n", "utf8");
+    const template = path.join(process.cwd(), "resources", "project-template");
+    await expect(initializeProject(root, template, "test-project", "Idea")).rejects.toThrow("marks this directory as a code project");
+    await initializeProject(root, template, "test-project", "Idea", undefined, { force: true });
+    expect(await readFile(path.join(root, "sdlc.config.yaml"), "utf8")).toContain("test-project");
+  });
+
   it("produces byte-identical projects for the same input", async () => {
     const first = await tempProject("same-project", "Same idea");
     const second = await tempProject("same-project", "Same idea");

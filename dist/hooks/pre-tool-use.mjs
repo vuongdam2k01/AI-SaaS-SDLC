@@ -7524,8 +7524,12 @@ function validReport(value) {
   if (typeof value.path !== "string" || value.path.length === 0) return false;
   return value.format === "junit" || value.format === "tap";
 }
+function validTimeout(value) {
+  if (value === void 0) return true;
+  return typeof value === "number" && Number.isInteger(value) && value >= 1;
+}
 function validCommand(value) {
-  return isRecord(value) && exactKeys(value, ["id", "cwd", "command", "platforms", "report"]) && safeId(value.id) && [value.cwd, value.command].every((item) => typeof item === "string" && item.length > 0) && validPlatforms(value.platforms) && validReport(value.report);
+  return isRecord(value) && exactKeys(value, ["id", "cwd", "command", "platforms", "report", "timeout_ms"]) && safeId(value.id) && [value.cwd, value.command].every((item) => typeof item === "string" && item.length > 0) && validPlatforms(value.platforms) && validReport(value.report) && validTimeout(value.timeout_ms);
 }
 function validConfig(value) {
   if (!isRecord(value) || !exactKeys(value, ["schema_version", "project_id", "research_mode", "implementation_sources", "verification", "areas"])) return false;
@@ -7549,7 +7553,7 @@ async function loadConfig(root2) {
   } catch (error) {
     throw new SdlcError(`Cannot read ${file}: ${String(error)}`);
   }
-  if (!validConfig(parsed)) throw new SdlcError("Invalid sdlc.config.yaml: expected schema_version 1, kebab-case project/source/command IDs, public-web-only research, implementation_sources, unit/integration/system command arrays, optional non-empty artifact-ID platforms lists, optional per-command report declarations ({path, format: junit|tap}), and an optional non-empty uppercase areas registry.");
+  if (!validConfig(parsed)) throw new SdlcError("Invalid sdlc.config.yaml: expected schema_version 1, kebab-case project/source/command IDs, public-web-only research, implementation_sources, unit/integration/system command arrays, optional non-empty artifact-ID platforms lists, optional per-command report declarations ({path, format: junit|tap}), optional positive-integer per-command timeout_ms overrides, and an optional non-empty uppercase areas registry.");
   return parsed;
 }
 var import_yaml2;
@@ -13613,12 +13617,12 @@ if (!reason && toolName === "Bash" && typeof toolInput.command === "string") {
   if (!implementationFlow && implementationMarkers.some((marker) => marker.length > 0 && command.replaceAll("\\", "/").toLowerCase().includes(marker))) {
     reason = "Configured implementation sources may only be inspected or edited inside Product Evolution or Reconciliation.";
   }
-  if (!reason) {
+  if (!reason && managedRepo) {
     const lower = command.replaceAll("\\", "/").toLowerCase();
     const deobfuscated = lower.replace(/[\s"'`+${}()[\]\\]/g, "");
     if (/(?:^|[\s"'=/])\.ai-saas-sdlc(?:[\s"'/$]|$)/.test(lower) || deobfuscated.includes(".ai-saas-sdlc")) {
       reason = "Internal state and machine-owned files cannot be mutated through shell indirection; use direct file tools for canonical artifacts and the bundled engine for managed files.";
-    } else if (managedRepo) {
+    } else {
       if (/(?:^|[\s"'=/])generated(?:[\s"'/$]|$)/.test(lower)) reason = "Generated projections are machine-owned; use the Read tool to inspect them and the engine to refresh them.";
       else if (lower.includes("00-system/patterns")) reason = "Pinned artifact patterns are engine-owned and may only change through an explicit engine migration.";
       else if (lower.includes("04-verification/results")) reason = "Test results are execution-backed; use the Read tool to inspect them and verify --execute to create them.";
