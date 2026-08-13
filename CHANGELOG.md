@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.15.1 - 2026-08-13
+
+Text-only patch closing the one distillation gap a completeness audit found:
+the size-gated simplification discipline. The review protocol's quality pass
+now runs a behavior-preserving simplification over large diffs (reference
+thresholds ~400 changed lines / 8 files / 200 single-file lines), scoped to
+changed files, proven by diff statistics and the green suite — never by
+prose — and skipped silently below the thresholds. No engine, schema or
+gate change.
+
 ## 1.15.0 - 2026-08-13
 
 The 1.12.0 implementation surface carried the discipline of building — spec

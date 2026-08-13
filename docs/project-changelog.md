@@ -2,6 +2,13 @@
 
 See the root [CHANGELOG](../CHANGELOG.md) for the release summary. This contributor view records documentation-impact areas that must remain synchronized with implementation.
 
+## 1.15.1 - 2026-08-13
+
+| Area | Documentation impact |
+|---|---|
+| Method | `spec-compliance-review.md` gains the size-gated, diff-verified simplification pass |
+| Compatibility | Text-only patch: no engine, schema, message or catalog change |
+
 ## 1.15.0 - 2026-08-13
 
 | Area | Documentation impact |

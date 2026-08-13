@@ -34,6 +34,10 @@ Review output is signal-dense or it is noise. Do **not** flag:
 - anything already addressed elsewhere in the same diff — read the whole diff before commenting;
 - wishes for artifacts, tests or design the documents do not demand — the documents are the scope authority, and wanting more of them is an `evolve-product` conversation.
 
+## Simplification pass
+
+When the segment's live diff is large — reference thresholds when the repository sets none: ~400 changed lines, ~8 files, or ~200 lines in one file — a behavior-preserving simplification runs before the verdict, scoped strictly to the changed files: collapse parallel reimplementations onto existing utilities, remove speculative abstraction the spec never asked for, shrink what grew past its job. Its proof is mechanical, never prose: the diff statistics before and after, and the full configured suite still green. Below the thresholds the pass is skipped silently — simplification of an already-small diff is churn.
+
 ## Bounds and verdicts
 
 At most **three** review cycles; findings still open after the third go to the author as a named decision, never a fourth silent loop. There is no numeric score and no self-approval threshold: the review's outcome is its finding table, and the verdicts that gate anything are deterministic — the compliance table's MISSING count, the configured suite's exit codes, `validate`'s findings. A model's own satisfaction is not evidence and is never recorded as such.
