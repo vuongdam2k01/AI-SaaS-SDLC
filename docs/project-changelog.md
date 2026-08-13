@@ -2,6 +2,16 @@
 
 See the root [CHANGELOG](../CHANGELOG.md) for the release summary. This contributor view records documentation-impact areas that must remain synchronized with implementation.
 
+## 1.17.1 - 2026-08-13
+
+| Area | Documentation impact |
+|---|---|
+| Claude adapters | The four agents pin the cost gradient (`haiku`/`opus`/`sonnet`/`fable`) as floors; `claude/skills/implement/SKILL.md` instructs upward-only spawn overrides |
+| Method | `implementation-delegation.md` states the floor rule for delegate tiers |
+| Validation | package-check requires the exact model pin on every agent |
+| Docs | `plans/reports/evaluator-2026-08-13-host-capability-audit.md` gains the model-allocation amendment |
+| Compatibility | Configuration-only patch: no engine, schema, message, gate or catalog change; blocked pins substitute gracefully per host model-config rules |
+
 ## 1.17.0 - 2026-08-13
 
 | Area | Documentation impact |

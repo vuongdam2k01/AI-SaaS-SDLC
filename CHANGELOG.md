@@ -1,5 +1,31 @@
 # Changelog
 
+## 1.17.1 - 2026-08-13
+
+The author's challenge to 1.17.0's model allocation held up: `inherit` on the
+judgment agents was calibrated from a strongest-model authoring session, and
+on the cheaper sessions real installations commonly run, it routed review,
+diagnosis and counsel by session budget — the exact failure the delegation
+protocol's own rule forbids, and a contradiction of the counsel's written
+"strongest available tier" contract. Official host behavior removed the
+reason for the caution: a pinned tier an account lacks substitutes
+gracefully (family alias → newest permitted version of the family, else the
+inherited model, with an interactive warning), and users keep two override
+levers above the frontmatter (`CLAUDE_CODE_SUBAGENT_MODEL`, then the
+per-invocation model parameter).
+
+### Changed
+
+- Agent model pins now carry agentkit's full cost gradient as floors:
+  `implementation-scout` stays `haiku`, `spec-compliance-reviewer` pins
+  `opus`, `implementation-debugger` pins `sonnet` and
+  `implementation-counsel` pins `fable` — making the counsel contract
+  mechanically true on every session tier. The delegation protocol states
+  the floor rule (where the host allows a per-spawn model choice, overrides
+  go upward to the session's model only), the implement skill instructs the
+  controller accordingly, package-check requires the exact pin on every
+  agent, and the audit report carries the re-evaluation as an amendment.
+
 ## 1.17.0 - 2026-08-13
 
 The host-capability audit (`plans/reports/evaluator-2026-08-13-host-capability-audit.md`)

@@ -96,6 +96,15 @@ Full-body read of all 16 agents (1,904 lines). Their design in one sentence: **a
 
 **Their measured weaknesses, deliberately not imported**: ~17.2K chars (~4.5–5K tokens) of agent descriptions loaded into every session, 91.5% of it on nine example-block descriptions — the heaviest attached to the rarest-fired role (journal-writer, 2,450 chars); a model/complexity inversion at tester; four uncoordinated writers of the one shared mutable plan artifact; prose/capability drift (roles told to consult agents they cannot spawn); silent degradation when hardcoded dependencies are missing. Our counters: four one-line descriptions, single-writer flows, package-check-asserted frontmatter shape, and explicit stops on missing configuration.
 
+## Amendment (1.17.1) — model allocation re-evaluated
+
+The author challenged the 1.17.0 choice of `inherit` for the judgment roles, and the challenge was correct on both counts:
+
+1. **Session-vantage bias.** The original reasoning treated `inherit` as equivalent to "the strong tier" because the authoring session ran the strongest model. Installed on real projects, sessions commonly run cheaper tiers for cost — there, `inherit` routes review, diagnosis and counsel to whatever the session's budget happened to be: exactly the "budget-route judgment" failure the distilled rule forbids. It also contradicted the shipped text itself — the counsel spawn row promises "the strongest available tier", and the protocol assigns diagnosis to the strong tier; `inherit` delivers neither on a cheap session.
+2. **The access-risk argument for `inherit` was untested and is false.** Official docs (sub-agents, model-config): a pinned value blocked by an organization's `availableModels` substitutes gracefully — a family alias runs the newest permitted version of that family, otherwise the subagent runs the inherited model, with an interactive warning naming both. Resolution order gives users two override levers above the frontmatter (`CLAUDE_CODE_SUBAGENT_MODEL`, then the per-invocation model parameter). A pin cannot strand an account.
+
+Corrected allocation — agentkit's gradient, enforced as floors: scout `haiku` (mechanical fan-out; output re-grepped by the controller), reviewer `opus` (agentkit's own reviewer tier), debugger `sonnet` (agentkit's tier; the counsel ceiling covers what sonnet cannot), counsel `fable` (the escalation ceiling its contract already named). The delegation protocol adds the floor rule — per-spawn overrides go upward only — and package-check requires the exact pin on every agent. The `effort` field was examined as a second allocation axis and deferred: its unavailability semantics are undocumented, the same verification gate that parked the Phase-2 items.
+
 ## Appendix — primary sources
 
 - Plugins reference / skills / hooks guide+reference / permissions / sandboxing / plugin marketplaces / security-guidance plugin: `code.claude.com/docs/en/…` (plugins-reference, skills, sub-agents, agent-sdk/subagents, hooks, hooks-guide, permissions, sandboxing, plugin-marketplaces, security-guidance, best-practices)

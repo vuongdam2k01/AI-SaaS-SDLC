@@ -86,11 +86,17 @@ for (const file of claudeSkills) {
   if (!/^---\r?\n[\s\S]*?disable-model-invocation:\s*true\r?\n---/m.test(content)) throw new Error(`Skill must be manual: ${file}`);
 }
 
+// Model pins are the cost gradient distilled from agentkit — the mechanical
+// scout on the cheap tier, judgment on pinned strong tiers, counsel on the
+// ceiling — enforced as floors: the host substitutes gracefully when an
+// account lacks a tier, and the delegation protocol only permits upward
+// per-spawn overrides. Inheriting instead would route judgment by whatever
+// the session's budget happened to be.
 const agentExpectations = {
   "implementation-scout.md": { tools: "Read, Grep, Glob", model: "haiku" },
-  "spec-compliance-reviewer.md": { tools: "Read, Grep, Glob" },
-  "implementation-debugger.md": { tools: "Read, Grep, Glob, Bash" },
-  "implementation-counsel.md": { tools: "Read, Grep, Glob, WebFetch, WebSearch" }
+  "spec-compliance-reviewer.md": { tools: "Read, Grep, Glob", model: "opus" },
+  "implementation-debugger.md": { tools: "Read, Grep, Glob, Bash", model: "sonnet" },
+  "implementation-counsel.md": { tools: "Read, Grep, Glob, WebFetch, WebSearch", model: "fable" }
 };
 const agentFiles = await fg("claude/agents/*.md");
 if (agentFiles.length !== 4) throw new Error(`Expected 4 Claude agents, found ${agentFiles.length}`);
@@ -108,7 +114,7 @@ for (const file of agentFiles) {
   if (tools !== expected.tools) throw new Error(`Agent ${file} must declare tools exactly "${expected.tools}"`);
   if (/\b(?:Edit|Write|MultiEdit|NotebookEdit)\b/.test(tools)) throw new Error(`Agent ${file} must not carry editing tools`);
   const model = frontmatter[1].match(/^model:[ \t]*(.+)$/m)?.[1]?.trim() ?? null;
-  if (expected.model ? model !== expected.model : model !== null) throw new Error(expected.model ? `Agent ${file} must pin model: ${expected.model}` : `Agent ${file} must not pin a model`);
+  if (model !== expected.model) throw new Error(`Agent ${file} must pin model: ${expected.model}`);
 }
 
 const codexSkills = await fg("codex/skills/*/SKILL.md");
