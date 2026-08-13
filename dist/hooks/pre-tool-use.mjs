@@ -7437,6 +7437,7 @@ function projectPaths(root2) {
     executions: path.join(root2, INTERNAL_DIR, "executions"),
     retrievals: path.join(root2, INTERNAL_DIR, "retrievals"),
     researchPolicy: path.join(root2, INTERNAL_DIR, "research-tools.json"),
+    verificationPolicy: path.join(root2, INTERNAL_DIR, "verification-tools.json"),
     cache: path.join(root2, INTERNAL_DIR, "cache"),
     generated: path.join(root2, GENERATED_DIR),
     baseline: path.join(root2, GENERATED_DIR, "baseline-manifest.json")
@@ -7517,8 +7518,14 @@ function validAreas(value) {
   if (value === void 0) return true;
   return Array.isArray(value) && value.length > 0 && value.every((item) => typeof item === "string" && /^[A-Z][A-Z0-9]*(?:-[A-Z0-9]+)*$/.test(item)) && new Set(value).size === value.length;
 }
+function validReport(value) {
+  if (value === void 0) return true;
+  if (!isRecord(value) || !exactKeys(value, ["path", "format"])) return false;
+  if (typeof value.path !== "string" || value.path.length === 0) return false;
+  return value.format === "junit" || value.format === "tap";
+}
 function validCommand(value) {
-  return isRecord(value) && exactKeys(value, ["id", "cwd", "command", "platforms"]) && safeId(value.id) && [value.cwd, value.command].every((item) => typeof item === "string" && item.length > 0) && validPlatforms(value.platforms);
+  return isRecord(value) && exactKeys(value, ["id", "cwd", "command", "platforms", "report"]) && safeId(value.id) && [value.cwd, value.command].every((item) => typeof item === "string" && item.length > 0) && validPlatforms(value.platforms) && validReport(value.report);
 }
 function validConfig(value) {
   if (!isRecord(value) || !exactKeys(value, ["schema_version", "project_id", "research_mode", "implementation_sources", "verification", "areas"])) return false;
@@ -7542,7 +7549,7 @@ async function loadConfig(root2) {
   } catch (error) {
     throw new SdlcError(`Cannot read ${file}: ${String(error)}`);
   }
-  if (!validConfig(parsed)) throw new SdlcError("Invalid sdlc.config.yaml: expected schema_version 1, kebab-case project/source/command IDs, public-web-only research, implementation_sources, unit/integration/system command arrays, optional non-empty artifact-ID platforms lists, and an optional non-empty uppercase areas registry.");
+  if (!validConfig(parsed)) throw new SdlcError("Invalid sdlc.config.yaml: expected schema_version 1, kebab-case project/source/command IDs, public-web-only research, implementation_sources, unit/integration/system command arrays, optional non-empty artifact-ID platforms lists, optional per-command report declarations ({path, format: junit|tap}), and an optional non-empty uppercase areas registry.");
   return parsed;
 }
 var import_yaml2;

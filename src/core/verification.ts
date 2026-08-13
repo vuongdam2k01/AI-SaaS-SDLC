@@ -1,10 +1,10 @@
 import { spawn } from "node:child_process";
-import { readdir, writeFile } from "node:fs/promises";
+import { readFile, readdir, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-import type { CommandDefinition, ExecutionRecord, ProjectConfig } from "./types.js";
+import type { Artifact, CommandDefinition, ExecutionRecord, ProjectConfig } from "./types.js";
 import { gitCommit } from "./git.js";
-import { isRealPathWithin, prepareSafeManagedPath, projectPaths } from "./paths.js";
+import { assertSafeManagedPath, isRealPathWithin, prepareSafeManagedPath, projectPaths } from "./paths.js";
 import { loadActiveFlow, loadCurrentState, pathExists, saveCurrentState } from "./state.js";
 import { formatId, readJson, sha256, writeJsonAtomic } from "./utils.js";
 import { isExecutionRecord } from "./record-validation.js";
@@ -13,8 +13,40 @@ import { SdlcError } from "./errors.js";
 import { renderResultArtifact } from "./result-artifact.js";
 import { withProjectLock } from "./project-lock.js";
 import { sourceSnapshotHash } from "./implementation-snapshot.js";
+import { scanArtifacts } from "./artifacts.js";
+import { joinCasesToSpecs, parseJunit, parseTap } from "./test-report.js";
 
 type Level = "unit" | "integration" | "system";
+
+const LEVEL_SPEC_TYPES: Record<Level, string[]> = {
+  unit: ["unit_test_backend", "unit_test_frontend", "unit_test_job"],
+  integration: ["integration_test"],
+  system: ["system_test"]
+};
+
+interface VerificationPolicy {
+  command_timeout_ms: number;
+  output_max_bytes: number;
+}
+
+// Machine-local budgets, never product truth: a slow suite raises its own
+// timeout in the git-ignored policy file without touching committed history.
+// Zero disables the corresponding budget.
+const DEFAULT_VERIFICATION_POLICY: VerificationPolicy = { command_timeout_ms: 600000, output_max_bytes: 2000000 };
+
+export async function loadVerificationPolicy(root: string): Promise<VerificationPolicy> {
+  const file = projectPaths(root).verificationPolicy;
+  if (!(await pathExists(file))) return { ...DEFAULT_VERIFICATION_POLICY };
+  await assertSafeManagedPath(root, file);
+  const candidate = await readJson<unknown>(file);
+  const allowed = Object.keys(DEFAULT_VERIFICATION_POLICY);
+  if (!candidate || typeof candidate !== "object" || Array.isArray(candidate)
+    || !Object.keys(candidate).every((key) => allowed.includes(key))
+    || !Object.values(candidate).every((value) => Number.isInteger(value) && (value as number) >= 0)) {
+    throw new SdlcError(`Invalid ${file}: expected integer values for a subset of ${allowed.join(", ")}.`);
+  }
+  return { ...DEFAULT_VERIFICATION_POLICY, ...(candidate as Partial<VerificationPolicy>) };
+}
 
 // Re-exported from its shared home so existing importers keep working; the
 // definition lives beside matchesDefinitionEvidence in execution-selection.ts.
@@ -41,16 +73,95 @@ async function executionsForFlow(root: string, flowId: string): Promise<Executio
   return records;
 }
 
-async function runCommand(command: CommandDefinition, cwd: string): Promise<{ exitCode: number; output: string; started: string; ended: string }> {
+interface CommandRun {
+  exitCode: number;
+  output: string;
+  started: string;
+  ended: string;
+  spawnError: boolean;
+  timedOut: boolean;
+  truncated: boolean;
+}
+
+async function runCommand(command: CommandDefinition, cwd: string, policy: VerificationPolicy): Promise<CommandRun> {
   const started = new Date().toISOString();
   return new Promise((resolve) => {
     const child = spawn(command.command, { cwd, shell: true, env: process.env });
     let output = "";
-    child.stdout.on("data", (chunk: Buffer) => { output += chunk.toString(); });
-    child.stderr.on("data", (chunk: Buffer) => { output += chunk.toString(); });
-    child.on("error", (error) => resolve({ exitCode: 1, output: `${output}\n${String(error)}`, started, ended: new Date().toISOString() }));
-    child.on("close", (code) => resolve({ exitCode: code ?? 1, output, started, ended: new Date().toISOString() }));
+    let truncated = false;
+    let timedOut = false;
+    let settled = false;
+    const append = (chunk: Buffer): void => {
+      if (policy.output_max_bytes > 0 && output.length >= policy.output_max_bytes) { truncated = true; return; }
+      output += chunk.toString();
+      if (policy.output_max_bytes > 0 && output.length > policy.output_max_bytes) {
+        output = output.slice(0, policy.output_max_bytes);
+        truncated = true;
+      }
+    };
+    const timer = policy.command_timeout_ms > 0
+      ? setTimeout(() => {
+          timedOut = true;
+          // shell:true leaves grandchildren a plain kill cannot reach; on
+          // Windows they would outlive the shell holding the working directory
+          // open, so the whole tree is killed. Destroying the streams settles
+          // `close` now with what was captured even if something survives.
+          if (process.platform === "win32" && child.pid) {
+            spawn("taskkill", ["/pid", String(child.pid), "/t", "/f"], { stdio: "ignore" }).on("error", () => child.kill());
+          } else {
+            child.kill();
+          }
+          child.stdout.destroy();
+          child.stderr.destroy();
+        }, policy.command_timeout_ms)
+      : null;
+    const settle = (run: CommandRun): void => {
+      if (settled) return;
+      settled = true;
+      if (timer) clearTimeout(timer);
+      resolve(run);
+    };
+    child.stdout.on("data", append);
+    child.stderr.on("data", append);
+    child.on("error", (error) => settle({ exitCode: 1, output: `${output}\n${String(error)}`, started, ended: new Date().toISOString(), spawnError: true, timedOut, truncated }));
+    child.on("close", (code) => settle({ exitCode: code ?? 1, output, started, ended: new Date().toISOString(), spawnError: false, timedOut, truncated }));
   });
+}
+
+type ReportFields = Pick<ExecutionRecord, "report" | "report_error" | "cases">;
+
+/**
+ * Parse the command's declared report and join its cases to the level's
+ * specification rows. A missing or unparseable report is recorded as
+ * report_error and never changes the run's outcome — the exit code stays the
+ * only verdict, exactly as the RESULT artifact states.
+ */
+async function ingestReport(definition: CommandDefinition, cwd: string, roots: string[], artifacts: Artifact[], level: Level): Promise<ReportFields> {
+  if (!definition.report) return {};
+  const target = path.resolve(cwd, definition.report.path);
+  try {
+    const confined = await Promise.all(roots.map(async (allowed) => {
+      try { return await isRealPathWithin(allowed, target); } catch { return false; }
+    }));
+    if (!confined.some(Boolean)) throw new SdlcError(`report path resolves outside configured sources: ${definition.report.path}`);
+    const content = await readFile(target, "utf8");
+    const parsed = definition.report.format === "junit" ? parseJunit(content) : parseTap(content);
+    const specs = artifacts.filter((artifact) => LEVEL_SPEC_TYPES[level].includes(artifact.artifact_type) && artifact.status === "active");
+    return {
+      report: {
+        path: definition.report.path,
+        format: definition.report.format,
+        hash: sha256(content),
+        total: parsed.total,
+        passed: parsed.passed,
+        failed: parsed.failed,
+        skipped: parsed.skipped
+      },
+      cases: joinCasesToSpecs(parsed.cases, specs)
+    };
+  } catch (error) {
+    return { report_error: `Declared ${definition.report.format} report not ingested: ${String(error)}` };
+  }
 }
 
 async function executeVerificationUnlocked(root: string, config: ProjectConfig, levels: Level[]): Promise<ExecutionRecord[]> {
@@ -71,6 +182,8 @@ async function executeVerificationUnlocked(root: string, config: ProjectConfig, 
     }
   }
   const priorForFlow = await executionsForFlow(root, flow.id);
+  const policy = await loadVerificationPolicy(root);
+  const artifacts = planned.some(({ definition }) => definition.report) ? await scanArtifacts(root) : [];
   for (const { level, definition, cwd } of planned) {
     // An identical command over an identical source tree inside the same flow
     // cannot observe anything the earlier run did not. Re-running it would add a
@@ -97,7 +210,8 @@ async function executeVerificationUnlocked(root: string, config: ProjectConfig, 
     await saveCurrentState(root, state);
     const sourceCommit = gitCommit(cwd);
     const sourceSnapshot = sourceSnapshotBefore;
-    const result = await runCommand(definition, cwd);
+    const result = await runCommand(definition, cwd, policy);
+    const reportFields = await ingestReport(definition, cwd, roots, artifacts, level);
     const record: ExecutionRecord = {
       schema_version: 1,
       id,
@@ -117,7 +231,13 @@ async function executeVerificationUnlocked(root: string, config: ProjectConfig, 
       // machine observed. They are recorded separately and never merged, so an
       // Android declaration executed on a win32 host stays auditable.
       ...(definition.platforms ? { platforms: definition.platforms } : {}),
-      host: { os: process.platform, release: os.release(), arch: os.arch(), node: process.versions.node }
+      host: { os: process.platform, release: os.release(), arch: os.arch(), node: process.versions.node },
+      // Flags and report fields are written only when observed, so a record
+      // without them stays byte-identical to what earlier engines wrote.
+      ...(result.timedOut ? { timed_out: true } : {}),
+      ...(result.truncated ? { output_truncated: true } : {}),
+      ...(result.spawnError ? { spawn_error: true } : {}),
+      ...reportFields
     };
     // Recheck immediately before persistence in case a directory changed during execution.
     await prepareSafeManagedPath(root, logFile);

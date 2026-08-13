@@ -19,7 +19,8 @@ import { MAX_CASES_PER_SPEC, specSizeEntries } from "./spec-size.js";
 import { brokenCaseReferences } from "./test-cases.js";
 import { STALE_AFTER_BASELINES, baselinesOpen, openQuestions } from "./question-ledger.js";
 import { platformContradictionFindings, platformEvidenceFindings } from "./platform-evidence.js";
-import { implementationMappingFindings } from "./implementation-evidence.js";
+import { implementationDriftFindings, implementationMappingFindings, implementationSymbolFindings } from "./implementation-evidence.js";
+import { loadBaseline } from "./project.js";
 import { loadExecutionRecords } from "./execution-records.js";
 import { loadQueryRecords, loadRetrievalRecords } from "./retrieval-records.js";
 import { retrievalEvidenceFindings } from "./retrieval-evidence.js";
@@ -173,8 +174,14 @@ export async function validateProject(root: string, artifacts: Artifact[]): Prom
   // per-segment flow closes its baseline honestly and the warning ledger
   // carries what remains. Warnings, never errors — the platform-evidence
   // doctrine applied to implementation, and what keeps documentation-first
-  // repositories legal after they wire a codebase.
-  if (config) findings.push(...implementationMappingFindings(config, artifacts, graph));
+  // repositories legal after they wire a codebase. Drift compares mapped-file
+  // hashes against the baseline's reference point; the symbol check locates
+  // each mapping row's test in the file it names.
+  if (config) {
+    findings.push(...implementationMappingFindings(config, artifacts, graph));
+    findings.push(...await implementationDriftFindings(root, config, artifacts, await loadBaseline(root).catch(() => null)));
+    findings.push(...await implementationSymbolFindings(root, config, artifacts));
+  }
   const order = topologicalOrder(graph);
   if (order.cycles.length > 0) findings.push({ severity: "error", code: "DEPENDENCY_CYCLE", message: `Dependency cycle contains: ${order.cycles.join(", ")}` });
   for (const artifact of artifacts) {

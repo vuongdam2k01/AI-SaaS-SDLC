@@ -39,6 +39,12 @@ export interface CommandDefinition {
   command: string;
   /** Live platform_target IDs this command produces execution evidence for. */
   platforms?: string[];
+  /**
+   * Where the command writes its machine-readable test report, relative to
+   * its cwd. Declared, the engine parses it after every run and records
+   * per-case results; undeclared, case counts honestly stay unreported.
+   */
+  report?: { path: string; format: "junit" | "tap" };
 }
 
 export interface ProjectConfig {
@@ -180,6 +186,13 @@ export interface BaselineManifest {
   }>;
   executions: string[];
   verification: Record<"unit" | "integration" | "system", "passed" | "failed" | "not-configured" | "not-run">;
+  /**
+   * Content hash per mapped implementation path at baseline time, present
+   * only when implementation sources are configured. The reference point the
+   * IMPLEMENTATION_DRIFT warning compares against; absent on older baselines,
+   * which therefore observe nothing.
+   */
+  implementation_hashes?: Record<string, string>;
 }
 
 export interface ValidationFinding {
@@ -214,6 +227,18 @@ export interface ExecutionRecord {
   platforms?: string[];
   /** Observed on the machine that ran the command: the fact. */
   host?: { os: string; release: string; arch: string; node: string };
+  /** The command exceeded the machine-local time budget and was killed. */
+  timed_out?: boolean;
+  /** The captured log was cut at the machine-local byte budget. */
+  output_truncated?: boolean;
+  /** The command never ran (missing binary, bad cwd) — an environment failure, not a test failure. */
+  spawn_error?: boolean;
+  /** Parsed from the command's declared report file; absent when none is declared. */
+  report?: { path: string; format: "junit" | "tap"; hash: string; total: number; passed: number; failed: number; skipped: number };
+  /** A declared report the engine could not read or parse; the run's outcome is unaffected. */
+  report_error?: string;
+  /** Per-case results joined to specification rows at execution time; null joins mean no unambiguous row matched. */
+  cases?: Array<{ name: string; status: "passed" | "failed" | "skipped"; time_ms: number | null; spec_id: string | null; case_ids: string[] | null }>;
 }
 
 /**

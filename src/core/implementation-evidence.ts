@@ -1,5 +1,10 @@
-import type { Artifact, ArtifactGraph, ProjectConfig, ValidationFinding } from "./types.js";
+import { readFile } from "node:fs/promises";
+import path from "node:path";
+import type { Artifact, ArtifactGraph, BaselineManifest, ProjectConfig, ValidationFinding } from "./types.js";
 import { reverseClosure } from "./graph.js";
+import { driftedMappings } from "./mapping-hashes.js";
+import { implementationMappingRows } from "./test-report.js";
+import { pathExists } from "./state.js";
 
 /**
  * Implementation levels and the specification types whose active instances
@@ -115,6 +120,64 @@ export function implementationMappingFindings(config: ProjectConfig, artifacts: 
         message: `${feature.id} has active ${level} specification(s) (${specs.map((spec) => spec.id).join(", ")}) but none maps to an implemented test; implement and map the level, or let this warning stand as the durable record that ${level} for this feature is specified but unproven.`,
         file: feature.file
       });
+    }
+  }
+  return findings;
+}
+
+/**
+ * Docs↔code drift, per mapping: the mapped file's content differs from what
+ * the baseline hashed while every artifact declaring it is unchanged — code
+ * moved, documents did not. Warning, never error: the finding is the standing
+ * record that hands Reconciliation its trigger, and a baseline that predates
+ * mapping hashes observes nothing.
+ */
+export async function implementationDriftFindings(root: string, config: ProjectConfig, artifacts: Artifact[], baseline: BaselineManifest | null): Promise<ValidationFinding[]> {
+  if (config.implementation_sources.length === 0) return [];
+  const drifted = await driftedMappings(root, config, artifacts, baseline);
+  return drifted.map(({ mapping, artifacts: declaring }) => ({
+    severity: "warning" as const,
+    code: "IMPLEMENTATION_DRIFT",
+    message: `Mapped file ${mapping} changed since ${baseline?.id ?? "the baseline"} while its declaring artifact(s) (${declaring.map((artifact) => artifact.id).join(", ")}) did not; bring the documents level through a flow that owns the change, revert the code, or open a Reconciliation on this recorded divergence — this warning is the standing record of docs-to-code drift.`,
+    file: declaring[0]!.file
+  }));
+}
+
+/**
+ * A specification's Implementation-mapping row names a test symbol; when the
+ * row's test file exists inside a configured source but the symbol occurs
+ * nowhere in it, the mapping is a claim about code that cannot be located.
+ * Textual and approximate by design, warning only — renaming the test or
+ * fixing the row are both repairs, and a row whose file does not exist is the
+ * frontmatter mapping's duty, not this check's.
+ */
+export async function implementationSymbolFindings(root: string, config: ProjectConfig, artifacts: Artifact[]): Promise<ValidationFinding[]> {
+  if (config.implementation_sources.length === 0) return [];
+  const findings: ValidationFinding[] = [];
+  const sourceRoots = config.implementation_sources.map((source) => path.resolve(root, source.path));
+  const specTypes = new Set<string>(IMPLEMENTATION_LEVELS.flatMap(({ types }) => [...types]));
+  for (const spec of artifacts.filter((artifact) => specTypes.has(artifact.artifact_type) && artifact.status === "active")) {
+    for (const row of implementationMappingRows(spec)) {
+      let found = false;
+      let existsSomewhere = false;
+      for (const sourceRoot of sourceRoots) {
+        const candidate = path.resolve(sourceRoot, row.test_path);
+        if (!candidate.startsWith(sourceRoot) || !(await pathExists(candidate))) continue;
+        existsSomewhere = true;
+        try {
+          if ((await readFile(candidate, "utf8")).includes(row.symbol)) { found = true; break; }
+        } catch {
+          // Unreadable candidate: treated as not containing the symbol.
+        }
+      }
+      if (existsSomewhere && !found) {
+        findings.push({
+          severity: "warning",
+          code: "IMPLEMENTATION_SYMBOL_MISSING",
+          message: `${spec.id} maps ${row.case_ids.join(", ")} to test symbol "${row.symbol}" in ${row.test_path}, but the symbol does not occur in that file (approximate textual check); fix the mapping row or the test name so the case can be located.`,
+          file: spec.file
+        });
+      }
     }
   }
   return findings;

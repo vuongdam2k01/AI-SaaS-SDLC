@@ -30,12 +30,22 @@ function validAreas(value: unknown): boolean {
     && new Set(value).size === value.length;
 }
 
+function validReport(value: unknown): boolean {
+  if (value === undefined) return true;
+  if (!isRecord(value) || !exactKeys(value, ["path", "format"])) return false;
+  if (typeof value.path !== "string" || value.path.length === 0) return false;
+  // "json" is reserved, not accepted: it is not one format, and parsing an
+  // undefined dialect would manufacture unparseable provenance.
+  return value.format === "junit" || value.format === "tap";
+}
+
 function validCommand(value: unknown): boolean {
   return isRecord(value)
-    && exactKeys(value, ["id", "cwd", "command", "platforms"])
+    && exactKeys(value, ["id", "cwd", "command", "platforms", "report"])
     && safeId(value.id)
     && [value.cwd, value.command].every((item) => typeof item === "string" && item.length > 0)
-    && validPlatforms(value.platforms);
+    && validPlatforms(value.platforms)
+    && validReport(value.report);
 }
 
 function validConfig(value: unknown): value is ProjectConfig {
@@ -61,6 +71,6 @@ export async function loadConfig(root: string): Promise<ProjectConfig> {
   } catch (error) {
     throw new SdlcError(`Cannot read ${file}: ${String(error)}`);
   }
-  if (!validConfig(parsed)) throw new SdlcError("Invalid sdlc.config.yaml: expected schema_version 1, kebab-case project/source/command IDs, public-web-only research, implementation_sources, unit/integration/system command arrays, optional non-empty artifact-ID platforms lists, and an optional non-empty uppercase areas registry.");
+  if (!validConfig(parsed)) throw new SdlcError("Invalid sdlc.config.yaml: expected schema_version 1, kebab-case project/source/command IDs, public-web-only research, implementation_sources, unit/integration/system command arrays, optional non-empty artifact-ID platforms lists, optional per-command report declarations ({path, format: junit|tap}), and an optional non-empty uppercase areas registry.");
   return parsed;
 }

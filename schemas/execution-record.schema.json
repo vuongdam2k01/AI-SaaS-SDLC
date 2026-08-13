@@ -31,6 +31,39 @@
         "arch": { "type": "string", "minLength": 1 },
         "node": { "type": "string", "minLength": 1 }
       }
+    },
+    "timed_out": { "type": "boolean" },
+    "output_truncated": { "type": "boolean" },
+    "spawn_error": { "type": "boolean" },
+    "report": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "format", "hash", "total", "passed", "failed", "skipped"],
+      "properties": {
+        "path": { "type": "string", "minLength": 1 },
+        "format": { "enum": ["junit", "tap"] },
+        "hash": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+        "total": { "type": "integer", "minimum": 0 },
+        "passed": { "type": "integer", "minimum": 0 },
+        "failed": { "type": "integer", "minimum": 0 },
+        "skipped": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "report_error": { "type": "string", "minLength": 1 },
+    "cases": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "status", "time_ms", "spec_id", "case_ids"],
+        "properties": {
+          "name": { "type": "string" },
+          "status": { "enum": ["passed", "failed", "skipped"] },
+          "time_ms": { "anyOf": [{ "type": "integer", "minimum": 0 }, { "type": "null" }] },
+          "spec_id": { "anyOf": [{ "type": "string", "pattern": "^[A-Z][A-Z0-9-]*$" }, { "type": "null" }] },
+          "case_ids": { "anyOf": [{ "type": "array", "minItems": 1, "items": { "type": "string", "pattern": "^TC-[0-9]+$" } }, { "type": "null" }] }
+        }
+      }
     }
   }
 }

@@ -64,13 +64,13 @@ describe("implementation projections", () => {
     await wireSource(root);
     await refreshProject(root, false);
     let dashboard = await readFile(path.join(root, "generated", "implementation-coverage.md"), "utf8");
-    expect(dashboard).toContain("| `FTR-APPROVAL-001` | 0/2 | 0/1 | 0/1 | 0/1 | unmapped |");
+    expect(dashboard).toContain("| `FTR-APPROVAL-001` | 0/2 | 0/1 | 0/1 | 0/1 | — | unmapped |");
     expect(dashboard).toContain("`SCR-APPROVAL-001`");
     await mapArtifact(root, "03-design/interfaces/API-APPROVAL-001.md", ["app:src/approval-decision.ts"]);
     await executeVerification(root, await loadConfig(root), ["unit"]);
     await refreshProject(root, false);
     dashboard = await readFile(path.join(root, "generated", "implementation-coverage.md"), "utf8");
-    expect(dashboard).toContain("| `FTR-APPROVAL-001` | 1/2 | 0/1 | 0/1 | 0/1 | partial: UT, IT, ST unproven |");
+    expect(dashboard).toContain("| `FTR-APPROVAL-001` | 1/2 | 0/1 | 0/1 | 0/1 | — | partial: UT, IT, ST unproven |");
     expect(dashboard).toContain("| UT | `unit-suite` | `EXEC-001` | 0 |");
     // The mapped API leaves the unmapped-artifact complement; the screen stays.
     expect(dashboard).not.toMatch(/\| `API-APPROVAL-001` \| api_processing \|/);

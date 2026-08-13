@@ -41,7 +41,7 @@ It will not turn a warning into a product decision, and it never claims a test p
 
 The engine's `validate` returns non-zero only when there is an **error** — a broken structure: a bad ID, a broken reference, a lifecycle or supersession violation, a coverage gap, a mutated immutable record. Those must be fixed before a baseline.
 
-Seventeen findings are **warnings** and never block a baseline, because each names a *judgement* or a debt rather than a broken structure. They are reported precisely so that owing them stays visible:
+Nineteen findings are **warnings** and never block a baseline, because each names a *judgement* or a debt rather than a broken structure. They are reported precisely so that owing them stays visible:
 
 | Warning | Means | You owe |
 |---|---|---|
@@ -62,6 +62,8 @@ Seventeen findings are **warnings** and never block a baseline, because each nam
 | `RETRIEVAL_RUNG_DEGRADED` | A failed engine retrieval no later success covers | A later successful retrieval, or the standing record of the fallback to host tools |
 | `IMPLEMENTATION_MAPPING_MISSING` | With implementation sources configured, an active feature none of whose declaring artifacts maps to code | Mappings when the feature is built, or the standing record that it is specified but not yet implemented |
 | `IMPLEMENTATION_LEVEL_UNPROVEN` | With implementation sources configured, a feature level (UT/IT/ST) whose active specifications include none mapped to an implemented test | Implementing and mapping the level, or the standing record that it is specified but unproven |
+| `IMPLEMENTATION_DRIFT` | A mapped file whose content left the baseline behind while every artifact declaring it did not | Bringing the documents level through a flow that owns the change, reverting the code, or a Reconciliation on the recorded divergence |
+| `IMPLEMENTATION_SYMBOL_MISSING` | A spec mapping row whose test symbol does not occur in the file the row names (approximate textual check) | Fixing the mapping row or the test name so the case can be located |
 
 Seeing warnings after a flow closes is expected and healthy. Seeing **errors: 0** is the bar for "it worked."
 

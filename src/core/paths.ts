@@ -16,6 +16,7 @@ export function projectPaths(root: string) {
     executions: path.join(root, INTERNAL_DIR, "executions"),
     retrievals: path.join(root, INTERNAL_DIR, "retrievals"),
     researchPolicy: path.join(root, INTERNAL_DIR, "research-tools.json"),
+    verificationPolicy: path.join(root, INTERNAL_DIR, "verification-tools.json"),
     cache: path.join(root, INTERNAL_DIR, "cache"),
     generated: path.join(root, GENERATED_DIR),
     baseline: path.join(root, GENERATED_DIR, "baseline-manifest.json")

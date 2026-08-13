@@ -55,7 +55,23 @@ function validHost(value: unknown): boolean {
 }
 
 export function isExecutionRecord(value: unknown): value is ExecutionRecord {
-  if (!record(value) || !exactKeys(value, ["schema_version", "id", "flow_id", "level", "command_id", "command", "cwd", "started_at", "ended_at", "exit_code", "output_hash", "output_file", "git_commit", "source_snapshot_hash", "platforms", "host"])) return false;
+  if (!record(value) || !exactKeys(value, ["schema_version", "id", "flow_id", "level", "command_id", "command", "cwd", "started_at", "ended_at", "exit_code", "output_hash", "output_file", "git_commit", "source_snapshot_hash", "platforms", "host", "timed_out", "output_truncated", "spawn_error", "report", "report_error", "cases"])) return false;
+  for (const flag of [value.timed_out, value.output_truncated, value.spawn_error]) if (flag !== undefined && typeof flag !== "boolean") return false;
+  if (value.report_error !== undefined && (typeof value.report_error !== "string" || value.report_error.length === 0)) return false;
+  const report = value.report;
+  if (report !== undefined && (!record(report) || !exactKeys(report, ["path", "format", "hash", "total", "passed", "failed", "skipped"])
+    || typeof report.path !== "string" || report.path.length === 0
+    || !["junit", "tap"].includes(String(report.format))
+    || typeof report.hash !== "string" || !/^[a-f0-9]{64}$/.test(report.hash)
+    || ![report.total, report.passed, report.failed, report.skipped].every((count) => Number.isInteger(count) && (count as number) >= 0))) return false;
+  const cases = value.cases;
+  if (cases !== undefined && (!Array.isArray(cases) || !cases.every((item) => record(item)
+    && exactKeys(item, ["name", "status", "time_ms", "spec_id", "case_ids"])
+    && typeof item.name === "string"
+    && ["passed", "failed", "skipped"].includes(String(item.status))
+    && (item.time_ms === null || (Number.isInteger(item.time_ms) && (item.time_ms as number) >= 0))
+    && (item.spec_id === null || (typeof item.spec_id === "string" && /^[A-Z][A-Z0-9-]*$/.test(item.spec_id)))
+    && (item.case_ids === null || (Array.isArray(item.case_ids) && item.case_ids.length > 0 && item.case_ids.every((caseId) => typeof caseId === "string" && /^TC-[0-9]+$/.test(caseId))))))) return false;
   return value.schema_version === 1
     && id(value.id, "EXEC")
     && id(value.flow_id, "FLOW")
@@ -175,7 +191,9 @@ export function isChangeRecord(value: unknown): value is ChangeRecord {
 }
 
 export function isBaselineManifest(value: unknown): value is BaselineManifest {
-  if (!record(value) || !exactKeys(value, ["schema_version", "id", "evidence_revision", "created_at", "git_commit", "flow_type", "flow_id", "artifacts", "executions", "verification"]) || !Array.isArray(value.artifacts) || !strings(value.executions) || !record(value.verification)) return false;
+  if (!record(value) || !exactKeys(value, ["schema_version", "id", "evidence_revision", "created_at", "git_commit", "flow_type", "flow_id", "artifacts", "executions", "verification", "implementation_hashes"]) || !Array.isArray(value.artifacts) || !strings(value.executions) || !record(value.verification)) return false;
+  const hashes = value.implementation_hashes;
+  if (hashes !== undefined && (!record(hashes) || !Object.entries(hashes).every(([mapping, hash]) => mapping.includes(":") && typeof hash === "string" && /^[a-f0-9]{64}$/.test(hash)))) return false;
   const verification = value.verification;
   const verdicts = ["passed", "failed", "not-configured", "not-run"];
   const baselineArtifactIds = value.artifacts.filter(record).map((item) => item.id);

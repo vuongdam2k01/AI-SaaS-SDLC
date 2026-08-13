@@ -2,6 +2,18 @@
 
 See the root [CHANGELOG](../CHANGELOG.md) for the release summary. This contributor view records documentation-impact areas that must remain synchronized with implementation.
 
+## 1.13.0 - 2026-08-13
+
+| Area | Documentation impact |
+|---|---|
+| Engine | `test-report.ts` (junit/TAP subset parsers, symbol join with longest-unique disambiguation), `mapping-hashes.ts` (per-mapping hashes + drift derivation); `verification.ts` budgets, flags and report ingestion; conditional `RESULT-*` case rendering with byte-compat for old records; baseline manifest gains optional `implementation_hashes`; two new warnings in `implementation-evidence.ts`; dashboard Drift and Cases columns; `flow next` drift weight |
+| Schemas | `execution-record` gains optional flags/report/cases; `project-config` commands gain `report`; `baseline-manifest` gains `implementation_hashes` — all optional-additive, schema_version unchanged |
+| Commands | Command reference: `verify` row documents budgets, flags and report parsing; warning paragraph counts nineteen |
+| Configuration | Configuration reference gains *Test-report declarations* and *Execution budgets* sections; implementation-source boundary names drift and symbol warnings |
+| Pinned system contracts | `VALIDATION-RULES` warning table grows to nineteen |
+| Guides and playbooks | Inspect guide table grows to nineteen; Inspect State playbook bullet covers drift and symbol findings |
+| Compatibility | Optional-additive throughout: records without new fields validate and render byte-identically (asserted); baselines without hashes observe nothing; unwired repositories unchanged |
+
 ## 1.12.0 - 2026-08-13
 
 | Area | Documentation impact |

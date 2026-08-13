@@ -20,6 +20,7 @@ import { latestExecution, matchesDefinitionEvidence } from "./execution-selectio
 import { withProjectLock } from "./project-lock.js";
 import { enforceFlowArtifactBoundaries } from "./baseline-flow-rules.js";
 import { implementationSnapshotHash } from "./implementation-snapshot.js";
+import { collectMappingHashes } from "./mapping-hashes.js";
 import { openQuestions } from "./question-ledger.js";
 
 function nextBaselineId(current: string | null): string {
@@ -139,7 +140,11 @@ async function createBaselineUnlocked(root: string): Promise<BaselineManifest> {
       ...(artifact.adr_status ? { adr_status: artifact.adr_status } : {})
     })).sort((a, b) => a.id.localeCompare(b.id)),
     executions: executions.map((record) => record.id).sort(),
-    verification
+    verification,
+    // Per-mapping content hashes are the reference point IMPLEMENTATION_DRIFT
+    // compares against; recorded only when sources are configured, so an
+    // unwired repository's manifest stays byte-identical.
+    ...(config.implementation_sources.length > 0 ? { implementation_hashes: await collectMappingHashes(root, config, artifacts) } : {})
   };
   for (const artifact of artifacts) state.id_registry[artifact.id] ??= artifact.file;
   // Stamp every open question with the baseline it was first seen open at, and

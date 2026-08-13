@@ -27,10 +27,25 @@ export function renderResultArtifact(record: ExecutionRecord, change: string): s
   // output of the engine that wrote it.
   const fingerprint = record.host ? tableCell(`${record.host.os} ${record.host.release} ${record.host.arch}; node ${record.host.node}`) : NOT_REPORTED;
   const declaredPlatforms = record.platforms ? `\n| Declared platform evidence | ${tableCell(record.platforms.join(", "))} |` : "";
+  const flags = [
+    record.spawn_error ? "spawn error — the command never ran; an environment failure, not a test failure" : null,
+    record.timed_out ? "timed out at the machine-local budget and was killed" : null,
+    record.output_truncated ? "output truncated at the machine-local byte budget" : null
+  ].filter((value): value is string => value !== null);
+  const executionFlags = flags.length > 0 ? `\n| Execution flags | ${tableCell(flags.join("; "))} |` : "";
   const evidence = `${record.output_file} (SHA-256 ${record.output_hash})`;
+  const failedCases = (record.cases ?? []).filter((item) => item.status === "failed");
   const failure = record.exit_code === 0
     ? `| Command ${record.command_id} | No command-level failure observed; exit code was 0. | Exit code 0 | ${tableCell(evidence)} | none recorded by execution engine |`
-    : `| Command ${record.command_id}; case mapping ${NOT_REPORTED} | Configured command exited with code ${record.exit_code}. | Exit code 0 | ${tableCell(evidence)} | none recorded by execution engine |`;
+    : failedCases.length > 0
+      ? failedCases.map((item) => `| ${tableCell(`${item.spec_id ?? "unmatched specification"}${item.case_ids ? ` ${item.case_ids.join(", ")}` : ""}`)} | ${tableCell(`Reported failed: ${item.name}`)} | Case passes in the declared report | ${tableCell(evidence)} | none recorded by execution engine |`).join("\n")
+      : `| Command ${record.command_id}; case mapping ${NOT_REPORTED} | Configured command exited with code ${record.exit_code}. | Exit code 0 | ${tableCell(evidence)} | none recorded by execution engine |`;
+  const aggregate = record.report
+    ? { total: String(record.report.total), passed: String(record.report.passed), failed: String(record.report.failed), skipped: String(record.report.skipped) }
+    : { total: NOT_REPORTED, passed: NOT_REPORTED, failed: NOT_REPORTED, skipped: NOT_REPORTED };
+  const caseRows = (record.cases ?? []).map((item) =>
+    `| ${tableCell(item.spec_id ?? "not matched to a specification")} | ${tableCell(item.case_ids?.join(", ") ?? "—")} | ${item.status} | ${item.time_ms === null ? "not reported" : `${item.time_ms} ms`} | ${tableCell(item.name)} |`
+  ).join("\n");
   return `---
 id: RESULT-${record.id}
 artifact_type: test_result
@@ -65,16 +80,16 @@ execution_id: ${record.id}
 | Command | ${tableCell(record.command)} |
 | Working directory | ${tableCell(record.cwd)} |
 | Toolchain | ${NOT_REPORTED} |
-| Environment fingerprint | ${fingerprint} |${declaredPlatforms}
+| Environment fingerprint | ${fingerprint} |${declaredPlatforms}${executionFlags}
 
 ## Aggregate result
 
 | Metric | Value |
 |---|---|
-| Total test cases | ${NOT_REPORTED} |
-| Passed test cases | ${NOT_REPORTED} |
-| Failed test cases | ${NOT_REPORTED} |
-| Skipped test cases | ${NOT_REPORTED} |
+| Total test cases | ${aggregate.total} |
+| Passed test cases | ${aggregate.passed} |
+| Failed test cases | ${aggregate.failed} |
+| Skipped test cases | ${aggregate.skipped} |
 | Command executions | 1 |
 | Command outcome | ${outcome} |
 | Duration | ${duration(record)} |
@@ -83,7 +98,7 @@ execution_id: ${record.id}
 
 | Test spec ID | Case ID | Outcome | Duration | Evidence reference |
 |---|---|---|---|---|
-| ${NOT_REPORTED} | ${NOT_REPORTED} | ${NOT_REPORTED} | ${NOT_REPORTED} | ${tableCell(recordFile)} |
+${caseRows || `| ${NOT_REPORTED} | ${NOT_REPORTED} | ${NOT_REPORTED} | ${NOT_REPORTED} | ${tableCell(recordFile)} |`}
 
 ## Failures and evidence
 
@@ -100,5 +115,5 @@ ${failure}
 - This artifact is a deterministic projection of ${record.id} and is not user-created or user-editable.
 - Command outcome is derived only from the recorded exit code; case counts and test-spec mappings are never inferred.
 - Output sanitization status is ${NOT_REPORTED}; the referenced log preserves the command output recorded by the engine.
-`;
+${record.report ? `- Declared ${record.report.format} report: \`${record.report.path}\` (SHA-256 \`${record.report.hash}\`); case rows above are parsed from it and joined to specification mapping rows at execution time.\n` : ""}${record.report_error ? `- ${tableCell(record.report_error)}\n` : ""}`;
 }

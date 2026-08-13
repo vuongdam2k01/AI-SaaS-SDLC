@@ -1,5 +1,49 @@
 # Changelog
 
+## 1.13.0 - 2026-08-13
+
+The method's doctrine is that execution results are the only proof — yet its
+own proof chain stopped at the exit code: which cases ran, whether the mapped
+code still matched the documents, and whether a mapping's symbol even existed
+were all invisible. This release completes the chain: per-case results parsed
+from declared reports and joined to specification rows, per-mapping content
+hashes that make docs-to-code drift a recorded fact, and execution budgets
+that keep a hung suite from hanging a flow. Everything is optional-additive:
+old records validate and render byte-identically, old baselines simply
+observe nothing.
+
+### Added
+
+- **Test-report ingestion.** A verification command may declare
+  `report: {path, format: junit|tap}`; the engine parses it after every run,
+  records aggregate counts and per-case results, and joins each case to the
+  specification whose Implementation-mapping row names its symbol — exact
+  match first, longest contained symbol otherwise, ambiguity recorded as
+  unmatched rather than guessed. `RESULT-*` artifacts render real case rows
+  and per-case failures; an unreadable report is recorded as `report_error`
+  and the outcome stays exit-code-derived. `json` is reserved until a dialect
+  is defined.
+- **Per-mapping drift detection.** Every baseline in a wired repository
+  stores a content hash per mapped path (`implementation_hashes` in the
+  manifest); `validate` reports `IMPLEMENTATION_DRIFT` when a mapped file
+  leaves that reference point behind while every artifact declaring it is
+  unchanged — the docs-to-code divergence signal a whole-tree snapshot cannot
+  express, and the recorded trigger Reconciliation previously lacked. IDE
+  edits between flows now surface at the next validate on any machine.
+- **Symbol location check.** `IMPLEMENTATION_SYMBOL_MISSING` warns when a
+  specification's mapping row names a test symbol the row's file does not
+  contain — approximate and textual by design, closing the gap where a
+  mapping table reads as coverage while locating nothing.
+- **Execution budgets.** The git-ignored `.ai-saas-sdlc/verification-tools.json`
+  carries machine-local `command_timeout_ms` and `output_max_bytes`; a killed
+  command records `timed_out`, cut output records `output_truncated`, and a
+  command that never ran records `spawn_error` — rendered as an environment
+  failure, no longer indistinguishable from a failed suite.
+- **Dashboard depth.** `generated/implementation-coverage.md` gains a Drift
+  column and per-command passed/failed/skipped case counts; `flow next`'s
+  `suggested_segment` weighs drifted mappings (5) above unmapped design (4)
+  and unproven levels.
+
 ## 1.12.0 - 2026-08-13
 
 Documentation always comes first in this method, and 1.11.0 made partial

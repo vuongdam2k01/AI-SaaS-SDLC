@@ -8,6 +8,7 @@ import { loadQueryRecords, loadRetrievalRecords } from "./retrieval-records.js";
 import { buildGraph } from "./graph.js";
 import { calculateImpact, type ImpactReport } from "./impact.js";
 import { buildProjections, applyProjections, changeImpactProjection } from "./projections.js";
+import { driftedMappings } from "./mapping-hashes.js";
 import { loadActiveFlow, pathExists } from "./state.js";
 import { assertSafeManagedPath, projectPaths } from "./paths.js";
 import { readJson } from "./utils.js";
@@ -51,7 +52,12 @@ async function refreshProjectUnlocked(root: string, check: boolean): Promise<str
   const records = await loadExecutionRecords(root);
   const retrievals = await loadRetrievalRecords(root);
   const queries = await loadQueryRecords(root);
-  const projections = buildProjections(artifacts, graph, impact, baseline, activeChange, config, records, retrievals, queries);
+  // Drift is derivable only when a baseline carries mapping hashes; computed
+  // here because projections stay synchronous and hashing files is not.
+  const drifted = config && config.implementation_sources.length > 0 && baseline?.implementation_hashes
+    ? new Set((await driftedMappings(root, config, artifacts, baseline)).map((entry) => entry.mapping))
+    : undefined;
+  const projections = buildProjections(artifacts, graph, impact, baseline, activeChange, config, records, retrievals, queries, drifted);
   if (await pathExists(projectPaths(root).changes)) {
     await assertSafeManagedPath(root, path.join(projectPaths(root).changes, ".managed-probe"));
     for (const entry of await readdir(projectPaths(root).changes, { withFileTypes: true })) if (entry.isSymbolicLink() && /^CHG-.*\.json$/.test(entry.name)) throw new SdlcError(`Change record cannot be a symlink: ${entry.name}`);

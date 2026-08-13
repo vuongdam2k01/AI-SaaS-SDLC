@@ -53,6 +53,11 @@
         "integration": { "$ref": "#/$defs/verdict" },
         "system": { "$ref": "#/$defs/verdict" }
       }
+    },
+    "implementation_hashes": {
+      "type": "object",
+      "propertyNames": { "pattern": ".+:.+" },
+      "additionalProperties": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
     }
   },
   "$defs": { "verdict": { "enum": ["passed", "failed", "not-configured", "not-run"] } }

@@ -5,7 +5,7 @@ import { loadCurrentState, loadActiveFlow, startFlow, closeFlow, checkpointFlow 
 import { flowGuidance } from "../core/flow-guidance.js";
 import { FLOW_STAGES, type FlowStage } from "../core/types.js";
 import { projectSnapshot, refreshProject } from "../core/project.js";
-import { ensureEnginePointerIgnored, ensureResearchPolicyIgnored, recordEnginePointer } from "../core/engine-pointer.js";
+import { ensureEnginePointerIgnored, ensureResearchPolicyIgnored, ensureVerificationPolicyIgnored, recordEnginePointer } from "../core/engine-pointer.js";
 import { scanArtifacts } from "../core/artifacts.js";
 import { buildGraph } from "../core/graph.js";
 import { validateProject } from "../core/validation.js";
@@ -37,7 +37,7 @@ function print(value: unknown, json = false): void {
   else console.log(value);
 }
 
-program.name("ai-saas-sdlc").description("Deterministic engine for AI SaaS SDLC documentation flows.").version("1.12.0");
+program.name("ai-saas-sdlc").description("Deterministic engine for AI SaaS SDLC documentation flows.").version("1.13.0");
 
 program.command("init")
   .description("Initialize a centralized documentation repository.")
@@ -57,6 +57,7 @@ program.command("init")
       await recordEnginePointer(root, runtimeRoot, program.version() ?? "0.0.0");
       await ensureEnginePointerIgnored(root);
       await ensureResearchPolicyIgnored(root);
+      await ensureVerificationPolicyIgnored(root);
     });
     print(`Initialized AI SaaS SDLC documentation repository: ${projectId}`);
   });

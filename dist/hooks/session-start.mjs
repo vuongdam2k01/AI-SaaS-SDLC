@@ -87,6 +87,7 @@ function projectPaths(root2) {
     executions: path.join(root2, INTERNAL_DIR, "executions"),
     retrievals: path.join(root2, INTERNAL_DIR, "retrievals"),
     researchPolicy: path.join(root2, INTERNAL_DIR, "research-tools.json"),
+    verificationPolicy: path.join(root2, INTERNAL_DIR, "verification-tools.json"),
     cache: path.join(root2, INTERNAL_DIR, "cache"),
     generated: path.join(root2, GENERATED_DIR),
     baseline: path.join(root2, GENERATED_DIR, "baseline-manifest.json")

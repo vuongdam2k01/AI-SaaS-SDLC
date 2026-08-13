@@ -33,7 +33,7 @@ const CONFIG_LEVELS = [
  * live in the commands table below and in RESULT records, never in this
  * column.
  */
-export function implementationCoverageProjection(artifacts: Artifact[], graph: ArtifactGraph, config: ProjectConfig, records: ExecutionRecord[]): string {
+export function implementationCoverageProjection(artifacts: Artifact[], graph: ArtifactGraph, config: ProjectConfig, records: ExecutionRecord[], drifted?: Set<string>): string {
   const states = activeFeatures(artifacts).map((feature) => featureImplementationState(feature, artifacts, graph));
   const featureRows = states.map((state) => {
     const unproven = unprovenLevels(state).map(({ level }) => level);
@@ -42,21 +42,26 @@ export function implementationCoverageProjection(artifacts: Artifact[], graph: A
       : unproven.length > 0
         ? `partial: ${unproven.join(", ")} unproven`
         : "fully mapped";
+    const ownMappings = [...state.mapped, ...state.levels.flatMap(({ mapped }) => mapped)].flatMap((artifact) => artifact.implementation);
+    const driftCount = drifted ? ownMappings.filter((mapping) => drifted.has(mapping)).length : null;
     return [
       `\`${state.feature.id}\``,
       `${state.mapped.length}/${state.mappable.length}`,
       ...state.levels.map(({ specs, mapped }) => (specs.length === 0 ? "—" : `${mapped.length}/${specs.length}`)),
+      driftCount === null ? "—" : driftCount === 0 ? "none" : `${driftCount} mapping(s)`,
       mappingState
     ];
   });
   const commandRows = CONFIG_LEVELS.flatMap(({ key, label }) =>
     config.verification[key].map((command) => {
       const latest = latestExecution(records.filter((record) => record.level === key && matchesDefinitionEvidence(record, command)));
+      const cases = latest?.report ? `${latest.report.passed}/${latest.report.failed}/${latest.report.skipped}` : "—";
       return [
         label,
         `\`${command.id}\``,
         latest ? `\`${latest.id}\`` : "none",
         latest ? String(latest.exit_code) : "—",
+        cases,
         latest ? latest.ended_at : "—"
       ];
     })
@@ -72,11 +77,11 @@ export function implementationCoverageProjection(artifacts: Artifact[], graph: A
     }
   }
   unmapped.sort((a, b) => (a[0] ?? "").localeCompare(b[0] ?? ""));
-  return `# Implementation Coverage\n\nMapping states derive through the same predicates as the IMPLEMENTATION_MAPPING_MISSING and IMPLEMENTATION_LEVEL_UNPROVEN warnings, so this view never disagrees with a finding. A mapping is a declared path, not a verdict; execution evidence lives in the commands table and in RESULT records.\n\n## Features\n\n${table(
-    ["Feature", "Design mapped", "UT specs mapped", "IT specs mapped", "ST specs mapped", "Mapping state"],
+  return `# Implementation Coverage\n\nMapping states derive through the same predicates as the IMPLEMENTATION_MAPPING_MISSING and IMPLEMENTATION_LEVEL_UNPROVEN warnings, so this view never disagrees with a finding. A mapping is a declared path, not a verdict; execution evidence lives in the commands table and in RESULT records. Drift counts mappings whose file content left the baseline behind while their artifacts did not — the IMPLEMENTATION_DRIFT predicate.\n\n## Features\n\n${table(
+    ["Feature", "Design mapped", "UT specs mapped", "IT specs mapped", "ST specs mapped", "Drift", "Mapping state"],
     featureRows
-  )}\n## Configured commands\n\nA row matches executions through the same predicate the baseline verdict uses — identical command identity, text, working directory and platform declaration — but looks across every flow: latest evidence ever, not latest in the active flow.\n\n${table(
-    ["Level", "Command", "Latest matching execution", "Exit code", "Finished at"],
+  )}\n## Configured commands\n\nA row matches executions through the same predicate the baseline verdict uses — identical command identity, text, working directory and platform declaration — but looks across every flow: latest evidence ever, not latest in the active flow. Cases show passed/failed/skipped from the command's declared report when one is ingested.\n\n${table(
+    ["Level", "Command", "Latest matching execution", "Exit code", "Cases (P/F/S)", "Finished at"],
     commandRows
   )}\n## Unmapped active design artifacts\n\n${table(["Artifact", "Type", "In closure of"], unmapped)}`;
 }

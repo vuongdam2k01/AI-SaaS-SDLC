@@ -6,6 +6,7 @@ import { pathExists } from "./state.js";
 export const ENGINE_POINTER_FILE = path.join(INTERNAL_DIR, "engine.json");
 const IGNORE_ENTRY = ".ai-saas-sdlc/engine.json";
 const RESEARCH_POLICY_IGNORE_ENTRY = ".ai-saas-sdlc/research-tools.json";
+const VERIFICATION_POLICY_IGNORE_ENTRY = ".ai-saas-sdlc/verification-tools.json";
 
 export interface EnginePointer {
   schema_version: 1;
@@ -64,4 +65,10 @@ export async function ensureEnginePointerIgnored(root: string): Promise<void> {
 // bodies stay committed — a digest that does not survive a clone proves nothing.
 export async function ensureResearchPolicyIgnored(root: string): Promise<void> {
   await ensureIgnoredEntry(root, RESEARCH_POLICY_IGNORE_ENTRY);
+}
+
+// And for the verification budgets: a slow suite's timeout is a fact about
+// this machine, never about the product.
+export async function ensureVerificationPolicyIgnored(root: string): Promise<void> {
+  await ensureIgnoredEntry(root, VERIFICATION_POLICY_IGNORE_ENTRY);
 }

@@ -5,6 +5,8 @@ import { loadConfig } from "./config.js";
 import { scanArtifacts } from "./artifacts.js";
 import { buildGraph } from "./graph.js";
 import { activeFeatures, featureImplementationState, unprovenLevels } from "./implementation-evidence.js";
+import { driftedMappings } from "./mapping-hashes.js";
+import { loadBaseline } from "./project.js";
 
 export interface SegmentSuggestion {
   feature: string;
@@ -45,22 +47,26 @@ async function suggestSegment(root: string): Promise<SegmentSuggestion | undefin
     if (config.implementation_sources.length === 0) return undefined;
     const artifacts = await scanArtifacts(root);
     const graph = buildGraph(artifacts);
+    const baseline = await loadBaseline(root).catch(() => null);
+    const drifted = new Set((await driftedMappings(root, config, artifacts, baseline)).map((entry) => entry.mapping));
     const WEIGHTS: Record<string, number> = { UT: 3, IT: 2, ST: 2 };
     let best: { score: number; suggestion: SegmentSuggestion } | undefined;
     for (const feature of activeFeatures(artifacts)) {
       const state = featureImplementationState(feature, artifacts, graph);
       const unmappedDesign = state.mappable.length - state.mapped.length;
       const unproven = unprovenLevels(state);
-      const score = unmappedDesign * 4 + unproven.reduce((sum, { level }) => sum + (WEIGHTS[level] ?? 0), 0);
+      const ownDrifted = [...state.mapped, ...state.levels.flatMap(({ mapped }) => mapped)]
+        .flatMap((artifact) => artifact.implementation)
+        .filter((mapping) => drifted.has(mapping)).length;
+      const score = unmappedDesign * 4 + ownDrifted * 5 + unproven.reduce((sum, { level }) => sum + (WEIGHTS[level] ?? 0), 0);
       if (score === 0) continue;
       const segment = !state.anyOwnMapped || unmappedDesign > 0 ? "code" : (unproven[0]?.level.toLowerCase() ?? "code");
-      const suggestion: SegmentSuggestion = {
-        feature: feature.id,
-        segment,
-        reason: unmappedDesign > 0
-          ? `${unmappedDesign} of ${state.mappable.length} design artifact(s) unmapped${unproven.length > 0 ? `; ${unproven.map(({ level }) => level).join(", ")} unproven` : ""}`
-          : `${unproven.map(({ level }) => level).join(", ")} specified but unproven`
-      };
+      const parts = [
+        unmappedDesign > 0 ? `${unmappedDesign} of ${state.mappable.length} design artifact(s) unmapped` : null,
+        ownDrifted > 0 ? `${ownDrifted} mapping(s) drifted since ${baseline?.id ?? "baseline"}` : null,
+        unproven.length > 0 ? `${unproven.map(({ level }) => level).join(", ")} ${unmappedDesign > 0 ? "unproven" : "specified but unproven"}` : null
+      ].filter((value): value is string => value !== null);
+      const suggestion: SegmentSuggestion = { feature: feature.id, segment, reason: parts.join("; ") };
       if (!best || score > best.score) best = { score, suggestion };
     }
     return best?.suggestion;

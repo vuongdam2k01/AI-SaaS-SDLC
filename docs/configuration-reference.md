@@ -56,7 +56,7 @@ implementation:
 
 The source ID must exist, the relative target must remain inside that source, and the mapped path must exist.
 
-Mapping presence is evidence, never a gate. With sources configured, `validate` reports `IMPLEMENTATION_MAPPING_MISSING` for an active feature none of whose declaring artifacts carries a mapping, and `IMPLEMENTATION_LEVEL_UNPROVEN` for a feature whose active UT, IT or ST specifications include none mapped to an implemented test. Both are standing warnings of the platform-evidence doctrine: a documentation-first repository wires a codebase without owing whole-repository conformance, a feature is implemented one segment at a time with each baseline recording honestly what remains, and a feature validated on paper before anyone builds it is a legitimate permanent state whose warning is its durable record. Once sources are configured, `generated/implementation-coverage.md` renders the per-feature join — design and specification mappings, latest executions per level and the unmapped complement — and `generated/implementation-plan/<FTR-ID>.md` renders one work packet per active feature: its closure in dependency order with mappings, owning contract files, referenced foundation rows, covering specifications and configured commands.
+Mapping presence is evidence, never a gate. With sources configured, `validate` reports `IMPLEMENTATION_MAPPING_MISSING` for an active feature none of whose declaring artifacts carries a mapping, and `IMPLEMENTATION_LEVEL_UNPROVEN` for a feature whose active UT, IT or ST specifications include none mapped to an implemented test. Each baseline additionally stores a content hash per mapped path; `validate` then reports `IMPLEMENTATION_DRIFT` when a mapped file's content leaves that reference point behind while every artifact declaring it is unchanged — the recorded docs-to-code divergence — and `IMPLEMENTATION_SYMBOL_MISSING` when a specification's mapping row names a test symbol the row's file does not contain. Both are standing warnings of the platform-evidence doctrine: a documentation-first repository wires a codebase without owing whole-repository conformance, a feature is implemented one segment at a time with each baseline recording honestly what remains, and a feature validated on paper before anyone builds it is a legitimate permanent state whose warning is its durable record. Once sources are configured, `generated/implementation-coverage.md` renders the per-feature join — design and specification mappings, latest executions per level and the unmapped complement — and `generated/implementation-plan/<FTR-ID>.md` renders one work packet per active feature: its closure in dependency order with mappings, owning contract files, referenced foundation rows, covering specifications and configured commands.
 
 ## Verification commands
 
@@ -75,6 +75,25 @@ Each execution records:
 - the command's `platforms` declaration, copied verbatim when present.
 
 The engine renders the matching `RESULT-EXEC-*` from that record. It never overwrites a failed attempt; a rerun receives a new execution/result ID. Baseline verification uses the latest applicable attempt for each declared command, and an execution recorded before a `platforms` declaration was added does not count for it — the command re-runs so the record carries what was declared.
+
+### Test-report declarations
+
+A command may declare where it writes a machine-readable report, relative to its `cwd`:
+
+```yaml
+verification:
+  unit:
+    - id: web-unit
+      cwd: ../approval-web-app
+      command: npm test -- --reporter=junit --outputFile=report.xml
+      report: { path: report.xml, format: junit }
+```
+
+Declared, the engine parses the report after every run, records aggregate counts and per-case results on the execution record, and joins each case to the specification whose Implementation-mapping row names its test symbol — exact match first, longest contained symbol otherwise, ambiguity honestly recorded as unmatched rather than guessed. The `RESULT-*` artifact then carries real case rows instead of `not reported by configured command`. Formats: `junit` (emitted by vitest, jest, pytest, go, dotnet, gradle) and `tap`; `json` is reserved until a dialect is defined. A declared report the engine cannot read or parse is recorded as `report_error` on the record — the run's outcome always derives from the exit code alone.
+
+### Execution budgets
+
+Machine-local budgets live in the optional, git-ignored `.ai-saas-sdlc/verification-tools.json` (`command_timeout_ms`, default 600000; `output_max_bytes`, default 2000000; zero disables a budget) — user-created by hand, like the research policy file, because budgets are facts about a machine, never about the product. A command that exceeds the time budget is killed and its record carries `timed_out`; output beyond the byte budget is cut and recorded as `output_truncated`; a command that never ran (missing binary) records `spawn_error`, and its `RESULT-*` names an environment failure rather than a test failure.
 
 ### Platform evidence declarations
 

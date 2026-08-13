@@ -136,7 +136,8 @@ export function buildProjections(
   config: ProjectConfig | null,
   records: ExecutionRecord[],
   retrievals: RetrievalRecord[] = [],
-  queries: QueryRecord[] = []
+  queries: QueryRecord[] = [],
+  driftedImplementationMappings?: Set<string>
 ): ProjectionSet {
   const projections: ProjectionSet = {};
   projections["artifact-graph.json"] = stableJson(graph);
@@ -194,7 +195,7 @@ export function buildProjections(
   // as platform-coverage: a documentation-only repository sees no new generated
   // file and therefore no drift on upgrade.
   if (config && config.implementation_sources.length > 0) {
-    projections["implementation-coverage.md"] = implementationCoverageProjection(artifacts, graph, config, records);
+    projections["implementation-coverage.md"] = implementationCoverageProjection(artifacts, graph, config, records, driftedImplementationMappings);
     Object.assign(projections, implementationPlanProjections(artifacts, graph, config));
   }
   projections["stale-artifacts.md"] = `# Stale Artifacts\n\nBaseline: **${baseline?.id ?? "none"}**\n\n${impact.stale.map((id) => `- \`${id}\``).join("\n") || "No indirectly affected artifacts."}\n`;
