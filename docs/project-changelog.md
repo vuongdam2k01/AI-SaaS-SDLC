@@ -2,6 +2,14 @@
 
 See the root [CHANGELOG](../CHANGELOG.md) for the release summary. This contributor view records documentation-impact areas that must remain synchronized with implementation.
 
+## 1.16.1 - 2026-08-13
+
+| Area | Documentation impact |
+|---|---|
+| Evals | `evals/README.md` states the capture convention explicitly: the session's final response(s) are saved into the output repository so the harness can audit the response-only output markers (`--intent implementation`, `suggested_segment`, PASS/MISSING/EXTRA) |
+| Reports | `plans/reports/certifier-2026-08-13-implementation-extension-certification.md` records the end-to-end certification evidence matrix, findings F1–F5 and their adjudications |
+| Compatibility | Documentation-only patch: no engine, schema, message, gate or catalog change |
+
 ## 1.16.0 - 2026-08-13
 
 | Area | Documentation impact |

@@ -1,5 +1,33 @@
 # Changelog
 
+## 1.16.1 - 2026-08-13
+
+The implementation extension was certified end to end through the real
+packaged binary against a real fixture lifecycle: Genesis to BL-000, feature
+docs to BL-001, wiring to BL-002 with `IMPLEMENTATION_MAPPING_MISSING`
+standing, a `code` segment whose red run (EXEC-004, junit case joined to
+TC-03) was repaired to green, and a `ut` segment shrinking the warning set to
+IT and ST — twelve real executions, real junit and TAP reports, drift and
+symbol probes firing and clearing, the SessionStart debt line observed on a
+wired repository, and the shipped harness auditing the produced capture to
+`passed: true`. One defect surfaced, in documentation, and is fixed here; no
+engine defect surfaced. The full evidence matrix lives in
+`plans/reports/certifier-2026-08-13-implementation-extension-certification.md`.
+
+### Fixed
+
+- **Eval capture convention stated explicitly** in `evals/README.md`: the
+  session's final response(s) are saved into the output repository as part of
+  a capture. Three of the implementation case's required output markers
+  (`--intent implementation`, `suggested_segment`, PASS/MISSING/EXTRA
+  grading) exist only in the model's closing reports — the intent field lives
+  on the active flow record and is dropped from the closed change record —
+  so a capture without the response could never pass the deterministic audit.
+  Documenting the convention was chosen over persisting intent onto closed
+  change records (heavier, and it would still leave the other two markers
+  unsatisfied) and over weakening the manifest patterns (loses grading
+  signal).
+
 ## 1.16.0 - 2026-08-13
 
 Brainstorm's two halves got two different verdicts. Its contract frame

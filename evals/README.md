@@ -2,7 +2,7 @@
 
 The six cases grade installed-skill behavior from three captured surfaces: the initialized documentation repository, the host tool trace, and the final response. A fluent response cannot compensate for missing files, uninspected sources, direct RESULT writes, or prohibited procedure. The implementation case additionally requires a wired sibling codebase fixture (a minimal `node:test` scaffold with one deliberately red suite), so its capture includes real failed-then-repaired execution records.
 
-Model execution is intentionally optional and external to deterministic CI. Run each prompt in a fresh repository with only the packaged Claude or Codex plugin installed. Capture host tool events as a JSON array (each event should expose `tool` or `name`) and retain the output repository.
+Model execution is intentionally optional and external to deterministic CI. Run each prompt in a fresh repository with only the packaged Claude or Codex plugin installed. Capture host tool events as a JSON array (each event should expose `tool` or `name`) and retain the output repository. Save the session's final response(s) as a markdown file inside the output repository root as part of the capture: several required output markers — the `--intent implementation` invocation, the `suggested_segment` guidance, PASS/MISSING/EXTRA grading — exist only in the model's closing reports, never in engine-persisted files, so the harness can audit them only when the response travels with the repository.
 
 Audit a capture before applying the semantic grader:
 
