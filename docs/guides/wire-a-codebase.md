@@ -55,6 +55,8 @@ The stack you chose is now a fact of the product, and facts of the product live 
 
 A stack choice that was genuinely contested — two viable options, expensive to reverse — additionally earns an `ADR-*` in the same flow; the profile records what is, the ADR records why.
 
+If the product commits to a visual system, the same flow (or the first screen segment) fills the optional `## Design tokens` section of `UX-RULES` — the semantic palette, spacing and typography values every screen consumes — so surfaces stop re-deciding them per segment.
+
 ## How to check it worked
 
 - `ENGINE validate` shows **errors: 0**, plus one `IMPLEMENTATION_MAPPING_MISSING` per active feature — expected and healthy.

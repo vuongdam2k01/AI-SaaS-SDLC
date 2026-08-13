@@ -2,6 +2,15 @@
 
 See the root [CHANGELOG](../CHANGELOG.md) for the release summary. This contributor view records documentation-impact areas that must remain synchronized with implementation.
 
+## 1.14.0 - 2026-08-13
+
+| Area | Documentation impact |
+|---|---|
+| Method | New `resources/protocols/design-implementation.md` (screen brief from owned sources, countable self-review gate, host-capability visual verification) and `resources/protocols/content-implementation.md` (string ownership table, writing rules, conversion-claim traceability); implementation playbook section 6 routes screen segments through both |
+| Pinned system contracts | `UX-RULES` template gains the optional `## Design tokens` section (guidance comment, no catalog change — new repositories only) |
+| Guides | Per-segment guide describes the screen-segment path; wire-a-codebase names the token-filling moment |
+| Compatibility | Method-only: no engine, schema, message or validation change; pinned template reaches new repositories only |
+
 ## 1.13.0 - 2026-08-13
 
 | Area | Documentation impact |

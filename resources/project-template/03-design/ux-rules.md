@@ -44,6 +44,13 @@ supersedes:
 - User-safe messages explain the condition and valid next action without exposing protected details.
 - Dates, times, numbers, currencies, and units state format/context and avoid ambiguous abbreviations.
 
+## Design tokens
+
+| Token | Value | Applies to | Accessibility note |
+|---|---|---|---|
+<!-- Optional until the product commits to a visual system; filled by the flow that makes that commitment. Rows: semantic palette (primary, on-primary, background, surface, border, destructive, state colors for success/warning/error), spacing scale, typography (families, sizes, weights), radius/elevation where they carry meaning. Values are the single source screens and components consume — a screen may not restate a diverging value. Note contrast decisions explicitly (e.g. "adjusted for 4.5:1 on surface"). Purely decorative choices with no semantic weight stay out. -->
+
+
 ## Completion contract
 
 - [ ] Shared interaction rules have stable IDs, applicability, rationale, and verification.

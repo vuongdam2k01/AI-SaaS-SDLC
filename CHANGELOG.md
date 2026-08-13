@@ -1,5 +1,39 @@
 # Changelog
 
+## 1.14.0 - 2026-08-13
+
+A SaaS product's shippable surface is more than passing tests: screens carry
+states, strings and accessibility the specifications constrain but code
+reviews rarely hold to account, and microcopy is where placeholder English
+ships. This release gives the implementation flow its design and content
+discipline — entirely as method, deriving from artifacts that already exist,
+adding no artifact type, no gate and no required tooling.
+
+### Added
+
+- **The design-implementation protocol.** A screen segment assembles its
+  brief from the owned sources — the `SCR-*` tables, the transition graph,
+  `UX-RULES` rows and design tokens, `ERROR-CATALOG` strings,
+  `ACCESS-CONTROL` visibility — and treats it as the file-mediated contract
+  that outranks taste. A countable self-review gate (declared states present
+  and observable, catalog strings verbatim, accessible names, visible focus,
+  4.5:1 contrast, 375px, zero placeholders) runs before spec-compliance
+  review; no scored judgement, no numeric self-approval. Browser verification
+  follows the host-capability rule: use what is installed, record what was
+  and was not observed, stay legal with none.
+- **The content-implementation protocol.** Every authored string binds to
+  the artifact that owns its meaning: error messages render the catalog's
+  user-safe rows, labels use glossary terms, empty states sell the next
+  action, instructions precede requirements, and conversion claims trace to
+  documented evidence or do not ship. Strings are code — same diff, same
+  review, same discipline.
+- **An optional `Design tokens` section in `UX-RULES`** — the semantic
+  palette, spacing and typography values every screen consumes, filled by
+  the flow that commits the product to a visual system. Template-only;
+  content contracts unchanged; existing repositories owe nothing.
+- The implementation playbook's screen branch, and the wire-a-codebase and
+  per-segment guides, route through both protocols.
+
 ## 1.13.0 - 2026-08-13
 
 The method's doctrine is that execution results are the only proof — yet its

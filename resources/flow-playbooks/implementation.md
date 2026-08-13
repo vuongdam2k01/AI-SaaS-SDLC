@@ -63,6 +63,8 @@ Every segment runs the same close sequence; segments differ only in what they ma
 
 ## 6. Implement
 
+When the segment includes an `SCR-*` surface, additionally follow `resources/protocols/design-implementation.md` (the screen brief assembled from owned sources, the countable self-review gate, host-capability visual verification) and `resources/protocols/content-implementation.md` (every string bound to the artifact that owns its meaning; no placeholder text ships).
+
 1. Edit only mapped paths and paths the segment is adding, inside configured roots. Preserve the Engineering profile's conventions; where the profile is silent and the codebase shows a convention, follow the codebase and record the convention in the profile.
 2. Update `implementation:` mappings on every artifact the segment implements, and the Implementation-mapping tables inside test specifications (case IDs → test path → test name — the sync-back is part of the work, not an afterthought). Derive nothing by memory: after mapping, re-read `generated/implementation-coverage.md` and confirm the state moved.
 3. Consult host capability, never require it: enumerate the host's installed skills against the live catalog when the segment touches a domain one covers (a framework, a database, browser verification); use what exists, continue with this playbook when nothing matches, and name in the closing report what was consulted. Never instruct the author to install anything.
