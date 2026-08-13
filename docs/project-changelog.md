@@ -2,6 +2,16 @@
 
 See the root [CHANGELOG](../CHANGELOG.md) for the release summary. This contributor view records documentation-impact areas that must remain synchronized with implementation.
 
+## 1.18.2 - 2026-08-14
+
+| Area | Documentation impact |
+|---|---|
+| Guides | New `resume-an-interrupted-flow.md`; `implement-a-feature.md` retitled and routed to the implement skill; `implement-per-segment.md`, `inspect-and-check-results.md`, `wire-a-codebase.md`, `reconcile-a-failure.md`, `start-a-new-product.md`, `reassess-evidence.md` and `evolve-existing-behavior.md` corrected and extended; index gains resume and drift rows plus the Codex install link |
+| Project template | `00-system/validation-rules.md` warning count corrected to twenty-one; `sdlc.config.yaml` documents all four optional keys with `report` and `timeout_ms` examples |
+| Schemas | `project-config.schema.json` no longer advertises the reserved `json` report format the loader rejects |
+| Reference | `configuration-reference.md` verification row lists `report` and `timeout_ms`; the budgets section states the format enum |
+| Compatibility | Documentation and template text only; no engine, schema-accepting, gate or catalog behavior change |
+
 ## 1.18.1 - 2026-08-14
 
 | Area | Documentation impact |

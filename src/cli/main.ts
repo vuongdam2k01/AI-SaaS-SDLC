@@ -41,7 +41,7 @@ function print(value: unknown, json = false): void {
   else console.log(value);
 }
 
-program.name("ai-saas-sdlc").description("Deterministic engine for AI SaaS SDLC documentation flows.").version("1.18.1");
+program.name("ai-saas-sdlc").description("Deterministic engine for AI SaaS SDLC documentation flows.").version("1.18.2");
 
 program.command("init")
   .description("Initialize a centralized documentation repository.")

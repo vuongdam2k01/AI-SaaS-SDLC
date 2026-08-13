@@ -41,7 +41,7 @@ It will not turn a warning into a product decision, and it never claims a test p
 
 The engine's `validate` returns non-zero only when there is an **error** — a broken structure: a bad ID, a broken reference, a lifecycle or supersession violation, a coverage gap, a mutated immutable record. Those must be fixed before a baseline.
 
-Nineteen findings are **warnings** and never block a baseline, because each names a *judgement* or a debt rather than a broken structure. They are reported precisely so that owing them stays visible:
+Twenty-one findings are **warnings** and never block a baseline, because each names a *judgement* or a debt rather than a broken structure. They are reported precisely so that owing them stays visible:
 
 | Warning | Means | You owe |
 |---|---|---|
@@ -65,7 +65,7 @@ Nineteen findings are **warnings** and never block a baseline, because each name
 | `IMPLEMENTATION_DRIFT` | A mapped file whose content left the baseline behind while every artifact declaring it did not | Bringing the documents level through a flow that owns the change, reverting the code, or a Reconciliation on the recorded divergence |
 | `IMPLEMENTATION_SYMBOL_MISSING` | A spec mapping row whose test symbol does not occur in the file the row names (approximate textual check) | Fixing the mapping row or the test name so the case can be located |
 | `IMPLEMENTATION_MAPPING_ROW_IGNORED` | A mapping-table row present but unparseable (column count, malformed case ID, placeholder mixed with content) | Fixing the row so its cases can join execution reports |
-| `IMPLEMENTATION_MAPPING_PATH_MISSING` | On a frontmatter-mapped spec, a row whose test path exists under no configured source | Fixing the transposed or stale test path |
+| `IMPLEMENTATION_MAPPING_PATH_MISSING` | On a frontmatter-mapped spec, rows whose test paths exist under no configured source — one finding per specification | Fixing the paths: they are relative to the configured source root itself, never prefixed with the source ID |
 
 Seeing warnings after a flow closes is expected and healthy. Seeing **errors: 0** is the bar for "it worked."
 
@@ -76,13 +76,18 @@ Flows write canonical artifacts by hand, but the engine regenerates the cross-cu
 - **`generated/baseline-manifest.json`** — the authoritative snapshot of the active baseline.
 - **Traceability and artifact graph/index** — how everything connects.
 - **Feature / interaction / implementation maps** — what maps to what code.
-- **`generated/rule-coverage.md`** — which business rules are claimed by a spec and which are the `RULE_UNVERIFIED` commitments.
+- **`generated/rule-coverage.md`**, **`generated/acceptance-coverage.md`**, **`generated/evidence-claim-coverage.md`** — which business rules, acceptance criteria and evidence claims are claimed by a specification and which are still commitments.
+- **`generated/implementation-order.md`** — the dependency-ordered build sequence.
+- **`generated/research-coverage.md`** — present once engine retrieval has run: which cited sources carry `RET-*` provenance.
+- **`generated/decision-impact/<ADR-ID>.md`** and **`generated/change-impact/<CHG-ID>.md`** — what one decision or one change reached.
 - **`generated/platform-coverage.md`** — present once any platform target exists: each target's declaring commands, latest matching executions and observed hosts beside its declared `host_os`, with unknown declarations listed.
 - **`generated/implementation-coverage.md`** — present once implementation sources are configured: per active feature, how much of its own design surface and each test level is mapped to code, the latest execution per configured command, and the unmapped complement. Derived through the same predicates as the `IMPLEMENTATION_*` warnings, so it never disagrees with a finding.
 - **`generated/implementation-plan/<FTR-ID>.md`** — one work packet per active feature, same gating: the closure in dependency order with mappings and owning contract files, the foundation rows the closure references, the covering UT/IT/ST specifications with their test-case tables, and the configured commands.
 - **Stale-artifact, issue and decision indexes.**
 
 If you ever doubt whether the generated views are current, the engine can tell you without writing anything: `refresh --check` reports drift; it does not fix it.
+
+Projections regenerate on `refresh` and on `verify`, and on nothing else — so after editing mappings by hand, run `refresh` before you read a dashboard back, or you will read the state you had before the edit.
 
 ## Browse the repository as a site
 
@@ -102,11 +107,13 @@ Three properties matter:
 
 ## Checking execution results honestly
 
-A flow that "finished" is not the same as a flow whose tests *ran*. When implementation sources and verification commands are configured, each `verify --execute` reserves a fresh `EXEC-*` and renders a real `RESULT-EXEC-*` from the actual run — exit code, timing, log digest, source snapshot. Key truths to rely on:
+A flow that "finished" is not the same as a flow whose tests *ran*. When implementation sources and verification commands are configured, each `verify --execute` reserves a fresh `EXEC-*` and renders a real `RESULT-EXEC-*` from the actual run — exit code, timing, log digest, source snapshot. Execution is legal only inside Product Evolution or Reconciliation; outside a flow the engine refuses it rather than producing an unattributable record. Key truths to rely on:
 
 - A **failed** attempt stays in history; a rerun gets a **new** ID. Nothing is overwritten.
 - Baseline verification uses the **latest** applicable attempt for each declared command.
 - With **no** commands configured, results read `not-configured`. That is the honest state — no pass is ever inferred or fabricated, and Inspect State will never claim otherwise.
+- **A command that declared a `report:` file yields per-case rows** — each report case joined to the `TC-*` rows of your specification's `## Implementation mapping` table, with the aggregate totals beside them. Undeclared, case counts honestly read `not reported by configured command`. On a very large passing set the artifact shows the first 50 passed rows plus a trailer naming how many more; failures are never capped.
+- **Three outcomes are not test failures, and the record says which.** `timed_out` — the command was killed at its budget; `spawn_error` — it never ran at all (a missing binary, a bad `cwd`), an environment failure the `RESULT-*` names as such; `output_truncated` — the log hit the byte budget. On a timeout `verify` also prints one line naming the execution and both remedies: raise `command_timeout_ms` in the machine-local `.ai-saas-sdlc/verification-tools.json`, or give that command its own `timeout_ms` in `sdlc.config.yaml`.
 
 So when you check results, look for real `RESULT-*` IDs, not a prose "tests pass."
 

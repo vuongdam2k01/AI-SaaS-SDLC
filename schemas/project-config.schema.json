@@ -49,7 +49,7 @@
             "required": ["path", "format"],
             "properties": {
               "path": { "type": "string", "minLength": 1 },
-              "format": { "enum": ["junit", "tap", "json"] }
+              "format": { "enum": ["junit", "tap"] }
             }
           }
         }

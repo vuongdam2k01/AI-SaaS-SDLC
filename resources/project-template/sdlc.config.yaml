@@ -7,7 +7,21 @@ verification:
   integration: []
   system: []
 
-# Two optional keys exist beyond the ones above, and no others are accepted.
+# Four optional keys exist beyond the ones above, and no others are accepted:
+# per command, `platforms`, `report` and `timeout_ms`; at the top level, `areas`.
+#
+# A command may declare where it writes a machine-readable test report. Declared,
+# the engine parses it after every run and records per-case results joined to the
+# specifications' Implementation-mapping rows; undeclared, case counts honestly
+# stay unreported. Only junit and tap are accepted.
+#
+#   report: { path: report.xml, format: junit }
+#
+# A command may also carry its own timeout in milliseconds, overriding the
+# machine-local budget for that command alone — a long system suite raises its
+# own ceiling without touching the unit commands or anyone else's machine.
+#
+#   timeout_ms: 1800000
 #
 # A verification command may declare which platform targets it produces evidence
 # for. The declaration is copied into every execution record beside the observed

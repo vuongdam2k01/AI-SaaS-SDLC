@@ -44,7 +44,7 @@ Validation evaluates project artifacts as contracts. It detects structural absen
 
 Validation reports two severities and they mean different things. An **error** is a broken structure — a bad ID, an unresolved reference, a lifecycle or supersession violation, a mutated immutable record, a coverage gap, generated projections out of sync. Errors block a baseline and must be repaired.
 
-A **warning** names a judgement or a debt rather than a broken structure, never blocks a baseline, and is itself the durable record of what is owed. Nineteen exist:
+A **warning** names a judgement or a debt rather than a broken structure, never blocks a baseline, and is itself the durable record of what is owed. Twenty-one exist:
 
 | Warning | Means |
 |---|---|

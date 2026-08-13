@@ -9,10 +9,12 @@ Every guide follows the same shape: when to use it, the one command to type, a w
 | You are here | Guide | Skill it drives |
 |---|---|---|
 | Starting from a raw idea, nothing exists yet | [Start a new product](start-a-new-product.md) | `/ai-saas-sdlc:genesis` |
-| You want to build a new feature, end to end | [Implement a feature](implement-a-feature.md) | `/ai-saas-sdlc:evolve-product` |
+| You want to specify a new feature, end to end — requirements through tests | [Specify a feature](implement-a-feature.md) | `/ai-saas-sdlc:evolve-product` |
 | Your docs are validated and it is time to connect a real codebase | [Wire a codebase](wire-a-codebase.md) | configuration + `/ai-saas-sdlc:evolve-product` |
 | A feature is fully specified and you want its code, or its tests, built now | [Implement per segment](implement-per-segment.md) | `/ai-saas-sdlc:implement` |
 | You want to change, consolidate, break, deprecate or retire existing behavior | [Evolve existing behavior](evolve-existing-behavior.md) | `/ai-saas-sdlc:evolve-product` |
+| A flow is already open — a segment was interrupted, or the banner offers you a `Resume:` command | [Resume an interrupted flow](resume-an-interrupted-flow.md) | `/ai-saas-sdlc:inspect-state`, then the flow's own skill |
+| `validate` reports `IMPLEMENTATION_DRIFT`: mapped code moved while its documents did not | [Fix a failure or mismatch](reconcile-a-failure.md) | `/ai-saas-sdlc:reconcile` |
 | A competitor moved, a claim looks stale, a new market signal appeared | [Reassess market evidence](reassess-evidence.md) | `/ai-saas-sdlc:reassess-evidence` |
 | A test failed, code drifted from the docs, two contracts disagree | [Fix a failure or mismatch](reconcile-a-failure.md) | `/ai-saas-sdlc:reconcile` |
 | You want to know where things stand, what's affected, what's owed | [Inspect state and check results](inspect-and-check-results.md) | `/ai-saas-sdlc:inspect-state` |
@@ -26,7 +28,7 @@ You keep a **separate documentation repository**. It advances only in response t
 
 ## Two habits that make every guide work
 
-1. **Let the flow tell you the next command.** Every mutation skill ends its turn by printing the exact command to run next (it reads this from `flow next`). You rarely have to remember syntax — you copy what it prints.
+1. **Let the flow tell you the next command.** Every mutation skill ends its turn by printing the exact command to run next (it reads this from `flow next`), and every session in the repository opens with a banner naming the active baseline, any open flow and — for an interrupted implementation segment — the exact command that resumes it. You rarely have to remember syntax; you copy what it prints.
 2. **Check the result, don't assume it.** After any flow, `/ai-saas-sdlc:inspect-state` and the engine's `validate` tell you the truth: which baseline you are on, what is still open, what is unverified. A flow that "finished" is not the same as a flow that *validated*. See [Inspect state and check results](inspect-and-check-results.md).
 
 ## Related reference material
@@ -38,5 +40,6 @@ You keep a **separate documentation repository**. It advances only in response t
 - [Research tools](../research-tools.md) — optional self-hosted SearXNG/Firecrawl/Camofox instruments and engine-witnessed retrieval provenance.
 - [End-to-end timeline](../end-to-end-timeline.md) — the same journey told as a timeline (t0 … tn).
 - [Pattern to instance](../pattern-to-instance.md) — why patterns and live artifacts are separate layers.
+- [Dual-host installation](../codex-installation.md) — installing and using the plugin on Codex as well as Claude Code.
 
 The engine also regenerates cross-cutting views into `generated/` after every flow — traceability, the artifact graph and index, rule and acceptance coverage, feature and implementation maps, stale artifacts, issue and decision indexes, `platform-coverage.md` once the product ships on a declared platform, and `implementation-coverage.md` plus one `implementation-plan/<FTR-ID>.md` work packet per feature once implementation sources are configured. Read them; never edit them.

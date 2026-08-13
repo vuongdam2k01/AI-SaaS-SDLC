@@ -1,5 +1,58 @@
 # Changelog
 
+## 1.18.2 - 2026-08-14
+
+The how-to guides had drifted as far back as 1.9.0 while the engine reached
+1.18.1 — an audit found the guide titled "Implement a feature" never once
+mentioned the implement skill, no guide taught resuming an interrupted flow,
+and one guide's own prose contradicted the table printed directly beneath it.
+This release re-aligns the user-facing layer with what the plugin actually
+does.
+
+### Added
+
+- `docs/guides/resume-an-interrupted-flow.md` — the situation nothing covered:
+  reading the session banner's `Resume:` line, what survives an interruption in
+  files versus what is re-derived, continuing with `continue FLOW-*`,
+  cancelling a flow, and the single-flow-slot refusal.
+- Guides now teach what 1.13.0 through 1.18.1 shipped: declaring `report:` to
+  turn a suite into per-case evidence joined to `TC-*` rows; per-command
+  `timeout_ms`; `timed_out` / `spawn_error` / `output_truncated` as outcomes
+  that are *not* test failures; the `init` code-project refusal and `--force`;
+  the docs-root precondition; the four delegate agents by their real names and
+  boundaries; every segment running the full suite; the three-strike rule;
+  divergence-before-convergence at the ADR threshold; and `IMPLEMENTATION_DRIFT`
+  routed explicitly to Reconciliation.
+
+### Fixed
+
+- `inspect-and-check-results.md` claimed "Nineteen findings are warnings"
+  directly above a twenty-one row table; the generated-file list omitted six
+  paths that exist; the execution section predated report ingestion and the
+  execution budgets, and never stated that execution is legal only inside
+  Evolution or Reconciliation.
+- `implement-a-feature.md` — retitled *Specify a feature end to end*, now
+  routes planned construction to the implement skill instead of leaving the
+  newest capability invisible, corrects the claim that the documented config
+  keys were exhaustive, adds `PLT-*` to the design checkpoint, and replaces an
+  unsourced time-and-cost estimate with a claim the repository can stand behind.
+- `wire-a-codebase.md` and `implement-a-feature.md` showed config fragments a
+  reader could paste over `sdlc.config.yaml` and break it; both now say what
+  they add to what `init` wrote.
+- `implement-per-segment.md` forbade leaving a flow open at all, contradicting
+  the `--until` checkpoint the engine and skill both support, stated
+  `suggested_segment` unconditionally when it appears only with no flow open,
+  and listed a screen self-review gate missing visible focus and 4.5:1 contrast.
+- `reconcile-a-failure.md` never named the warning built as its trigger, and
+  never routed a specified-but-unbuilt feature away from Reconciliation.
+- The project template shipped both defects into every initialized repository:
+  `validation-rules.md` said nineteen warnings exist, and `sdlc.config.yaml`
+  said two optional keys exist. Both now say what is true, and the config
+  template documents `report` and `timeout_ms` inline.
+- `schemas/project-config.schema.json` advertised `format: json`, which the
+  loader rejects — a config could validate against the shipped schema and then
+  fail to load. The schema now matches the loader; `json` remains reserved.
+
 ## 1.18.1 - 2026-08-14
 
 The 1.17–1.18 work was verified the way this repository defines verification:

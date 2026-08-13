@@ -4,6 +4,8 @@ Adding a feature is only one shape of Product Evolution. The same skill handles 
 
 Read [Implement a feature](implement-a-feature.md) first for the checkpoint mechanics (`--until behavior|design|tests|implementation|baseline`); this guide focuses on what is different for each non-additive shape.
 
+> Changing what the product *does* belongs here. Building code for behavior that is already specified does not — that is [Implement per segment](implement-per-segment.md).
+
 ## Use this when
 
 The behavior exists and you are **choosing** to change it. If instead the behavior is *wrong* relative to a contract, a test or the code — that is a defect, and it belongs in [Reconciliation](reconcile-a-failure.md).
@@ -43,7 +45,7 @@ You are knowingly changing a contract in a way that is not backward-compatible.
 > *"The publish API must now reject any post that has an unresolved change request — callers that used to get a 200 will get a 409."*
 
 - State the compatibility consequence explicitly in your intent. The flow records current-vs-desired behavior and the breaking consequence, and pulls every dependent of the changed `API-*`/`EVT-*`/`ENT-*` contract into regression. When the repository holds sibling contract files — `WIRE-*` interface files, `SCHEMA-*` databases, `TRANSITIONS-*` screen graphs — the closure converges through the *owning* file each artifact declares, so a change to one surface reaches its declarers rather than the whole product. An artifact that declares no owner in a multi-file family is reported as `WIRE_/SCHEMA_/TRANSITION_AUTHORITY_UNDECLARED`, which is the moment to declare it or record why it legitimately has none.
-- A breaking contract change is the kind of durable, expensive-to-reverse decision that legitimately earns an `ADR-*`. Expect one, and expect the report to explain why the threshold was met.
+- A breaking contract change is the kind of durable, expensive-to-reverse decision that legitimately earns an `ADR-*`. Expect one, and expect the report to explain why the threshold was met — and expect it to have *diverged before converging*: where a decision meets the ADR threshold the flow produces the genuine alternatives, each costed against the evidence in scope, before settling on one. A rejected option in that ADR should be credible enough that a later maintainer sees why it nearly won; options written to lose are the failure this rule exists to prevent.
 - A client obligation the change introduces (a new required field, an idempotency key, the identity of a superseded record) must be **owned by an artifact** or recorded in `QUESTIONS` as an allocation gap. The flow will not leave a new caller obligation unowned and silent.
 
 ### 4. Deprecation — pick the right instrument

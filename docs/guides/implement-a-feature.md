@@ -1,8 +1,12 @@
-# Implement a feature
+# Specify a feature end to end
 
 This is the flow you run most. You have a baseline (`BL-000` or later) and you want a user to be able to do something new. Product Evolution takes one semantic intent all the way from *what should the user be able to do* through requirements, design, tests, and — when your code is wired up — the implementation itself, ending in a verified successor baseline.
 
 It is the same skill whether you add, refine, consolidate, break, deprecate or retire behavior. This guide covers **adding** a feature end to end. For the other shapes see [Evolve existing behavior](evolve-existing-behavior.md).
+
+> **Building code for a feature that is already specified is a different door.** Product Evolution answers *what should the product do*; an intent that changes no documented behavior does not belong here. Once the documents exist, use [Implement per segment](implement-per-segment.md) — `/ai-saas-sdlc:implement FTR-00N code` — which opens the same flow type with `--intent implementation` and builds one slice at a time against a work packet. Run this guide when the behavior itself is new or changing.
+
+Run every command below from the root of your documentation repository, never from inside the application codebase.
 
 ## Use this when
 
@@ -16,7 +20,7 @@ A feature is not written in one blast. The flow moves through five checkpoints, 
 | Checkpoint | Plain meaning | What it produces |
 |---|---|---|
 | `behavior` | Make the requirement observable | `FTR-*` with stable `AC-*` acceptance IDs, `UC-*`, `FLOW-*` |
-| `design` | Write the implementation-detail docs | Only the boundaries that exist: `SCR/CMP/SUB/API/ENT/INT/JOB/EVT`, plus the owning interface/schema files (OpenAPI / DBML by default, siblings per surface or database), the architecture overview's Runtime topology section when units or network boundaries change, and `ADR-*` when a real decision is made |
+| `design` | Write the implementation-detail docs | Only the boundaries that exist: `SCR/CMP/SUB/API/ENT/INT/JOB/EVT/PLT`, plus the owning interface/schema files (OpenAPI / DBML by default, siblings per surface or database), the architecture overview's Runtime topology section when units or network boundaries change, and `ADR-*` when a real decision is made |
 | `tests` | Write the test specifications | `UT-*`, `IT-*`, `ST-*` derived from behavior and affected regression |
 | `implementation` | Change the code and run it | Edits inside configured implementation sources; `verify --execute` produces real `RESULT-*` |
 | `baseline` (default) | Lock it in | `refresh` → `validate` → successor `BL-*`, flow closed |
@@ -134,7 +138,9 @@ The deterministic close sequence runs: `refresh` → `validate --active` → `ba
 
 > **Tip — run it all at once.** For a small, well-understood feature you can skip the checkpoints entirely and just run `/ai-saas-sdlc:evolve-product <intent>`. The checkpoints earn their keep on features big enough that a silent 30-minute turn rewriting many artifacts would be impossible to steer.
 
-> **What a stage actually costs.** Observed across real runs: a genesis or a single evolution stage lands around 25–85 minutes and roughly $10–45 of model usage, scaling with product size — a multi-surface product's design stage sits at the top of that range. For anything beyond a small feature, drive the flow one `--until` stage per turn: you get a review point at every checkpoint, and no single turn grows past what you can steer.
+> **What a stage actually costs.** A genesis or a single evolution stage is a long turn that scales with product size — a multi-surface product's design stage is the heaviest. For anything beyond a small feature, drive the flow one `--until` stage per turn: you get a review point at every checkpoint, and no single turn grows past what you can steer. A turn that ends mid-flow is resumable; see [Resume an interrupted flow](resume-an-interrupted-flow.md).
+
+> **Where a real choice appears, diverge before you converge.** When a decision meets the ADR threshold — or plausibly meets it — the flow generates the genuine alternatives *before* settling on one, each costed against the evidence in scope. Anchoring on the first workable idea and back-filling alternatives afterwards is what produces ADRs whose rejected options were written to lose. A rejected option must be credible enough that a later maintainer sees why it nearly won.
 
 ## How to check it worked
 
@@ -159,12 +165,12 @@ You are looking for:
 
 - The new `FTR-*` `active`, tracing down to active `UC/FLOW/UT/IT/ST`.
 - The affected older features and their regression obligations listed under the closure.
-- **Validation errors: 0.** Warnings are informative: `RULE_UNVERIFIED` (a business rule no spec claims yet), `SPEC_OVERSIZED` (a spec to split), `QUESTION_STALE` (an old open question), and — once implementation sources are configured — `IMPLEMENTATION_MAPPING_MISSING` (a feature specified but not yet built) and `IMPLEMENTATION_LEVEL_UNPROVEN` (a test level specified but not yet implemented). These are work owed, reported precisely so it stays visible — they do not block the baseline.
+- **Validation errors: 0.** Warnings are informative and never block a baseline: `RULE_UNVERIFIED` (a business rule no spec claims yet), `SPEC_OVERSIZED` (a spec to split), `QUESTION_STALE` (an old open question), `CASE_REFERENCE_BROKEN`, `AREA_UNREGISTERED`, the three `*_AUTHORITY_UNDECLARED` contract warnings, the platform and research families — and, once implementation sources are configured, six more: `IMPLEMENTATION_MAPPING_MISSING`, `IMPLEMENTATION_LEVEL_UNPROVEN`, `IMPLEMENTATION_DRIFT`, `IMPLEMENTATION_SYMBOL_MISSING`, `IMPLEMENTATION_MAPPING_ROW_IGNORED` and `IMPLEMENTATION_MAPPING_PATH_MISSING`. All twenty-one are listed with their remedies in [Inspect state and check results](inspect-and-check-results.md). They are work owed, reported precisely so it stays visible.
 - `RESULT-*` verdicts, or an honest `not-configured` if you have no verification wired up.
 
 ## Wiring up your code
 
-To make Step 4 do real work, edit `sdlc.config.yaml` at the root of your documentation repository. Keep the three header keys `init` wrote (`schema_version`, `project_id`, `research_mode`) — the engine rejects the file if any of them is missing, and it accepts no keys beyond the ones documented here:
+To make Step 4 do real work, add to the `sdlc.config.yaml` that `init` wrote at the root of your documentation repository — keep its header keys (`schema_version`, `project_id`, `research_mode`) and both required sections; the engine rejects the file if any of them is missing, and it accepts no keys beyond the ones shown here:
 
 ```yaml
 implementation_sources:
@@ -174,7 +180,8 @@ verification:
   unit:
     - id: web-unit
       cwd: ../approval-web-app
-      command: npm test -- --runInBand
+      command: npm test -- --runInBand --reporter=junit --outputFile=report.xml
+      report: { path: report.xml, format: junit }   # optional: per-case results joined to your TC-* rows
   integration:
     - id: web-integration
       cwd: ../approval-web-app
@@ -183,7 +190,10 @@ verification:
     - id: web-system
       cwd: ../approval-web-app
       command: npm run test:system
+      timeout_ms: 1800000                            # optional: this command's own budget
 ```
+
+The optional per-command keys are `report` (`{path, format: junit|tap}`), `timeout_ms` and `platforms`; the optional top-level key is `areas`. Nothing else is accepted.
 
 Key rules (full detail in the [configuration reference](../configuration-reference.md)):
 
@@ -198,10 +208,12 @@ Key rules (full detail in the [configuration reference](../configuration-referen
 ## What NOT to use this for
 
 - **A typo or reword in an existing doc** → editorial edit, not a flow. See [Inspect state and check results](inspect-and-check-results.md#editorial-edits-spelling-tone-formatting).
+- **Code for a feature whose documents already exist** → [Implement per segment](implement-per-segment.md). Planned construction is not a semantic change.
 - **A failing test caused by code drift, or two contracts that disagree** → [Reconciliation](reconcile-a-failure.md). Evolution is for *chosen* new behavior; a defect is a repair.
 - **New market evidence ("did the competitor change pricing?")** → [Evidence Reassessment](reassess-evidence.md) first. Decide on the evidence, *then* start an Evolution if you want a product response.
 
 ## Next
 
+- Building the code once the documents are in place: [Implement per segment](implement-per-segment.md).
 - More on non-additive shapes (change, consolidate, break, deprecate, retire): [Evolve existing behavior](evolve-existing-behavior.md).
 - Confirming and reading results in depth: [Inspect state and check results](inspect-and-check-results.md).

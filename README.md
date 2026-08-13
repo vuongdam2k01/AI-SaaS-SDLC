@@ -66,12 +66,13 @@ The repository also contains `.codex-plugin/plugin.json` and six Codex-native ad
 Task-oriented walkthroughs organized by what you are actually doing — starting a product, building a feature, changing behavior, reassessing the market, fixing a mismatch, checking state. Start at the [guides index](docs/guides/README.md), which routes each situation to the right skill and the exact command:
 
 - [Start a new product](docs/guides/start-a-new-product.md) — install, the documentation-repository model, and Genesis.
-- [Implement a feature](docs/guides/implement-a-feature.md) — Product Evolution end to end, checkpoint by checkpoint.
+- [Specify a feature end to end](docs/guides/implement-a-feature.md) — Product Evolution, checkpoint by checkpoint.
 - [Wire a codebase](docs/guides/wire-a-codebase.md) — the bootstrap seam: scaffold outside the engine, declare sources and commands, fill the engineering profile.
 - [Implement per segment](docs/guides/implement-per-segment.md) — the implement skill: one feature, one segment at a time, warnings shrinking baseline by baseline.
 - [Evolve existing behavior](docs/guides/evolve-existing-behavior.md) — change, consolidate, break, deprecate or retire.
 - [Reassess market evidence](docs/guides/reassess-evidence.md) — Evidence Reassessment on one concrete question.
 - [Fix a failure or mismatch](docs/guides/reconcile-a-failure.md) — Reconciliation, authority-first repair.
+- [Resume an interrupted flow](docs/guides/resume-an-interrupted-flow.md) — reading the session banner, continuing an open segment, cancelling one.
 - [Inspect state and check results](docs/guides/inspect-and-check-results.md) — verifying outcomes and editorial edits.
 
 ## Temporal flows

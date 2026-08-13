@@ -40,6 +40,8 @@ claude
 
 You do **not** run `init` by hand — Genesis detects an uninitialized directory and calls the engine's `init` for you, copying the fixed skeleton (`00-system/` … `05-control/` plus the machine-owned `generated/`), pinning the pattern catalog into `00-system/patterns/`, writing a `sdlc.config.yaml` you can leave alone for now, and capturing your raw idea.
 
+`init` **refuses** a directory that carries a code-project marker — `package.json`, `go.mod`, `Cargo.toml`, `pyproject.toml`, `requirements.txt`, a Gradle or Maven build file, a `.csproj`/`.sln`, a `Makefile` and their siblings — because the commonest first-run mistake is starting the documentation repository inside the application it is meant to describe. If the directory really is your documentation repository and simply happens to carry one (a docs site with its own `package.json`, for instance), re-run with `--force`; the refusal is advisory, not a wall.
+
 ### 3. (Optional) You do not need your code yet
 
 Genesis never edits application code. Pointing the docs at your codebase matters only later, for [implementing features](implement-a-feature.md). You can leave `sdlc.config.yaml` in documentation-only mode for now — see the [configuration reference](../configuration-reference.md) when you are ready, including the optional `areas` registry, which is worth deciding on early because the AREA segment of an ID cannot be renamed once it is baselined.

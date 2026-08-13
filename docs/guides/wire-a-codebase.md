@@ -20,7 +20,7 @@ Two documents are worth reading before you pick anything: `ARCHITECTURE-OVERVIEW
 
 ### 2. Declare sources and commands
 
-Edit `sdlc.config.yaml` in the documentation repository:
+Add these two sections to the `sdlc.config.yaml` that `init` wrote in the documentation repository — keep its `schema_version`, `project_id` and `research_mode` header keys, which the engine requires:
 
 ```yaml
 implementation_sources:
@@ -30,7 +30,8 @@ verification:
   unit:
     - id: app-unit
       cwd: ../my-product-app
-      command: npm test
+      command: npm test -- --reporter=junit --outputFile=report.xml
+      report: { path: report.xml, format: junit }
   integration:
     - id: app-integration
       cwd: ../my-product-app
@@ -39,7 +40,10 @@ verification:
     - id: app-system
       cwd: ../my-product-app
       command: npm run test:system
+      timeout_ms: 1800000
 ```
+
+Declaring `report:` (`junit` or `tap`, path relative to that command's `cwd`) is what turns a suite into **per-case evidence**: the engine parses the report after every run and joins each case to the `TC-*` rows of your specifications' `## Implementation mapping` tables. Undeclared, a run still records honestly — it just reports no case counts.
 
 The engine runs **only** these exact strings, never anything inferred. Note the direction: `cwd` points each command at the application repository, but the engine itself always runs at the docs root — the configured commands are the only thing that reaches across. A slow suite may carry its own `timeout_ms` here, overriding the machine budget for that command alone. Each level's command should exist and exit zero on the fresh scaffold (an empty passing suite is a fine start) — every future evolution re-runs all of them as its regression contract.
 

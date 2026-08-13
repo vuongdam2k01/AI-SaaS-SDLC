@@ -7,7 +7,7 @@ Something concrete is wrong: a configured test failed, the code has drifted from
 You can point at the problem with real evidence — a path, an artifact ID, a command and its result, an error or payload, or an exact expected-vs-observed statement:
 
 - A configured test or execution **failed**.
-- An inspected **code or Git diff** shows the implementation no longer matches the docs.
+- An inspected **code or Git diff** shows the implementation no longer matches the docs — including the case the engine names for you: `validate` reporting **`IMPLEMENTATION_DRIFT`**, a mapped file whose content left the baseline behind while every artifact declaring it stayed put. That warning is this flow's recorded trigger; `IMPLEMENTATION_SYMBOL_MISSING` and `IMPLEMENTATION_MAPPING_PATH_MISSING` name the same class at the mapping-row level.
 - An **interface/schema/provider contract conflict** — two sides expect different shapes. In a repository with sibling contract files, name the file that owns the disputed shape (`WIRE-*`, `SCHEMA-*` or `TRANSITIONS-*`); the repair converges through that owner instead of across the whole surface.
 - A **governing artifact that is not actually governing** — for example a filled `TEST-POLICY` still marked `draft` while every verification specification depends on it. A draft foundation is not implementation authority and sits outside the content contracts, so the rules it states are checked nowhere; that gap is a real, inspectable mismatch and a legitimate reconciliation.
 - A **reproducible user-visible drift** from documented behavior.
@@ -16,9 +16,12 @@ You can point at the problem with real evidence — a path, an artifact ID, a co
 
 Vague model doubt about unchanged prose is **rejected** — Reconciliation needs something inspectable.
 
+When more than one repair is genuinely viable, the flow lays out the real alternatives with their evidence costs before choosing, and the successor ADR carries the credible losers rather than strawmen written to lose.
+
 ## Use something else when
 
 - The behavior isn't broken, you are **choosing** to change it → [Product Evolution](implement-a-feature.md).
+- The feature is fully specified and simply **not built yet** → [Implement per segment](implement-per-segment.md). Reconciliation repairs discovered nonconformance; it does not schedule planned construction, and a repository full of specified-but-unbuilt features is a queue for `implement`, not a queue for repairs.
 - A **public-evidence** claim is contradicted → [Evidence Reassessment](reassess-evidence.md).
 - You just want to look, not repair → [Inspect state](inspect-and-check-results.md).
 
