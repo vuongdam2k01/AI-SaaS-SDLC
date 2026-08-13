@@ -1,5 +1,33 @@
 # Changelog
 
+## 1.16.0 - 2026-08-13
+
+Brainstorm's two halves got two different verdicts. Its contract frame
+(outcome, constraints, non-goals, acceptance) already lives as the artifact
+structure itself and gained nothing from duplication. Its divergence
+discipline was genuinely missing: the method said when a choice deserves an
+ADR but never forced generating real alternatives before converging, so a
+first workable idea could anchor the decision and back-fill strawman
+alternatives to lose on paper. Method-only release; no stage, gate, flow,
+agent or interview — all constitutionally excluded — and no engine change.
+
+### Added
+
+- **Divergence before convergence** in `solution-formation.md`: at or near
+  the ADR threshold, alternatives are generated before any is chosen — each
+  real, distinct in consequence, evidence-costed; a rejected option must be
+  credible enough that a later maintainer sees why it nearly won, and its
+  cost lands in the ADR's `Options considered` table. Reasoning inside the
+  flow, never a new interaction: a determined answer converges without
+  ceremony.
+- **Genesis applies it to the pipeline's most leveraged decision**: two or
+  more evidence-supported framings of the opportunity/beachhead are presented
+  as explicit alternatives inside the existing consolidated interaction; the
+  do-not-manufacture-a-checkpoint rule stands.
+- **Reconciliation applies it to repair choice**: multiple viable repairs
+  diverge before repairing, the successor ADR carries the credible losers,
+  and the debugging protocol's three-strike route lands under the same rule.
+
 ## 1.15.1 - 2026-08-13
 
 Text-only patch closing the one distillation gap a completeness audit found:

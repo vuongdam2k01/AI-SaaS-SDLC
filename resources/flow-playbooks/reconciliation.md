@@ -71,7 +71,7 @@ Repair only:
 - mapped implementation/configuration, or
 - incorrect UT/IT/ST oracle/mapping,
 
-plus affected downstream relationships/regression. Create a successor ADR when an accepted decision changes. Do not edit evidence ledger, regenerate discovery, rewrite unrelated docs or alter a correct specification to make a bug look compliant.
+plus affected downstream relationships/regression. Create a successor ADR when an accepted decision changes. When more than one viable repair exists, diverge before repairing — real alternatives, evidence-costed, per `resources/protocols/solution-formation.md` — and the successor ADR carries the credible losers; the implementation-debugging protocol's three-strike route arrives here under the same rule. Do not edit evidence ledger, regenerate discovery, rewrite unrelated docs or alter a correct specification to make a bug look compliant.
 
 When the mismatch involves a contract file, name the file that actually owns the disputed shape. Interface, schema and transition families may hold sibling files with their own identities — `03-design/interfaces/*.yaml` as `WIRE-*`, `03-design/data/*.dbml` as `SCHEMA-*`, `03-design/*.mmd` as `TRANSITIONS-*` — and impact converges per owning file, so a repair scoped to one file must not be widened to the whole surface. A live `API-*`/`ENT-*`/`SCR-*` in a multi-file family that names no owner is reported as `WIRE_/SCHEMA_/TRANSITION_AUTHORITY_UNDECLARED`; repairing an undeclared ownership is a legitimate reconciliation when the missing declaration is the mismatch.
 

@@ -73,6 +73,10 @@ For each entity/store/API/event shared by old and new features, resolve:
 
 Do not hide these answers inside a single feature if several features depend on them.
 
+## Divergence before convergence
+
+When a choice meets — or plausibly meets — the threshold below, generate the alternatives **before** converging on any of them: each one real, distinct in consequence, and costed against the evidence and constraints in scope. Anchoring on the first workable idea and back-filling alternatives afterwards is the named failure this rule exists to prevent — it produces ADRs whose `Options considered` rows are strawmen written to lose. A rejected option must be credible enough that a later maintainer sees why it nearly won (the pattern's own cells demand a "credible option" and a "credible alternative"); its evidence cost and driver-by-driver fit go in the table, not in memory. Divergence is reasoning inside the flow, never a new stage, gate or interaction: when evidence and explicit input already determine the answer, converge without ceremony.
+
 ## ADR threshold
 
 Create an ADR only when all are true:

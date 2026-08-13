@@ -119,6 +119,8 @@ For each question provide:
 - principal consequence/reversibility;
 - recommendation and largest uncertainty.
 
+When the evidence still supports two or more framings of the opportunity or beachhead — different segments, different problem boundaries, different commercial directions — each framing is presented as an explicit alternative with its own evidence cost inside this same interaction, per the divergence rule in `resources/protocols/solution-formation.md`: this is the pipeline's most leveraged decision, and converging on the first framing that fits is exactly the anchoring that rule prohibits.
+
 If evidence and explicit input determine the answer, do not manufacture a checkpoint. Record non-blocking unknowns in `QUESTIONS`.
 
 ## 9. Form product foundations

@@ -2,6 +2,13 @@
 
 See the root [CHANGELOG](../CHANGELOG.md) for the release summary. This contributor view records documentation-impact areas that must remain synchronized with implementation.
 
+## 1.16.0 - 2026-08-13
+
+| Area | Documentation impact |
+|---|---|
+| Method | `solution-formation.md` gains *Divergence before convergence* (anti-strawman rule anchored to the ADR pattern's credible-option cells); Genesis §8 presents competing opportunity framings as explicit alternatives inside the existing consolidated interaction; Reconciliation §6 diverges on multiple viable repairs |
+| Compatibility | Text-only method release: no engine, schema, message, gate or catalog change |
+
 ## 1.15.1 - 2026-08-13
 
 | Area | Documentation impact |
