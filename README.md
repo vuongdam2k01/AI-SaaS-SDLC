@@ -50,15 +50,16 @@ Start Claude Code in a separate, centralized documentation repository and invoke
 /ai-saas-sdlc:genesis <raw idea>
 /ai-saas-sdlc:reassess-evidence <specific question or signal>
 /ai-saas-sdlc:evolve-product <semantic product intent>
+/ai-saas-sdlc:implement <FTR-ID> [code|ut|it|st|all]
 /ai-saas-sdlc:reconcile <concrete failure or mismatch>
 /ai-saas-sdlc:inspect-state [scope]
 ```
 
-All five skills require explicit user invocation. Research uses actual `WebSearch` and `WebFetch`; a compatible already-installed tool may substitute, but no integration is mandatory. Optionally, self-hosted SearXNG, Firecrawl and camofox-browser instruments can be configured through environment variables — the engine then performs retrieval itself and leaves immutable `QRY-*`/`RET-*` provenance records with hashed page bodies; unconfigured, nothing changes. See [research tools](docs/research-tools.md).
+All six skills require explicit user invocation. Research uses actual `WebSearch` and `WebFetch`; a compatible already-installed tool may substitute, but no integration is mandatory. Optionally, self-hosted SearXNG, Firecrawl and camofox-browser instruments can be configured through environment variables — the engine then performs retrieval itself and leaves immutable `QRY-*`/`RET-*` provenance records with hashed page bodies; unconfigured, nothing changes. See [research tools](docs/research-tools.md).
 
 ## Codex
 
-The repository also contains `.codex-plugin/plugin.json` and five Codex-native adapters under `codex/skills/`. Claude's manual-only adapters live separately under `claude/skills/`. Neither directory sits at the repository root, so a Claude host loads exactly the five manual Claude skills and a Codex host loads exactly the five Codex skills. Both load the same playbooks, patterns, portable hooks and engine. Codex asks the user to review and trust bundled command hooks before running them. See [dual-host installation and use](docs/codex-installation.md).
+The repository also contains `.codex-plugin/plugin.json` and six Codex-native adapters under `codex/skills/`. Claude's manual-only adapters live separately under `claude/skills/`. Neither directory sits at the repository root, so a Claude host loads exactly the six manual Claude skills and a Codex host loads exactly the six Codex skills. Both load the same playbooks, patterns, portable hooks and engine. Codex asks the user to review and trust bundled command hooks before running them. See [dual-host installation and use](docs/codex-installation.md).
 
 ## Guides
 
@@ -66,6 +67,8 @@ Task-oriented walkthroughs organized by what you are actually doing — starting
 
 - [Start a new product](docs/guides/start-a-new-product.md) — install, the documentation-repository model, and Genesis.
 - [Implement a feature](docs/guides/implement-a-feature.md) — Product Evolution end to end, checkpoint by checkpoint.
+- [Wire a codebase](docs/guides/wire-a-codebase.md) — the bootstrap seam: scaffold outside the engine, declare sources and commands, fill the engineering profile.
+- [Implement per segment](docs/guides/implement-per-segment.md) — the implement skill: one feature, one segment at a time, warnings shrinking baseline by baseline.
 - [Evolve existing behavior](docs/guides/evolve-existing-behavior.md) — change, consolidate, break, deprecate or retire.
 - [Reassess market evidence](docs/guides/reassess-evidence.md) — Evidence Reassessment on one concrete question.
 - [Fix a failure or mismatch](docs/guides/reconcile-a-failure.md) — Reconciliation, authority-first repair.
@@ -78,6 +81,7 @@ Task-oriented walkthroughs organized by what you are actually doing — starting
 | Genesis | Raw idea plus public-web observations become attributable discovery, product foundations, `EVR-001` and `BL-000`. No features are pre-created. |
 | Evidence Reassessment | One concrete market question appends evidence and revises affected discovery synthesis. Invalidated product truth becomes an issue, never a silent feature mutation. |
 | Product Evolution | An addition, change, consolidation, breaking change or retirement becomes FTR → UC/FLOW → conditional design → UT/IT/ST → verified successor baseline. Repeating this flow is horizontal scale. |
+| Implementation | Not a fifth flow: an Evolution opened with `--intent implementation` brings code into conformance with an already-specified feature, one segment (`code`/`ut`/`it`/`st`) at a time — mapped paths, executed verification, honest standing warnings for what remains. |
 | Reconciliation | A failed test, inspected drift or contract contradiction determines authority, repairs the minimal impact closure, reruns regression and preserves the failed/successful history. |
 | Inspect State | Shows baseline, active change, graph, stale artifacts, questions, issues and verification without writing. |
 
@@ -127,6 +131,6 @@ claude plugin validate . --strict
 npm run validate:manifests
 ```
 
-The package checks both plugin manifests, all ten host skill adapters, the 24 pattern types, isolated Claude/Codex root resolution, path confinement and reproducible projections.
+The package checks both plugin manifests, all twelve host skill adapters, the 24 pattern types, isolated Claude/Codex root resolution, path confinement and reproducible projections.
 
 Further references: [how-to guides](docs/guides/README.md), [timeline](docs/end-to-end-timeline.md), [flow reference](docs/flow-reference.md), [artifact reference](docs/artifact-reference.md), [command reference](docs/command-reference.md), [configuration](docs/configuration-reference.md), [research tools](docs/research-tools.md) and [architecture](docs/system-architecture.md).

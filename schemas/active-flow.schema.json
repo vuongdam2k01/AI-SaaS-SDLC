@@ -16,6 +16,7 @@
     "stop_blocked_once": { "type": "boolean" },
     "start_snapshot_hash": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
     "implementation_snapshot_hash": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "intent": { "const": "implementation" },
     "target_stage": { "enum": ["behavior", "design", "tests", "implementation", "baseline"] },
     "reached_stage": { "enum": ["behavior", "design", "tests", "implementation", "baseline"] },
     "baseline_created": { "type": "string", "pattern": "^BL-[0-9]{3,}$" },
@@ -25,6 +26,7 @@
     { "if": { "properties": { "type": { "const": "genesis" } } }, "then": { "properties": { "base_baseline": { "type": "null" }, "change_id": { "type": "null" } } } },
     { "if": { "properties": { "type": { "const": "reassessment" } } }, "then": { "properties": { "base_baseline": { "type": "string" }, "change_id": { "type": "null" } } } },
     { "if": { "properties": { "type": { "enum": ["evolution", "reconciliation"] } } }, "then": { "properties": { "base_baseline": { "type": "string" }, "change_id": { "type": "string" } } } },
-    { "if": { "required": ["baseline_created"] }, "then": { "required": ["baseline_implementation_snapshot_hash"] }, "else": { "not": { "required": ["baseline_implementation_snapshot_hash"] } } }
+    { "if": { "required": ["baseline_created"] }, "then": { "required": ["baseline_implementation_snapshot_hash"] }, "else": { "not": { "required": ["baseline_implementation_snapshot_hash"] } } },
+    { "if": { "required": ["intent"] }, "then": { "properties": { "type": { "const": "evolution" } } } }
   ]
 }

@@ -1,6 +1,16 @@
 import { FLOW_STAGES, stageIndex } from "./types.js";
 import type { FlowStage } from "./types.js";
 import { loadActiveFlow, loadCurrentState } from "./state.js";
+import { loadConfig } from "./config.js";
+import { scanArtifacts } from "./artifacts.js";
+import { buildGraph } from "./graph.js";
+import { activeFeatures, featureImplementationState, unprovenLevels } from "./implementation-evidence.js";
+
+export interface SegmentSuggestion {
+  feature: string;
+  segment: string;
+  reason: string;
+}
 
 export interface FlowGuidance {
   active_flow: string | null;
@@ -11,6 +21,8 @@ export interface FlowGuidance {
   baseline_created: string | null;
   next_command: string;
   reason: string;
+  /** Present only when sources are configured and implementation debt exists. */
+  suggested_segment?: SegmentSuggestion;
 }
 
 const SKILL_FOR_FLOW: Record<string, string> = {
@@ -19,6 +31,45 @@ const SKILL_FOR_FLOW: Record<string, string> = {
   evolution: "/ai-saas-sdlc:evolve-product",
   reconciliation: "/ai-saas-sdlc:reconcile"
 };
+
+/**
+ * Which feature most deserves the next implementation segment, by explicit
+ * weights rather than model judgement: an unmapped design artifact outweighs
+ * an unproven level, and UT outweighs IT/ST because everything downstream
+ * leans on it. Information only — the hint never changes next_command and a
+ * repository without sources or without debt produces none.
+ */
+async function suggestSegment(root: string): Promise<SegmentSuggestion | undefined> {
+  try {
+    const config = await loadConfig(root);
+    if (config.implementation_sources.length === 0) return undefined;
+    const artifacts = await scanArtifacts(root);
+    const graph = buildGraph(artifacts);
+    const WEIGHTS: Record<string, number> = { UT: 3, IT: 2, ST: 2 };
+    let best: { score: number; suggestion: SegmentSuggestion } | undefined;
+    for (const feature of activeFeatures(artifacts)) {
+      const state = featureImplementationState(feature, artifacts, graph);
+      const unmappedDesign = state.mappable.length - state.mapped.length;
+      const unproven = unprovenLevels(state);
+      const score = unmappedDesign * 4 + unproven.reduce((sum, { level }) => sum + (WEIGHTS[level] ?? 0), 0);
+      if (score === 0) continue;
+      const segment = !state.anyOwnMapped || unmappedDesign > 0 ? "code" : (unproven[0]?.level.toLowerCase() ?? "code");
+      const suggestion: SegmentSuggestion = {
+        feature: feature.id,
+        segment,
+        reason: unmappedDesign > 0
+          ? `${unmappedDesign} of ${state.mappable.length} design artifact(s) unmapped${unproven.length > 0 ? `; ${unproven.map(({ level }) => level).join(", ")} unproven` : ""}`
+          : `${unproven.map(({ level }) => level).join(", ")} specified but unproven`
+      };
+      if (!best || score > best.score) best = { score, suggestion };
+    }
+    return best?.suggestion;
+  } catch {
+    // The hint is advisory; a broken config or unreadable tree must not make
+    // flow next fail — validate owns reporting those.
+    return undefined;
+  }
+}
 
 /**
  * What the author should type next.
@@ -41,15 +92,19 @@ export async function flowGuidance(root: string): Promise<FlowGuidance> {
         reason: "No baseline exists. Genesis establishes the first one."
       };
     }
+    const suggestion = await suggestSegment(root);
     return {
       active_flow: null, flow_type: null, target_stage: null, reached_stage: null,
       remaining_stages: [], baseline_created: null,
       next_command: "/ai-saas-sdlc:evolve-product <semantic intent>",
-      reason: `No flow is open. ${state.active_baseline} is closed; the next change starts a new flow.`
+      reason: `No flow is open. ${state.active_baseline} is closed; the next change starts a new flow.`,
+      ...(suggestion ? { suggested_segment: suggestion } : {})
     };
   }
 
-  const skill = SKILL_FOR_FLOW[flow.type] ?? "/ai-saas-sdlc:inspect-state";
+  const skill = flow.type === "evolution" && flow.intent === "implementation"
+    ? "/ai-saas-sdlc:implement"
+    : SKILL_FOR_FLOW[flow.type] ?? "/ai-saas-sdlc:inspect-state";
   const reached = flow.reached_stage ?? null;
   const target = flow.target_stage ?? null;
   const remaining = reached

@@ -9399,7 +9399,8 @@ function dateTime(value) {
   return typeof value === "string" && Number.isFinite(Date.parse(value));
 }
 function isActiveFlow(value) {
-  if (!record(value) || !exactKeys(value, ["schema_version", "id", "type", "input", "started_at", "base_baseline", "change_id", "stop_blocked_once", "start_snapshot_hash", "implementation_snapshot_hash", "target_stage", "reached_stage", "baseline_created", "baseline_implementation_snapshot_hash"])) return false;
+  if (!record(value) || !exactKeys(value, ["schema_version", "id", "type", "input", "started_at", "base_baseline", "change_id", "stop_blocked_once", "start_snapshot_hash", "implementation_snapshot_hash", "intent", "target_stage", "reached_stage", "baseline_created", "baseline_implementation_snapshot_hash"])) return false;
+  if (value.intent !== void 0 && (value.intent !== "implementation" || value.type !== "evolution")) return false;
   const stageValid = (candidate) => candidate === void 0 || typeof candidate === "string" && FLOW_STAGES.includes(candidate);
   if (!stageValid(value.target_stage) || !stageValid(value.reached_stage)) return false;
   const semantic = value.type === "evolution" || value.type === "reconciliation";
@@ -18403,8 +18404,10 @@ async function loadActiveFlow(root2) {
   if (!isActiveFlow(flow2)) throw new SdlcError(`Invalid active flow schema: ${file}`);
   return flow2;
 }
-async function startFlowUnlocked(root2, type, input, targetStage) {
+async function startFlowUnlocked(root2, type, input, targetStage, intent) {
   if (!FLOW_TYPES.includes(type)) throw new SdlcError(`Unsupported flow type: ${type}`);
+  if (intent !== void 0 && intent !== "implementation") throw new SdlcError(`Unsupported flow intent: ${intent}. Expected implementation.`);
+  if (intent === "implementation" && type !== "evolution") throw new SdlcError("An implementation intent rides Product Evolution; flow types remain exactly four.");
   if (await loadActiveFlow(root2)) throw new SdlcError("An active flow already exists. Close it before starting another.");
   const state = await loadCurrentState(root2);
   if (type === "genesis" && state.active_baseline) throw new SdlcError("Genesis is only valid before the first product baseline.");
@@ -18422,6 +18425,7 @@ async function startFlowUnlocked(root2, type, input, targetStage) {
     stop_blocked_once: false,
     start_snapshot_hash: await snapshotHash(root2),
     implementation_snapshot_hash: await implementationSnapshotHash(root2),
+    ...intent === "implementation" ? { intent } : {},
     ...targetStage ? { target_stage: targetStage } : {}
   };
   state.next_flow += 1;
@@ -18464,8 +18468,8 @@ async function checkpointFlow(root2, reached, target) {
     return updated;
   });
 }
-async function startFlow(root2, type, input, targetStage) {
-  return withProjectLock(root2, () => startFlowUnlocked(root2, type, input, targetStage));
+async function startFlow(root2, type, input, targetStage, intent) {
+  return withProjectLock(root2, () => startFlowUnlocked(root2, type, input, targetStage, intent));
 }
 async function closeFlowUnlocked(root2) {
   const flow2 = await loadActiveFlow(root2);
@@ -18806,12 +18810,43 @@ init_state();
 // src/core/flow-guidance.ts
 init_types();
 init_state();
+init_config();
+init_artifacts();
+init_graph();
+init_implementation_evidence();
 var SKILL_FOR_FLOW = {
   genesis: "/ai-saas-sdlc:genesis",
   reassessment: "/ai-saas-sdlc:reassess-evidence",
   evolution: "/ai-saas-sdlc:evolve-product",
   reconciliation: "/ai-saas-sdlc:reconcile"
 };
+async function suggestSegment(root2) {
+  try {
+    const config = await loadConfig(root2);
+    if (config.implementation_sources.length === 0) return void 0;
+    const artifacts = await scanArtifacts(root2);
+    const graph = buildGraph(artifacts);
+    const WEIGHTS = { UT: 3, IT: 2, ST: 2 };
+    let best;
+    for (const feature of activeFeatures(artifacts)) {
+      const state = featureImplementationState(feature, artifacts, graph);
+      const unmappedDesign = state.mappable.length - state.mapped.length;
+      const unproven = unprovenLevels(state);
+      const score = unmappedDesign * 4 + unproven.reduce((sum, { level }) => sum + (WEIGHTS[level] ?? 0), 0);
+      if (score === 0) continue;
+      const segment = !state.anyOwnMapped || unmappedDesign > 0 ? "code" : unproven[0]?.level.toLowerCase() ?? "code";
+      const suggestion = {
+        feature: feature.id,
+        segment,
+        reason: unmappedDesign > 0 ? `${unmappedDesign} of ${state.mappable.length} design artifact(s) unmapped${unproven.length > 0 ? `; ${unproven.map(({ level }) => level).join(", ")} unproven` : ""}` : `${unproven.map(({ level }) => level).join(", ")} specified but unproven`
+      };
+      if (!best || score > best.score) best = { score, suggestion };
+    }
+    return best?.suggestion;
+  } catch {
+    return void 0;
+  }
+}
 async function flowGuidance(root2) {
   const flow2 = await loadActiveFlow(root2);
   const state = await loadCurrentState(root2).catch(() => null);
@@ -18828,6 +18863,7 @@ async function flowGuidance(root2) {
         reason: "No baseline exists. Genesis establishes the first one."
       };
     }
+    const suggestion = await suggestSegment(root2);
     return {
       active_flow: null,
       flow_type: null,
@@ -18836,10 +18872,11 @@ async function flowGuidance(root2) {
       remaining_stages: [],
       baseline_created: null,
       next_command: "/ai-saas-sdlc:evolve-product <semantic intent>",
-      reason: `No flow is open. ${state.active_baseline} is closed; the next change starts a new flow.`
+      reason: `No flow is open. ${state.active_baseline} is closed; the next change starts a new flow.`,
+      ...suggestion ? { suggested_segment: suggestion } : {}
     };
   }
-  const skill = SKILL_FOR_FLOW[flow2.type] ?? "/ai-saas-sdlc:inspect-state";
+  const skill = flow2.type === "evolution" && flow2.intent === "implementation" ? "/ai-saas-sdlc:implement" : SKILL_FOR_FLOW[flow2.type] ?? "/ai-saas-sdlc:inspect-state";
   const reached = flow2.reached_stage ?? null;
   const target = flow2.target_stage ?? null;
   const remaining = reached ? FLOW_STAGES.filter((stage) => stageIndex(stage) > stageIndex(reached)) : [...FLOW_STAGES];
@@ -23809,7 +23846,7 @@ function print(value, json = false) {
   if (json || typeof value !== "string") console.log(JSON.stringify(value, null, 2));
   else console.log(value);
 }
-program2.name("ai-saas-sdlc").description("Deterministic engine for AI SaaS SDLC documentation flows.").version("1.11.0");
+program2.name("ai-saas-sdlc").description("Deterministic engine for AI SaaS SDLC documentation flows.").version("1.12.0");
 program2.command("init").description("Initialize a centralized documentation repository.").option("--project-id <id>", "Stable project identifier").option("--idea <text>", "Raw idea preserved verbatim", "").action(async (options) => {
   const projectId = options.projectId ?? root.split(/[\\/]/).at(-1)?.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") ?? "saas-project";
   await withProjectLock(root, async () => {
@@ -23861,11 +23898,11 @@ docs.command("build").description("Build a static, dependency-free HTML site fro
 Open: ${resolve2(result.out, "index.html")}`, Boolean(options.json));
 });
 var flow = program2.command("flow").description("Manage one of the four temporal flows.");
-flow.command("start").requiredOption("--type <type>", "genesis|reassessment|evolution|reconciliation").option("--input <text>", "Raw flow trigger", "").option("--until <stage>", "Stop this turn at behavior|design|tests|implementation|baseline").option("--json", "Emit JSON").action(async (options) => {
+flow.command("start").requiredOption("--type <type>", "genesis|reassessment|evolution|reconciliation").option("--input <text>", "Raw flow trigger", "").option("--until <stage>", "Stop this turn at behavior|design|tests|implementation|baseline").option("--intent <intent>", "Declared input class; only `implementation` exists and only with --type evolution").option("--json", "Emit JSON").action(async (options) => {
   if (options.until !== void 0 && !FLOW_STAGES.includes(options.until)) {
     throw new SdlcError(`Unsupported flow stage: ${options.until}. Expected ${FLOW_STAGES.join("|")}.`);
   }
-  print(await startFlow(root, options.type, options.input, options.until), Boolean(options.json));
+  print(await startFlow(root, options.type, options.input, options.until, options.intent), Boolean(options.json));
 });
 flow.command("checkpoint").description("Record the checkpoint an open flow has reached, and optionally retarget where it stops.").requiredOption("--stage <stage>", "behavior|design|tests|implementation|baseline").option("--until <stage>", "Retarget where this turn stops").option("--json", "Emit JSON").action(async (options) => {
   print(await checkpointFlow(root, options.stage, options.until), Boolean(options.json));

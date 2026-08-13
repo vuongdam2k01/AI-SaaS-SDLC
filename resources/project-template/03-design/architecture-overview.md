@@ -55,6 +55,12 @@ supersedes:
 |---|---|---|---|---|
 <!-- Accepted ADRs only are authoritative. Proposed ADRs remain visible but cannot govern implementation. -->
 
+## Engineering profile
+
+| Dimension | Choice | Evidence in the codebase |
+|---|---|---|
+<!-- Filled by the flow that wires implementation sources, from what the codebase itself evidences; empty until then. Rows: language and runtime, framework(s), package manager, repository layout map (which top-level directories own what), test framework per level (UT/IT/ST), migration tool, build entry points, convention source (linter/formatter config). Descriptive substrate truth only — the stack the code actually runs on, so an implementer reads it here instead of inferring it per segment. Deployment, hosting and CI stay out of scope. A choice worth deliberating (two viable options, expensive to reverse) still earns an ADR; this table records what is, not why. -->
+
 ## Completion contract
 
 - [ ] Context, trust/data boundaries, responsibilities, dependencies, and ownership are non-overlapping.

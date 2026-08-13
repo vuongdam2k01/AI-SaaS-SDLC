@@ -31,7 +31,7 @@ for (const [event, groups] of Object.entries(hookConfig.hooks ?? {})) {
 }
 
 const skills = await fg("codex/skills/*/SKILL.md", { cwd: root });
-if (skills.length !== 5) throw new Error(`Expected five Codex skills; found ${skills.length}`);
+if (skills.length !== 6) throw new Error(`Expected six Codex skills; found ${skills.length}`);
 for (const relative of skills) {
   const source = await readFile(path.join(root, relative), "utf8");
   const match = source.match(/^---\r?\n([\s\S]*?)\r?\n---/);

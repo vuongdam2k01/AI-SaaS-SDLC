@@ -75,14 +75,14 @@ for (const file of textFiles) {
 }
 
 const claudeSkills = await fg("claude/skills/*/SKILL.md");
-if (claudeSkills.length !== 5) throw new Error(`Expected 5 Claude skills, found ${claudeSkills.length}`);
+if (claudeSkills.length !== 6) throw new Error(`Expected 6 Claude skills, found ${claudeSkills.length}`);
 for (const file of claudeSkills) {
   const content = await readFile(file, "utf8");
   if (!/^---\r?\n[\s\S]*?disable-model-invocation:\s*true\r?\n---/m.test(content)) throw new Error(`Skill must be manual: ${file}`);
 }
 
 const codexSkills = await fg("codex/skills/*/SKILL.md");
-if (codexSkills.length !== 5) throw new Error(`Expected 5 Codex skills, found ${codexSkills.length}`);
+if (codexSkills.length !== 6) throw new Error(`Expected 6 Codex skills, found ${codexSkills.length}`);
 for (const file of codexSkills) {
   const content = await readFile(file, "utf8");
   const frontmatter = content.match(/^---\r?\n([\s\S]*?)\r?\n---/);

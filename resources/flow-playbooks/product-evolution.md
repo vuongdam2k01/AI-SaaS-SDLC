@@ -17,7 +17,7 @@ Useful explicit context:
 - compatibility/retirement expectations;
 - user-granted access to configured implementation sources.
 
-Reject spelling/tone/formatting-only work; use `refresh --editorial`. Route a concrete defect/mismatch to Reconciliation. Route new market evidence to Evidence Reassessment before choosing product change.
+Reject spelling/tone/formatting-only work; use `refresh --editorial`. Route a concrete defect/mismatch to Reconciliation. Route new market evidence to Evidence Reassessment before choosing product change. Route pure implementation work — bringing code into conformance with a feature this repository has already fully specified — to the implement skill, whose playbook opens this same flow type with `--intent implementation`; an intent that changes no documented behavior does not belong to this playbook's sections 4–9.
 
 ## 2. Mandatory reads
 

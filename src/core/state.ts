@@ -63,8 +63,10 @@ export async function loadActiveFlow(root: string): Promise<ActiveFlow | null> {
   return flow;
 }
 
-async function startFlowUnlocked(root: string, type: string, input: string, targetStage?: FlowStage): Promise<ActiveFlow> {
+async function startFlowUnlocked(root: string, type: string, input: string, targetStage?: FlowStage, intent?: string): Promise<ActiveFlow> {
   if (!FLOW_TYPES.includes(type as FlowType)) throw new SdlcError(`Unsupported flow type: ${type}`);
+  if (intent !== undefined && intent !== "implementation") throw new SdlcError(`Unsupported flow intent: ${intent}. Expected implementation.`);
+  if (intent === "implementation" && type !== "evolution") throw new SdlcError("An implementation intent rides Product Evolution; flow types remain exactly four.");
   if (await loadActiveFlow(root)) throw new SdlcError("An active flow already exists. Close it before starting another.");
   const state = await loadCurrentState(root);
   if (type === "genesis" && state.active_baseline) throw new SdlcError("Genesis is only valid before the first product baseline.");
@@ -82,6 +84,7 @@ async function startFlowUnlocked(root: string, type: string, input: string, targ
     stop_blocked_once: false,
     start_snapshot_hash: await snapshotHash(root),
     implementation_snapshot_hash: await implementationSnapshotHash(root),
+    ...(intent === "implementation" ? { intent } : {}),
     ...(targetStage ? { target_stage: targetStage } : {})
   };
   state.next_flow += 1;
@@ -138,8 +141,8 @@ export async function checkpointFlow(root: string, reached: string, target?: str
   });
 }
 
-export async function startFlow(root: string, type: string, input: string, targetStage?: FlowStage): Promise<ActiveFlow> {
-  return withProjectLock(root, () => startFlowUnlocked(root, type, input, targetStage));
+export async function startFlow(root: string, type: string, input: string, targetStage?: FlowStage, intent?: string): Promise<ActiveFlow> {
+  return withProjectLock(root, () => startFlowUnlocked(root, type, input, targetStage, intent));
 }
 
 async function closeFlowUnlocked(root: string): Promise<ActiveFlow> {

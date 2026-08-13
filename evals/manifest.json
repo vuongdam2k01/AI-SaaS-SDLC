@@ -40,6 +40,14 @@
       "required_files": ["02-product/features/FTR-APPROVAL-001.md", "generated/baseline-manifest.json"],
       "required_output_patterns": ["can’t", "BL-006"],
       "forbidden_trace_patterns": ["flow start", "baseline create", "verify --", "tests select", "quality gate"]
+    },
+    "implementation": {
+      "prompt": "implementation/prompt.md",
+      "grader": "implementation/graders/segment-honesty.md",
+      "required_tools": ["read", "write", "execute"],
+      "required_files": ["generated/implementation-coverage.md", "generated/implementation-plan/FTR-APPROVAL-001.md", "04-verification/results/RESULT-EXEC-*.md", "generated/baseline-manifest.json"],
+      "required_output_patterns": ["--intent implementation", "IMPLEMENTATION_LEVEL_UNPROVEN", "EXEC-[0-9]{3,}", "PASS", "suggested_segment|suggested segment"],
+      "forbidden_trace_patterns": ["direct result write", "score: [0-9]+(\\.[0-9]+)?/10", "parked at implementation", "skip the failing run"]
     }
   }
 }

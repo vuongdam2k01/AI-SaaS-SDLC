@@ -113,6 +113,13 @@ export interface ActiveFlow {
   stop_blocked_once: boolean;
   start_snapshot_hash: string;
   implementation_snapshot_hash: string;
+  /**
+   * The declared input class of an evolution flow. `implementation` marks a
+   * flow whose intent is bringing code into conformance with already-specified
+   * behavior rather than changing behavior; it only routes guidance and is
+   * never a gate or a lifecycle state.
+   */
+  intent?: "implementation";
   /** Where the author asked this turn to stop. Absent means run to baseline. */
   target_stage?: FlowStage;
   /** The furthest checkpoint the flow has recorded. */

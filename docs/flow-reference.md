@@ -1,12 +1,13 @@
 # Flow Reference
 
-The public interface consists of five explicitly invoked skills. Four are temporal mutation flows; Inspect State is read-only. Engine commands are operations inside these interfaces, not extra lifecycle stages.
+The public interface consists of six explicitly invoked skills over exactly four temporal mutation flows; Inspect State is read-only, and Implementation is Product Evolution invoked with a declared implementation intent rather than a fifth flow. Engine commands are operations inside these interfaces, not extra lifecycle stages.
 
 | Interface | Accepted event | Allowed mutation | Temporal result |
 |---|---|---|---|
 | Genesis | One raw SaaS idea before any baseline | Discovery, selected discovery details and product foundations | First evidence revision `EVR-001` and product baseline `BL-000` |
 | Evidence Reassessment | One named evidence question, new signal, stale claim or contradiction | Evidence ledger, affected discovery synthesis, questions and issues | New `EVR-*`; current `BL-*` identity is retained |
 | Product Evolution | One semantic addition, change, consolidation, breaking change, deprecation or retirement | Product behavior, conditional design, UT/IT/ST, mapped implementation and control records | `CHG-*` and successor `BL-*` |
+| Implementation (`--intent implementation` on Evolution) | One explicit invocation naming an active, fully specified `FTR-*` and a segment (`code`/`ut`/`it`/`st`/`all`) | Code inside configured sources, `implementation:` mappings, spec mapping tables, executed verification, issues discovered | `CHG-*` and successor `BL-*`, with standing warnings naming what the segment deferred |
 | Reconciliation | One concrete failure, inspected drift or contract contradiction | Minimal authoritative repair, issue, regression specification and mapped implementation | `CHG-*` and successor `BL-*` |
 | Inspect State | Optional artifact, change, baseline or project scope | None to any content layer; on request it may build the read-only docs site into the engine cache | Repeatable report over current state |
 
@@ -33,6 +34,12 @@ If current evidence may invalidate product truth, the flow creates or updates `I
 Evolution converts one semantic intent into observable FTR behavior and stable acceptance IDs, then derives the required UC/FLOW paths. It computes impact before and after conditional solution design so changes to access, invariants, shared CMP/SUB/API/ENT/INT/JOB/EVT contracts and interface/schema/transition contract files pull prior dependents and regression obligations into the closure.
 
 Only boundaries that exist receive design artifacts. New scalable artifacts are instantiated from the pinned catalog. UT, IT and ST specifications are derived from behavior and affected regression. When implementation sources and verification commands are configured and access is permitted, the flow edits mapped paths and runs the exact declared commands through the engine. Otherwise execution remains honestly `not-configured`.
+
+## Implementation
+
+Implementation rides Product Evolution: the implement skill opens `flow start --type evolution --intent implementation` for one active, fully specified feature and one segment, so flow types remain exactly four and every evolution guarantee (single active flow, checkpoints, impact, baseline gates, close discipline) applies unchanged. The intent only routes guidance — `flow next` continues an intent-marked flow through the implement skill and, with sources configured and debt standing, suggests the next segment from the warning ledger.
+
+A segment is a small closing flow: it maps the invoked slice (design artifacts for `code`; that level's specifications for `ut`/`it`/`st`), runs the full declared suite, baselines with standing `IMPLEMENTATION_LEVEL_UNPROVEN`/`IMPLEMENTATION_MAPPING_MISSING` warnings for what it deliberately deferred, and closes. Compliance review against the specification documents runs before quality review; execution evidence is engine-recorded or it does not exist; discovery that invalidates documents routes to Reconciliation or Evolution rather than being absorbed. Parking a flow at the `implementation` checkpoint to hold partial state is an anti-pattern — the warning ledger holds it instead.
 
 ## Reconciliation
 

@@ -37,7 +37,7 @@ function print(value: unknown, json = false): void {
   else console.log(value);
 }
 
-program.name("ai-saas-sdlc").description("Deterministic engine for AI SaaS SDLC documentation flows.").version("1.11.0");
+program.name("ai-saas-sdlc").description("Deterministic engine for AI SaaS SDLC documentation flows.").version("1.12.0");
 
 program.command("init")
   .description("Initialize a centralized documentation repository.")
@@ -119,12 +119,13 @@ flow.command("start")
   .requiredOption("--type <type>", "genesis|reassessment|evolution|reconciliation")
   .option("--input <text>", "Raw flow trigger", "")
   .option("--until <stage>", "Stop this turn at behavior|design|tests|implementation|baseline")
+  .option("--intent <intent>", "Declared input class; only `implementation` exists and only with --type evolution")
   .option("--json", "Emit JSON")
-  .action(async (options: { type: string; input: string; until?: string; json?: boolean }) => {
+  .action(async (options: { type: string; input: string; until?: string; intent?: string; json?: boolean }) => {
     if (options.until !== undefined && !FLOW_STAGES.includes(options.until as FlowStage)) {
       throw new SdlcError(`Unsupported flow stage: ${options.until}. Expected ${FLOW_STAGES.join("|")}.`);
     }
-    print(await startFlow(root, options.type, options.input, options.until as FlowStage | undefined), Boolean(options.json));
+    print(await startFlow(root, options.type, options.input, options.until as FlowStage | undefined, options.intent), Boolean(options.json));
   });
 flow.command("checkpoint")
   .description("Record the checkpoint an open flow has reached, and optionally retarget where it stops.")

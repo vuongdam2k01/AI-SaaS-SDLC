@@ -15,7 +15,7 @@ At least one concrete observation:
 - explicit user correction;
 - specific specification contradiction.
 
-Require a path, artifact ID, command/result, error/payload or exact expected-versus-observed statement. Reject model doubt about unchanged prose. Route public-evidence contradiction to Evidence Reassessment; route a newly chosen behavior to Product Evolution.
+Require a path, artifact ID, command/result, error/payload or exact expected-versus-observed statement. Reject model doubt about unchanged prose. Route public-evidence contradiction to Evidence Reassessment; route a newly chosen behavior to Product Evolution. Route *planned* implementation of a fully specified feature to the implement skill — Reconciliation repairs discovered nonconformance, it does not schedule construction. Discovered nonconformance includes drift the implement flow's own review surfaces and records as an `ISS-*`: repairing that recorded contradiction here, one feature-sized slice per flow, is the sanctioned catch-up pattern for a codebase behind its documents.
 
 ## 2. Mandatory reads and observations
 

@@ -1,0 +1,37 @@
+# Spec-Compliance Review Protocol
+
+Compliance review runs **first and blocks quality review**: well-written code that does not match the specification is still wrong, and reviewing its style before its truth wastes the review. In this repository the specification is not a plan the model wrote for itself — it is the gated, evidence-backed document set, which is exactly why this review has teeth here.
+
+## Extract, then grade
+
+1. Extract every claim the segment answers to: the feature's `AC-*` and `BR-*` in scope, the `UC/FLOW` steps the segment implements, the spec rows (`TC-*`) of every specification the segment maps, the wire/schema/transition contract entries it touches, and the ACCESS-CONTROL / SYSTEM-INVARIANTS / ERROR-CATALOG rows the work packet names.
+2. Grade each against the actual diff:
+
+| Verdict | Meaning | Consequence |
+|---|---|---|
+| PASS | Implemented as specified, evidence at `file:line` | Proceeds |
+| MISSING | Specified, not implemented by this segment though the segment claims it | **Blocks**: fix in this flow, re-review |
+| EXTRA | Implemented, specified nowhere | Remove it, or route the behavior change to `evolve-product` — undocumented behavior is drift born green |
+
+3. A finding without a `file:line` citation is void — discard it without evaluating its merit. This is the evidence filter that keeps review grounded in the diff rather than in impressions of it.
+
+A row the segment deliberately defers (a `code` segment does not implement `TC-*` rows) is out of scope, not MISSING: the standing `IMPLEMENTATION_LEVEL_UNPROVEN` warning carries deferred levels, and this review only judges the segment as invoked.
+
+## Quality pass, after compliance passes
+
+Adversarial posture: assume the implementation may have been produced by a model and look for its habits — phantom tests that execute code without proving behavior, parallel reimplementations of existing utilities, caught-and-swallowed errors, type suppressions, scope drift beyond the segment. Findings carry `file:line` or are void, same filter.
+
+## Suppression list
+
+Review output is signal-dense or it is noise. Do **not** flag:
+
+- style and formatting a linter owns, or preferences between two working idioms ("consider X instead of Y" when Y works);
+- redundancy that aids readability;
+- hypothetical concerns outside the segment's blast radius;
+- requests for comments explaining thresholds or choices — the documents own rationale, not the code;
+- anything already addressed elsewhere in the same diff — read the whole diff before commenting;
+- wishes for artifacts, tests or design the documents do not demand — the documents are the scope authority, and wanting more of them is an `evolve-product` conversation.
+
+## Bounds and verdicts
+
+At most **three** review cycles; findings still open after the third go to the author as a named decision, never a fourth silent loop. There is no numeric score and no self-approval threshold: the review's outcome is its finding table, and the verdicts that gate anything are deterministic — the compliance table's MISSING count, the configured suite's exit codes, `validate`'s findings. A model's own satisfaction is not evidence and is never recorded as such.

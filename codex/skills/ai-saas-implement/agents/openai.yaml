@@ -1,0 +1,6 @@
+interface:
+  display_name: "AI SaaS Implementation"
+  short_description: "Implement a specified feature per segment"
+  default_prompt: "Use $ai-saas-implement to implement this already-specified feature, one segment at a time, with mapped paths and executed verification."
+policy:
+  allow_implicit_invocation: false

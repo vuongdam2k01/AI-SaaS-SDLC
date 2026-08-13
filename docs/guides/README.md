@@ -10,6 +10,8 @@ Every guide follows the same shape: when to use it, the one command to type, a w
 |---|---|---|
 | Starting from a raw idea, nothing exists yet | [Start a new product](start-a-new-product.md) | `/ai-saas-sdlc:genesis` |
 | You want to build a new feature, end to end | [Implement a feature](implement-a-feature.md) | `/ai-saas-sdlc:evolve-product` |
+| Your docs are validated and it is time to connect a real codebase | [Wire a codebase](wire-a-codebase.md) | configuration + `/ai-saas-sdlc:evolve-product` |
+| A feature is fully specified and you want its code, or its tests, built now | [Implement per segment](implement-per-segment.md) | `/ai-saas-sdlc:implement` |
 | You want to change, consolidate, break, deprecate or retire existing behavior | [Evolve existing behavior](evolve-existing-behavior.md) | `/ai-saas-sdlc:evolve-product` |
 | A competitor moved, a claim looks stale, a new market signal appeared | [Reassess market evidence](reassess-evidence.md) | `/ai-saas-sdlc:reassess-evidence` |
 | A test failed, code drifted from the docs, two contracts disagree | [Fix a failure or mismatch](reconcile-a-failure.md) | `/ai-saas-sdlc:reconcile` |
@@ -20,7 +22,7 @@ If you are brand new, read [Start a new product](start-a-new-product.md) first �
 
 ## The mental model in one paragraph
 
-You keep a **separate documentation repository**. It advances only in response to real events: a public source, an explicit product decision, an inspected code diff, an execution result, or a concrete contradiction. Four skills *mutate* that repository — Genesis, Product Evolution, Evidence Reassessment, Reconciliation — and each one ends by recording a new **baseline**. A fifth skill, Inspect State, only *reads* — its single exception is building a browsable HTML copy into the engine's own cache when you ask for one. There is no approval pipeline and no stage gate: repeating Product Evolution over time *is* how the product scales. Spelling and formatting are not events; those use `refresh --editorial` and open no flow.
+You keep a **separate documentation repository**. It advances only in response to real events: a public source, an explicit product decision, an inspected code diff, an execution result, or a concrete contradiction. Four flows *mutate* that repository — Genesis, Product Evolution, Evidence Reassessment, Reconciliation — and each one ends by recording a new **baseline**. The implement skill is not a fifth flow: it opens Product Evolution with a declared implementation intent, one feature and one segment at a time. Inspect State only *reads* — its single exception is building a browsable HTML copy into the engine's own cache when you ask for one. There is no approval pipeline and no stage gate: repeating Product Evolution over time *is* how the product scales. Spelling and formatting are not events; those use `refresh --editorial` and open no flow.
 
 ## Two habits that make every guide work
 
@@ -29,7 +31,7 @@ You keep a **separate documentation repository**. It advances only in response t
 
 ## Related reference material
 
-- [Flow reference](../flow-reference.md) — the formal contract of each of the five interfaces.
+- [Flow reference](../flow-reference.md) — the formal contract of each of the six interfaces.
 - [Command reference](../command-reference.md) — every engine command and its options.
 - [Artifact reference](../artifact-reference.md) — every artifact type and its ID prefix.
 - [Configuration reference](../configuration-reference.md) — `sdlc.config.yaml`, implementation sources, verification commands.

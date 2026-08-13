@@ -2,6 +2,18 @@
 
 See the root [CHANGELOG](../CHANGELOG.md) for the release summary. This contributor view records documentation-impact areas that must remain synchronized with implementation.
 
+## 1.12.0 - 2026-08-13
+
+| Area | Documentation impact |
+|---|---|
+| Method | New `resources/flow-playbooks/implementation.md` plus three protocols (`implementation-scouting`, `spec-compliance-review`, `implementation-verification`); Evolution and Reconciliation accepted-input sections route implementation intents and name the catch-up slice |
+| Host adapters | Sixth pair: `claude/skills/implement` and `codex/skills/ai-saas-implement` (with `agents/openai.yaml`); package-check and the Codex validator count six per host |
+| Engine | `ActiveFlow.intent` (optional, evolution-only, schema + strict validation), `flow start --intent`, `flow next` implement continuation and weighted `suggested_segment` |
+| Pinned system contracts | ARCHITECTURE-OVERVIEW template gains the owned `Engineering profile` section (guidance comment, no catalog change — new repositories only) |
+| Reference and guides | README/flow-reference/command-reference/codex-installation/system-architecture count six skills and twelve adapters; flow reference gains the Implementation interface row and section; guides index routes two new situations; new `wire-a-codebase` and `implement-per-segment` guides |
+| Evals | Sixth case `implementation` with the `segment-honesty` grader: two segment flows over a wired red-then-green fixture, honesty graded from the trace |
+| Compatibility | Additive: the intent field is optional and evolution-only; repositories without it are unchanged; no migration |
+
 ## 1.11.0 - 2026-08-13
 
 | Area | Documentation impact |

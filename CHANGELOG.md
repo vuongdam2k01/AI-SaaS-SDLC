@@ -1,5 +1,64 @@
 # Changelog
 
+## 1.12.0 - 2026-08-13
+
+Documentation always comes first in this method, and 1.11.0 made partial
+implementation a recorded, legal state. What was still missing was the door:
+no interface existed whose accepted input is "build what is already
+specified" — Evolution wants a behavior change, Reconciliation wants a defect,
+and implementing a specified feature is deliberately neither. This release
+adds that door as a sixth skill over the same four flows: implementation is an
+Evolution opened with a declared intent, invoked explicitly per feature and
+per segment, never automatic.
+
+### Added
+
+- **The implement skill,** `/ai-saas-sdlc:implement <FTR-ID> [code|ut|it|st|all]`
+  on Claude and `$ai-saas-implement` on Codex — the eleventh and twelfth thin
+  adapters, both routing to the new shared implementation playbook. A segment
+  is a small closing flow: read the work packet, scout the doc↔code delta,
+  implement and map the invoked slice, run the exact declared commands,
+  baseline with the standing warnings that honestly name what was deferred,
+  and close. Parking a flow at the `implementation` checkpoint to hold
+  partial state is named an anti-pattern; the warning ledger holds it.
+- **`--intent implementation` on `flow start`** (evolution only, recorded on
+  the active flow and validated everywhere flows are). The intent routes
+  guidance — `flow next` continues an intent-marked flow through the implement
+  skill — and is never a gate: flow types remain exactly four, and every
+  evolution guarantee applies unchanged.
+- **A `suggested_segment` hint on `flow next`.** With no open flow,
+  implementation sources configured and mapping debt standing, guidance names
+  the feature and segment the warning ledger scores highest (unmapped design
+  4, unproven UT 3, IT/ST 2 each) with the reason. Information only; the
+  next-command contract is unchanged.
+- **Three implementation protocols.** `implementation-scouting.md` (five
+  outputs re-aimed at the delta between documented design and actual code),
+  `spec-compliance-review.md` (PASS/MISSING/EXTRA against the specification
+  documents, first and blocking, findings void without file:line evidence, a
+  suppression list for review noise, bounded cycles, no numeric
+  self-approval), and `implementation-verification.md` (no fix without root
+  cause, no completion claim without fresh engine-recorded evidence,
+  claim→evidence table, pre-fix capture, red-green per segment).
+- **An owned `Engineering profile` section in `ARCHITECTURE-OVERVIEW`** —
+  language/runtime, framework, package manager, repository layout, test
+  framework per level, migration tool — filled by the flow that wires a
+  codebase, so an implementer reads the substrate instead of inferring it per
+  segment. Template-only; content contracts are unchanged and existing
+  repositories owe nothing.
+- **Two guides and an eval.** *Wire a codebase* documents the bootstrap seam
+  (scaffold outside the engine, declare sources and commands, record the
+  profile); *Implement per segment* walks two segments with the warning set
+  shrinking; the sixth eval case captures a red-then-repaired execution
+  across two segment flows with honesty graded from the trace.
+
+### Changed
+
+- Evolution routes pure implementation intents to the implement skill;
+  Reconciliation names the recorded-drift slice as the sanctioned catch-up
+  pattern and refuses planned construction. README, flow reference, command
+  reference, Codex installation and the architecture table now count six
+  skills and twelve adapters over the same four flows.
+
 ## 1.11.0 - 2026-08-13
 
 Configuring `implementation_sources` used to change the baseline contract

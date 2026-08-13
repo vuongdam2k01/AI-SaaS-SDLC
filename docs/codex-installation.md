@@ -17,12 +17,13 @@ Or install the repository's Claude marketplace entry:
 /plugin install ai-saas-sdlc@ai-saas-sdlc
 ```
 
-Invoke one of the five manual skills:
+Invoke one of the six manual skills:
 
 ```text
 /ai-saas-sdlc:genesis <raw idea>
 /ai-saas-sdlc:reassess-evidence <question or signal>
 /ai-saas-sdlc:evolve-product <semantic intent>
+/ai-saas-sdlc:implement <FTR-ID> [code|ut|it|st|all]
 /ai-saas-sdlc:reconcile <failure or mismatch>
 /ai-saas-sdlc:inspect-state [scope]
 ```
@@ -31,7 +32,7 @@ Claude adapters live under `claude/skills/` and resolve the executable through `
 
 ## Codex
 
-The repository is a skills-only Codex plugin with `.codex-plugin/plugin.json`, five skills under `codex/skills/` and presentation metadata under each skill's `agents/openai.yaml`.
+The repository is a skills-only Codex plugin with `.codex-plugin/plugin.json`, six skills under `codex/skills/` and presentation metadata under each skill's `agents/openai.yaml`.
 
 For a development checkout, add this repository as a local marketplace source using the Codex plugin management available in your environment, refresh Codex, and install `ai-saas-sdlc` from that local source. This repository does not publish or modify a user's personal marketplace as part of its build. OpenAI's current local-plugin workflow is described in [Build plugins](https://developers.openai.com/codex/build-plugins).
 
@@ -41,6 +42,7 @@ Invoke the installed Codex skills explicitly:
 $ai-saas-genesis <raw idea>
 $ai-saas-reassess-evidence <question or signal>
 $ai-saas-evolve-product <semantic intent>
+$ai-saas-implement <FTR-ID> [code|ut|it|st|all]
 $ai-saas-reconcile <failure or mismatch>
 $ai-saas-inspect-state [scope]
 ```
@@ -51,7 +53,7 @@ Each Codex adapter resolves the plugin root from its installed `SKILL.md`, then 
 
 | Concern | Claude Code | Codex | Shared authority |
 |---|---|---|---|
-| User interface | Five manual slash-command skills | Five explicit `$` skills | Same five flow playbooks |
+| User interface | Six manual slash-command skills | Six explicit `$` skills | Same six flow playbooks |
 | Research tools | `WebSearch`/`WebFetch` mapping at rung 0 | Available Internet search and page-open/fetch mapping at rung 0 | Public-web research protocol and attributable evidence; optional env-configured self-hosted instruments run through the same bundled engine identically on both hosts |
 | Domain resources | Thin adapter reads `resources/` | Thin adapter reads `resources/` | Same playbooks, protocols and pattern catalog |
 | Deterministic operations | Bundled engine | Bundled engine | Same state, validation, impact, verification and baseline code |
@@ -61,4 +63,4 @@ The shared hooks improve context and prevent common direct edits on both hosts. 
 
 ## Package validation
 
-`npm run check` validates and tests the engine, both manifest shapes, all ten host adapters, Codex skill/UI metadata, in-root references and installed-package root resolution. Run `npm run validate:manifests` separately with the Claude CLI installed to stage the package and apply strict Claude validation to both the plugin and marketplace manifests.
+`npm run check` validates and tests the engine, both manifest shapes, all twelve host adapters, Codex skill/UI metadata, in-root references and installed-package root resolution. Run `npm run validate:manifests` separately with the Claude CLI installed to stage the package and apply strict Claude validation to both the plugin and marketplace manifests.
