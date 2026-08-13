@@ -31,12 +31,14 @@ export async function loadCurrentState(root: string): Promise<CurrentState> {
   if (!candidate || typeof candidate !== "object" || Array.isArray(candidate)) throw new SdlcError(`Invalid state schema: ${file}`);
   const state = candidate as CurrentState;
   const questionAges = state.question_first_baseline;
-  const valid = Object.keys(state).every((key) => ["schema_version", "project_id", "active_baseline", "evidence_revision", "next_change", "next_flow", "next_execution", "id_registry", "question_first_baseline"].includes(key))
+  const valid = Object.keys(state).every((key) => ["schema_version", "project_id", "active_baseline", "evidence_revision", "next_change", "next_flow", "next_execution", "id_registry", "question_first_baseline", "next_retrieval", "next_query"].includes(key))
     && state.schema_version === 1
     && typeof state.project_id === "string" && /^[a-z0-9][a-z0-9-]*$/.test(state.project_id)
     && (state.active_baseline === null || /^BL-[0-9]{3,}$/.test(state.active_baseline))
     && [state.evidence_revision, state.next_change, state.next_flow, state.next_execution].every(Number.isInteger)
     && state.evidence_revision >= 0 && state.next_change >= 1 && state.next_flow >= 1 && state.next_execution >= 1
+    && (state.next_retrieval === undefined || (Number.isInteger(state.next_retrieval) && state.next_retrieval >= 1))
+    && (state.next_query === undefined || (Number.isInteger(state.next_query) && state.next_query >= 1))
     && Boolean(state.id_registry) && typeof state.id_registry === "object" && !Array.isArray(state.id_registry)
     && Object.keys(state.id_registry).every((key) => /^[A-Z][A-Z0-9-]*$/.test(key))
     && Object.values(state.id_registry).every((value) => typeof value === "string")

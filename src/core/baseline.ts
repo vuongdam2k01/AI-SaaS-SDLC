@@ -15,6 +15,7 @@ import { assertSafeManagedPath, prepareSafeManagedPath, projectPaths } from "./p
 import { formatId, readJson, writeJsonAtomic } from "./utils.js";
 import { SdlcError } from "./errors.js";
 import { isChangeRecord, isExecutionRecord } from "./record-validation.js";
+import { loadRetrievalRecords } from "./retrieval-records.js";
 import { latestExecution, matchesDefinitionEvidence } from "./execution-selection.js";
 import { withProjectLock } from "./project-lock.js";
 import { enforceFlowArtifactBoundaries } from "./baseline-flow-rules.js";
@@ -55,7 +56,8 @@ async function createBaselineUnlocked(root: string): Promise<BaselineManifest> {
   const previous = await loadBaseline(root);
   const graph = buildGraph(artifacts);
   const impact = calculateImpact(artifacts, graph, previous);
-  enforceFlowArtifactBoundaries(flow, artifacts, previous, impact);
+  const flowRetrievals = (await loadRetrievalRecords(root)).filter((record) => record.flow_id === flow.id && record.ok);
+  enforceFlowArtifactBoundaries(flow, artifacts, previous, impact, flowRetrievals);
   if (flow.type === "evolution" || flow.type === "reconciliation") {
     const tests = selectTests(artifacts, graph, impact.affected);
     if (tests.missing.length > 0) throw new SdlcError(`Baseline blocked by missing test specifications:\n${tests.missing.map((item) => `- ${item}`).join("\n")}`);

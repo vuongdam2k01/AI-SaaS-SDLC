@@ -5,6 +5,7 @@ import { pathExists } from "./state.js";
 
 export const ENGINE_POINTER_FILE = path.join(INTERNAL_DIR, "engine.json");
 const IGNORE_ENTRY = ".ai-saas-sdlc/engine.json";
+const RESEARCH_POLICY_IGNORE_ENTRY = ".ai-saas-sdlc/research-tools.json";
 
 export interface EnginePointer {
   schema_version: 1;
@@ -44,12 +45,23 @@ export async function recordEnginePointer(root: string, runtimeRoot: string, plu
   await writeFile(target, serialized, "utf8");
 }
 
+async function ensureIgnoredEntry(root: string, entry: string): Promise<void> {
+  const target = path.join(root, ".gitignore");
+  const existing = (await pathExists(target)) ? await readFile(target, "utf8").catch(() => "") : "";
+  if (existing.split(/\r?\n/).some((line) => line.trim() === entry)) return;
+  const prefix = existing === "" || existing.endsWith("\n") ? existing : `${existing}\n`;
+  await writeFile(target, `${prefix}${entry}\n`, "utf8");
+}
+
 // The pointer holds an absolute path that is valid only on the machine that wrote
 // it, so it is deliberately not shared history.
 export async function ensureEnginePointerIgnored(root: string): Promise<void> {
-  const target = path.join(root, ".gitignore");
-  const existing = (await pathExists(target)) ? await readFile(target, "utf8").catch(() => "") : "";
-  if (existing.split(/\r?\n/).some((line) => line.trim() === IGNORE_ENTRY)) return;
-  const prefix = existing === "" || existing.endsWith("\n") ? existing : `${existing}\n`;
-  await writeFile(target, `${prefix}${IGNORE_ENTRY}\n`, "utf8");
+  await ensureIgnoredEntry(root, IGNORE_ENTRY);
+}
+
+// Same doctrine for the optional research policy: numeric caps tuned per
+// machine, never product truth, never shared history. Retrieval records and
+// bodies stay committed — a digest that does not survive a clone proves nothing.
+export async function ensureResearchPolicyIgnored(root: string): Promise<void> {
+  await ensureIgnoredEntry(root, RESEARCH_POLICY_IGNORE_ENTRY);
 }

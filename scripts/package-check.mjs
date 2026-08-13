@@ -132,6 +132,19 @@ try {
   if (validated.status !== 0) throw new Error(`Isolated plugin validation failed: ${validated.stdout}${validated.stderr}`);
   const refreshed = run(["refresh", "--check", "--json"]);
   if (refreshed.status !== 0) throw new Error(`Isolated plugin projection check failed: ${refreshed.stdout}${refreshed.stderr}`);
+  // Rung-0 contract: with no instrument environment configured, probe reports
+  // rung 0, exits zero and writes nothing.
+  const probeEnv = { ...process.env, CLAUDE_PLUGIN_ROOT: isolatedPlugin };
+  delete probeEnv.AI_SDLC_SEARXNG_URL;
+  delete probeEnv.AI_SDLC_FIRECRAWL_URL;
+  delete probeEnv.AI_SDLC_CAMOFOX_URL;
+  const probed = spawnSync(process.execPath, [path.join(isolatedPlugin, "bin", "ai-saas-sdlc"), "research", "probe", "--json"], {
+    cwd: isolatedDocs,
+    encoding: "utf8",
+    env: probeEnv
+  });
+  if (probed.status !== 0) throw new Error(`Isolated research probe failed: ${probed.stdout}${probed.stderr}`);
+  if (JSON.parse(probed.stdout).rung !== 0) throw new Error(`Isolated research probe must report rung 0 without configuration: ${probed.stdout}`);
   await stat(path.join(isolatedDocs, "00-system", "patterns", "catalog.yaml"));
   if ((await fg("00-system/templates/**", { cwd: isolatedDocs })).length > 0) throw new Error("Initialized project retained obsolete templates path");
 

@@ -33,6 +33,7 @@ You keep a **separate documentation repository**. It advances only in response t
 - [Command reference](../command-reference.md) — every engine command and its options.
 - [Artifact reference](../artifact-reference.md) — every artifact type and its ID prefix.
 - [Configuration reference](../configuration-reference.md) — `sdlc.config.yaml`, implementation sources, verification commands.
+- [Research tools](../research-tools.md) — optional self-hosted SearXNG/Firecrawl/Camofox instruments and engine-witnessed retrieval provenance.
 - [End-to-end timeline](../end-to-end-timeline.md) — the same journey told as a timeline (t0 … tn).
 - [Pattern to instance](../pattern-to-instance.md) — why patterns and live artifacts are separate layers.
 

@@ -14,6 +14,8 @@ export function projectPaths(root: string) {
     activeFlow: path.join(root, INTERNAL_DIR, "state", "active-flow.json"),
     changes: path.join(root, INTERNAL_DIR, "changes"),
     executions: path.join(root, INTERNAL_DIR, "executions"),
+    retrievals: path.join(root, INTERNAL_DIR, "retrievals"),
+    researchPolicy: path.join(root, INTERNAL_DIR, "research-tools.json"),
     cache: path.join(root, INTERNAL_DIR, "cache"),
     generated: path.join(root, GENERATED_DIR),
     baseline: path.join(root, GENERATED_DIR, "baseline-manifest.json")

@@ -50,9 +50,9 @@ Do not rerun unrelated Genesis questions. Reuse current evidence by ID rather th
 
 ## 5. Perform real research
 
-Follow `resources/protocols/public-web-research.md` using the host's actual web search and page-open/fetch tools.
+Follow `resources/protocols/public-web-research.md`. Run `ENGINE research probe --json` first: at rung 0 use the host's actual web search and page-open/fetch tools; at rung 1 and above use the `ENGINE research` commands to the depth the protocol's *Instrument rungs* section requires.
 
-Search only the delta. Inspect source pages, append new `EVD-*` entries, and preserve contradictory facts. For changed time-sensitive facts, keep the historical entry and declare the successor/current applicability; never rewrite evidence history to look continuously correct.
+Search only the delta. Inspect source pages, append new `EVD-*` entries, and preserve contradictory facts. An engine-retrieved page names its `RET-*` record with a `- Retrieval:` line in its entry. For changed time-sensitive facts, keep the historical entry and declare the successor/current applicability; never rewrite evidence history to look continuously correct. When the question is whether a previously retrieved page changed, fetch it again and run `ENGINE research diff --ret <new RET>` — the deterministic comparison against the stored prior body.
 
 If no real host web tools are available, stop without claiming reassessment occurred.
 

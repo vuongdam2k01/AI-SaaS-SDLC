@@ -85,6 +85,8 @@ function projectPaths(root2) {
     activeFlow: path.join(root2, INTERNAL_DIR, "state", "active-flow.json"),
     changes: path.join(root2, INTERNAL_DIR, "changes"),
     executions: path.join(root2, INTERNAL_DIR, "executions"),
+    retrievals: path.join(root2, INTERNAL_DIR, "retrievals"),
+    researchPolicy: path.join(root2, INTERNAL_DIR, "research-tools.json"),
     cache: path.join(root2, INTERNAL_DIR, "cache"),
     generated: path.join(root2, GENERATED_DIR),
     baseline: path.join(root2, GENERATED_DIR, "baseline-manifest.json")
@@ -13382,7 +13384,7 @@ async function loadCurrentState(root2) {
   if (!candidate || typeof candidate !== "object" || Array.isArray(candidate)) throw new SdlcError(`Invalid state schema: ${file}`);
   const state = candidate;
   const questionAges = state.question_first_baseline;
-  const valid = Object.keys(state).every((key) => ["schema_version", "project_id", "active_baseline", "evidence_revision", "next_change", "next_flow", "next_execution", "id_registry", "question_first_baseline"].includes(key)) && state.schema_version === 1 && typeof state.project_id === "string" && /^[a-z0-9][a-z0-9-]*$/.test(state.project_id) && (state.active_baseline === null || /^BL-[0-9]{3,}$/.test(state.active_baseline)) && [state.evidence_revision, state.next_change, state.next_flow, state.next_execution].every(Number.isInteger) && state.evidence_revision >= 0 && state.next_change >= 1 && state.next_flow >= 1 && state.next_execution >= 1 && Boolean(state.id_registry) && typeof state.id_registry === "object" && !Array.isArray(state.id_registry) && Object.keys(state.id_registry).every((key) => /^[A-Z][A-Z0-9-]*$/.test(key)) && Object.values(state.id_registry).every((value) => typeof value === "string") && (questionAges === void 0 || typeof questionAges === "object" && questionAges !== null && !Array.isArray(questionAges) && Object.keys(questionAges).every((key) => /^QST-[A-Z0-9-]+$/.test(key)) && Object.values(questionAges).every((value) => typeof value === "string" && /^BL-[0-9]{3,}$/.test(value)));
+  const valid = Object.keys(state).every((key) => ["schema_version", "project_id", "active_baseline", "evidence_revision", "next_change", "next_flow", "next_execution", "id_registry", "question_first_baseline", "next_retrieval", "next_query"].includes(key)) && state.schema_version === 1 && typeof state.project_id === "string" && /^[a-z0-9][a-z0-9-]*$/.test(state.project_id) && (state.active_baseline === null || /^BL-[0-9]{3,}$/.test(state.active_baseline)) && [state.evidence_revision, state.next_change, state.next_flow, state.next_execution].every(Number.isInteger) && state.evidence_revision >= 0 && state.next_change >= 1 && state.next_flow >= 1 && state.next_execution >= 1 && (state.next_retrieval === void 0 || Number.isInteger(state.next_retrieval) && state.next_retrieval >= 1) && (state.next_query === void 0 || Number.isInteger(state.next_query) && state.next_query >= 1) && Boolean(state.id_registry) && typeof state.id_registry === "object" && !Array.isArray(state.id_registry) && Object.keys(state.id_registry).every((key) => /^[A-Z][A-Z0-9-]*$/.test(key)) && Object.values(state.id_registry).every((value) => typeof value === "string") && (questionAges === void 0 || typeof questionAges === "object" && questionAges !== null && !Array.isArray(questionAges) && Object.keys(questionAges).every((key) => /^QST-[A-Z0-9-]+$/.test(key)) && Object.values(questionAges).every((value) => typeof value === "string" && /^BL-[0-9]{3,}$/.test(value)));
   if (!valid) throw new SdlcError(`Invalid state schema: ${file}`);
   return state;
 }
@@ -13427,17 +13429,56 @@ function emit(value) {
 // src/hooks/session-start.ts
 init_state();
 init_paths();
+
+// src/core/research-capability.ts
+init_errors();
+init_paths();
+init_state();
+init_utils();
+var ENV_SEARXNG_URL = "AI_SDLC_SEARXNG_URL";
+var ENV_FIRECRAWL_URL = "AI_SDLC_FIRECRAWL_URL";
+var ENV_FIRECRAWL_KEY = "AI_SDLC_FIRECRAWL_KEY";
+var ENV_CAMOFOX_URL = "AI_SDLC_CAMOFOX_URL";
+var ENV_CAMOFOX_KEY = "AI_SDLC_CAMOFOX_KEY";
+function instrumentFromEnv(env, urlVar, keyVar) {
+  const raw = env[urlVar]?.trim();
+  if (!raw) return null;
+  if (!/^https?:\/\//.test(raw)) throw new SdlcError(`${urlVar} must be an http(s) origin, got: ${raw}`);
+  const url = raw.replace(/\/+$/, "");
+  const key = keyVar ? env[keyVar]?.trim() : void 0;
+  return key ? { url, key } : { url };
+}
+function resolveResearchCapability(env = process.env) {
+  const searxng = instrumentFromEnv(env, ENV_SEARXNG_URL);
+  const firecrawl = instrumentFromEnv(env, ENV_FIRECRAWL_URL, ENV_FIRECRAWL_KEY);
+  const camofox = instrumentFromEnv(env, ENV_CAMOFOX_URL, ENV_CAMOFOX_KEY);
+  const rung = camofox ? 3 : firecrawl ? 2 : searxng ? 1 : 0;
+  return { rung, searxng, firecrawl, camofox };
+}
+
+// src/hooks/session-start.ts
 await readHookInput();
 var root = process.cwd();
 if (await pathExists(projectPaths(root).current)) {
   try {
     const state = await loadCurrentState(root);
     const flow = await loadActiveFlow(root);
+    let research = "";
+    try {
+      const capability = resolveResearchCapability();
+      if (capability.rung > 0) {
+        const instruments = [capability.searxng && "SearXNG", capability.firecrawl && "Firecrawl", capability.camofox && "Camofox"].filter(Boolean).join(", ");
+        research = `Research instruments configured: rung ${capability.rung} (${instruments}).`;
+      }
+    } catch {
+      research = "";
+    }
     const summary = [
       "AI SaaS SDLC repository detected.",
       `Active product baseline: ${state.active_baseline ?? "none"}.`,
       `Evidence revision: EVR-${String(state.evidence_revision).padStart(3, "0")}.`,
       flow ? `Active flow: ${flow.type} (${flow.id}${flow.change_id ? `, ${flow.change_id}` : ""}).` : "No active semantic flow.",
+      ...research ? [research] : [],
       "Generated projections and execution-backed results must not be edited manually."
     ].join(" ");
     emit({ hookSpecificOutput: { hookEventName: "SessionStart", additionalContext: summary.slice(0, 1200) } });

@@ -5,7 +5,7 @@ import { loadCurrentState, loadActiveFlow, startFlow, closeFlow, checkpointFlow 
 import { flowGuidance } from "../core/flow-guidance.js";
 import { FLOW_STAGES, type FlowStage } from "../core/types.js";
 import { projectSnapshot, refreshProject } from "../core/project.js";
-import { ensureEnginePointerIgnored, recordEnginePointer } from "../core/engine-pointer.js";
+import { ensureEnginePointerIgnored, ensureResearchPolicyIgnored, recordEnginePointer } from "../core/engine-pointer.js";
 import { scanArtifacts } from "../core/artifacts.js";
 import { buildGraph } from "../core/graph.js";
 import { validateProject } from "../core/validation.js";
@@ -20,6 +20,9 @@ import { resolveCatalog } from "../core/pattern-catalog.js";
 import { createArtifactFromPattern } from "../core/artifact-instantiation.js";
 import { STALE_AFTER_BASELINES, baselinesOpen, openQuestions } from "../core/question-ledger.js";
 import { buildDocsSite } from "../core/docs-site.js";
+import { probeResearchTools } from "../core/research-capability.js";
+import { SEARCH_PASSES, type SearchPass } from "../core/searxng.js";
+import { researchCrawl, researchDiff, researchFetch, researchMap, researchSearch } from "../core/research.js";
 
 const program = new Command();
 const root = process.cwd();
@@ -34,7 +37,7 @@ function print(value: unknown, json = false): void {
   else console.log(value);
 }
 
-program.name("ai-saas-sdlc").description("Deterministic engine for AI SaaS SDLC documentation flows.").version("1.9.0");
+program.name("ai-saas-sdlc").description("Deterministic engine for AI SaaS SDLC documentation flows.").version("1.10.0");
 
 program.command("init")
   .description("Initialize a centralized documentation repository.")
@@ -53,6 +56,7 @@ program.command("init")
       await refreshProject(root, false);
       await recordEnginePointer(root, runtimeRoot, program.version() ?? "0.0.0");
       await ensureEnginePointerIgnored(root);
+      await ensureResearchPolicyIgnored(root);
     });
     print(`Initialized AI SaaS SDLC documentation repository: ${projectId}`);
   });
@@ -189,6 +193,91 @@ program.command("verify")
     await refreshProject(root, false);
     print(records, Boolean(options.json));
     if (records.some((record) => record.exit_code !== 0)) process.exitCode = 1;
+  });
+
+function positiveInt(flag: string): (value: string) => number {
+  return (value: string) => {
+    const parsed = Number(value);
+    if (!Number.isInteger(parsed) || parsed < 1) throw new SdlcError(`${flag} must be a positive integer, got: ${value}`);
+    return parsed;
+  };
+}
+
+const research = program.command("research").description("Engine-owned retrieval against optionally configured self-hosted research instruments (SearXNG, Firecrawl, Camofox). Absent configuration is rung 0: the host's own tools, unchanged.");
+research.command("probe")
+  .description("Reach each configured instrument for real and report the effective rung. Legal anywhere; writes nothing.")
+  .option("--json", "Emit JSON")
+  .action(async (options: { json?: boolean }) => {
+    print(await probeResearchTools(root), Boolean(options.json));
+  });
+research.command("search")
+  .description("One SearXNG discovery pass, recorded as an immutable QRY record. Requires an active genesis or reassessment flow.")
+  .requiredOption("--query <text>", "Query text")
+  .option("--pass <class>", `Protocol pass class: ${SEARCH_PASSES.join("|")}`)
+  .option("--engines <csv>", "Override the pass's engine targeting")
+  .option("--categories <csv>", "SearXNG categories")
+  .option("--language <code>", "Language code")
+  .option("--page <n>", "Result page number", positiveInt("--page"))
+  .option("--time-range <range>", "day|month|year")
+  .option("--json", "Emit JSON")
+  .action(async (options: { query: string; pass?: string; engines?: string; categories?: string; language?: string; page?: number; timeRange?: string; json?: boolean }) => {
+    if (options.pass !== undefined && !SEARCH_PASSES.includes(options.pass as SearchPass)) throw new SdlcError(`Unsupported pass: ${options.pass}. Expected ${SEARCH_PASSES.join("|")}.`);
+    if (options.timeRange !== undefined && !["day", "month", "year"].includes(options.timeRange)) throw new SdlcError(`Unsupported time range: ${options.timeRange}. Expected day|month|year.`);
+    const record = await researchSearch(root, {
+      query: options.query,
+      pass: options.pass as SearchPass | undefined,
+      engines: options.engines?.split(",").map((engine) => engine.trim()).filter(Boolean),
+      categories: options.categories,
+      language: options.language,
+      page: options.page,
+      timeRange: options.timeRange as "day" | "month" | "year" | undefined
+    });
+    print(record, Boolean(options.json));
+    if (!record.ok) process.exitCode = 1;
+  });
+research.command("fetch")
+  .description("Inspect one public page through Firecrawl, escalating to Camofox on failure when configured; body and record are committed provenance.")
+  .requiredOption("--url <url>", "Page to retrieve")
+  .option("--wait <ms>", "Rendering wait budget", positiveInt("--wait"))
+  .option("--json", "Emit JSON")
+  .action(async (options: { url: string; wait?: number; json?: boolean }) => {
+    const record = await researchFetch(root, { url: options.url, wait: options.wait });
+    print(record, Boolean(options.json));
+    if (!record.ok) process.exitCode = 1;
+  });
+research.command("map")
+  .description("Enumerate a site's URLs through Firecrawl map, recorded as a QRY record.")
+  .requiredOption("--url <url>", "Site seed URL")
+  .option("--search <term>", "Filter mapped URLs")
+  .option("--limit <n>", "Maximum URLs", positiveInt("--limit"))
+  .option("--json", "Emit JSON")
+  .action(async (options: { url: string; search?: string; limit?: number; json?: boolean }) => {
+    const record = await researchMap(root, { url: options.url, search: options.search, limit: options.limit });
+    print(record, Boolean(options.json));
+    if (!record.ok) process.exitCode = 1;
+  });
+research.command("crawl")
+  .description("Capture a bounded page subtree through Firecrawl crawl; one RET record and body per page, capped by local policy.")
+  .requiredOption("--url <url>", "Crawl seed URL")
+  .option("--include <csv>", "includePaths filters")
+  .option("--limit <n>", "Page cap for this crawl", positiveInt("--limit"))
+  .option("--json", "Emit JSON")
+  .action(async (options: { url: string; include?: string; limit?: number; json?: boolean }) => {
+    const report = await researchCrawl(root, {
+      url: options.url,
+      include: options.include?.split(",").map((item) => item.trim()).filter(Boolean),
+      limit: options.limit
+    });
+    print(report, Boolean(options.json));
+    if (report.records.some((record) => !record.ok)) process.exitCode = 1;
+  });
+research.command("diff")
+  .description("Compare two stored retrieval bodies of the same URL — the deterministic freshness check for reassessment. Local only; no HTTP, no record.")
+  .requiredOption("--ret <id>", "Current RET-### record")
+  .option("--against <id>", "Earlier RET-### record (default: the previous successful retrieval of the same URL)")
+  .option("--json", "Emit JSON")
+  .action(async (options: { ret: string; against?: string; json?: boolean }) => {
+    print(await researchDiff(root, { ret: options.ret, against: options.against }), Boolean(options.json));
   });
 
 const baseline = program.command("baseline").description("Manage verified semantic baselines.");

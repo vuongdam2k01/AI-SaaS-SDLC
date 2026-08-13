@@ -60,7 +60,7 @@ Derive a solution-free problem hypothesis: actor, situation, job/outcome, curren
 
 ## 5. Plan and perform real public-web research
 
-Read and follow `resources/protocols/public-web-research.md`. Use the host's actual search and URL-open/fetch tools. Do not delegate Internet access to a fictional/custom research agent.
+Read and follow `resources/protocols/public-web-research.md`. Run `ENGINE research probe --json` first: at rung 0 use the host's actual search and URL-open/fetch tools; at rung 1 and above use the `ENGINE research` commands to the depth the protocol's *Instrument rungs* section requires, including the mandatory counter-evidence pass and `research map` before deep competitor profiling. Do not delegate Internet access to a fictional/custom research agent.
 
 Use the smallest applicable question set that can decide:
 
@@ -71,7 +71,7 @@ Use the smallest applicable question set that can decide:
 - market/category/geography/timing conditions;
 - feasibility, data, integration, quality, compliance and operational risks.
 
-For every material source, inspect the page itself and append an `EVD-*` entry to `EVIDENCE-LEDGER`. Record contrary evidence and coverage limitations. If real search/fetch tools are unavailable, stop and report that Genesis research is incomplete; never substitute model knowledge.
+For every material source, inspect the page itself and append an `EVD-*` entry to `EVIDENCE-LEDGER`. A page retrieved through `ENGINE research fetch` or `crawl` names its record with a `- Retrieval: RET-###` line in that entry — the engine-witnessed provenance validation checks. Record contrary evidence and coverage limitations. If real search/fetch tools are unavailable, stop and report that Genesis research is incomplete; never substitute model knowledge.
 
 ## 6. Transform evidence into canonical discovery
 

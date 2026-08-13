@@ -1,5 +1,90 @@
 # Changelog
 
+## 1.10.0 - 2026-08-12
+
+The research doctrine has said since 1.0.0 that a source discovered but not
+opened cannot support a claim — and had no way to check it. Evidence was the
+one layer of the method whose provenance rested entirely on model assertion,
+while verification already backed every test run with an immutable record and
+a hashed log. This release closes that asymmetry: optionally configured
+self-hosted instruments (SearXNG, Firecrawl, camofox-browser) move retrieval
+into the engine, which witnesses every fetch the way it witnesses every
+execution. Nothing is mandatory: an unconfigured machine runs every flow
+byte-identically to 1.9.0.
+
+### Added
+
+- **Engine-owned research retrieval behind a `research` command group.**
+  `probe` reaches each configured instrument for real and reports the
+  effective rung; `search` runs one SearXNG discovery pass; `fetch` inspects a
+  page through Firecrawl, auto-escalating to camofox-browser on failure when
+  configured; `map` enumerates a site's URLs; `crawl` captures a bounded
+  subtree; `diff` deterministically compares two stored bodies of the same
+  URL — reassessment's answer to "has this page changed?". Configuration is
+  environment-only (`AI_SDLC_SEARXNG_URL`, `AI_SDLC_FIRECRAWL_URL`,
+  `AI_SDLC_CAMOFOX_URL`, optional keys attached only when set);
+  `sdlc.config.yaml` is untouched and `research_mode` remains
+  `public-web-only` — the instruments change how pages are reached, never
+  what counts as evidence. Numeric caps live in the git-ignored
+  `.ai-saas-sdlc/research-tools.json`.
+- **Retrieval provenance records, mirroring execution provenance.** Every
+  discovery pass writes an immutable `QRY-*` record (query, pass class,
+  engines, per-engine failures — an unresponsive engine is never mistaken for
+  market silence); every page retrieval writes an immutable `RET-*` record
+  plus a CRLF-normalized, size-capped body whose sha256 digest the record
+  carries, under the committed `.ai-saas-sdlc/retrievals/`. Failed operations
+  write records too, so degradation is derivable from the repository alone.
+  Identity counters (`next_retrieval`, `next_query`) burn before any network
+  work, the project lock is never held across HTTP, and the body is written
+  before the record so a crash leaves an orphan validation reports rather
+  than a record pointing at nothing. Evidence entries name their record with
+  a `- Retrieval: RET-###` line; the Genesis evidence gate additionally
+  requires at least one such citation when the flow retrieved through
+  instruments, and is byte-identical to 1.9.0 when it did not.
+- **Four warnings and four errors extend validation without reading the
+  environment.** Warnings, never blocking: `EVD_RETRIEVAL_MISSING` (an
+  engine-retrieved URL whose entry cites no record), `EVD_RETRIEVAL_BROKEN`
+  (a cited record absent, failed or for a different URL),
+  `RESEARCH_CAPABILITY_UNDERUSED` (instrument discovery surfaced a cited URL
+  nothing retrieved) and `RETRIEVAL_RUNG_DEGRADED` (a failed retrieval no
+  later success covers — the durable record of a fallback to host tools).
+  Errors, matching the execution split: `RETRIEVAL_INVALID`,
+  `RETRIEVAL_PROVENANCE_INVALID`, `RETRIEVAL_BODY_ORPHAN` and
+  `RETRIEVAL_COUNTER_REUSED`. Validation derives everything from committed
+  records and the ledger, so a repository validates identically on every
+  machine, configured or not.
+- **The method states the rung ladder.** The research protocol gains an
+  *Instrument rungs* section: rung 0 is the host's own tools exactly as
+  before; configured instruments must be used to their depth — the
+  counter-evidence pass is mandatory with SearXNG, competitor profiling maps
+  the site before reading it with Firecrawl, and a rung-2 failure escalates
+  instead of becoming a coverage-limitation write-off with camofox — while
+  the stopping rules are explicitly unchanged: better instruments raise what
+  one pass can learn, never how many passes are required. Rung-3 constraints
+  are absolute: public pages only, text only, no page-driven actions, no
+  cookie import; Firecrawl `/extract` and `/search` never touch the evidence
+  path. Genesis and Reassessment playbooks open with `research probe`, the
+  four research-flow host adapters map the rungs, and
+  `generated/research-coverage.md` gains retrieval, query-pass and
+  instrument-usage sections — emitted only when records exist, so a rung-0
+  repository's projection stays byte-identical.
+
+### Compatibility
+
+Fully additive; no migration. State written by earlier versions loads
+unchanged (`next_retrieval`/`next_query` are optional and default to 1), the
+baseline manifest schema is untouched, retrieval records never enter it, and
+`.ai-saas-sdlc/retrievals/` appears lazily on first use in existing
+repositories. With no instrument environment configured, flows, validation
+output and generated projections are byte-identical to 1.9.0 — the rung-0
+probe smoke test in the package check asserts exactly that. The updated
+evidence-ledger example line and the fifteen-warning `VALIDATION-RULES` table
+are pinned per repository and reach newly initialized repositories only;
+playbooks, protocol and adapters are read from the installed plugin and reach
+every repository on update. The optional non-MCP, engine-owned HTTP
+integration stays inside the roadmap's exclusion list: no custom research
+agents, no mandatory integrations, no new gates, stages or review loops.
+
 ## 1.9.0 - 2026-08-12
 
 Five feature releases moved the engine and left the documentation behind it at

@@ -7435,6 +7435,8 @@ function projectPaths(root2) {
     activeFlow: path.join(root2, INTERNAL_DIR, "state", "active-flow.json"),
     changes: path.join(root2, INTERNAL_DIR, "changes"),
     executions: path.join(root2, INTERNAL_DIR, "executions"),
+    retrievals: path.join(root2, INTERNAL_DIR, "retrievals"),
+    researchPolicy: path.join(root2, INTERNAL_DIR, "research-tools.json"),
     cache: path.join(root2, INTERNAL_DIR, "cache"),
     generated: path.join(root2, GENERATED_DIR),
     baseline: path.join(root2, GENERATED_DIR, "baseline-manifest.json")

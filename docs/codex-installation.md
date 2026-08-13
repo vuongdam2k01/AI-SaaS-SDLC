@@ -52,7 +52,7 @@ Each Codex adapter resolves the plugin root from its installed `SKILL.md`, then 
 | Concern | Claude Code | Codex | Shared authority |
 |---|---|---|---|
 | User interface | Five manual slash-command skills | Five explicit `$` skills | Same five flow playbooks |
-| Research tools | `WebSearch`/`WebFetch` mapping | Available Internet search and page-open/fetch mapping | Public-web research protocol and attributable evidence |
+| Research tools | `WebSearch`/`WebFetch` mapping at rung 0 | Available Internet search and page-open/fetch mapping at rung 0 | Public-web research protocol and attributable evidence; optional env-configured self-hosted instruments run through the same bundled engine identically on both hosts |
 | Domain resources | Thin adapter reads `resources/` | Thin adapter reads `resources/` | Same playbooks, protocols and pattern catalog |
 | Deterministic operations | Bundled engine | Bundled engine | Same state, validation, impact, verification and baseline code |
 | Hook integration | Discovers the shared SessionStart, PreToolUse and Stop hooks | Discovers the same conventional `hooks/hooks.json`; user reviews/trusts it in `/hooks` | Same handler code; engine validation/baselining remains authoritative |

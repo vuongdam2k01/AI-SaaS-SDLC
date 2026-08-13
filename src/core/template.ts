@@ -95,6 +95,7 @@ async function initializeProjectUnlocked(root: string, templateRoot: string, pat
   await Promise.all([
     mkdir(paths.changes, { recursive: true }),
     mkdir(paths.executions, { recursive: true }),
+    mkdir(paths.retrievals, { recursive: true }),
     mkdir(paths.cache, { recursive: true })
   ]);
 }

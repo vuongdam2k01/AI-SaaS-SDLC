@@ -1202,7 +1202,7 @@ var require_command = __commonJS({
   "node_modules/commander/lib/command.js"(exports) {
     var EventEmitter = __require("node:events").EventEmitter;
     var childProcess = __require("node:child_process");
-    var path22 = __require("node:path");
+    var path25 = __require("node:path");
     var fs = __require("node:fs");
     var process2 = __require("node:process");
     var { Argument: Argument2, humanReadableArgName } = require_argument();
@@ -2215,9 +2215,9 @@ Expecting one of '${allowedValues.join("', '")}'`);
         let launchWithNode = false;
         const sourceExt = [".js", ".ts", ".tsx", ".mjs", ".cjs"];
         function findFile(baseDir, baseName) {
-          const localBin = path22.resolve(baseDir, baseName);
+          const localBin = path25.resolve(baseDir, baseName);
           if (fs.existsSync(localBin)) return localBin;
-          if (sourceExt.includes(path22.extname(baseName))) return void 0;
+          if (sourceExt.includes(path25.extname(baseName))) return void 0;
           const foundExt = sourceExt.find(
             (ext) => fs.existsSync(`${localBin}${ext}`)
           );
@@ -2235,17 +2235,17 @@ Expecting one of '${allowedValues.join("', '")}'`);
           } catch {
             resolvedScriptPath = this._scriptPath;
           }
-          executableDir = path22.resolve(
-            path22.dirname(resolvedScriptPath),
+          executableDir = path25.resolve(
+            path25.dirname(resolvedScriptPath),
             executableDir
           );
         }
         if (executableDir) {
           let localFile = findFile(executableDir, executableFile);
           if (!localFile && !subcommand._executableFile && this._scriptPath) {
-            const legacyName = path22.basename(
+            const legacyName = path25.basename(
               this._scriptPath,
-              path22.extname(this._scriptPath)
+              path25.extname(this._scriptPath)
             );
             if (legacyName !== this._name) {
               localFile = findFile(
@@ -2256,7 +2256,7 @@ Expecting one of '${allowedValues.join("', '")}'`);
           }
           executableFile = localFile || executableFile;
         }
-        launchWithNode = sourceExt.includes(path22.extname(executableFile));
+        launchWithNode = sourceExt.includes(path25.extname(executableFile));
         let proc;
         if (process2.platform !== "win32") {
           if (launchWithNode) {
@@ -3171,7 +3171,7 @@ Expecting one of '${allowedValues.join("', '")}'`);
        * @return {Command}
        */
       nameFromFilename(filename) {
-        this._name = path22.basename(filename, path22.extname(filename));
+        this._name = path25.basename(filename, path25.extname(filename));
         return this;
       }
       /**
@@ -3185,9 +3185,9 @@ Expecting one of '${allowedValues.join("', '")}'`);
        * @param {string} [path]
        * @return {(string|null|Command)}
        */
-      executableDir(path23) {
-        if (path23 === void 0) return this._executableDir;
-        this._executableDir = path23;
+      executableDir(path26) {
+        if (path26 === void 0) return this._executableDir;
+        this._executableDir = path26;
         return this;
       }
       /**
@@ -3537,7 +3537,7 @@ var require_path = __commonJS({
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.convertPosixPathToPattern = exports.convertWindowsPathToPattern = exports.convertPathToPattern = exports.escapePosixPath = exports.escapeWindowsPath = exports.escape = exports.removeLeadingDotSegment = exports.makeAbsolute = exports.unixify = void 0;
     var os2 = __require("os");
-    var path22 = __require("path");
+    var path25 = __require("path");
     var IS_WINDOWS_PLATFORM = os2.platform() === "win32";
     var LEADING_DOT_SEGMENT_CHARACTERS_COUNT = 2;
     var POSIX_UNESCAPED_GLOB_SYMBOLS_RE = /(\\?)([()*?[\]{|}]|^!|[!+@](?=\()|\\(?![!()*+?@[\]{|}]))/g;
@@ -3549,7 +3549,7 @@ var require_path = __commonJS({
     }
     exports.unixify = unixify;
     function makeAbsolute(cwd, filepath) {
-      return path22.resolve(cwd, filepath);
+      return path25.resolve(cwd, filepath);
     }
     exports.makeAbsolute = makeAbsolute;
     function removeLeadingDotSegment(entry) {
@@ -4846,7 +4846,7 @@ var require_braces = __commonJS({
 var require_constants2 = __commonJS({
   "node_modules/picomatch/lib/constants.js"(exports, module) {
     "use strict";
-    var path22 = __require("path");
+    var path25 = __require("path");
     var WIN_SLASH = "\\\\/";
     var WIN_NO_SLASH = `[^${WIN_SLASH}]`;
     var DEFAULT_MAX_EXTGLOB_RECURSION = 0;
@@ -5020,7 +5020,7 @@ var require_constants2 = __commonJS({
       /* | */
       CHAR_ZERO_WIDTH_NOBREAK_SPACE: 65279,
       /* \uFEFF */
-      SEP: path22.sep,
+      SEP: path25.sep,
       /**
        * Create EXTGLOB_CHARS
        */
@@ -5047,7 +5047,7 @@ var require_constants2 = __commonJS({
 var require_utils2 = __commonJS({
   "node_modules/picomatch/lib/utils.js"(exports) {
     "use strict";
-    var path22 = __require("path");
+    var path25 = __require("path");
     var win32 = process.platform === "win32";
     var {
       REGEX_BACKSLASH,
@@ -5076,7 +5076,7 @@ var require_utils2 = __commonJS({
       if (options && typeof options.windows === "boolean") {
         return options.windows;
       }
-      return win32 === true || path22.sep === "\\";
+      return win32 === true || path25.sep === "\\";
     };
     exports.escapeLast = (input, char, lastIdx) => {
       const idx = input.lastIndexOf(char, lastIdx);
@@ -6440,7 +6440,7 @@ var require_parse2 = __commonJS({
 var require_picomatch = __commonJS({
   "node_modules/picomatch/lib/picomatch.js"(exports, module) {
     "use strict";
-    var path22 = __require("path");
+    var path25 = __require("path");
     var scan = require_scan();
     var parse = require_parse2();
     var utils = require_utils2();
@@ -6525,7 +6525,7 @@ var require_picomatch = __commonJS({
     };
     picomatch.matchBase = (input, glob, options, posix = utils.isWindows(options)) => {
       const regex = glob instanceof RegExp ? glob : picomatch.makeRe(glob, options);
-      return regex.test(path22.basename(input));
+      return regex.test(path25.basename(input));
     };
     picomatch.isMatch = (str, patterns2, options) => picomatch(patterns2, options)(str);
     picomatch.parse = (pattern, options) => {
@@ -6752,7 +6752,7 @@ var require_pattern = __commonJS({
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.isAbsolute = exports.partitionAbsoluteAndRelative = exports.removeDuplicateSlashes = exports.matchAny = exports.convertPatternsToRe = exports.makeRe = exports.getPatternParts = exports.expandBraceExpansion = exports.expandPatternsWithBraceExpansion = exports.isAffectDepthOfReadingPattern = exports.endsWithSlashGlobStar = exports.hasGlobStar = exports.getBaseDirectory = exports.isPatternRelatedToParentDirectory = exports.getPatternsOutsideCurrentDirectory = exports.getPatternsInsideCurrentDirectory = exports.getPositivePatterns = exports.getNegativePatterns = exports.isPositivePattern = exports.isNegativePattern = exports.convertToNegativePattern = exports.convertToPositivePattern = exports.isDynamicPattern = exports.isStaticPattern = void 0;
-    var path22 = __require("path");
+    var path25 = __require("path");
     var globParent = require_glob_parent();
     var micromatch = require_micromatch();
     var GLOBSTAR = "**";
@@ -6847,7 +6847,7 @@ var require_pattern = __commonJS({
     }
     exports.endsWithSlashGlobStar = endsWithSlashGlobStar;
     function isAffectDepthOfReadingPattern(pattern) {
-      const basename = path22.basename(pattern);
+      const basename = path25.basename(pattern);
       return endsWithSlashGlobStar(pattern) || isStaticPattern(basename);
     }
     exports.isAffectDepthOfReadingPattern = isAffectDepthOfReadingPattern;
@@ -6905,7 +6905,7 @@ var require_pattern = __commonJS({
     }
     exports.partitionAbsoluteAndRelative = partitionAbsoluteAndRelative;
     function isAbsolute(pattern) {
-      return path22.isAbsolute(pattern);
+      return path25.isAbsolute(pattern);
     }
     exports.isAbsolute = isAbsolute;
   }
@@ -7082,8 +7082,8 @@ var require_utils3 = __commonJS({
     exports.errno = errno;
     var fs = require_fs();
     exports.fs = fs;
-    var path22 = require_path();
-    exports.path = path22;
+    var path25 = require_path();
+    exports.path = path25;
     var pattern = require_pattern();
     exports.pattern = pattern;
     var stream = require_stream();
@@ -7195,8 +7195,8 @@ var require_async = __commonJS({
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.read = void 0;
-    function read(path22, settings, callback) {
-      settings.fs.lstat(path22, (lstatError, lstat5) => {
+    function read(path25, settings, callback) {
+      settings.fs.lstat(path25, (lstatError, lstat5) => {
         if (lstatError !== null) {
           callFailureCallback(callback, lstatError);
           return;
@@ -7205,7 +7205,7 @@ var require_async = __commonJS({
           callSuccessCallback(callback, lstat5);
           return;
         }
-        settings.fs.stat(path22, (statError, stat2) => {
+        settings.fs.stat(path25, (statError, stat2) => {
           if (statError !== null) {
             if (settings.throwErrorOnBrokenSymbolicLink) {
               callFailureCallback(callback, statError);
@@ -7237,13 +7237,13 @@ var require_sync = __commonJS({
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.read = void 0;
-    function read(path22, settings) {
-      const lstat5 = settings.fs.lstatSync(path22);
+    function read(path25, settings) {
+      const lstat5 = settings.fs.lstatSync(path25);
       if (!lstat5.isSymbolicLink() || !settings.followSymbolicLink) {
         return lstat5;
       }
       try {
-        const stat2 = settings.fs.statSync(path22);
+        const stat2 = settings.fs.statSync(path25);
         if (settings.markSymbolicLink) {
           stat2.isSymbolicLink = () => true;
         }
@@ -7314,17 +7314,17 @@ var require_out = __commonJS({
     var sync = require_sync();
     var settings_1 = require_settings();
     exports.Settings = settings_1.default;
-    function stat2(path22, optionsOrSettingsOrCallback, callback) {
+    function stat2(path25, optionsOrSettingsOrCallback, callback) {
       if (typeof optionsOrSettingsOrCallback === "function") {
-        async.read(path22, getSettings(), optionsOrSettingsOrCallback);
+        async.read(path25, getSettings(), optionsOrSettingsOrCallback);
         return;
       }
-      async.read(path22, getSettings(optionsOrSettingsOrCallback), callback);
+      async.read(path25, getSettings(optionsOrSettingsOrCallback), callback);
     }
     exports.stat = stat2;
-    function statSync(path22, optionsOrSettings) {
+    function statSync(path25, optionsOrSettings) {
       const settings = getSettings(optionsOrSettings);
-      return sync.read(path22, settings);
+      return sync.read(path25, settings);
     }
     exports.statSync = statSync;
     function getSettings(settingsOrOptions = {}) {
@@ -7484,7 +7484,7 @@ var require_async2 = __commonJS({
         readdirWithFileTypes(directory, settings, callback);
         return;
       }
-      readdir6(directory, settings, callback);
+      readdir7(directory, settings, callback);
     }
     exports.read = read;
     function readdirWithFileTypes(directory, settings, callback) {
@@ -7533,23 +7533,23 @@ var require_async2 = __commonJS({
         });
       };
     }
-    function readdir6(directory, settings, callback) {
+    function readdir7(directory, settings, callback) {
       settings.fs.readdir(directory, (readdirError, names) => {
         if (readdirError !== null) {
           callFailureCallback(callback, readdirError);
           return;
         }
         const tasks = names.map((name) => {
-          const path22 = common.joinPathSegments(directory, name, settings.pathSegmentSeparator);
+          const path25 = common.joinPathSegments(directory, name, settings.pathSegmentSeparator);
           return (done) => {
-            fsStat.stat(path22, settings.fsStatSettings, (error, stats) => {
+            fsStat.stat(path25, settings.fsStatSettings, (error, stats) => {
               if (error !== null) {
                 done(error);
                 return;
               }
               const entry = {
                 name,
-                path: path22,
+                path: path25,
                 dirent: utils.fs.createDirentFromStats(name, stats)
               };
               if (settings.stats) {
@@ -7568,7 +7568,7 @@ var require_async2 = __commonJS({
         });
       });
     }
-    exports.readdir = readdir6;
+    exports.readdir = readdir7;
     function callFailureCallback(callback, error) {
       callback(error);
     }
@@ -7592,7 +7592,7 @@ var require_sync2 = __commonJS({
       if (!settings.stats && constants_1.IS_SUPPORT_READDIR_WITH_FILE_TYPES) {
         return readdirWithFileTypes(directory, settings);
       }
-      return readdir6(directory, settings);
+      return readdir7(directory, settings);
     }
     exports.read = read;
     function readdirWithFileTypes(directory, settings) {
@@ -7617,7 +7617,7 @@ var require_sync2 = __commonJS({
       });
     }
     exports.readdirWithFileTypes = readdirWithFileTypes;
-    function readdir6(directory, settings) {
+    function readdir7(directory, settings) {
       const names = settings.fs.readdirSync(directory);
       return names.map((name) => {
         const entryPath = common.joinPathSegments(directory, name, settings.pathSegmentSeparator);
@@ -7633,7 +7633,7 @@ var require_sync2 = __commonJS({
         return entry;
       });
     }
-    exports.readdir = readdir6;
+    exports.readdir = readdir7;
   }
 });
 
@@ -7667,7 +7667,7 @@ var require_settings2 = __commonJS({
   "node_modules/@nodelib/fs.scandir/out/settings.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    var path22 = __require("path");
+    var path25 = __require("path");
     var fsStat = require_out();
     var fs = require_fs4();
     var Settings = class {
@@ -7675,7 +7675,7 @@ var require_settings2 = __commonJS({
         this._options = _options;
         this.followSymbolicLinks = this._getValue(this._options.followSymbolicLinks, false);
         this.fs = fs.createFileSystemAdapter(this._options.fs);
-        this.pathSegmentSeparator = this._getValue(this._options.pathSegmentSeparator, path22.sep);
+        this.pathSegmentSeparator = this._getValue(this._options.pathSegmentSeparator, path25.sep);
         this.stats = this._getValue(this._options.stats, false);
         this.throwErrorOnBrokenSymbolicLink = this._getValue(this._options.throwErrorOnBrokenSymbolicLink, true);
         this.fsStatSettings = new fsStat.Settings({
@@ -7702,17 +7702,17 @@ var require_out2 = __commonJS({
     var sync = require_sync2();
     var settings_1 = require_settings2();
     exports.Settings = settings_1.default;
-    function scandir(path22, optionsOrSettingsOrCallback, callback) {
+    function scandir(path25, optionsOrSettingsOrCallback, callback) {
       if (typeof optionsOrSettingsOrCallback === "function") {
-        async.read(path22, getSettings(), optionsOrSettingsOrCallback);
+        async.read(path25, getSettings(), optionsOrSettingsOrCallback);
         return;
       }
-      async.read(path22, getSettings(optionsOrSettingsOrCallback), callback);
+      async.read(path25, getSettings(optionsOrSettingsOrCallback), callback);
     }
     exports.scandir = scandir;
-    function scandirSync(path22, optionsOrSettings) {
+    function scandirSync(path25, optionsOrSettings) {
       const settings = getSettings(optionsOrSettings);
-      return sync.read(path22, settings);
+      return sync.read(path25, settings);
     }
     exports.scandirSync = scandirSync;
     function getSettings(settingsOrOptions = {}) {
@@ -8359,7 +8359,7 @@ var require_settings3 = __commonJS({
   "node_modules/@nodelib/fs.walk/out/settings.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    var path22 = __require("path");
+    var path25 = __require("path");
     var fsScandir = require_out2();
     var Settings = class {
       constructor(_options = {}) {
@@ -8369,7 +8369,7 @@ var require_settings3 = __commonJS({
         this.deepFilter = this._getValue(this._options.deepFilter, null);
         this.entryFilter = this._getValue(this._options.entryFilter, null);
         this.errorFilter = this._getValue(this._options.errorFilter, null);
-        this.pathSegmentSeparator = this._getValue(this._options.pathSegmentSeparator, path22.sep);
+        this.pathSegmentSeparator = this._getValue(this._options.pathSegmentSeparator, path25.sep);
         this.fsScandirSettings = new fsScandir.Settings({
           followSymbolicLinks: this._options.followSymbolicLinks,
           fs: this._options.fs,
@@ -8431,7 +8431,7 @@ var require_reader2 = __commonJS({
   "node_modules/fast-glob/out/readers/reader.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    var path22 = __require("path");
+    var path25 = __require("path");
     var fsStat = require_out();
     var utils = require_utils3();
     var Reader = class {
@@ -8444,7 +8444,7 @@ var require_reader2 = __commonJS({
         });
       }
       _getFullEntryPath(filepath) {
-        return path22.resolve(this._settings.cwd, filepath);
+        return path25.resolve(this._settings.cwd, filepath);
       }
       _makeEntry(stats, pattern) {
         const entry = {
@@ -8860,7 +8860,7 @@ var require_provider = __commonJS({
   "node_modules/fast-glob/out/providers/provider.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    var path22 = __require("path");
+    var path25 = __require("path");
     var deep_1 = require_deep();
     var entry_1 = require_entry();
     var error_1 = require_error2();
@@ -8874,7 +8874,7 @@ var require_provider = __commonJS({
         this.entryTransformer = new entry_2.default(this._settings);
       }
       _getRootDirectory(task) {
-        return path22.resolve(this._settings.cwd, task.base);
+        return path25.resolve(this._settings.cwd, task.base);
       }
       _getReaderOptions(task) {
         const basePath = task.base === "." ? "" : task.base;
@@ -9237,6 +9237,8 @@ function projectPaths(root2) {
     activeFlow: path.join(root2, INTERNAL_DIR, "state", "active-flow.json"),
     changes: path.join(root2, INTERNAL_DIR, "changes"),
     executions: path.join(root2, INTERNAL_DIR, "executions"),
+    retrievals: path.join(root2, INTERNAL_DIR, "retrievals"),
+    researchPolicy: path.join(root2, INTERNAL_DIR, "research-tools.json"),
     cache: path.join(root2, INTERNAL_DIR, "cache"),
     generated: path.join(root2, GENERATED_DIR),
     baseline: path.join(root2, GENERATED_DIR, "baseline-manifest.json")
@@ -9412,6 +9414,21 @@ function isExecutionRecord(value) {
   if (!record(value) || !exactKeys(value, ["schema_version", "id", "flow_id", "level", "command_id", "command", "cwd", "started_at", "ended_at", "exit_code", "output_hash", "output_file", "git_commit", "source_snapshot_hash", "platforms", "host"])) return false;
   return value.schema_version === 1 && id(value.id, "EXEC") && id(value.flow_id, "FLOW") && ["unit", "integration", "system"].includes(String(value.level)) && typeof value.command_id === "string" && /^[a-z0-9][a-z0-9-]*$/.test(value.command_id) && [value.command, value.cwd, value.output_file].every((item) => typeof item === "string" && item.length > 0) && dateTime(value.started_at) && dateTime(value.ended_at) && Number.isInteger(value.exit_code) && typeof value.output_hash === "string" && /^[a-f0-9]{64}$/.test(value.output_hash) && (value.git_commit === null || typeof value.git_commit === "string") && typeof value.source_snapshot_hash === "string" && /^[a-f0-9]{64}$/.test(value.source_snapshot_hash) && (value.platforms === void 0 || artifactIds(value.platforms) && value.platforms.length > 0) && validHost(value.host);
 }
+function isRetrievalRecord(value) {
+  if (!record(value) || !exactKeys(value, ["schema_version", "id", "flow_id", "url", "instrument", "via", "ok", "capability_rung", "started_at", "ended_at", "git_commit", "body_file", "body_hash", "body_bytes", "truncated", "api_version", "status_code", "title", "resolved_url", "crawl_seed", "wait_ms", "escalation", "error"])) return false;
+  const escalation = value.escalation;
+  const escalationValid = escalation === void 0 || record(escalation) && exactKeys(escalation, ["from", "reason"]) && escalation.from === "firecrawl" && typeof escalation.reason === "string" && escalation.reason.length > 0 && value.instrument === "camofox";
+  const outcomeValid = value.ok === true ? typeof value.body_file === "string" && /^\.ai-saas-sdlc\/retrievals\/RET-[0-9]{3,}\.md$/.test(value.body_file) && typeof value.body_hash === "string" && /^[a-f0-9]{64}$/.test(value.body_hash) && Number.isInteger(value.body_bytes) && value.body_bytes >= 0 && typeof value.truncated === "boolean" && value.error === void 0 : value.ok === false && typeof value.error === "string" && value.error.length > 0 && [value.body_file, value.body_hash, value.body_bytes, value.truncated].every((item) => item === void 0);
+  return value.schema_version === 1 && id(value.id, "RET") && id(value.flow_id, "FLOW") && typeof value.url === "string" && /^https?:\/\//.test(value.url) && (value.instrument === "firecrawl" || value.instrument === "camofox") && (value.via === "fetch" || value.via === "crawl") && [1, 2, 3].includes(value.capability_rung) && dateTime(value.started_at) && dateTime(value.ended_at) && (value.git_commit === null || typeof value.git_commit === "string") && outcomeValid && (value.api_version === void 0 || value.api_version === "v1" || value.api_version === "v2") && (value.status_code === void 0 || Number.isInteger(value.status_code)) && (value.title === void 0 || typeof value.title === "string") && (value.resolved_url === void 0 || typeof value.resolved_url === "string") && (value.via === "crawl" ? typeof value.crawl_seed === "string" && value.crawl_seed.length > 0 : value.crawl_seed === void 0) && (value.wait_ms === void 0 || Number.isInteger(value.wait_ms) && value.wait_ms >= 0) && escalationValid;
+}
+function isQueryRecord(value) {
+  if (!record(value) || !exactKeys(value, ["schema_version", "id", "flow_id", "kind", "instrument", "ok", "capability_rung", "query", "started_at", "ended_at", "git_commit", "url", "pass", "engines", "categories", "language", "pageno", "time_range", "limit", "api_version", "results", "result_count", "unresponsive_engines", "error"])) return false;
+  const results = value.results;
+  const resultsValid = results === void 0 || Array.isArray(results) && results.every((item) => record(item) && exactKeys(item, ["url", "title", "engine", "score", "published"]) && typeof item.url === "string" && item.url.length > 0 && (item.title === void 0 || typeof item.title === "string") && (item.engine === void 0 || typeof item.engine === "string") && (item.score === void 0 || typeof item.score === "number") && (item.published === void 0 || typeof item.published === "string"));
+  const kindValid = value.kind === "search" ? value.instrument === "searxng" && value.url === void 0 : value.kind === "map" && value.instrument === "firecrawl" && typeof value.url === "string" && /^https?:\/\//.test(value.url) && value.pass === void 0 && value.unresponsive_engines === void 0;
+  const outcomeValid = value.ok === true ? results !== void 0 && Number.isInteger(value.result_count) && value.result_count >= 0 && value.error === void 0 : value.ok === false && typeof value.error === "string" && value.error.length > 0 && results === void 0 && value.result_count === void 0;
+  return value.schema_version === 1 && id(value.id, "QRY") && id(value.flow_id, "FLOW") && (value.kind === "search" || value.kind === "map") && typeof value.query === "string" && [1, 2, 3].includes(value.capability_rung) && dateTime(value.started_at) && dateTime(value.ended_at) && (value.git_commit === null || typeof value.git_commit === "string") && kindValid && outcomeValid && resultsValid && (value.pass === void 0 || ["authority", "official", "discussion", "counter", "freshness"].includes(String(value.pass))) && (value.engines === void 0 || strings(value.engines)) && (value.categories === void 0 || typeof value.categories === "string") && (value.language === void 0 || typeof value.language === "string") && (value.pageno === void 0 || Number.isInteger(value.pageno) && value.pageno >= 1) && (value.time_range === void 0 || ["day", "month", "year"].includes(String(value.time_range))) && (value.limit === void 0 || Number.isInteger(value.limit) && value.limit >= 1) && (value.api_version === void 0 || value.api_version === "v1" || value.api_version === "v2") && (value.unresponsive_engines === void 0 || strings(value.unresponsive_engines));
+}
 function isChangeRecord(value) {
   if (!record(value) || !exactKeys(value, ["schema_version", "id", "flow_id", "type", "input", "status", "base_baseline", "started_at", "closed_at", "successor_baseline", "impact"])) return false;
   const impact = value.impact;
@@ -9511,17 +9528,17 @@ var require_visit = __commonJS({
     visit.BREAK = BREAK;
     visit.SKIP = SKIP;
     visit.REMOVE = REMOVE;
-    function visit_(key, node, visitor, path22) {
-      const ctrl = callVisitor(key, node, visitor, path22);
+    function visit_(key, node, visitor, path25) {
+      const ctrl = callVisitor(key, node, visitor, path25);
       if (identity.isNode(ctrl) || identity.isPair(ctrl)) {
-        replaceNode(key, path22, ctrl);
-        return visit_(key, ctrl, visitor, path22);
+        replaceNode(key, path25, ctrl);
+        return visit_(key, ctrl, visitor, path25);
       }
       if (typeof ctrl !== "symbol") {
         if (identity.isCollection(node)) {
-          path22 = Object.freeze(path22.concat(node));
+          path25 = Object.freeze(path25.concat(node));
           for (let i = 0; i < node.items.length; ++i) {
-            const ci = visit_(i, node.items[i], visitor, path22);
+            const ci = visit_(i, node.items[i], visitor, path25);
             if (typeof ci === "number")
               i = ci - 1;
             else if (ci === BREAK)
@@ -9532,13 +9549,13 @@ var require_visit = __commonJS({
             }
           }
         } else if (identity.isPair(node)) {
-          path22 = Object.freeze(path22.concat(node));
-          const ck = visit_("key", node.key, visitor, path22);
+          path25 = Object.freeze(path25.concat(node));
+          const ck = visit_("key", node.key, visitor, path25);
           if (ck === BREAK)
             return BREAK;
           else if (ck === REMOVE)
             node.key = null;
-          const cv = visit_("value", node.value, visitor, path22);
+          const cv = visit_("value", node.value, visitor, path25);
           if (cv === BREAK)
             return BREAK;
           else if (cv === REMOVE)
@@ -9559,17 +9576,17 @@ var require_visit = __commonJS({
     visitAsync.BREAK = BREAK;
     visitAsync.SKIP = SKIP;
     visitAsync.REMOVE = REMOVE;
-    async function visitAsync_(key, node, visitor, path22) {
-      const ctrl = await callVisitor(key, node, visitor, path22);
+    async function visitAsync_(key, node, visitor, path25) {
+      const ctrl = await callVisitor(key, node, visitor, path25);
       if (identity.isNode(ctrl) || identity.isPair(ctrl)) {
-        replaceNode(key, path22, ctrl);
-        return visitAsync_(key, ctrl, visitor, path22);
+        replaceNode(key, path25, ctrl);
+        return visitAsync_(key, ctrl, visitor, path25);
       }
       if (typeof ctrl !== "symbol") {
         if (identity.isCollection(node)) {
-          path22 = Object.freeze(path22.concat(node));
+          path25 = Object.freeze(path25.concat(node));
           for (let i = 0; i < node.items.length; ++i) {
-            const ci = await visitAsync_(i, node.items[i], visitor, path22);
+            const ci = await visitAsync_(i, node.items[i], visitor, path25);
             if (typeof ci === "number")
               i = ci - 1;
             else if (ci === BREAK)
@@ -9580,13 +9597,13 @@ var require_visit = __commonJS({
             }
           }
         } else if (identity.isPair(node)) {
-          path22 = Object.freeze(path22.concat(node));
-          const ck = await visitAsync_("key", node.key, visitor, path22);
+          path25 = Object.freeze(path25.concat(node));
+          const ck = await visitAsync_("key", node.key, visitor, path25);
           if (ck === BREAK)
             return BREAK;
           else if (ck === REMOVE)
             node.key = null;
-          const cv = await visitAsync_("value", node.value, visitor, path22);
+          const cv = await visitAsync_("value", node.value, visitor, path25);
           if (cv === BREAK)
             return BREAK;
           else if (cv === REMOVE)
@@ -9613,23 +9630,23 @@ var require_visit = __commonJS({
       }
       return visitor;
     }
-    function callVisitor(key, node, visitor, path22) {
+    function callVisitor(key, node, visitor, path25) {
       if (typeof visitor === "function")
-        return visitor(key, node, path22);
+        return visitor(key, node, path25);
       if (identity.isMap(node))
-        return visitor.Map?.(key, node, path22);
+        return visitor.Map?.(key, node, path25);
       if (identity.isSeq(node))
-        return visitor.Seq?.(key, node, path22);
+        return visitor.Seq?.(key, node, path25);
       if (identity.isPair(node))
-        return visitor.Pair?.(key, node, path22);
+        return visitor.Pair?.(key, node, path25);
       if (identity.isScalar(node))
-        return visitor.Scalar?.(key, node, path22);
+        return visitor.Scalar?.(key, node, path25);
       if (identity.isAlias(node))
-        return visitor.Alias?.(key, node, path22);
+        return visitor.Alias?.(key, node, path25);
       return void 0;
     }
-    function replaceNode(key, path22, node) {
-      const parent = path22[path22.length - 1];
+    function replaceNode(key, path25, node) {
+      const parent = path25[path25.length - 1];
       if (identity.isCollection(parent)) {
         parent.items[key] = node;
       } else if (identity.isPair(parent)) {
@@ -10239,10 +10256,10 @@ var require_Collection = __commonJS({
     var createNode = require_createNode();
     var identity = require_identity();
     var Node = require_Node();
-    function collectionFromPath(schema, path22, value) {
+    function collectionFromPath(schema, path25, value) {
       let v2 = value;
-      for (let i = path22.length - 1; i >= 0; --i) {
-        const k2 = path22[i];
+      for (let i = path25.length - 1; i >= 0; --i) {
+        const k2 = path25[i];
         if (typeof k2 === "number" && Number.isInteger(k2) && k2 >= 0) {
           const a = [];
           a[k2] = v2;
@@ -10261,7 +10278,7 @@ var require_Collection = __commonJS({
         sourceObjects: /* @__PURE__ */ new Map()
       });
     }
-    var isEmptyPath = (path22) => path22 == null || typeof path22 === "object" && !!path22[Symbol.iterator]().next().done;
+    var isEmptyPath = (path25) => path25 == null || typeof path25 === "object" && !!path25[Symbol.iterator]().next().done;
     var Collection = class extends Node.NodeBase {
       constructor(type, schema) {
         super(type);
@@ -10291,11 +10308,11 @@ var require_Collection = __commonJS({
        * be a Pair instance or a `{ key, value }` object, which may not have a key
        * that already exists in the map.
        */
-      addIn(path22, value) {
-        if (isEmptyPath(path22))
+      addIn(path25, value) {
+        if (isEmptyPath(path25))
           this.add(value);
         else {
-          const [key, ...rest] = path22;
+          const [key, ...rest] = path25;
           const node = this.get(key, true);
           if (identity.isCollection(node))
             node.addIn(rest, value);
@@ -10309,8 +10326,8 @@ var require_Collection = __commonJS({
        * Removes a value from the collection.
        * @returns `true` if the item was found and removed.
        */
-      deleteIn(path22) {
-        const [key, ...rest] = path22;
+      deleteIn(path25) {
+        const [key, ...rest] = path25;
         if (rest.length === 0)
           return this.delete(key);
         const node = this.get(key, true);
@@ -10324,8 +10341,8 @@ var require_Collection = __commonJS({
        * scalar values from their surrounding node; to disable set `keepScalar` to
        * `true` (collections are always returned intact).
        */
-      getIn(path22, keepScalar) {
-        const [key, ...rest] = path22;
+      getIn(path25, keepScalar) {
+        const [key, ...rest] = path25;
         const node = this.get(key, true);
         if (rest.length === 0)
           return !keepScalar && identity.isScalar(node) ? node.value : node;
@@ -10343,8 +10360,8 @@ var require_Collection = __commonJS({
       /**
        * Checks if the collection includes a value with the key `key`.
        */
-      hasIn(path22) {
-        const [key, ...rest] = path22;
+      hasIn(path25) {
+        const [key, ...rest] = path25;
         if (rest.length === 0)
           return this.has(key);
         const node = this.get(key, true);
@@ -10354,8 +10371,8 @@ var require_Collection = __commonJS({
        * Sets a value in this collection. For `!!set`, `value` needs to be a
        * boolean to add/remove the item from the set.
        */
-      setIn(path22, value) {
-        const [key, ...rest] = path22;
+      setIn(path25, value) {
+        const [key, ...rest] = path25;
         if (rest.length === 0) {
           this.set(key, value);
         } else {
@@ -12870,9 +12887,9 @@ var require_Document = __commonJS({
           this.contents.add(value);
       }
       /** Adds a value to the document. */
-      addIn(path22, value) {
+      addIn(path25, value) {
         if (assertCollection(this.contents))
-          this.contents.addIn(path22, value);
+          this.contents.addIn(path25, value);
       }
       /**
        * Create a new `Alias` node, ensuring that the target `node` has the required anchor.
@@ -12947,14 +12964,14 @@ var require_Document = __commonJS({
        * Removes a value from the document.
        * @returns `true` if the item was found and removed.
        */
-      deleteIn(path22) {
-        if (Collection.isEmptyPath(path22)) {
+      deleteIn(path25) {
+        if (Collection.isEmptyPath(path25)) {
           if (this.contents == null)
             return false;
           this.contents = null;
           return true;
         }
-        return assertCollection(this.contents) ? this.contents.deleteIn(path22) : false;
+        return assertCollection(this.contents) ? this.contents.deleteIn(path25) : false;
       }
       /**
        * Returns item at `key`, or `undefined` if not found. By default unwraps
@@ -12969,10 +12986,10 @@ var require_Document = __commonJS({
        * scalar values from their surrounding node; to disable set `keepScalar` to
        * `true` (collections are always returned intact).
        */
-      getIn(path22, keepScalar) {
-        if (Collection.isEmptyPath(path22))
+      getIn(path25, keepScalar) {
+        if (Collection.isEmptyPath(path25))
           return !keepScalar && identity.isScalar(this.contents) ? this.contents.value : this.contents;
-        return identity.isCollection(this.contents) ? this.contents.getIn(path22, keepScalar) : void 0;
+        return identity.isCollection(this.contents) ? this.contents.getIn(path25, keepScalar) : void 0;
       }
       /**
        * Checks if the document includes a value with the key `key`.
@@ -12983,10 +13000,10 @@ var require_Document = __commonJS({
       /**
        * Checks if the document includes a value at `path`.
        */
-      hasIn(path22) {
-        if (Collection.isEmptyPath(path22))
+      hasIn(path25) {
+        if (Collection.isEmptyPath(path25))
           return this.contents !== void 0;
-        return identity.isCollection(this.contents) ? this.contents.hasIn(path22) : false;
+        return identity.isCollection(this.contents) ? this.contents.hasIn(path25) : false;
       }
       /**
        * Sets a value in this document. For `!!set`, `value` needs to be a
@@ -13003,13 +13020,13 @@ var require_Document = __commonJS({
        * Sets a value in this document. For `!!set`, `value` needs to be a
        * boolean to add/remove the item from the set.
        */
-      setIn(path22, value) {
-        if (Collection.isEmptyPath(path22)) {
+      setIn(path25, value) {
+        if (Collection.isEmptyPath(path25)) {
           this.contents = value;
         } else if (this.contents == null) {
-          this.contents = Collection.collectionFromPath(this.schema, Array.from(path22), value);
+          this.contents = Collection.collectionFromPath(this.schema, Array.from(path25), value);
         } else if (assertCollection(this.contents)) {
-          this.contents.setIn(path22, value);
+          this.contents.setIn(path25, value);
         }
       }
       /**
@@ -14969,9 +14986,9 @@ var require_cst_visit = __commonJS({
     visit.BREAK = BREAK;
     visit.SKIP = SKIP;
     visit.REMOVE = REMOVE;
-    visit.itemAtPath = (cst, path22) => {
+    visit.itemAtPath = (cst, path25) => {
       let item = cst;
-      for (const [field, index] of path22) {
+      for (const [field, index] of path25) {
         const tok = item?.[field];
         if (tok && "items" in tok) {
           item = tok.items[index];
@@ -14980,23 +14997,23 @@ var require_cst_visit = __commonJS({
       }
       return item;
     };
-    visit.parentCollection = (cst, path22) => {
-      const parent = visit.itemAtPath(cst, path22.slice(0, -1));
-      const field = path22[path22.length - 1][0];
+    visit.parentCollection = (cst, path25) => {
+      const parent = visit.itemAtPath(cst, path25.slice(0, -1));
+      const field = path25[path25.length - 1][0];
       const coll = parent?.[field];
       if (coll && "items" in coll)
         return coll;
       throw new Error("Parent collection not found");
     };
-    function _visit(path22, item, visitor) {
-      let ctrl = visitor(item, path22);
+    function _visit(path25, item, visitor) {
+      let ctrl = visitor(item, path25);
       if (typeof ctrl === "symbol")
         return ctrl;
       for (const field of ["key", "value"]) {
         const token = item[field];
         if (token && "items" in token) {
           for (let i = 0; i < token.items.length; ++i) {
-            const ci = _visit(Object.freeze(path22.concat([[field, i]])), token.items[i], visitor);
+            const ci = _visit(Object.freeze(path25.concat([[field, i]])), token.items[i], visitor);
             if (typeof ci === "number")
               i = ci - 1;
             else if (ci === BREAK)
@@ -15007,10 +15024,10 @@ var require_cst_visit = __commonJS({
             }
           }
           if (typeof ctrl === "function" && field === "key")
-            ctrl = ctrl(item, path22);
+            ctrl = ctrl(item, path25);
         }
       }
-      return typeof ctrl === "function" ? ctrl(item, path22) : ctrl;
+      return typeof ctrl === "function" ? ctrl(item, path25) : ctrl;
     }
     exports.visit = visit;
   }
@@ -17280,6 +17297,119 @@ var init_execution_records = __esm({
   }
 });
 
+// src/core/retrieval-records.ts
+import path8 from "node:path";
+import { readdir as readdir2, writeFile as writeFile2 } from "node:fs/promises";
+function retrievalBodyFile(id2) {
+  return `.ai-saas-sdlc/retrievals/${id2}.md`;
+}
+async function allocateRetrievalIds(root2, count) {
+  if (!Number.isInteger(count) || count < 1) throw new SdlcError("Retrieval allocation requires a positive count.");
+  return withProjectLock(root2, async () => {
+    const state = await loadCurrentState(root2);
+    const ids2 = [];
+    let next = state.next_retrieval ?? 1;
+    for (let index = 0; index < count; index += 1) {
+      const id2 = formatId("RET", next);
+      const recordFile = path8.join(projectPaths(root2).retrievals, `${id2}.json`);
+      const bodyFile = path8.join(projectPaths(root2).retrievals, `${id2}.md`);
+      if (await pathExists(recordFile) || await pathExists(bodyFile)) throw new SdlcError(`Retrieval ID ${id2} is already reserved; repair state without overwriting provenance.`);
+      await prepareSafeManagedPath(root2, recordFile);
+      await prepareSafeManagedPath(root2, bodyFile);
+      ids2.push(id2);
+      next += 1;
+    }
+    state.next_retrieval = next;
+    await saveCurrentState(root2, state);
+    return ids2;
+  });
+}
+async function allocateQueryId(root2) {
+  return withProjectLock(root2, async () => {
+    const state = await loadCurrentState(root2);
+    const next = state.next_query ?? 1;
+    const id2 = formatId("QRY", next);
+    const recordFile = path8.join(projectPaths(root2).retrievals, `${id2}.json`);
+    if (await pathExists(recordFile)) throw new SdlcError(`Query ID ${id2} is already reserved; repair state without overwriting provenance.`);
+    await prepareSafeManagedPath(root2, recordFile);
+    state.next_query = next + 1;
+    await saveCurrentState(root2, state);
+    return id2;
+  });
+}
+async function writeRetrievalRecord(root2, record2, body) {
+  const recordId = record2.id;
+  if (!isRetrievalRecord(record2)) throw new SdlcError(`Malformed retrieval record: ${recordId}`);
+  if (record2.ok !== (body !== void 0)) throw new SdlcError(`Retrieval ${record2.id}: a successful record requires a body and a failed record forbids one.`);
+  return withProjectLock(root2, async () => {
+    const recordFile = path8.join(projectPaths(root2).retrievals, `${record2.id}.json`);
+    const bodyFile = path8.join(projectPaths(root2).retrievals, `${record2.id}.md`);
+    if (await pathExists(recordFile)) throw new SdlcError(`Retrieval record ${record2.id} already exists; provenance is immutable.`);
+    await prepareSafeManagedPath(root2, recordFile);
+    if (body !== void 0) {
+      const normalized = normalizeText(body);
+      if (record2.body_file !== retrievalBodyFile(record2.id)) throw new SdlcError(`Retrieval ${record2.id}: body_file must be ${retrievalBodyFile(record2.id)}.`);
+      if (record2.body_hash !== sha256(normalized)) throw new SdlcError(`Retrieval ${record2.id}: body_hash does not match the body being written.`);
+      await prepareSafeManagedPath(root2, bodyFile);
+      await writeFile2(bodyFile, normalized, "utf8");
+    }
+    await writeJsonAtomic(recordFile, record2);
+  });
+}
+async function writeQueryRecord(root2, record2) {
+  const recordId = record2.id;
+  if (!isQueryRecord(record2)) throw new SdlcError(`Malformed query record: ${recordId}`);
+  return withProjectLock(root2, async () => {
+    const recordFile = path8.join(projectPaths(root2).retrievals, `${record2.id}.json`);
+    if (await pathExists(recordFile)) throw new SdlcError(`Query record ${record2.id} already exists; provenance is immutable.`);
+    await prepareSafeManagedPath(root2, recordFile);
+    await writeJsonAtomic(recordFile, record2);
+  });
+}
+async function loadRecords(root2, pattern, guard) {
+  const directory = projectPaths(root2).retrievals;
+  if (!await pathExists(directory)) return [];
+  try {
+    await assertSafeManagedPath(root2, path8.join(directory, ".managed-probe"));
+  } catch {
+    return [];
+  }
+  const symlinks = /* @__PURE__ */ new Set();
+  for (const entry of await readdir2(directory, { withFileTypes: true })) if (entry.isSymbolicLink()) symlinks.add(entry.name);
+  const files = await (0, import_fast_glob5.default)(pattern, { cwd: directory, absolute: true, followSymbolicLinks: false });
+  const records = [];
+  for (const file of files) {
+    if (symlinks.has(path8.basename(file))) continue;
+    try {
+      await assertSafeManagedPath(root2, file);
+      const record2 = await readJson(file);
+      if (!guard(record2) || path8.basename(file) !== `${record2.id}.json`) continue;
+      records.push(record2);
+    } catch {
+    }
+  }
+  return records.sort((a, b2) => a.id.localeCompare(b2.id));
+}
+async function loadRetrievalRecords(root2) {
+  return loadRecords(root2, "RET-*.json", isRetrievalRecord);
+}
+async function loadQueryRecords(root2) {
+  return loadRecords(root2, "QRY-*.json", isQueryRecord);
+}
+var import_fast_glob5;
+var init_retrieval_records = __esm({
+  "src/core/retrieval-records.ts"() {
+    "use strict";
+    import_fast_glob5 = __toESM(require_out4(), 1);
+    init_record_validation();
+    init_paths();
+    init_state();
+    init_utils();
+    init_project_lock();
+    init_errors();
+  }
+});
+
 // src/core/graph.ts
 function buildGraph(artifacts) {
   const nodes = artifacts.filter((artifact2) => artifact2.id).map((artifact2) => ({
@@ -17429,10 +17559,10 @@ function ids(body, pattern) {
 function cell(values) {
   return values.length > 0 ? values.map((value) => `\`${value}\``).join(", ") : "\u2014";
 }
-function table(headers, rows) {
-  const head = `| ${headers.join(" | ")} |`;
-  const divider = `| ${headers.map(() => "---").join(" | ")} |`;
-  const body = rows.length > 0 ? rows.map((row) => `| ${row.join(" | ")} |`).join("\n") : `| ${headers.map(() => "\u2014").join(" | ")} |`;
+function table(headers3, rows) {
+  const head = `| ${headers3.join(" | ")} |`;
+  const divider = `| ${headers3.map(() => "---").join(" | ")} |`;
+  const body = rows.length > 0 ? rows.map((row) => `| ${row.join(" | ")} |`).join("\n") : `| ${headers3.map(() => "\u2014").join(" | ")} |`;
   return `${head}
 ${divider}
 ${body}
@@ -17592,8 +17722,8 @@ var init_execution_selection = __esm({
 });
 
 // src/core/projections.ts
-import { mkdir as mkdir3, readFile as readFile6, rm as rm2, writeFile as writeFile2 } from "node:fs/promises";
-import path8 from "node:path";
+import { mkdir as mkdir3, readFile as readFile6, rm as rm2, writeFile as writeFile3 } from "node:fs/promises";
+import path9 from "node:path";
 function changeImpactProjection(changeId, impact) {
   return `# Change Impact: ${changeId}
 
@@ -17606,12 +17736,12 @@ ${impact.direct.map((id2) => `- \`${id2}\``).join("\n") || "None."}
 ${impact.affected.map((id2) => `- \`${id2}\``).join("\n") || "None."}
 `;
 }
-function table2(headers, rows) {
-  const head = `| ${headers.join(" | ")} |`;
-  const line = `| ${headers.map(() => "---").join(" | ")} |`;
+function table2(headers3, rows) {
+  const head = `| ${headers3.join(" | ")} |`;
+  const line = `| ${headers3.map(() => "---").join(" | ")} |`;
   return `${head}
 ${line}
-${rows.map((row) => `| ${row.join(" | ")} |`).join("\n") || `| ${headers.map(() => "\u2014").join(" | ")} |`}
+${rows.map((row) => `| ${row.join(" | ")} |`).join("\n") || `| ${headers3.map(() => "\u2014").join(" | ")} |`}
 `;
 }
 function platformEvidenceState(target, declared, records) {
@@ -17676,7 +17806,59 @@ ${table2(
 ${unknown.map((declaration) => `- \`${declaration}\``).join("\n") || "None."}
 `;
 }
-function buildProjections(artifacts, graph, impact, baseline2, activeChange, config, records) {
+function projectionCell(value) {
+  return value.replaceAll("|", "\\|");
+}
+function retrievalCoverageSections(retrievals, queries) {
+  const retrievalRows = retrievals.map((record2) => [
+    `\`${record2.id}\``,
+    projectionCell(record2.url),
+    `${record2.instrument}${record2.escalation ? " (escalated)" : ""}`,
+    record2.via,
+    String(record2.capability_rung),
+    record2.ok ? "ok" : "failed",
+    record2.ok ? `${record2.body_bytes}B${record2.truncated ? " (truncated)" : ""}` : "\u2014"
+  ]);
+  const queryRows = queries.map((record2) => [
+    `\`${record2.id}\``,
+    record2.kind,
+    record2.pass ?? "\u2014",
+    projectionCell(record2.query || record2.url || ""),
+    record2.ok ? String(record2.result_count) : "failed",
+    (record2.unresponsive_engines ?? []).map(projectionCell).join(", ") || "\u2014"
+  ]);
+  const count = (predicate) => ({
+    searxng: queries.filter((record2) => record2.instrument === "searxng" && predicate(record2.ok)).length,
+    firecrawlQueries: queries.filter((record2) => record2.instrument === "firecrawl" && predicate(record2.ok)).length,
+    firecrawl: retrievals.filter((record2) => record2.instrument === "firecrawl" && predicate(record2.ok)).length,
+    camofox: retrievals.filter((record2) => record2.instrument === "camofox" && predicate(record2.ok)).length
+  });
+  const ok = count((value) => value);
+  const failed = count((value) => !value);
+  return `
+## Retrieval provenance
+
+Engine-performed page retrievals; each row is an immutable record under \`.ai-saas-sdlc/retrievals/\` with a hashed stored body.
+
+${table2(
+    ["Record", "URL", "Instrument", "Via", "Rung", "Outcome", "Body"],
+    retrievalRows
+  )}
+## Query passes
+
+${table2(
+    ["Record", "Kind", "Pass", "Query", "Results", "Unresponsive engines"],
+    queryRows
+  )}
+## Instrument usage
+
+- SearXNG searches: ${ok.searxng} ok, ${failed.searxng} failed
+- Firecrawl maps: ${ok.firecrawlQueries} ok, ${failed.firecrawlQueries} failed
+- Firecrawl retrievals: ${ok.firecrawl} ok, ${failed.firecrawl} failed
+- Camofox retrievals: ${ok.camofox} ok, ${failed.camofox} failed
+`;
+}
+function buildProjections(artifacts, graph, impact, baseline2, activeChange, config, records, retrievals = [], queries = []) {
   const projections = {};
   projections["artifact-graph.json"] = stableJson(graph);
   projections["artifact-index.md"] = `# Artifact Index
@@ -17707,7 +17889,7 @@ ${table2(
       const artifact2 = artifacts.find((item) => item.artifact_type === type);
       return [type, artifact2 ? `\`${artifact2.id}\`` : "missing", artifact2?.status ?? "missing"];
     })
-  )}`;
+  )}${retrievals.length + queries.length > 0 ? retrievalCoverageSections(retrievals, queries) : ""}`;
   projections["evidence-claim-coverage.md"] = evidenceClaimCoverage(artifacts);
   projections["acceptance-coverage.md"] = acceptanceCoverage(artifacts);
   projections["rule-coverage.md"] = ruleCoverage(artifacts);
@@ -17800,9 +17982,9 @@ async function applyProjections(root2, projections, check) {
   const base = projectPaths(root2).generated;
   const drift = [];
   const protect = check ? assertSafeManagedPath : prepareSafeManagedPath;
-  await protect(root2, path8.join(base, ".managed-probe"));
+  await protect(root2, path9.join(base, ".managed-probe"));
   for (const [relative, expectedRaw] of Object.entries(projections).sort(([a], [b2]) => a.localeCompare(b2))) {
-    const file = path8.join(base, relative);
+    const file = path9.join(base, relative);
     if (!isWithin(base, file)) throw new Error(`Projection path escapes generated directory: ${relative}`);
     await protect(root2, file);
     const expected = normalizeText(expectedRaw);
@@ -17811,19 +17993,19 @@ async function applyProjections(root2, projections, check) {
     if (actual !== expected) {
       drift.push(relative);
       if (!check) {
-        await mkdir3(path8.dirname(file), { recursive: true });
-        await writeFile2(file, expected, "utf8");
+        await mkdir3(path9.dirname(file), { recursive: true });
+        await writeFile3(file, expected, "utf8");
       }
     }
   }
   if (await pathExists(base)) {
     const expectedFiles = new Set(Object.keys(projections).map((value) => value.replaceAll("\\", "/")));
-    const existing = await (0, import_fast_glob5.default)("**/*", { cwd: base, onlyFiles: true, dot: true });
+    const existing = await (0, import_fast_glob6.default)("**/*", { cwd: base, onlyFiles: true, dot: true });
     for (const relative of existing.sort()) {
       if (relative.endsWith(".gitkeep") || relative === "baseline-manifest.json" || expectedFiles.has(relative.replaceAll("\\", "/"))) continue;
       drift.push(`unexpected:${relative.replaceAll("\\", "/")}`);
       if (!check) {
-        const file = path8.join(base, relative);
+        const file = path9.join(base, relative);
         if (!isWithin(base, file)) throw new Error(`Unexpected projection escapes generated directory: ${relative}`);
         await prepareSafeManagedPath(root2, file);
         await rm2(file);
@@ -17832,11 +18014,11 @@ async function applyProjections(root2, projections, check) {
   }
   return drift.sort();
 }
-var import_fast_glob5;
+var import_fast_glob6;
 var init_projections = __esm({
   "src/core/projections.ts"() {
     "use strict";
-    import_fast_glob5 = __toESM(require_out4(), 1);
+    import_fast_glob6 = __toESM(require_out4(), 1);
     init_types();
     init_graph();
     init_paths();
@@ -17856,8 +18038,8 @@ __export(project_exports, {
   projectSnapshot: () => projectSnapshot,
   refreshProject: () => refreshProject
 });
-import path9 from "node:path";
-import { readdir as readdir2 } from "node:fs/promises";
+import path10 from "node:path";
+import { readdir as readdir3 } from "node:fs/promises";
 async function loadBaseline(root2) {
   const file = projectPaths(root2).baseline;
   if (!await pathExists(file)) return null;
@@ -17886,11 +18068,13 @@ async function refreshProjectUnlocked(root2, check) {
     config = null;
   }
   const records = await loadExecutionRecords(root2);
-  const projections = buildProjections(artifacts, graph, impact, baseline2, activeChange, config, records);
+  const retrievals = await loadRetrievalRecords(root2);
+  const queries = await loadQueryRecords(root2);
+  const projections = buildProjections(artifacts, graph, impact, baseline2, activeChange, config, records, retrievals, queries);
   if (await pathExists(projectPaths(root2).changes)) {
-    await assertSafeManagedPath(root2, path9.join(projectPaths(root2).changes, ".managed-probe"));
-    for (const entry of await readdir2(projectPaths(root2).changes, { withFileTypes: true })) if (entry.isSymbolicLink() && /^CHG-.*\.json$/.test(entry.name)) throw new SdlcError(`Change record cannot be a symlink: ${entry.name}`);
-    const changeFiles = await (0, import_fast_glob6.default)("CHG-*.json", { cwd: projectPaths(root2).changes, absolute: true, followSymbolicLinks: false });
+    await assertSafeManagedPath(root2, path10.join(projectPaths(root2).changes, ".managed-probe"));
+    for (const entry of await readdir3(projectPaths(root2).changes, { withFileTypes: true })) if (entry.isSymbolicLink() && /^CHG-.*\.json$/.test(entry.name)) throw new SdlcError(`Change record cannot be a symlink: ${entry.name}`);
+    const changeFiles = await (0, import_fast_glob7.default)("CHG-*.json", { cwd: projectPaths(root2).changes, absolute: true, followSymbolicLinks: false });
     for (const file of changeFiles) {
       await assertSafeManagedPath(root2, file);
       try {
@@ -17909,20 +18093,21 @@ async function refreshProject(root2, check) {
 }
 async function loadChange(root2, id2) {
   if (!/^CHG-[0-9]{3,}$/.test(id2)) throw new SdlcError(`Invalid change ID: ${id2}`);
-  const file = path9.join(projectPaths(root2).changes, `${id2}.json`);
+  const file = path10.join(projectPaths(root2).changes, `${id2}.json`);
   if (!await pathExists(file)) return null;
   await assertSafeManagedPath(root2, file);
   const change = await readJson(file);
   if (!isChangeRecord(change)) throw new SdlcError(`Invalid change record schema: ${file}`);
   return change;
 }
-var import_fast_glob6;
+var import_fast_glob7;
 var init_project = __esm({
   "src/core/project.ts"() {
     "use strict";
     init_artifacts();
     init_config();
     init_execution_records();
+    init_retrieval_records();
     init_graph();
     init_impact();
     init_projections();
@@ -17931,7 +18116,7 @@ var init_project = __esm({
     init_utils();
     init_record_validation();
     init_errors();
-    import_fast_glob6 = __toESM(require_out4(), 1);
+    import_fast_glob7 = __toESM(require_out4(), 1);
     init_record_validation();
     init_project_lock();
   }
@@ -17959,7 +18144,7 @@ async function loadCurrentState(root2) {
   if (!candidate || typeof candidate !== "object" || Array.isArray(candidate)) throw new SdlcError(`Invalid state schema: ${file}`);
   const state = candidate;
   const questionAges = state.question_first_baseline;
-  const valid = Object.keys(state).every((key) => ["schema_version", "project_id", "active_baseline", "evidence_revision", "next_change", "next_flow", "next_execution", "id_registry", "question_first_baseline"].includes(key)) && state.schema_version === 1 && typeof state.project_id === "string" && /^[a-z0-9][a-z0-9-]*$/.test(state.project_id) && (state.active_baseline === null || /^BL-[0-9]{3,}$/.test(state.active_baseline)) && [state.evidence_revision, state.next_change, state.next_flow, state.next_execution].every(Number.isInteger) && state.evidence_revision >= 0 && state.next_change >= 1 && state.next_flow >= 1 && state.next_execution >= 1 && Boolean(state.id_registry) && typeof state.id_registry === "object" && !Array.isArray(state.id_registry) && Object.keys(state.id_registry).every((key) => /^[A-Z][A-Z0-9-]*$/.test(key)) && Object.values(state.id_registry).every((value) => typeof value === "string") && (questionAges === void 0 || typeof questionAges === "object" && questionAges !== null && !Array.isArray(questionAges) && Object.keys(questionAges).every((key) => /^QST-[A-Z0-9-]+$/.test(key)) && Object.values(questionAges).every((value) => typeof value === "string" && /^BL-[0-9]{3,}$/.test(value)));
+  const valid = Object.keys(state).every((key) => ["schema_version", "project_id", "active_baseline", "evidence_revision", "next_change", "next_flow", "next_execution", "id_registry", "question_first_baseline", "next_retrieval", "next_query"].includes(key)) && state.schema_version === 1 && typeof state.project_id === "string" && /^[a-z0-9][a-z0-9-]*$/.test(state.project_id) && (state.active_baseline === null || /^BL-[0-9]{3,}$/.test(state.active_baseline)) && [state.evidence_revision, state.next_change, state.next_flow, state.next_execution].every(Number.isInteger) && state.evidence_revision >= 0 && state.next_change >= 1 && state.next_flow >= 1 && state.next_execution >= 1 && (state.next_retrieval === void 0 || Number.isInteger(state.next_retrieval) && state.next_retrieval >= 1) && (state.next_query === void 0 || Number.isInteger(state.next_query) && state.next_query >= 1) && Boolean(state.id_registry) && typeof state.id_registry === "object" && !Array.isArray(state.id_registry) && Object.keys(state.id_registry).every((key) => /^[A-Z][A-Z0-9-]*$/.test(key)) && Object.values(state.id_registry).every((value) => typeof value === "string") && (questionAges === void 0 || typeof questionAges === "object" && questionAges !== null && !Array.isArray(questionAges) && Object.keys(questionAges).every((key) => /^QST-[A-Z0-9-]+$/.test(key)) && Object.values(questionAges).every((value) => typeof value === "string" && /^BL-[0-9]{3,}$/.test(value)));
   if (!valid) throw new SdlcError(`Invalid state schema: ${file}`);
   return state;
 }
@@ -18077,6 +18262,184 @@ var init_state = __esm({
   }
 });
 
+// src/core/firecrawl.ts
+var firecrawl_exports = {};
+__export(firecrawl_exports, {
+  detectFirecrawlVersion: () => detectFirecrawlVersion,
+  firecrawlCrawl: () => firecrawlCrawl,
+  firecrawlMap: () => firecrawlMap,
+  firecrawlReady: () => firecrawlReady,
+  firecrawlScrape: () => firecrawlScrape
+});
+function headers(config) {
+  return {
+    "Content-Type": "application/json",
+    ...config.key ? { Authorization: `Bearer ${config.key}` } : {}
+  };
+}
+function isRecord2(value) {
+  return Boolean(value) && typeof value === "object" && !Array.isArray(value);
+}
+async function firecrawlReady(config, timeoutMs) {
+  try {
+    const response = await fetch(`${config.url}/v0/health/readiness`, { signal: AbortSignal.timeout(timeoutMs) });
+    return { ready: response.ok, status: response.status };
+  } catch {
+    return { ready: false };
+  }
+}
+async function detectFirecrawlVersion(config, timeoutMs) {
+  for (const version of ["v2", "v1"]) {
+    let status;
+    try {
+      const response = await fetch(`${config.url}/${version}/scrape`, {
+        method: "POST",
+        headers: headers(config),
+        body: "{}",
+        signal: AbortSignal.timeout(timeoutMs)
+      });
+      status = response.status;
+    } catch (error) {
+      throw new SdlcError(`Firecrawl is unreachable: ${String(error)}`);
+    }
+    if (status !== 404) return version;
+  }
+  throw new SdlcError("Firecrawl exposes neither /v2/scrape nor /v1/scrape; is the URL pointing at a Firecrawl instance?");
+}
+function parsePage(requested, data) {
+  if (!isRecord2(data) || typeof data.markdown !== "string") throw new SdlcError("Firecrawl returned no markdown body.");
+  const metadata = isRecord2(data.metadata) ? data.metadata : {};
+  const source = typeof metadata.sourceURL === "string" && metadata.sourceURL.length > 0 ? metadata.sourceURL : requested;
+  return {
+    url: source,
+    markdown: data.markdown,
+    ...typeof metadata.title === "string" && metadata.title.length > 0 ? { title: metadata.title } : {},
+    ...typeof metadata.statusCode === "number" ? { status_code: metadata.statusCode } : {}
+  };
+}
+async function firecrawlError(operation, response) {
+  let detail = "";
+  try {
+    const body = await response.json();
+    if (isRecord2(body) && typeof body.error === "string") detail = `: ${body.error}`;
+  } catch {
+  }
+  return new SdlcError(`Firecrawl ${operation} failed: HTTP ${response.status}${detail}`);
+}
+async function firecrawlScrape(config, version, url, opts) {
+  let response;
+  try {
+    response = await fetch(`${config.url}/${version}/scrape`, {
+      method: "POST",
+      headers: headers(config),
+      body: JSON.stringify({
+        url,
+        formats: ["markdown"],
+        onlyMainContent: true,
+        ...opts.waitFor && opts.waitFor > 0 ? { waitFor: opts.waitFor } : {},
+        timeout: opts.timeoutMs
+      }),
+      // The page itself may legitimately take the full scrape budget; the
+      // HTTP deadline leaves headroom so the server's own timeout answers first.
+      signal: AbortSignal.timeout(opts.timeoutMs + 5e3)
+    });
+  } catch (error) {
+    throw new SdlcError(`Firecrawl is unreachable: ${String(error)}`);
+  }
+  if (!response.ok) throw await firecrawlError("scrape", response);
+  const parsed = await response.json();
+  if (!isRecord2(parsed) || parsed.success !== true) throw new SdlcError("Firecrawl scrape did not succeed.");
+  return parsePage(url, parsed.data);
+}
+async function firecrawlMap(config, version, url, opts) {
+  let response;
+  try {
+    response = await fetch(`${config.url}/${version}/map`, {
+      method: "POST",
+      headers: headers(config),
+      body: JSON.stringify({
+        url,
+        ...opts.search ? { search: opts.search } : {},
+        ...opts.limit && opts.limit > 0 ? { limit: opts.limit } : {}
+      }),
+      signal: AbortSignal.timeout(opts.timeoutMs)
+    });
+  } catch (error) {
+    throw new SdlcError(`Firecrawl is unreachable: ${String(error)}`);
+  }
+  if (!response.ok) throw await firecrawlError("map", response);
+  const parsed = await response.json();
+  if (!isRecord2(parsed) || parsed.success !== true || !Array.isArray(parsed.links)) throw new SdlcError("Firecrawl map did not return links.");
+  const links = [];
+  for (const item of parsed.links) {
+    if (typeof item === "string" && item.length > 0) links.push({ url: item });
+    else if (isRecord2(item) && typeof item.url === "string" && item.url.length > 0) {
+      links.push({ url: item.url, ...typeof item.title === "string" && item.title.length > 0 ? { title: item.title } : {} });
+    }
+  }
+  return links;
+}
+async function firecrawlCrawl(config, version, url, opts) {
+  let submit;
+  try {
+    submit = await fetch(`${config.url}/${version}/crawl`, {
+      method: "POST",
+      headers: headers(config),
+      body: JSON.stringify({
+        url,
+        limit: opts.limit,
+        ...opts.includePaths && opts.includePaths.length > 0 ? { includePaths: opts.includePaths } : {},
+        scrapeOptions: {
+          formats: ["markdown"],
+          onlyMainContent: true,
+          ...opts.waitFor && opts.waitFor > 0 ? { waitFor: opts.waitFor } : {}
+        }
+      }),
+      signal: AbortSignal.timeout(opts.requestTimeoutMs)
+    });
+  } catch (error) {
+    throw new SdlcError(`Firecrawl is unreachable: ${String(error)}`);
+  }
+  if (!submit.ok) throw await firecrawlError("crawl", submit);
+  const submitted = await submit.json();
+  if (!isRecord2(submitted) || typeof submitted.id !== "string" || submitted.id.length === 0) throw new SdlcError("Firecrawl crawl did not return a job ID.");
+  const deadline = Date.now() + opts.pollTimeoutMs;
+  for (; ; ) {
+    let poll;
+    try {
+      poll = await fetch(`${config.url}/${version}/crawl/${submitted.id}`, { headers: headers(config), signal: AbortSignal.timeout(opts.requestTimeoutMs) });
+    } catch (error) {
+      throw new SdlcError(`Firecrawl is unreachable while polling crawl ${submitted.id}: ${String(error)}`);
+    }
+    if (!poll.ok) throw await firecrawlError("crawl status", poll);
+    const status = await poll.json();
+    if (!isRecord2(status)) throw new SdlcError("Firecrawl crawl status is unreadable.");
+    if (status.status === "completed") {
+      const pages = [];
+      if (Array.isArray(status.data)) {
+        for (const item of status.data) {
+          if (!isRecord2(item) || typeof item.markdown !== "string") continue;
+          const metadata = isRecord2(item.metadata) ? item.metadata : {};
+          const source = typeof metadata.sourceURL === "string" && metadata.sourceURL.length > 0 ? metadata.sourceURL : url;
+          pages.push(parsePage(source, item));
+        }
+      }
+      return pages;
+    }
+    if (status.status === "failed" || status.status === "cancelled") throw new SdlcError(`Firecrawl crawl ${submitted.id} ended as ${String(status.status)}.`);
+    if (Date.now() >= deadline) throw new SdlcError(`Firecrawl crawl ${submitted.id} exceeded the ${opts.pollTimeoutMs}ms poll budget.`);
+    await delay2(2e3);
+  }
+}
+var delay2;
+var init_firecrawl = __esm({
+  "src/core/firecrawl.ts"() {
+    "use strict";
+    init_errors();
+    delay2 = (ms) => new Promise((resolve3) => setTimeout(resolve3, ms));
+  }
+});
+
 // node_modules/commander/esm.mjs
 var import_index = __toESM(require_commander(), 1);
 var {
@@ -18098,18 +18461,18 @@ var {
 import { resolve as resolve2 } from "node:path";
 
 // src/core/template.ts
-var import_fast_glob7 = __toESM(require_out4(), 1);
+var import_fast_glob8 = __toESM(require_out4(), 1);
 init_errors();
 init_paths();
 init_state();
 init_project_lock();
 init_utils();
-import { lstat as lstat3, mkdir as mkdir4, readFile as readFile7, realpath as realpath3, writeFile as writeFile3 } from "node:fs/promises";
-import path10 from "node:path";
+import { lstat as lstat3, mkdir as mkdir4, readFile as readFile7, realpath as realpath3, writeFile as writeFile4 } from "node:fs/promises";
+import path11 from "node:path";
 async function assertNoSymlinkAncestor(root2, target) {
-  let current = path10.dirname(target);
-  const boundary = path10.resolve(root2);
-  while (isWithin(boundary, current) && path10.resolve(current) !== boundary) {
+  let current = path11.dirname(target);
+  const boundary = path11.resolve(root2);
+  while (isWithin(boundary, current) && path11.resolve(current) !== boundary) {
     try {
       const info = await lstat3(current);
       if (info.isSymbolicLink()) throw new SdlcError(`Initialization refuses symlinked destination directories: ${current}`);
@@ -18118,7 +18481,7 @@ async function assertNoSymlinkAncestor(root2, target) {
       if (error instanceof SdlcError) throw error;
       if (error.code !== "ENOENT") throw error;
     }
-    current = path10.dirname(current);
+    current = path11.dirname(current);
   }
 }
 async function assertSafeSource(sourceRoot, source) {
@@ -18129,16 +18492,16 @@ async function assertSafeSource(sourceRoot, source) {
   if (!isWithin(realRoot, realSource)) throw new SdlcError(`Initialization source resolves outside its root: ${source}`);
 }
 async function copyPlan(root2, templateRoot, patternRoot) {
-  if (!await pathExists(path10.join(patternRoot, "catalog.yaml")) && !await pathExists(path10.join(patternRoot, "catalog.yml"))) {
+  if (!await pathExists(path11.join(patternRoot, "catalog.yaml")) && !await pathExists(path11.join(patternRoot, "catalog.yml"))) {
     throw new SdlcError(`Pattern catalog is missing from ${patternRoot}.`);
   }
-  const templateFiles = await (0, import_fast_glob7.default)("**/*", { cwd: templateRoot, onlyFiles: true, dot: true, followSymbolicLinks: false });
-  const patternFiles = await (0, import_fast_glob7.default)("**/*", { cwd: patternRoot, onlyFiles: true, dot: true, followSymbolicLinks: false });
+  const templateFiles = await (0, import_fast_glob8.default)("**/*", { cwd: templateRoot, onlyFiles: true, dot: true, followSymbolicLinks: false });
+  const patternFiles = await (0, import_fast_glob8.default)("**/*", { cwd: patternRoot, onlyFiles: true, dot: true, followSymbolicLinks: false });
   const plan = [
-    ...templateFiles.map((relative) => ({ source: path10.join(templateRoot, relative), target: path10.join(root2, relative), relative, substitute: true })),
-    ...patternFiles.map((relative) => ({ source: path10.join(patternRoot, relative), target: path10.join(root2, "00-system", "patterns", relative), relative: `00-system/patterns/${relative.replaceAll("\\", "/")}`, substitute: false }))
+    ...templateFiles.map((relative) => ({ source: path11.join(templateRoot, relative), target: path11.join(root2, relative), relative, substitute: true })),
+    ...patternFiles.map((relative) => ({ source: path11.join(patternRoot, relative), target: path11.join(root2, "00-system", "patterns", relative), relative: `00-system/patterns/${relative.replaceAll("\\", "/")}`, substitute: false }))
   ];
-  const targets = plan.map((item) => path10.resolve(item.target));
+  const targets = plan.map((item) => path11.resolve(item.target));
   if (new Set(targets).size !== targets.length) throw new SdlcError("Project skeleton and pattern snapshot define the same destination path.");
   for (const item of plan) await assertSafeSource(item.substitute ? templateRoot : patternRoot, item.source);
   return plan;
@@ -18153,24 +18516,24 @@ async function initializeProjectUnlocked(root2, templateRoot, patternRoot, proje
     await assertNoSymlinkAncestor(root2, item.target);
     if (await pathExists(item.target)) conflicts.push(item.relative);
   }
-  const snapshotFile = path10.join(root2, "00-system", "patterns", "snapshot.json");
+  const snapshotFile = path11.join(root2, "00-system", "patterns", "snapshot.json");
   await assertNoSymlinkAncestor(root2, snapshotFile);
   if (await pathExists(snapshotFile)) conflicts.push("00-system/patterns/snapshot.json");
   if (conflicts.length > 0) throw new SdlcError(`Initialization would overwrite existing files: ${conflicts.join(", ")}`);
   for (const item of plan.sort((a, b2) => a.relative.localeCompare(b2.relative))) {
-    await mkdir4(path10.dirname(item.target), { recursive: true });
+    await mkdir4(path11.dirname(item.target), { recursive: true });
     const sourceContent = await readFile7(item.source, "utf8");
     const content = item.substitute ? sourceContent.replaceAll("{{PROJECT_ID}}", projectId).replaceAll("{{RAW_IDEA}}", idea === "" ? "Not provided. Invoke /ai-saas-sdlc:genesis with the raw idea." : idea) : sourceContent;
-    await writeFile3(item.target, content, { encoding: "utf8", flag: "wx" });
+    await writeFile4(item.target, content, { encoding: "utf8", flag: "wx" });
   }
-  const pinnedRoot = path10.join(root2, "00-system", "patterns");
-  const pinnedFiles = await (0, import_fast_glob7.default)("**/*", { cwd: pinnedRoot, onlyFiles: true, dot: true, followSymbolicLinks: false });
+  const pinnedRoot = path11.join(root2, "00-system", "patterns");
+  const pinnedFiles = await (0, import_fast_glob8.default)("**/*", { cwd: pinnedRoot, onlyFiles: true, dot: true, followSymbolicLinks: false });
   const patternHashes = [];
   for (const relative of pinnedFiles.sort()) {
-    const content = await readFile7(path10.join(pinnedRoot, relative), "utf8");
+    const content = await readFile7(path11.join(pinnedRoot, relative), "utf8");
     patternHashes.push(`00-system/patterns/${relative.replaceAll("\\", "/")}:${sha256(content)}`);
   }
-  await writeFile3(snapshotFile, stableJson({ schema_version: 1, catalog_hash: sha256(patternHashes.join("\n")), files: patternHashes.length }), { encoding: "utf8", flag: "wx" });
+  await writeFile4(snapshotFile, stableJson({ schema_version: 1, catalog_hash: sha256(patternHashes.join("\n")), files: patternHashes.length }), { encoding: "utf8", flag: "wx" });
   const state = {
     schema_version: 1,
     project_id: projectId,
@@ -18186,10 +18549,11 @@ async function initializeProjectUnlocked(root2, templateRoot, patternRoot, proje
   await Promise.all([
     mkdir4(paths.changes, { recursive: true }),
     mkdir4(paths.executions, { recursive: true }),
+    mkdir4(paths.retrievals, { recursive: true }),
     mkdir4(paths.cache, { recursive: true })
   ]);
 }
-async function initializeProject(root2, templateRoot, projectId, idea, patternRoot = path10.resolve(templateRoot, "..", "artifact-patterns")) {
+async function initializeProject(root2, templateRoot, projectId, idea, patternRoot = path11.resolve(templateRoot, "..", "artifact-patterns")) {
   return withProjectLock(root2, () => initializeProjectUnlocked(root2, templateRoot, patternRoot, projectId, idea));
 }
 
@@ -18281,15 +18645,16 @@ init_project();
 // src/core/engine-pointer.ts
 init_paths();
 init_state();
-import path11 from "node:path";
-import { mkdir as mkdir5, readFile as readFile8, writeFile as writeFile4 } from "node:fs/promises";
-var ENGINE_POINTER_FILE = path11.join(INTERNAL_DIR, "engine.json");
+import path12 from "node:path";
+import { mkdir as mkdir5, readFile as readFile8, writeFile as writeFile5 } from "node:fs/promises";
+var ENGINE_POINTER_FILE = path12.join(INTERNAL_DIR, "engine.json");
 var IGNORE_ENTRY = ".ai-saas-sdlc/engine.json";
+var RESEARCH_POLICY_IGNORE_ENTRY = ".ai-saas-sdlc/research-tools.json";
 function quoted(target) {
   return `node "${target.replace(/\\/g, "/")}"`;
 }
 function buildEnginePointer(runtimeRoot2, pluginVersion) {
-  const enginePath = path11.join(runtimeRoot2, "bin", "ai-saas-sdlc");
+  const enginePath = path12.join(runtimeRoot2, "bin", "ai-saas-sdlc");
   return {
     schema_version: 1,
     plugin_version: pluginVersion,
@@ -18298,7 +18663,7 @@ function buildEnginePointer(runtimeRoot2, pluginVersion) {
   };
 }
 async function recordEnginePointer(root2, runtimeRoot2, pluginVersion) {
-  const target = path11.join(root2, ENGINE_POINTER_FILE);
+  const target = path12.join(root2, ENGINE_POINTER_FILE);
   const pointer = buildEnginePointer(runtimeRoot2, pluginVersion);
   const serialized = `${JSON.stringify(pointer, null, 2)}
 `;
@@ -18306,17 +18671,23 @@ async function recordEnginePointer(root2, runtimeRoot2, pluginVersion) {
     const existing = await readFile8(target, "utf8").catch(() => "");
     if (existing === serialized) return;
   }
-  await mkdir5(path11.dirname(target), { recursive: true });
-  await writeFile4(target, serialized, "utf8");
+  await mkdir5(path12.dirname(target), { recursive: true });
+  await writeFile5(target, serialized, "utf8");
 }
-async function ensureEnginePointerIgnored(root2) {
-  const target = path11.join(root2, ".gitignore");
+async function ensureIgnoredEntry(root2, entry) {
+  const target = path12.join(root2, ".gitignore");
   const existing = await pathExists(target) ? await readFile8(target, "utf8").catch(() => "") : "";
-  if (existing.split(/\r?\n/).some((line) => line.trim() === IGNORE_ENTRY)) return;
+  if (existing.split(/\r?\n/).some((line) => line.trim() === entry)) return;
   const prefix = existing === "" || existing.endsWith("\n") ? existing : `${existing}
 `;
-  await writeFile4(target, `${prefix}${IGNORE_ENTRY}
+  await writeFile5(target, `${prefix}${entry}
 `, "utf8");
+}
+async function ensureEnginePointerIgnored(root2) {
+  await ensureIgnoredEntry(root2, IGNORE_ENTRY);
+}
+async function ensureResearchPolicyIgnored(root2) {
+  await ensureIgnoredEntry(root2, RESEARCH_POLICY_IGNORE_ENTRY);
 }
 
 // src/cli/main.ts
@@ -18333,19 +18704,19 @@ init_paths();
 init_paths();
 init_utils();
 init_record_validation();
-import { readFile as readFile13 } from "node:fs/promises";
-import path17 from "node:path";
+import { readFile as readFile14 } from "node:fs/promises";
+import path19 from "node:path";
 
 // src/core/internal-validation.ts
-var import_fast_glob8 = __toESM(require_out4(), 1);
-import path13 from "node:path";
-import { readdir as readdir3 } from "node:fs/promises";
+var import_fast_glob9 = __toESM(require_out4(), 1);
+import path15 from "node:path";
+import { readdir as readdir4 } from "node:fs/promises";
 
 // src/core/execution-provenance.ts
 init_paths();
 init_state();
 import { readFile as readFile9 } from "node:fs/promises";
-import path12 from "node:path";
+import path13 from "node:path";
 
 // src/core/result-artifact.ts
 var NOT_REPORTED = "not reported by configured command";
@@ -18443,7 +18814,7 @@ async function executionProvenanceIssues(root2, record2) {
   const expectedOutput = `.ai-saas-sdlc/executions/${record2.id}.log`;
   if (record2.output_file.replaceAll("\\", "/") !== expectedOutput) issues.push(`output_file must be ${expectedOutput}`);
   if (Date.parse(record2.ended_at) < Date.parse(record2.started_at)) issues.push("ended_at precedes started_at");
-  const logFile = path12.resolve(root2, record2.output_file);
+  const logFile = path13.resolve(root2, record2.output_file);
   if (!isWithin(projectPaths(root2).executions, logFile)) issues.push("output_file escapes executions directory");
   else if (!await pathExists(logFile)) issues.push("execution log is missing");
   else {
@@ -18462,6 +18833,43 @@ function resultBindingIssues(artifact2, record2) {
   if (artifact2.id !== `RESULT-${record2.id}`) issues.push(`result ID must be RESULT-${record2.id}`);
   if (artifact2.execution_id !== record2.id) issues.push(`execution_id must be ${record2.id}`);
   if (artifact2.hash !== sha256(renderResultArtifact(record2, artifact2.created_by_change))) issues.push("result content does not match its execution record");
+  return issues;
+}
+
+// src/core/retrieval-provenance.ts
+init_paths();
+init_state();
+init_retrieval_records();
+init_utils();
+import { readFile as readFile10 } from "node:fs/promises";
+import path14 from "node:path";
+async function retrievalProvenanceIssues(root2, record2) {
+  const issues = [];
+  if (Date.parse(record2.ended_at) < Date.parse(record2.started_at)) issues.push("ended_at precedes started_at");
+  const bodyFile = path14.resolve(root2, retrievalBodyFile(record2.id));
+  if (!record2.ok) {
+    if (await pathExists(bodyFile)) issues.push("failed retrieval must not have a body file");
+    return issues;
+  }
+  const expected = retrievalBodyFile(record2.id);
+  if (record2.body_file?.replaceAll("\\", "/") !== expected) issues.push(`body_file must be ${expected}`);
+  if (!isWithin(projectPaths(root2).retrievals, bodyFile)) issues.push("body_file escapes retrievals directory");
+  else if (!await pathExists(bodyFile)) issues.push("retrieval body is missing");
+  else {
+    try {
+      await assertSafeManagedPath(root2, bodyFile);
+      if (!await isRealPathWithin(projectPaths(root2).retrievals, bodyFile)) issues.push("retrieval body escapes through a symlink");
+      else if (sha256(await readFile10(bodyFile, "utf8")) !== record2.body_hash) issues.push("retrieval body digest does not match body_hash");
+    } catch {
+      issues.push("retrieval body cannot be resolved safely");
+    }
+  }
+  return issues;
+}
+function queryProvenanceIssues(record2) {
+  const issues = [];
+  if (Date.parse(record2.ended_at) < Date.parse(record2.started_at)) issues.push("ended_at precedes started_at");
+  if (record2.results && record2.result_count !== void 0 && record2.results.length > record2.result_count) issues.push("results exceed result_count");
   return issues;
 }
 
@@ -18487,20 +18895,20 @@ async function validateInternalRecords(root2, artifacts) {
   let executionsSafe = true;
   if (await pathExists(projectPaths(root2).executions)) {
     try {
-      await assertSafeManagedPath(root2, path13.join(projectPaths(root2).executions, ".managed-probe"));
+      await assertSafeManagedPath(root2, path15.join(projectPaths(root2).executions, ".managed-probe"));
     } catch {
       executionsSafe = false;
     }
     if (!executionsSafe) findings.push({ severity: "error", code: "INTERNAL_PATH_ESCAPE", message: "Execution records directory escapes the project through a symlink" });
   }
   if (executionsSafe && await pathExists(projectPaths(root2).executions)) {
-    for (const entry of await readdir3(projectPaths(root2).executions, { withFileTypes: true })) if (entry.isSymbolicLink()) findings.push({ severity: "error", code: "INTERNAL_RECORD_SYMLINK", message: `Execution record entry cannot be a symlink: ${entry.name}` });
-    const jsonFiles = await (0, import_fast_glob8.default)("*.json", { cwd: projectPaths(root2).executions, absolute: true, followSymbolicLinks: false });
+    for (const entry of await readdir4(projectPaths(root2).executions, { withFileTypes: true })) if (entry.isSymbolicLink()) findings.push({ severity: "error", code: "INTERNAL_RECORD_SYMLINK", message: `Execution record entry cannot be a symlink: ${entry.name}` });
+    const jsonFiles = await (0, import_fast_glob9.default)("*.json", { cwd: projectPaths(root2).executions, absolute: true, followSymbolicLinks: false });
     for (const file of jsonFiles) {
       try {
         await assertSafeManagedPath(root2, file);
         const record2 = await readJson(file);
-        if (!isExecutionRecord(record2) || path13.basename(file) !== `${record2.id}.json`) throw new Error("schema or filename mismatch");
+        if (!isExecutionRecord(record2) || path15.basename(file) !== `${record2.id}.json`) throw new Error("schema or filename mismatch");
         executions.set(record2.id, record2);
         for (const issue of await executionProvenanceIssues(root2, record2)) findings.push({ severity: "error", code: "EXECUTION_PROVENANCE_INVALID", message: `${record2.id}: ${issue}` });
         const result = resultByExecution.get(record2.id);
@@ -18510,47 +18918,87 @@ async function validateInternalRecords(root2, artifacts) {
         findings.push({ severity: "error", code: "EXECUTION_INVALID", message: `Invalid execution record ${file}: ${String(error)}` });
       }
     }
-    const logFiles = await (0, import_fast_glob8.default)("*.log", { cwd: projectPaths(root2).executions, followSymbolicLinks: false });
+    const logFiles = await (0, import_fast_glob9.default)("*.log", { cwd: projectPaths(root2).executions, followSymbolicLinks: false });
     for (const log of logFiles) {
-      const executionId = path13.basename(log, ".log");
+      const executionId = path15.basename(log, ".log");
       if (!executions.has(executionId)) findings.push({ severity: "error", code: "EXECUTION_LOG_ORPHAN", message: `${log} has no execution record` });
     }
   }
   for (const [executionId, result] of resultByExecution) {
     if (!executions.has(executionId)) findings.push({ severity: "error", code: "RESULT_WITHOUT_EXECUTION", message: `${result.id} references missing execution ${executionId}`, file: result.file });
   }
+  const retrievalRecords = /* @__PURE__ */ new Map();
+  const queryRecords = /* @__PURE__ */ new Map();
+  let retrievalsSafe = true;
+  if (await pathExists(projectPaths(root2).retrievals)) {
+    try {
+      await assertSafeManagedPath(root2, path15.join(projectPaths(root2).retrievals, ".managed-probe"));
+    } catch {
+      retrievalsSafe = false;
+    }
+    if (!retrievalsSafe) findings.push({ severity: "error", code: "INTERNAL_PATH_ESCAPE", message: "Retrieval records directory escapes the project through a symlink" });
+  }
+  if (retrievalsSafe && await pathExists(projectPaths(root2).retrievals)) {
+    for (const entry of await readdir4(projectPaths(root2).retrievals, { withFileTypes: true })) if (entry.isSymbolicLink()) findings.push({ severity: "error", code: "INTERNAL_RECORD_SYMLINK", message: `Retrieval record entry cannot be a symlink: ${entry.name}` });
+    const jsonFiles = await (0, import_fast_glob9.default)("*.json", { cwd: projectPaths(root2).retrievals, absolute: true, followSymbolicLinks: false });
+    for (const file of jsonFiles) {
+      const name = path15.basename(file);
+      try {
+        await assertSafeManagedPath(root2, file);
+        const record2 = await readJson(file);
+        if (name.startsWith("RET-")) {
+          if (!isRetrievalRecord(record2) || name !== `${record2.id}.json`) throw new Error("schema or filename mismatch");
+          retrievalRecords.set(record2.id, record2);
+          for (const issue of await retrievalProvenanceIssues(root2, record2)) findings.push({ severity: "error", code: "RETRIEVAL_PROVENANCE_INVALID", message: `${record2.id}: ${issue}` });
+        } else if (name.startsWith("QRY-")) {
+          if (!isQueryRecord(record2) || name !== `${record2.id}.json`) throw new Error("schema or filename mismatch");
+          queryRecords.set(record2.id, record2);
+          for (const issue of queryProvenanceIssues(record2)) findings.push({ severity: "error", code: "RETRIEVAL_PROVENANCE_INVALID", message: `${record2.id}: ${issue}` });
+        } else {
+          throw new Error("unrecognized record name");
+        }
+      } catch (error) {
+        findings.push({ severity: "error", code: "RETRIEVAL_INVALID", message: `Invalid retrieval record ${file}: ${String(error)}` });
+      }
+    }
+    const bodyFiles = await (0, import_fast_glob9.default)("*.md", { cwd: projectPaths(root2).retrievals, followSymbolicLinks: false });
+    for (const body of bodyFiles) {
+      const retrievalId = path15.basename(body, ".md");
+      if (!retrievalRecords.has(retrievalId)) findings.push({ severity: "error", code: "RETRIEVAL_BODY_ORPHAN", message: `${body} has no retrieval record` });
+    }
+  }
   const changes = /* @__PURE__ */ new Map();
   let changesSafe = true;
   if (await pathExists(projectPaths(root2).changes)) {
     try {
-      await assertSafeManagedPath(root2, path13.join(projectPaths(root2).changes, ".managed-probe"));
+      await assertSafeManagedPath(root2, path15.join(projectPaths(root2).changes, ".managed-probe"));
     } catch {
       changesSafe = false;
     }
     if (!changesSafe) findings.push({ severity: "error", code: "INTERNAL_PATH_ESCAPE", message: "Change records directory escapes the project through a symlink" });
   }
   if (changesSafe && await pathExists(projectPaths(root2).changes)) {
-    for (const entry of await readdir3(projectPaths(root2).changes, { withFileTypes: true })) if (entry.isSymbolicLink()) findings.push({ severity: "error", code: "INTERNAL_RECORD_SYMLINK", message: `Change record entry cannot be a symlink: ${entry.name}` });
-    const files = await (0, import_fast_glob8.default)("*.json", { cwd: projectPaths(root2).changes, absolute: true, followSymbolicLinks: false });
+    for (const entry of await readdir4(projectPaths(root2).changes, { withFileTypes: true })) if (entry.isSymbolicLink()) findings.push({ severity: "error", code: "INTERNAL_RECORD_SYMLINK", message: `Change record entry cannot be a symlink: ${entry.name}` });
+    const files = await (0, import_fast_glob9.default)("*.json", { cwd: projectPaths(root2).changes, absolute: true, followSymbolicLinks: false });
     for (const file of files) {
       try {
         await assertSafeManagedPath(root2, file);
         const change = await readJson(file);
-        if (!isChangeRecord(change) || path13.basename(file) !== `${change.id}.json`) throw new Error("schema or filename mismatch");
+        if (!isChangeRecord(change) || path15.basename(file) !== `${change.id}.json`) throw new Error("schema or filename mismatch");
         changes.set(change.id, change);
       } catch (error) {
         findings.push({ severity: "error", code: "CHANGE_RECORD_INVALID", message: `Invalid change record ${file}: ${String(error)}` });
       }
     }
   }
-  const resultDirectory = path13.join(root2, "04-verification", "results");
+  const resultDirectory = path15.join(root2, "04-verification", "results");
   if (await pathExists(resultDirectory)) {
-    for (const entry of await readdir3(resultDirectory, { withFileTypes: true })) if (entry.isSymbolicLink()) findings.push({ severity: "error", code: "RESULT_PATH_INVALID", message: `Result entry cannot be a symlink: ${entry.name}` });
+    for (const entry of await readdir4(resultDirectory, { withFileTypes: true })) if (entry.isSymbolicLink()) findings.push({ severity: "error", code: "RESULT_PATH_INVALID", message: `Result entry cannot be a symlink: ${entry.name}` });
   }
   for (const artifact2 of artifacts) {
     if (artifact2.artifact_type === "test_result") {
       try {
-        await assertSafeManagedPath(root2, path13.join(root2, artifact2.file));
+        await assertSafeManagedPath(root2, path15.join(root2, artifact2.file));
       } catch (error) {
         findings.push({ severity: "error", code: "RESULT_PATH_INVALID", message: `${artifact2.id}: ${String(error)}`, file: artifact2.file });
       }
@@ -18582,6 +19030,10 @@ async function validateInternalRecords(root2, artifacts) {
     if (state.next_execution <= maxExecution) findings.push({ severity: "error", code: "EXECUTION_COUNTER_REUSED", message: `next_execution must be greater than existing EXEC-${String(maxExecution).padStart(3, "0")}` });
     if (state.next_change <= maxChange) findings.push({ severity: "error", code: "CHANGE_COUNTER_REUSED", message: `next_change must be greater than existing CHG-${String(maxChange).padStart(3, "0")}` });
     if (state.next_flow <= maxFlow) findings.push({ severity: "error", code: "FLOW_COUNTER_REUSED", message: `next_flow must be greater than existing flow ${maxFlow}` });
+    const maxRetrieval = Math.max(0, ...[...retrievalRecords.keys()].map(numberOf));
+    const maxQuery = Math.max(0, ...[...queryRecords.keys()].map(numberOf));
+    if ((state.next_retrieval ?? 1) <= maxRetrieval) findings.push({ severity: "error", code: "RETRIEVAL_COUNTER_REUSED", message: `next_retrieval must be greater than existing RET-${String(maxRetrieval).padStart(3, "0")}` });
+    if ((state.next_query ?? 1) <= maxQuery) findings.push({ severity: "error", code: "RETRIEVAL_COUNTER_REUSED", message: `next_query must be greater than existing QRY-${String(maxQuery).padStart(3, "0")}` });
     if (activeFlow?.change_id) {
       const change = changes.get(activeFlow.change_id);
       if (!change || change.flow_id !== activeFlow.id || change.type !== activeFlow.type) findings.push({ severity: "error", code: "ACTIVE_CHANGE_MISMATCH", message: `${activeFlow.id} does not match ${activeFlow.change_id}` });
@@ -18672,25 +19124,25 @@ var CANONICAL_TYPES = new Set(Object.values(CANONICAL_MARKDOWN).map(([, type]) =
 
 // src/core/content-contracts.ts
 init_types();
-import { readFile as readFile12 } from "node:fs/promises";
-import path16 from "node:path";
+import { readFile as readFile13 } from "node:fs/promises";
+import path18 from "node:path";
 
 // src/core/pattern-catalog.ts
 var import_yaml3 = __toESM(require_dist(), 1);
 init_errors();
 init_paths();
 init_state();
-import { lstat as lstat4, readFile as readFile11, realpath as realpath4 } from "node:fs/promises";
-import path15 from "node:path";
+import { lstat as lstat4, readFile as readFile12, realpath as realpath4 } from "node:fs/promises";
+import path17 from "node:path";
 
 // src/core/pattern-snapshot.ts
-var import_fast_glob9 = __toESM(require_out4(), 1);
+var import_fast_glob10 = __toESM(require_out4(), 1);
 init_errors();
 init_paths();
 init_state();
 init_utils();
-import { readFile as readFile10 } from "node:fs/promises";
-import path14 from "node:path";
+import { readFile as readFile11 } from "node:fs/promises";
+import path16 from "node:path";
 function isSnapshot(value) {
   if (!value || typeof value !== "object") return false;
   const row = value;
@@ -18698,17 +19150,17 @@ function isSnapshot(value) {
 }
 async function verifyPatternSnapshot(projectRoot, catalogRoot) {
   if (!isWithin(projectRoot, catalogRoot)) throw new SdlcError("Pinned pattern catalog must be inside the documentation repository.");
-  const snapshotFile = path14.join(catalogRoot, "snapshot.json");
+  const snapshotFile = path16.join(catalogRoot, "snapshot.json");
   if (!await pathExists(snapshotFile)) throw new SdlcError("Pinned pattern snapshot metadata is missing.");
   await assertSafeManagedPath(projectRoot, snapshotFile);
   const snapshot = await readJson(snapshotFile);
   if (!isSnapshot(snapshot)) throw new SdlcError("Pinned pattern snapshot metadata is invalid.");
-  const files = await (0, import_fast_glob9.default)("**/*", { cwd: catalogRoot, onlyFiles: true, dot: true, followSymbolicLinks: false, ignore: ["snapshot.json"] });
+  const files = await (0, import_fast_glob10.default)("**/*", { cwd: catalogRoot, onlyFiles: true, dot: true, followSymbolicLinks: false, ignore: ["snapshot.json"] });
   const hashes = [];
   for (const relative of files.sort()) {
-    const file = path14.join(catalogRoot, relative);
+    const file = path16.join(catalogRoot, relative);
     await assertSafeManagedPath(projectRoot, file);
-    hashes.push(`00-system/patterns/${relative.replaceAll("\\", "/")}:${sha256(await readFile10(file, "utf8"))}`);
+    hashes.push(`00-system/patterns/${relative.replaceAll("\\", "/")}:${sha256(await readFile11(file, "utf8"))}`);
   }
   if (hashes.length !== snapshot.files || sha256(hashes.join("\n")) !== snapshot.catalog_hash) throw new SdlcError("Pinned pattern snapshot was modified; migrate or reinitialize patterns instead of editing them in place.");
 }
@@ -18801,14 +19253,14 @@ async function assertSourceFile(root2, file) {
   if (!isWithin(realRoot, realFile)) throw new SdlcError(`Pattern source resolves outside its catalog root: ${file}`);
 }
 async function loadPatternCatalog(catalogRoot, projectRoot) {
-  const root2 = path15.resolve(catalogRoot);
+  const root2 = path17.resolve(catalogRoot);
   if (projectRoot) await verifyPatternSnapshot(projectRoot, root2);
-  const candidates = [path15.join(root2, "catalog.yaml"), path15.join(root2, "catalog.yml")];
+  const candidates = [path17.join(root2, "catalog.yaml"), path17.join(root2, "catalog.yml")];
   const file = (await Promise.all(candidates.map(async (candidate) => await pathExists(candidate) ? candidate : null))).find(Boolean);
   if (!file) throw new SdlcError(`Pattern catalog is missing from ${root2}.`);
   if (projectRoot) await assertSafeManagedPath(projectRoot, file);
   else await assertSourceFile(root2, file);
-  const raw = import_yaml3.default.parse(await readFile11(file, "utf8"));
+  const raw = import_yaml3.default.parse(await readFile12(file, "utf8"));
   if (!raw || typeof raw !== "object" || Array.isArray(raw)) throw new SdlcError(`Pattern catalog must be a mapping: ${file}`);
   const data = raw;
   const collection = data.patterns ?? data.artifact_patterns;
@@ -18822,18 +19274,18 @@ async function loadPatternCatalog(catalogRoot, projectRoot) {
     } catch {
       throw new SdlcError(`Invalid ID pattern for ${pattern.artifact_type}: ${pattern.id_pattern}`);
     }
-    if (path15.isAbsolute(pattern.template) || path15.isAbsolute(pattern.target) || pattern.target.includes("..")) throw new SdlcError(`Unsafe catalog path for ${pattern.artifact_type}.`);
+    if (path17.isAbsolute(pattern.template) || path17.isAbsolute(pattern.target) || pattern.target.includes("..")) throw new SdlcError(`Unsafe catalog path for ${pattern.artifact_type}.`);
     const exampleId = SCALABLE_EXAMPLE_IDS[pattern.artifact_type];
     const exampleTarget = pattern.target.replaceAll("{{ID}}", exampleId ?? "").replaceAll("{id}", exampleId ?? "").replaceAll("\\", "/");
     if (!exampleId || exampleTarget.includes("{{") || !SCALABLE_LOCATIONS[pattern.artifact_type]?.test(exampleTarget)) throw new SdlcError(`Catalog target violates the approved location for ${pattern.artifact_type}: ${pattern.target}`);
-    await assertSourceFile(root2, path15.resolve(root2, pattern.template));
+    await assertSourceFile(root2, path17.resolve(root2, pattern.template));
   }
   const foundationCollection = data.foundations;
   const foundationEntries = Array.isArray(foundationCollection) ? foundationCollection.map((item) => normalizeFoundation(item)) : foundationCollection && typeof foundationCollection === "object" ? Object.entries(foundationCollection).map(([type, item]) => normalizeFoundation(item, type)) : [];
   const foundations = foundationEntries.filter(Boolean);
   if (foundations.length !== foundationEntries.length) throw new SdlcError(`Pattern catalog contains incomplete foundation entries: ${file}`);
   for (const foundation of foundations) {
-    if (path15.isAbsolute(foundation.path) || foundation.path.split(/[\\/]/).includes("..")) throw new SdlcError(`Unsafe foundation path for ${foundation.artifact_type}.`);
+    if (path17.isAbsolute(foundation.path) || foundation.path.split(/[\\/]/).includes("..")) throw new SdlcError(`Unsafe foundation path for ${foundation.artifact_type}.`);
     const normalizedPath = foundation.path.replaceAll("\\", "/");
     const canonical = CANONICAL_MARKDOWN[normalizedPath];
     if (!canonical || canonical[1] !== foundation.artifact_type) throw new SdlcError(`Foundation contract does not match a canonical path and type: ${foundation.path} (${foundation.artifact_type}).`);
@@ -18848,11 +19300,11 @@ async function loadPatternCatalog(catalogRoot, projectRoot) {
   };
 }
 async function resolveCatalog(root2, runtimeRoot2) {
-  const pinned = path15.join(root2, "00-system", "patterns");
-  const hasPinned = await pathExists(path15.join(pinned, "catalog.yaml")) || await pathExists(path15.join(pinned, "catalog.yml"));
+  const pinned = path17.join(root2, "00-system", "patterns");
+  const hasPinned = await pathExists(path17.join(pinned, "catalog.yaml")) || await pathExists(path17.join(pinned, "catalog.yml"));
   if (hasPinned) return loadPatternCatalog(pinned, root2);
-  if (await pathExists(path15.join(root2, "sdlc.config.yaml"))) throw new SdlcError("Initialized repository is missing its pinned pattern catalog; run an explicit migration before creating artifacts.");
-  return loadPatternCatalog(path15.join(runtimeRoot2, "resources", "artifact-patterns"));
+  if (await pathExists(path17.join(root2, "sdlc.config.yaml"))) throw new SdlcError("Initialized repository is missing its pinned pattern catalog; run an explicit migration before creating artifacts.");
+  return loadPatternCatalog(path17.join(runtimeRoot2, "resources", "artifact-patterns"));
 }
 
 // src/core/content-contracts.ts
@@ -18986,12 +19438,12 @@ async function validateAgainstContract(artifact2, contract, template) {
   return findings;
 }
 async function validateArtifact(artifact2, pattern, catalogRoot) {
-  const template = await readFile12(path16.join(catalogRoot, pattern.template), "utf8");
+  const template = await readFile13(path18.join(catalogRoot, pattern.template), "utf8");
   return validateAgainstContract(artifact2, mergedContract(pattern, deriveContract(template)), template);
 }
 async function validateActiveArtifactContent(root2, artifacts) {
-  const catalogRoot = path16.join(root2, "00-system", "patterns");
-  if (!await pathExists(path16.join(catalogRoot, "catalog.yaml")) && !await pathExists(path16.join(catalogRoot, "catalog.yml"))) {
+  const catalogRoot = path18.join(root2, "00-system", "patterns");
+  if (!await pathExists(path18.join(catalogRoot, "catalog.yaml")) && !await pathExists(path18.join(catalogRoot, "catalog.yml"))) {
     return [{ severity: "error", code: "PATTERN_SNAPSHOT_MISSING", message: "Pinned pattern snapshot is missing; an explicit migration is required before validation or baselining." }];
   }
   const catalog = await loadPatternCatalog(catalogRoot, root2);
@@ -19118,6 +19570,64 @@ function baselinesOpen(firstBaseline, activeBaseline) {
 // src/core/validation.ts
 init_platform_evidence();
 init_execution_records();
+init_retrieval_records();
+
+// src/core/retrieval-evidence.ts
+function evidenceRetrievalEntries(artifacts) {
+  const ledger = artifacts.find((artifact2) => artifact2.artifact_type === "evidence_ledger");
+  if (!ledger) return [];
+  return allSections(ledger.body).filter((section) => /^EVD-[A-Z0-9-]+/.test(section.title)).map((section) => ({
+    evd: section.title.match(/^EVD-[A-Z0-9-]+/)[0],
+    url: section.body.match(/^-\s*URL:\s*<?(https?:\/\/\S+?)>?\s*$/m)?.[1] ?? null,
+    retrieval: section.body.match(/^-\s*Retrieval:\s*(RET-[0-9]{3,})\b/m)?.[1] ?? null,
+    file: ledger.file
+  }));
+}
+function retrievalUrls(record2) {
+  return record2.resolved_url ? [record2.url, record2.resolved_url] : [record2.url];
+}
+function retrievalEvidenceFindings(artifacts, retrievals, queries) {
+  const findings = [];
+  const entries = evidenceRetrievalEntries(artifacts);
+  const okRetrievals = retrievals.filter((record2) => record2.ok);
+  const byId = new Map(retrievals.map((record2) => [record2.id, record2]));
+  for (const entry of entries) {
+    if (entry.retrieval) {
+      const cited = byId.get(entry.retrieval);
+      if (!cited) {
+        findings.push({ severity: "warning", code: "EVD_RETRIEVAL_BROKEN", message: `${entry.evd} cites ${entry.retrieval}, which does not exist under .ai-saas-sdlc/retrievals/.`, file: entry.file });
+      } else if (!cited.ok) {
+        findings.push({ severity: "warning", code: "EVD_RETRIEVAL_BROKEN", message: `${entry.evd} cites ${entry.retrieval}, a failed retrieval with no body; evidence cannot rest on a fetch that did not happen.`, file: entry.file });
+      } else if (entry.url && !retrievalUrls(cited).includes(entry.url)) {
+        findings.push({ severity: "warning", code: "EVD_RETRIEVAL_BROKEN", message: `${entry.evd} cites ${entry.retrieval}, but that record retrieved ${cited.url}, not ${entry.url}.`, file: entry.file });
+      }
+      continue;
+    }
+    if (!entry.url) continue;
+    const matching = okRetrievals.filter((record2) => retrievalUrls(record2).includes(entry.url));
+    if (matching.length > 0) {
+      findings.push({ severity: "warning", code: "EVD_RETRIEVAL_MISSING", message: `${entry.evd} cites ${entry.url}, which the engine retrieved as ${matching.map((record2) => record2.id).join(", ")}; add "- Retrieval: ${matching[matching.length - 1].id}" so the entry names its provenance.`, file: entry.file });
+    }
+  }
+  const evidencedUrls = new Set(entries.map((entry) => entry.url).filter((url) => Boolean(url)));
+  const retrieved = new Set(okRetrievals.flatMap(retrievalUrls));
+  const surfaced = new Set(queries.filter((query) => query.ok && query.capability_rung >= 2).flatMap((query) => (query.results ?? []).map((result) => result.url)));
+  const bypassed = [...evidencedUrls].filter((url) => surfaced.has(url) && !retrieved.has(url)).sort();
+  if (bypassed.length > 0) {
+    const shown = bypassed.slice(0, 5).join(", ");
+    const more = bypassed.length > 5 ? ` and ${bypassed.length - 5} more` : "";
+    findings.push({ severity: "warning", code: "RESEARCH_CAPABILITY_UNDERUSED", message: `Instrument discovery surfaced ${shown}${more} and the evidence ledger cites ${bypassed.length > 1 ? "them" : "it"}, but no engine retrieval exists; inspect cited pages through the configured instrument so their provenance is recorded.` });
+  }
+  for (const record2 of retrievals.filter((candidate) => !candidate.ok)) {
+    const recovered = okRetrievals.some((candidate) => candidate.url === record2.url);
+    if (!recovered) {
+      findings.push({ severity: "warning", code: "RETRIEVAL_RUNG_DEGRADED", message: `${record2.id}: engine retrieval of ${record2.url} failed (${record2.instrument}${record2.escalation ? " after firecrawl" : ""}) and no later retrieval of it succeeded; the flow degraded to host tools for this source \u2014 retry, or let this warning stand as the record.` });
+    }
+  }
+  return findings;
+}
+
+// src/core/validation.ts
 init_contract_authorities();
 
 // src/core/area-registry.ts
@@ -19185,11 +19695,11 @@ async function validateProject(root2, artifacts) {
     findings.push({ severity: "error", code: "CONFIG_INVALID", message: String(error) });
   }
   for (const file of requiredFiles) {
-    if (!await pathExists(path17.join(root2, file))) findings.push({ severity: "error", code: "REQUIRED_FILE_MISSING", message: `Required file is missing: ${file}`, file });
+    if (!await pathExists(path19.join(root2, file))) findings.push({ severity: "error", code: "REQUIRED_FILE_MISSING", message: `Required file is missing: ${file}`, file });
   }
   if (config) {
     for (const source of config.implementation_sources) {
-      const sourceRoot = path17.resolve(root2, source.path);
+      const sourceRoot = path19.resolve(root2, source.path);
       if (!await pathExists(sourceRoot)) findings.push({ severity: "error", code: "IMPLEMENTATION_SOURCE_MISSING", message: `Configured implementation source is missing: ${source.id} (${source.path})` });
     }
   }
@@ -19209,7 +19719,7 @@ async function validateProject(root2, artifacts) {
     if (canonical && (artifact2.id !== canonical[0] || artifact2.artifact_type !== canonical[1])) findings.push({ severity: "error", code: "CANONICAL_IDENTITY_INVALID", message: `${artifact2.file} must be ${canonical[0]} with type ${canonical[1]}`, file: artifact2.file });
     else if (!canonical && CANONICAL_TYPES.has(artifact2.artifact_type)) findings.push({ severity: "error", code: "CANONICAL_LOCATION_INVALID", message: `${artifact2.artifact_type} is a singleton canonical type and cannot appear at ${artifact2.file}`, file: artifact2.file });
     else if (SCALABLE_LOCATIONS[artifact2.artifact_type] && !SCALABLE_LOCATIONS[artifact2.artifact_type].test(artifact2.file)) findings.push({ severity: "error", code: "ARTIFACT_LOCATION_INVALID", message: `${artifact2.artifact_type} cannot appear at ${artifact2.file}`, file: artifact2.file });
-    else if (SCALABLE_LOCATIONS[artifact2.artifact_type] && path17.basename(artifact2.file, ".md") !== artifact2.id) findings.push({ severity: "error", code: "ARTIFACT_FILENAME_MISMATCH", message: `${artifact2.id} must use the matching filename ${artifact2.id}.md`, file: artifact2.file });
+    else if (SCALABLE_LOCATIONS[artifact2.artifact_type] && path19.basename(artifact2.file, ".md") !== artifact2.id) findings.push({ severity: "error", code: "ARTIFACT_FILENAME_MISMATCH", message: `${artifact2.id} must use the matching filename ${artifact2.id}.md`, file: artifact2.file });
     else if (FIXED_TYPES.has(artifact2.artifact_type)) {
       const expected = expectedContractIdentity(artifact2.artifact_type, artifact2.file);
       if (!expected || artifact2.id !== expected) findings.push({ severity: "error", code: "FIXED_IDENTITY_INVALID", message: `${artifact2.artifact_type} has an invalid fixed identity`, file: artifact2.file });
@@ -19252,8 +19762,8 @@ async function validateProject(root2, artifacts) {
           findings.push({ severity: "error", code: "IMPLEMENTATION_MAPPING_INVALID", message: `${artifact2.id} implementation mapping must be <source-id>:<relative-path>: ${mapping}`, file: artifact2.file });
           continue;
         }
-        const sourceRoot = path17.resolve(root2, source.path);
-        const target = path17.resolve(sourceRoot, relative);
+        const sourceRoot = path19.resolve(root2, source.path);
+        const target = path19.resolve(sourceRoot, relative);
         if (!isWithin(sourceRoot, target)) findings.push({ severity: "error", code: "IMPLEMENTATION_MAPPING_ESCAPE", message: `${artifact2.id} implementation mapping escapes source ${sourceId}: ${mapping}`, file: artifact2.file });
         else if (!await pathExists(target)) findings.push({ severity: "error", code: "IMPLEMENTATION_TARGET_MISSING", message: `${artifact2.id} implementation target does not exist: ${mapping}`, file: artifact2.file });
         else {
@@ -19279,6 +19789,7 @@ async function validateProject(root2, artifacts) {
   }
   if (config) findings.push(...platformEvidenceFindings(config, artifacts));
   findings.push(...platformContradictionFindings(artifacts, await loadExecutionRecords(root2)));
+  findings.push(...retrievalEvidenceFindings(artifacts, await loadRetrievalRecords(root2), await loadQueryRecords(root2)));
   findings.push(...contractAuthorityFindings(artifacts));
   if (config) findings.push(...areaFindings(config, artifacts));
   const graph = buildGraph(artifacts);
@@ -19297,7 +19808,7 @@ async function validateProject(root2, artifacts) {
     }
   }
   try {
-    const openapi = import_yaml4.default.parse(await readFile13(path17.join(root2, "03-design/interfaces/openapi.yaml"), "utf8"));
+    const openapi = import_yaml4.default.parse(await readFile14(path19.join(root2, "03-design/interfaces/openapi.yaml"), "utf8"));
     if (openapi.openapi !== "3.1.0") findings.push({ severity: "error", code: "OPENAPI_VERSION", message: "openapi.yaml must use OpenAPI 3.1.0" });
   } catch (error) {
     findings.push({ severity: "error", code: "OPENAPI_INVALID", message: `Invalid openapi.yaml: ${String(error)}` });
@@ -19388,9 +19899,9 @@ init_config();
 
 // src/core/verification.ts
 import { spawn } from "node:child_process";
-import { readdir as readdir4, writeFile as writeFile5 } from "node:fs/promises";
+import { readdir as readdir5, writeFile as writeFile6 } from "node:fs/promises";
 import os from "node:os";
-import path18 from "node:path";
+import path20 from "node:path";
 
 // src/core/git.ts
 import { execFileSync as execFileSync2 } from "node:child_process";
@@ -19422,16 +19933,16 @@ init_project_lock();
 init_implementation_snapshot();
 init_execution_selection();
 function allowedRoots(root2, config) {
-  return [root2, ...config.implementation_sources.map((source) => path18.resolve(root2, source.path))];
+  return [root2, ...config.implementation_sources.map((source) => path20.resolve(root2, source.path))];
 }
 async function executionsForFlow(root2, flowId) {
   const directory = projectPaths(root2).executions;
   if (!await pathExists(directory)) return [];
-  const files = (await readdir4(directory)).filter((name) => name.endsWith(".json")).sort();
+  const files = (await readdir5(directory)).filter((name) => name.endsWith(".json")).sort();
   const records = [];
   for (const name of files) {
     try {
-      const candidate = await readJson(path18.join(directory, name));
+      const candidate = await readJson(path20.join(directory, name));
       if (isExecutionRecord(candidate) && candidate.flow_id === flowId) records.push(candidate);
     } catch {
     }
@@ -19463,7 +19974,7 @@ async function executeVerificationUnlocked(root2, config, levels) {
   const planned = [];
   for (const level of levels) {
     for (const definition of config.verification[level]) {
-      const cwd = path18.resolve(root2, definition.cwd);
+      const cwd = path20.resolve(root2, definition.cwd);
       const checks = await Promise.all(roots.map(async (allowed) => {
         try {
           return await isRealPathWithin(allowed, cwd);
@@ -19484,9 +19995,9 @@ async function executeVerificationUnlocked(root2, config, levels) {
       continue;
     }
     const id2 = formatId("EXEC", state.next_execution);
-    const logFile = path18.join(projectPaths(root2).executions, `${id2}.log`);
-    const recordFile = path18.join(projectPaths(root2).executions, `${id2}.json`);
-    const resultFile = path18.join(root2, "04-verification", "results", `RESULT-${id2}.md`);
+    const logFile = path20.join(projectPaths(root2).executions, `${id2}.log`);
+    const recordFile = path20.join(projectPaths(root2).executions, `${id2}.json`);
+    const resultFile = path20.join(root2, "04-verification", "results", `RESULT-${id2}.md`);
     if (await pathExists(logFile) || await pathExists(recordFile) || await pathExists(resultFile)) throw new SdlcError(`Execution ID ${id2} is already reserved; repair state without overwriting provenance.`);
     await prepareSafeManagedPath(root2, logFile);
     await prepareSafeManagedPath(root2, recordFile);
@@ -19520,9 +20031,9 @@ async function executeVerificationUnlocked(root2, config, levels) {
     await prepareSafeManagedPath(root2, logFile);
     await prepareSafeManagedPath(root2, recordFile);
     await prepareSafeManagedPath(root2, resultFile);
-    await writeFile5(logFile, result.output, "utf8");
+    await writeFile6(logFile, result.output, "utf8");
     await writeJsonAtomic(recordFile, record2);
-    await writeFile5(resultFile, renderResultArtifact(record2, flow2.change_id ?? flow2.id), "utf8");
+    await writeFile6(resultFile, renderResultArtifact(record2, flow2.change_id ?? flow2.id), "utf8");
     records.push(record2);
   }
   return records;
@@ -19532,12 +20043,12 @@ async function executeVerification(root2, config, levels) {
 }
 
 // src/core/baseline.ts
-var import_fast_glob10 = __toESM(require_out4(), 1);
+var import_fast_glob11 = __toESM(require_out4(), 1);
 init_artifacts();
 init_graph();
 init_impact();
-import path19 from "node:path";
-import { readdir as readdir5 } from "node:fs/promises";
+import path21 from "node:path";
+import { readdir as readdir6 } from "node:fs/promises";
 init_config();
 init_state();
 init_project();
@@ -19545,6 +20056,7 @@ init_paths();
 init_utils();
 init_errors();
 init_record_validation();
+init_retrieval_records();
 init_execution_selection();
 init_project_lock();
 
@@ -19560,7 +20072,7 @@ function assertFlowAllowsArtifactType(flowType, artifactType) {
   const allowed = flowType === "genesis" ? genesisCreatable : flowType === "reassessment" ? reassessmentCreatable : semanticCreatable;
   if (!allowed.has(artifactType)) throw new SdlcError(`${artifactType} cannot be created during ${flowType}.`);
 }
-function enforceFlowArtifactBoundaries(flow2, artifacts, previous, impact) {
+function enforceFlowArtifactBoundaries(flow2, artifacts, previous, impact, flowRetrievals = []) {
   const previousIds = new Set(previous?.artifacts.map((artifact2) => artifact2.id) ?? []);
   const currentById = new Map(artifacts.map((artifact2) => [artifact2.id, artifact2.artifact_type]));
   const previousById = new Map(previous?.artifacts.map((artifact2) => [artifact2.id, artifact2.artifact_type]) ?? []);
@@ -19577,6 +20089,10 @@ function enforceFlowArtifactBoundaries(flow2, artifacts, previous, impact) {
     if (incomplete.length > 0) throw new SdlcError(`Genesis baseline requires active discovery and product foundations: ${incomplete.join(", ")}`);
     const ledger = artifacts.find((artifact2) => artifact2.artifact_type === "evidence_ledger");
     if (!ledger || !/^## EVD-[A-Z0-9-]+/m.test(ledger.body) || !/^- URL:\s*https?:\/\//m.test(ledger.body)) throw new SdlcError("Genesis baseline requires at least one attributable EVD entry with an inspected public URL.");
+    if (flowRetrievals.length > 0) {
+      const cited = new Set([...ledger.body.matchAll(/^-\s*Retrieval:\s*(RET-[0-9]{3,})\b/gm)].map((match) => match[1]));
+      if (!flowRetrievals.some((record2) => cited.has(record2.id))) throw new SdlcError("Genesis retrieved pages through configured research instruments; at least one EVD entry must cite its RET-* retrieval record.");
+    }
     const original = artifacts.find((artifact2) => artifact2.artifact_type === "original_idea");
     if (!original || /Not provided\. Invoke/.test(original.body)) throw new SdlcError("Genesis baseline requires the raw idea to be captured during initialization.");
     const premature = artifacts.filter((artifact2) => scalableTypes.has(artifact2.artifact_type) && !genesisCreatable.has(artifact2.artifact_type));
@@ -19603,9 +20119,9 @@ function nextBaselineId(current) {
 async function flowExecutions(root2, flowId) {
   const executionsDirectory = projectPaths(root2).executions;
   if (!await pathExists(executionsDirectory)) return [];
-  await assertSafeManagedPath(root2, path19.join(executionsDirectory, ".managed-probe"));
-  for (const entry of await readdir5(executionsDirectory, { withFileTypes: true })) if (entry.isSymbolicLink() && /^EXEC-.*\.json$/.test(entry.name)) throw new SdlcError(`Execution record cannot be a symlink: ${entry.name}`);
-  const files = await (0, import_fast_glob10.default)("EXEC-*.json", { cwd: executionsDirectory, absolute: true, followSymbolicLinks: false });
+  await assertSafeManagedPath(root2, path21.join(executionsDirectory, ".managed-probe"));
+  for (const entry of await readdir6(executionsDirectory, { withFileTypes: true })) if (entry.isSymbolicLink() && /^EXEC-.*\.json$/.test(entry.name)) throw new SdlcError(`Execution record cannot be a symlink: ${entry.name}`);
+  const files = await (0, import_fast_glob11.default)("EXEC-*.json", { cwd: executionsDirectory, absolute: true, followSymbolicLinks: false });
   const records = [];
   for (const file of files) {
     await assertSafeManagedPath(root2, file);
@@ -19627,7 +20143,8 @@ ${validation.findings.filter((item) => item.severity === "error").map((item) => 
   const previous = await loadBaseline(root2);
   const graph = buildGraph(artifacts);
   const impact = calculateImpact(artifacts, graph, previous);
-  enforceFlowArtifactBoundaries(flow2, artifacts, previous, impact);
+  const flowRetrievals = (await loadRetrievalRecords(root2)).filter((record2) => record2.flow_id === flow2.id && record2.ok);
+  enforceFlowArtifactBoundaries(flow2, artifacts, previous, impact, flowRetrievals);
   if (flow2.type === "evolution" || flow2.type === "reconciliation") {
     const tests2 = selectTests(artifacts, graph, impact.affected);
     if (tests2.missing.length > 0) throw new SdlcError(`Baseline blocked by missing test specifications:
@@ -19723,7 +20240,7 @@ ${tests2.missing.map((item) => `- ${item}`).join("\n")}`);
   await prepareSafeManagedPath(root2, projectPaths(root2).activeFlow);
   await writeJsonAtomic(projectPaths(root2).activeFlow, flow2);
   if (flow2.change_id) {
-    const file = path19.join(projectPaths(root2).changes, `${flow2.change_id}.json`);
+    const file = path21.join(projectPaths(root2).changes, `${flow2.change_id}.json`);
     await assertSafeManagedPath(root2, file);
     const change = await readJson(file);
     if (!isChangeRecord(change)) throw new SdlcError(`Invalid change record schema: ${file}`);
@@ -19780,8 +20297,8 @@ function resolveRuntimeRoot(moduleUrl) {
 }
 
 // src/core/artifact-instantiation.ts
-import { mkdir as mkdir6, readFile as readFile14, writeFile as writeFile6 } from "node:fs/promises";
-import path20 from "node:path";
+import { mkdir as mkdir6, readFile as readFile15, writeFile as writeFile7 } from "node:fs/promises";
+import path22 from "node:path";
 init_errors();
 init_paths();
 init_state();
@@ -19822,12 +20339,12 @@ function render(template, values) {
 }
 function resolveTarget(root2, pattern, id2) {
   const relative = pattern.target.replaceAll("{{ID}}", id2).replaceAll("{id}", id2);
-  if (relative.includes("{{") || path20.isAbsolute(relative)) throw new SdlcError(`Pattern target is not instantiable: ${pattern.target}`);
-  const target = path20.resolve(root2, relative);
+  if (relative.includes("{{") || path22.isAbsolute(relative)) throw new SdlcError(`Pattern target is not instantiable: ${pattern.target}`);
+  const target = path22.resolve(root2, relative);
   if (!isWithin(root2, target)) throw new SdlcError(`Artifact target escapes project root: ${relative}`);
-  const normalized = path20.relative(root2, target).replaceAll("\\", "/");
+  const normalized = path22.relative(root2, target).replaceAll("\\", "/");
   const location = SCALABLE_LOCATIONS[pattern.artifact_type];
-  if (!location || !location.test(normalized) || path20.basename(normalized, ".md") !== id2) throw new SdlcError(`Catalog target violates the approved location for ${pattern.artifact_type}: ${normalized}`);
+  if (!location || !location.test(normalized) || path22.basename(normalized, ".md") !== id2) throw new SdlcError(`Catalog target violates the approved location for ${pattern.artifact_type}: ${normalized}`);
   return target;
 }
 async function createUnlocked(root2, catalog, artifactType, id2, title) {
@@ -19841,14 +20358,14 @@ async function createUnlocked(root2, catalog, artifactType, id2, title) {
   if (title.trim() === "" || /[\r\n\0]/.test(title) || title.includes("{{")) throw new SdlcError("Artifact title must be one non-empty line without template tokens.");
   const target = resolveTarget(root2, pattern, id2);
   await prepareSafeManagedPath(root2, target);
-  if (await pathExists(target)) throw new SdlcError(`Artifact already exists: ${path20.relative(root2, target)}`);
-  const source = path20.resolve(catalog.root, pattern.template);
+  if (await pathExists(target)) throw new SdlcError(`Artifact already exists: ${path22.relative(root2, target)}`);
+  const source = path22.resolve(catalog.root, pattern.template);
   if (!isWithin(catalog.root, source)) throw new SdlcError(`Pattern source escapes catalog root: ${pattern.template}`);
   const createdBy = flow2.change_id ?? flow2.id;
-  const content = render(await readFile14(source, "utf8"), tokenValues(id2, title.trim(), createdBy));
-  await mkdir6(path20.dirname(target), { recursive: true });
-  await writeFile6(target, content, { encoding: "utf8", flag: "wx" });
-  return { id: id2, artifact_type: artifactType, file: path20.relative(root2, target).replaceAll("\\", "/") };
+  const content = render(await readFile15(source, "utf8"), tokenValues(id2, title.trim(), createdBy));
+  await mkdir6(path22.dirname(target), { recursive: true });
+  await writeFile7(target, content, { encoding: "utf8", flag: "wx" });
+  return { id: id2, artifact_type: artifactType, file: path22.relative(root2, target).replaceAll("\\", "/") };
 }
 async function createArtifactFromPattern(root2, catalog, artifactType, id2, title) {
   return withProjectLock(root2, async () => {
@@ -19858,10 +20375,10 @@ async function createArtifactFromPattern(root2, catalog, artifactType, id2, titl
 }
 
 // src/core/docs-site.ts
-var import_fast_glob11 = __toESM(require_out4(), 1);
+var import_fast_glob12 = __toESM(require_out4(), 1);
 var import_yaml5 = __toESM(require_dist(), 1);
-import path21 from "node:path";
-import { mkdir as mkdir7, readFile as readFile15, rm as rm4, writeFile as writeFile7 } from "node:fs/promises";
+import path23 from "node:path";
+import { mkdir as mkdir7, readFile as readFile16, rm as rm4, writeFile as writeFile8 } from "node:fs/promises";
 
 // node_modules/marked/lib/marked.esm.js
 function L() {
@@ -21036,9 +21553,9 @@ function routeFor(file) {
   return posix.endsWith(".md") ? `${posix.slice(0, -3)}.html` : `${posix}.html`;
 }
 function relativeHref(fromRoute, toRoute) {
-  const fromDir = path21.posix.dirname(fromRoute);
-  const relative = path21.posix.relative(fromDir === "." ? "" : fromDir, toRoute);
-  return relative === "" ? path21.posix.basename(toRoute) : relative;
+  const fromDir = path23.posix.dirname(fromRoute);
+  const relative = path23.posix.relative(fromDir === "." ? "" : fromDir, toRoute);
+  return relative === "" ? path23.posix.basename(toRoute) : relative;
 }
 function escapeHtml(value) {
   return value.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;");
@@ -21423,12 +21940,12 @@ function sourceView(page, mermaidAvailable) {
 }
 async function collectSystemPages(root2) {
   const pages = [];
-  const files = await (0, import_fast_glob11.default)(["00-system/**/*.{md,yaml,json}"], { cwd: root2, onlyFiles: true, dot: false, followSymbolicLinks: false });
+  const files = await (0, import_fast_glob12.default)(["00-system/**/*.{md,yaml,json}"], { cwd: root2, onlyFiles: true, dot: false, followSymbolicLinks: false });
   for (const relative of files.sort((a, b2) => a.localeCompare(b2))) {
-    const raw = await readFile15(path21.join(root2, relative), "utf8");
+    const raw = await readFile16(path23.join(root2, relative), "utf8");
     const posix = toPosix(relative);
     if (posix.startsWith("00-system/patterns/") && posix !== "00-system/patterns/README.md") {
-      pages.push({ route: routeFor(posix), sourceFile: posix, title: path21.posix.basename(posix), kind: "source", raw });
+      pages.push({ route: routeFor(posix), sourceFile: posix, title: path23.posix.basename(posix), kind: "source", raw });
       continue;
     }
     if (posix.endsWith(".md")) {
@@ -21438,27 +21955,27 @@ async function collectSystemPages(root2) {
         pages.push({
           route: routeFor(posix),
           sourceFile: posix,
-          title: meta.title || path21.posix.basename(posix),
+          title: meta.title || path23.posix.basename(posix),
           kind: "system",
           markdown: parsed.body,
           artifact: { ...meta, file: posix, body: parsed.body, hash: "", metadata_issues: [] }
         });
       } catch {
-        pages.push({ route: routeFor(posix), sourceFile: posix, title: path21.posix.basename(posix), kind: "system", markdown: raw });
+        pages.push({ route: routeFor(posix), sourceFile: posix, title: path23.posix.basename(posix), kind: "system", markdown: raw });
       }
       continue;
     }
-    pages.push({ route: routeFor(posix), sourceFile: posix, title: path21.posix.basename(posix), kind: "source", raw });
+    pages.push({ route: routeFor(posix), sourceFile: posix, title: path23.posix.basename(posix), kind: "source", raw });
   }
   return pages;
 }
 async function collectReportPages(root2) {
   const pages = [];
-  const files = await (0, import_fast_glob11.default)(["generated/**/*.{md,json}"], { cwd: root2, onlyFiles: true, dot: false, followSymbolicLinks: false });
+  const files = await (0, import_fast_glob12.default)(["generated/**/*.{md,json}"], { cwd: root2, onlyFiles: true, dot: false, followSymbolicLinks: false });
   for (const relative of files.sort((a, b2) => a.localeCompare(b2))) {
-    const raw = await readFile15(path21.join(root2, relative), "utf8");
+    const raw = await readFile16(path23.join(root2, relative), "utf8");
     const posix = toPosix(relative);
-    const title = path21.posix.basename(posix).replace(/\.(md|json)$/, "");
+    const title = path23.posix.basename(posix).replace(/\.(md|json)$/, "");
     if (posix.endsWith(".md")) pages.push({ route: routeFor(posix), sourceFile: posix, title, kind: "report", markdown: raw });
     else pages.push({ route: routeFor(posix), sourceFile: posix, title, kind: "source", raw });
   }
@@ -21520,7 +22037,7 @@ function graphSvg(graph, idRoutes) {
   return parts.join("\n");
 }
 function groupOf(file) {
-  const dir = path21.posix.dirname(toPosix(file));
+  const dir = path23.posix.dirname(toPosix(file));
   return dir === "." ? "root" : dir;
 }
 function graphPage(graph, idRoutes, titles) {
@@ -21593,7 +22110,7 @@ function indexPage(pages, graph, projectLabel) {
   const sections2 = [...byLayer.keys()].sort().map((layer) => {
     const byGroup = /* @__PURE__ */ new Map();
     for (const page of byLayer.get(layer) ?? []) {
-      const group = path21.posix.dirname(page.sourceFile).split("/").slice(1).join("/");
+      const group = path23.posix.dirname(page.sourceFile).split("/").slice(1).join("/");
       const list = byGroup.get(group) ?? [];
       list.push(page);
       byGroup.set(group, list);
@@ -22365,10 +22882,10 @@ var SITE_JS = `(function () {
 })();
 `;
 function resolveOutDir(root2, out) {
-  const resolved = path21.resolve(root2, out ?? path21.join(projectPaths(root2).cache, "site"));
-  if (path21.resolve(resolved) === path21.resolve(root2)) throw new SdlcError("Docs site output cannot be the project root.");
+  const resolved = path23.resolve(root2, out ?? path23.join(projectPaths(root2).cache, "site"));
+  if (path23.resolve(resolved) === path23.resolve(root2)) throw new SdlcError("Docs site output cannot be the project root.");
   if (isWithin(root2, resolved)) {
-    const relative = toPosix(path21.relative(root2, resolved));
+    const relative = toPosix(path23.relative(root2, resolved));
     const managed = /^(0[0-5]-[a-z-]+|generated)(\/|$)/.test(relative);
     if (managed) throw new SdlcError(`Docs site output cannot live inside managed content: ${relative}`);
   }
@@ -22377,7 +22894,7 @@ function resolveOutDir(root2, out) {
 async function buildDocsSite(root2, options = {}) {
   const outDir = resolveOutDir(root2, options.out);
   if (!await pathExists(projectPaths(root2).config)) {
-    throw new SdlcError(`Not an initialized documentation repository (missing ${path21.basename(projectPaths(root2).config)}): ${root2}`);
+    throw new SdlcError(`Not an initialized documentation repository (missing ${path23.basename(projectPaths(root2).config)}): ${root2}`);
   }
   const artifacts = await scanArtifacts(root2);
   const graph = buildGraph(artifacts);
@@ -22401,7 +22918,7 @@ async function buildDocsSite(root2, options = {}) {
   for (const page of pages) if (page.artifact?.id) idRoutes.set(page.artifact.id, page.route);
   const matcher = buildIdMatcher([...idRoutes.keys()]);
   const projectLabel = await projectLabelFor(root2);
-  const mermaidSource = options.mermaidAsset && await pathExists(options.mermaidAsset) ? await readFile15(options.mermaidAsset, "utf8") : null;
+  const mermaidSource = options.mermaidAsset && await pathExists(options.mermaidAsset) ? await readFile16(options.mermaidAsset, "utf8") : null;
   let linkedTotal = 0;
   const rendered = /* @__PURE__ */ new Map();
   for (const page of pages) {
@@ -22446,40 +22963,602 @@ function supersededBanner(artifact2, backlinks, idRoutes, route) {
 }
 async function projectLabelFor(root2) {
   try {
-    const raw = await readFile15(projectPaths(root2).config, "utf8");
+    const raw = await readFile16(projectPaths(root2).config, "utf8");
     const parsed = import_yaml5.default.parse(raw);
     if (parsed?.project_id) return parsed.project_id;
   } catch {
   }
-  return path21.basename(root2);
+  return path23.basename(root2);
 }
 async function writeSite(root2, outDir, rendered) {
-  const manifestPath = path21.join(outDir, MANIFEST_FILE);
+  const manifestPath = path23.join(outDir, MANIFEST_FILE);
   if (await pathExists(outDir)) {
     if (await pathExists(manifestPath)) {
-      const previous = JSON.parse(await readFile15(manifestPath, "utf8"));
+      const previous = JSON.parse(await readFile16(manifestPath, "utf8"));
       for (const file of previous.files ?? []) {
-        const target = path21.join(outDir, file);
+        const target = path23.join(outDir, file);
         if (isWithin(outDir, target)) await rm4(target, { force: true });
       }
     } else {
-      const existing = await (0, import_fast_glob11.default)(["**/*"], { cwd: outDir, onlyFiles: true, dot: true });
+      const existing = await (0, import_fast_glob12.default)(["**/*"], { cwd: outDir, onlyFiles: true, dot: true });
       if (existing.length > 0) throw new SdlcError(`Docs site output directory is not empty and was not produced by docs build: ${outDir}`);
     }
   }
   const files = [...rendered.keys()].sort((a, b2) => a.localeCompare(b2));
   for (const file of files) {
-    const target = path21.join(outDir, file);
-    await mkdir7(path21.dirname(target), { recursive: true });
-    await writeFile7(target, rendered.get(file) ?? "", "utf8");
+    const target = path23.join(outDir, file);
+    await mkdir7(path23.dirname(target), { recursive: true });
+    await writeFile8(target, rendered.get(file) ?? "", "utf8");
   }
-  await writeFile7(manifestPath, `${JSON.stringify({ schema_version: 1, files }, null, 2)}
+  await writeFile8(manifestPath, `${JSON.stringify({ schema_version: 1, files }, null, 2)}
 `, "utf8");
   const cacheDir = projectPaths(root2).cache;
   if (isWithin(cacheDir, outDir)) {
     await mkdir7(cacheDir, { recursive: true });
-    await writeFile7(path21.join(cacheDir, ".gitignore"), "*\n", "utf8");
+    await writeFile8(path23.join(cacheDir, ".gitignore"), "*\n", "utf8");
   }
+}
+
+// src/core/research-capability.ts
+init_errors();
+init_paths();
+init_state();
+init_utils();
+var ENV_SEARXNG_URL = "AI_SDLC_SEARXNG_URL";
+var ENV_FIRECRAWL_URL = "AI_SDLC_FIRECRAWL_URL";
+var ENV_FIRECRAWL_KEY = "AI_SDLC_FIRECRAWL_KEY";
+var ENV_CAMOFOX_URL = "AI_SDLC_CAMOFOX_URL";
+var ENV_CAMOFOX_KEY = "AI_SDLC_CAMOFOX_KEY";
+var DEFAULT_RESEARCH_POLICY = {
+  crawl_page_cap: 25,
+  body_max_bytes: 262144,
+  search_result_cap: 40,
+  // Camofox rejects handlers after 30s (HANDLER_TIMEOUT_MS); staying at or
+  // under it keeps one request from outliving what the server will serve.
+  request_timeout_ms: 3e4,
+  wait_ms: 0,
+  crawl_poll_timeout_ms: 12e4
+};
+function instrumentFromEnv(env, urlVar, keyVar) {
+  const raw = env[urlVar]?.trim();
+  if (!raw) return null;
+  if (!/^https?:\/\//.test(raw)) throw new SdlcError(`${urlVar} must be an http(s) origin, got: ${raw}`);
+  const url = raw.replace(/\/+$/, "");
+  const key = keyVar ? env[keyVar]?.trim() : void 0;
+  return key ? { url, key } : { url };
+}
+function resolveResearchCapability(env = process.env) {
+  const searxng = instrumentFromEnv(env, ENV_SEARXNG_URL);
+  const firecrawl = instrumentFromEnv(env, ENV_FIRECRAWL_URL, ENV_FIRECRAWL_KEY);
+  const camofox = instrumentFromEnv(env, ENV_CAMOFOX_URL, ENV_CAMOFOX_KEY);
+  const rung = camofox ? 3 : firecrawl ? 2 : searxng ? 1 : 0;
+  return { rung, searxng, firecrawl, camofox };
+}
+async function loadResearchPolicy(root2) {
+  const file = projectPaths(root2).researchPolicy;
+  if (!await pathExists(file)) return { ...DEFAULT_RESEARCH_POLICY };
+  await assertSafeManagedPath(root2, file);
+  const candidate = await readJson(file);
+  const allowed = Object.keys(DEFAULT_RESEARCH_POLICY);
+  if (!candidate || typeof candidate !== "object" || Array.isArray(candidate) || !Object.keys(candidate).every((key) => allowed.includes(key)) || !Object.values(candidate).every((value) => Number.isInteger(value) && value >= 0)) {
+    throw new SdlcError(`Invalid ${file}: expected integer values for a subset of ${allowed.join(", ")}.`);
+  }
+  return { ...DEFAULT_RESEARCH_POLICY, ...candidate };
+}
+async function probeSearxng(config, timeoutMs) {
+  try {
+    const response = await fetch(`${config.url}/search?q=probe&format=json`, { signal: AbortSignal.timeout(timeoutMs) });
+    if (response.status === 403) {
+      return { configured: true, reachable: false, status: 403, hint: "SearXNG rejected format=json; enable it on the instance: settings.yml -> search.formats: [html, json]." };
+    }
+    if (!response.ok) return { configured: true, reachable: false, status: response.status };
+    await response.json();
+    return { configured: true, reachable: true, status: response.status };
+  } catch (error) {
+    return { configured: true, reachable: false, hint: String(error) };
+  }
+}
+async function probeFirecrawl(config, timeoutMs) {
+  try {
+    const { firecrawlReady: firecrawlReady2, detectFirecrawlVersion: detectFirecrawlVersion2 } = await Promise.resolve().then(() => (init_firecrawl(), firecrawl_exports));
+    const ready = await firecrawlReady2(config, timeoutMs);
+    if (!ready.ready) return { configured: true, reachable: false, status: ready.status };
+    const version = await detectFirecrawlVersion2(config, timeoutMs);
+    return { configured: true, reachable: true, status: ready.status, api_version: version };
+  } catch (error) {
+    return { configured: true, reachable: false, hint: String(error) };
+  }
+}
+async function probeCamofox(config, timeoutMs) {
+  try {
+    const response = await fetch(`${config.url}/health`, { signal: AbortSignal.timeout(timeoutMs) });
+    return { configured: true, reachable: response.ok, status: response.status };
+  } catch (error) {
+    return { configured: true, reachable: false, hint: String(error) };
+  }
+}
+async function probeResearchTools(root2, env = process.env) {
+  const capability = resolveResearchCapability(env);
+  const policy = await loadResearchPolicy(root2);
+  const [searxng, firecrawl, camofox] = await Promise.all([
+    capability.searxng ? probeSearxng(capability.searxng, policy.request_timeout_ms) : Promise.resolve(null),
+    capability.firecrawl ? probeFirecrawl(capability.firecrawl, policy.request_timeout_ms) : Promise.resolve(null),
+    capability.camofox ? probeCamofox(capability.camofox, policy.request_timeout_ms) : Promise.resolve(null)
+  ]);
+  const rung = camofox?.reachable ? 3 : firecrawl?.reachable ? 2 : searxng?.reachable ? 1 : 0;
+  return { rung, configured_rung: capability.rung, instruments: { searxng, firecrawl, camofox }, policy };
+}
+
+// src/core/searxng.ts
+init_errors();
+var SEARCH_PASSES = ["authority", "official", "discussion", "counter", "freshness"];
+function passEngines(pass) {
+  if (pass === "authority") return ["arxiv", "crossref", "pubmed", "semantic scholar", "wikidata"];
+  if (pass === "discussion") return ["reddit", "hackernews", "stackoverflow"];
+  return [];
+}
+function isRecord3(value) {
+  return Boolean(value) && typeof value === "object" && !Array.isArray(value);
+}
+async function searxngSearch(config, query, timeoutMs) {
+  const params = new URLSearchParams({ q: query.q, format: "json" });
+  if (query.engines && query.engines.length > 0) params.set("engines", query.engines.join(","));
+  if (query.categories) params.set("categories", query.categories);
+  if (query.language) params.set("language", query.language);
+  if (query.pageno && query.pageno > 1) params.set("pageno", String(query.pageno));
+  if (query.time_range) params.set("time_range", query.time_range);
+  let response;
+  try {
+    response = await fetch(`${config.url}/search?${params.toString()}`, { signal: AbortSignal.timeout(timeoutMs) });
+  } catch (error) {
+    throw new SdlcError(`SearXNG is unreachable: ${String(error)}`);
+  }
+  if (response.status === 403) throw new SdlcError("SearXNG rejected format=json (HTTP 403). Enable it on the instance: settings.yml -> search.formats: [html, json].");
+  if (!response.ok) throw new SdlcError(`SearXNG search failed: HTTP ${response.status}`);
+  let parsed;
+  try {
+    parsed = await response.json();
+  } catch (error) {
+    throw new SdlcError(`SearXNG returned unparseable JSON: ${String(error)}`);
+  }
+  if (!isRecord3(parsed) || !Array.isArray(parsed.results)) throw new SdlcError("SearXNG response is missing the results array.");
+  const results = [];
+  for (const item of parsed.results) {
+    if (!isRecord3(item) || typeof item.url !== "string" || item.url.length === 0) continue;
+    results.push({
+      url: item.url,
+      ...typeof item.title === "string" && item.title.length > 0 ? { title: item.title } : {},
+      ...typeof item.engine === "string" && item.engine.length > 0 ? { engine: item.engine } : {},
+      ...typeof item.score === "number" && Number.isFinite(item.score) ? { score: item.score } : {},
+      ...typeof item.publishedDate === "string" && item.publishedDate.length > 0 ? { published: item.publishedDate } : {}
+    });
+  }
+  const unresponsive = [];
+  if (Array.isArray(parsed.unresponsive_engines)) {
+    for (const item of parsed.unresponsive_engines) {
+      if (typeof item === "string") unresponsive.push(item);
+      else if (Array.isArray(item) && typeof item[0] === "string") unresponsive.push(item[0]);
+    }
+  }
+  return { results, unresponsive_engines: [...new Set(unresponsive)].sort() };
+}
+
+// src/core/research.ts
+init_errors();
+import { readFile as readFile17 } from "node:fs/promises";
+import path24 from "node:path";
+init_state();
+init_utils();
+init_project();
+init_firecrawl();
+
+// src/core/camofox.ts
+init_errors();
+var USER_ID = "ai-saas-sdlc";
+function headers2(config) {
+  return {
+    "Content-Type": "application/json",
+    ...config.key ? { Authorization: `Bearer ${config.key}` } : {}
+  };
+}
+function isRecord4(value) {
+  return Boolean(value) && typeof value === "object" && !Array.isArray(value);
+}
+function snapshotText(payload) {
+  if (typeof payload === "string") return payload;
+  if (isRecord4(payload)) {
+    for (const key of ["snapshot", "text", "content"]) {
+      if (typeof payload[key] === "string") return payload[key];
+    }
+  }
+  return "";
+}
+async function camofoxFetch(config, url, sessionKey, opts) {
+  let created;
+  try {
+    created = await fetch(`${config.url}/tabs`, {
+      method: "POST",
+      headers: headers2(config),
+      body: JSON.stringify({ userId: USER_ID, sessionKey, url }),
+      signal: AbortSignal.timeout(opts.timeoutMs)
+    });
+  } catch (error) {
+    throw new SdlcError(`Camofox is unreachable: ${String(error)}`);
+  }
+  if (!created.ok) throw new SdlcError(`Camofox tab creation failed: HTTP ${created.status}`);
+  const tab = await created.json();
+  const tabId = isRecord4(tab) ? [tab.tabId, tab.id, isRecord4(tab.tab) ? tab.tab.id : void 0].find((value) => typeof value === "string" && value.length > 0) : void 0;
+  if (typeof tabId !== "string") throw new SdlcError("Camofox tab creation returned no tab ID.");
+  try {
+    const waitBudget = opts.waitMs > 0 ? opts.waitMs : 5e3;
+    try {
+      await fetch(`${config.url}/tabs/${encodeURIComponent(tabId)}/wait`, {
+        method: "POST",
+        headers: headers2(config),
+        body: JSON.stringify({ userId: USER_ID, timeout: waitBudget }),
+        signal: AbortSignal.timeout(waitBudget + opts.timeoutMs)
+      });
+    } catch {
+    }
+    let text = "";
+    let pages = 0;
+    let exhausted = true;
+    const maxIterations = 64;
+    let previousChunk = null;
+    for (let iteration = 0; iteration < maxIterations; iteration += 1) {
+      const params = new URLSearchParams({ userId: USER_ID });
+      if (text.length > 0) params.set("offset", String(text.length));
+      let snapshot;
+      try {
+        snapshot = await fetch(`${config.url}/tabs/${encodeURIComponent(tabId)}/snapshot?${params.toString()}`, {
+          headers: headers2(config),
+          signal: AbortSignal.timeout(opts.timeoutMs)
+        });
+      } catch (error) {
+        throw new SdlcError(`Camofox snapshot failed: ${String(error)}`);
+      }
+      if (!snapshot.ok) throw new SdlcError(`Camofox snapshot failed: HTTP ${snapshot.status}`);
+      const contentType = snapshot.headers.get("content-type") ?? "";
+      const chunk = contentType.includes("application/json") ? snapshotText(await snapshot.json()) : await snapshot.text();
+      if (chunk.length === 0 || chunk === previousChunk) break;
+      previousChunk = chunk;
+      text += chunk;
+      pages += 1;
+      if (Buffer.byteLength(text, "utf8") >= opts.maxBytes) {
+        exhausted = false;
+        break;
+      }
+    }
+    if (text.length === 0) throw new SdlcError("Camofox returned an empty snapshot.");
+    return { text, pages, exhausted };
+  } finally {
+    try {
+      await fetch(`${config.url}/tabs/${encodeURIComponent(tabId)}?userId=${encodeURIComponent(USER_ID)}`, {
+        method: "DELETE",
+        headers: headers2(config),
+        signal: AbortSignal.timeout(opts.timeoutMs)
+      });
+    } catch {
+    }
+  }
+}
+
+// src/core/research.ts
+init_retrieval_records();
+async function assertResearchFlow(root2) {
+  const flow2 = await loadActiveFlow(root2);
+  if (!flow2 || flow2.type !== "genesis" && flow2.type !== "reassessment") {
+    throw new SdlcError("Engine research commands are only allowed inside an active Genesis or Evidence Reassessment flow.");
+  }
+  return flow2;
+}
+async function researchContext(root2) {
+  const flow2 = await assertResearchFlow(root2);
+  const capability = resolveResearchCapability();
+  if (capability.rung === 0) throw new SdlcError("No research instrument is configured (AI_SDLC_SEARXNG_URL, AI_SDLC_FIRECRAWL_URL, AI_SDLC_CAMOFOX_URL); at rung 0 use the host's own search and fetch tools.");
+  const policy = await loadResearchPolicy(root2);
+  return { flow: flow2, capability, policy, rung: capability.rung };
+}
+var detectedVersions = /* @__PURE__ */ new Map();
+async function firecrawlVersion(config, timeoutMs) {
+  const cached = detectedVersions.get(config.url);
+  if (cached) return cached;
+  const version = await detectFirecrawlVersion(config, timeoutMs);
+  detectedVersions.set(config.url, version);
+  return version;
+}
+function capBody(text, maxBytes) {
+  const normalized = normalizeText(text);
+  const buffer = Buffer.from(normalized, "utf8");
+  if (buffer.length <= maxBytes) return { body: normalized, truncated: false };
+  const body = buffer.subarray(0, maxBytes).toString("utf8").replace(/�+$/, "");
+  return { body, truncated: true };
+}
+async function researchSearch(root2, opts) {
+  const { flow: flow2, capability, policy, rung } = await researchContext(root2);
+  if (!capability.searxng) throw new SdlcError("SearXNG is not configured (AI_SDLC_SEARXNG_URL); discover sources with the host's search tool instead.");
+  const id2 = await allocateQueryId(root2);
+  const engines = opts.engines && opts.engines.length > 0 ? opts.engines : opts.pass ? passEngines(opts.pass) : [];
+  const base = {
+    schema_version: 1,
+    id: id2,
+    flow_id: flow2.id,
+    kind: "search",
+    instrument: "searxng",
+    capability_rung: rung,
+    query: opts.query,
+    started_at: (/* @__PURE__ */ new Date()).toISOString(),
+    git_commit: gitCommit(root2),
+    ...opts.pass ? { pass: opts.pass } : {},
+    ...engines.length > 0 ? { engines } : {},
+    ...opts.categories ? { categories: opts.categories } : {},
+    ...opts.language ? { language: opts.language } : {},
+    ...opts.page && opts.page > 1 ? { pageno: opts.page } : {},
+    ...opts.timeRange ? { time_range: opts.timeRange } : {}
+  };
+  let record2;
+  try {
+    const response = await searxngSearch(capability.searxng, {
+      q: opts.query,
+      engines,
+      categories: opts.categories,
+      language: opts.language,
+      pageno: opts.page,
+      time_range: opts.timeRange
+    }, policy.request_timeout_ms);
+    record2 = {
+      ...base,
+      ok: true,
+      ended_at: (/* @__PURE__ */ new Date()).toISOString(),
+      results: response.results.slice(0, policy.search_result_cap),
+      result_count: response.results.length,
+      ...response.unresponsive_engines.length > 0 ? { unresponsive_engines: response.unresponsive_engines } : {}
+    };
+  } catch (error) {
+    record2 = { ...base, ok: false, ended_at: (/* @__PURE__ */ new Date()).toISOString(), error: error instanceof Error ? error.message : String(error) };
+  }
+  await writeQueryRecord(root2, record2);
+  await refreshProject(root2, false);
+  return record2;
+}
+async function researchFetch(root2, opts) {
+  const { flow: flow2, capability, policy, rung } = await researchContext(root2);
+  if (!capability.firecrawl && !capability.camofox) throw new SdlcError("No inspection instrument is configured (AI_SDLC_FIRECRAWL_URL or AI_SDLC_CAMOFOX_URL); inspect the page with the host's fetch tool instead.");
+  const id2 = (await allocateRetrievalIds(root2, 1))[0];
+  const waitMs = opts.wait ?? policy.wait_ms;
+  const base = {
+    schema_version: 1,
+    id: id2,
+    flow_id: flow2.id,
+    url: opts.url,
+    via: "fetch",
+    capability_rung: rung,
+    started_at: (/* @__PURE__ */ new Date()).toISOString(),
+    git_commit: gitCommit(root2),
+    ...waitMs > 0 ? { wait_ms: waitMs } : {}
+  };
+  let record2;
+  let body;
+  let firecrawlFailure;
+  if (capability.firecrawl) {
+    try {
+      const version = await firecrawlVersion(capability.firecrawl, policy.request_timeout_ms);
+      const page = await firecrawlScrape(capability.firecrawl, version, opts.url, { waitFor: waitMs, timeoutMs: policy.request_timeout_ms });
+      const capped = capBody(page.markdown, policy.body_max_bytes);
+      body = capped.body;
+      record2 = {
+        ...base,
+        instrument: "firecrawl",
+        ok: true,
+        ended_at: (/* @__PURE__ */ new Date()).toISOString(),
+        api_version: version,
+        body_file: retrievalBodyFile(id2),
+        body_hash: sha256(capped.body),
+        body_bytes: Buffer.byteLength(capped.body, "utf8"),
+        truncated: capped.truncated,
+        ...page.status_code !== void 0 ? { status_code: page.status_code } : {},
+        ...page.title ? { title: page.title } : {},
+        ...page.url !== opts.url ? { resolved_url: page.url } : {}
+      };
+      await writeRetrievalRecord(root2, record2, body);
+      await refreshProject(root2, false);
+      return record2;
+    } catch (error) {
+      firecrawlFailure = error instanceof Error ? error.message : String(error);
+    }
+  }
+  const escalation = firecrawlFailure ? { escalation: { from: "firecrawl", reason: firecrawlFailure } } : {};
+  if (capability.camofox) {
+    try {
+      const result = await camofoxFetch(capability.camofox, opts.url, id2, { waitMs, timeoutMs: policy.request_timeout_ms, maxBytes: policy.body_max_bytes });
+      const capped = capBody(result.text, policy.body_max_bytes);
+      body = capped.body;
+      record2 = {
+        ...base,
+        instrument: "camofox",
+        ok: true,
+        ended_at: (/* @__PURE__ */ new Date()).toISOString(),
+        body_file: retrievalBodyFile(id2),
+        body_hash: sha256(capped.body),
+        body_bytes: Buffer.byteLength(capped.body, "utf8"),
+        truncated: capped.truncated || !result.exhausted,
+        ...escalation
+      };
+      await writeRetrievalRecord(root2, record2, body);
+      await refreshProject(root2, false);
+      return record2;
+    } catch (error) {
+      const camofoxFailure = error instanceof Error ? error.message : String(error);
+      record2 = { ...base, instrument: "camofox", ok: false, ended_at: (/* @__PURE__ */ new Date()).toISOString(), error: camofoxFailure, ...escalation };
+      await writeRetrievalRecord(root2, record2);
+      await refreshProject(root2, false);
+      return record2;
+    }
+  }
+  record2 = { ...base, instrument: "firecrawl", ok: false, ended_at: (/* @__PURE__ */ new Date()).toISOString(), error: firecrawlFailure ?? "Firecrawl scrape failed." };
+  await writeRetrievalRecord(root2, record2);
+  await refreshProject(root2, false);
+  return record2;
+}
+async function researchMap(root2, opts) {
+  const { flow: flow2, capability, policy, rung } = await researchContext(root2);
+  if (!capability.firecrawl) throw new SdlcError("Firecrawl is not configured (AI_SDLC_FIRECRAWL_URL); URL discovery by map is unavailable.");
+  const id2 = await allocateQueryId(root2);
+  const cap = opts.limit && opts.limit > 0 ? opts.limit : policy.search_result_cap;
+  const base = {
+    schema_version: 1,
+    id: id2,
+    flow_id: flow2.id,
+    kind: "map",
+    instrument: "firecrawl",
+    capability_rung: rung,
+    query: opts.search ?? "",
+    url: opts.url,
+    started_at: (/* @__PURE__ */ new Date()).toISOString(),
+    git_commit: gitCommit(root2),
+    ...opts.limit && opts.limit > 0 ? { limit: opts.limit } : {}
+  };
+  let record2;
+  try {
+    const version = await firecrawlVersion(capability.firecrawl, policy.request_timeout_ms);
+    const links = await firecrawlMap(capability.firecrawl, version, opts.url, { search: opts.search, limit: opts.limit, timeoutMs: policy.request_timeout_ms });
+    record2 = {
+      ...base,
+      ok: true,
+      ended_at: (/* @__PURE__ */ new Date()).toISOString(),
+      api_version: version,
+      results: links.slice(0, cap),
+      result_count: links.length
+    };
+  } catch (error) {
+    record2 = { ...base, ok: false, ended_at: (/* @__PURE__ */ new Date()).toISOString(), error: error instanceof Error ? error.message : String(error) };
+  }
+  await writeQueryRecord(root2, record2);
+  await refreshProject(root2, false);
+  return record2;
+}
+async function researchCrawl(root2, opts) {
+  const { flow: flow2, capability, policy, rung } = await researchContext(root2);
+  if (!capability.firecrawl) throw new SdlcError("Firecrawl is not configured (AI_SDLC_FIRECRAWL_URL); bounded crawling is unavailable.");
+  const pageCap = Math.min(opts.limit && opts.limit > 0 ? opts.limit : policy.crawl_page_cap, policy.crawl_page_cap);
+  const ids2 = await allocateRetrievalIds(root2, pageCap);
+  const commit = gitCommit(root2);
+  const started = (/* @__PURE__ */ new Date()).toISOString();
+  const records = [];
+  try {
+    const version = await firecrawlVersion(capability.firecrawl, policy.request_timeout_ms);
+    const pages = await firecrawlCrawl(capability.firecrawl, version, opts.url, {
+      includePaths: opts.include,
+      limit: pageCap,
+      waitFor: policy.wait_ms,
+      requestTimeoutMs: policy.request_timeout_ms,
+      pollTimeoutMs: policy.crawl_poll_timeout_ms
+    });
+    const ended = (/* @__PURE__ */ new Date()).toISOString();
+    for (const [index, page] of pages.slice(0, pageCap).entries()) {
+      const id2 = ids2[index];
+      const capped = capBody(page.markdown, policy.body_max_bytes);
+      const record2 = {
+        schema_version: 1,
+        id: id2,
+        flow_id: flow2.id,
+        url: page.url,
+        instrument: "firecrawl",
+        via: "crawl",
+        ok: true,
+        capability_rung: rung,
+        started_at: started,
+        ended_at: ended,
+        git_commit: commit,
+        api_version: version,
+        body_file: retrievalBodyFile(id2),
+        body_hash: sha256(capped.body),
+        body_bytes: Buffer.byteLength(capped.body, "utf8"),
+        truncated: capped.truncated,
+        crawl_seed: opts.url,
+        ...page.status_code !== void 0 ? { status_code: page.status_code } : {},
+        ...page.title ? { title: page.title } : {}
+      };
+      await writeRetrievalRecord(root2, record2, capped.body);
+      records.push(record2);
+    }
+  } catch (error) {
+    const record2 = {
+      schema_version: 1,
+      id: ids2[0],
+      flow_id: flow2.id,
+      url: opts.url,
+      instrument: "firecrawl",
+      via: "crawl",
+      ok: false,
+      capability_rung: rung,
+      started_at: started,
+      ended_at: (/* @__PURE__ */ new Date()).toISOString(),
+      git_commit: commit,
+      crawl_seed: opts.url,
+      error: error instanceof Error ? error.message : String(error)
+    };
+    await writeRetrievalRecord(root2, record2);
+    records.push(record2);
+  }
+  await refreshProject(root2, false);
+  return { records, pages_returned: records.filter((record2) => record2.ok).length, page_cap: pageCap };
+}
+async function retrievalBody(root2, record2) {
+  const file = path24.resolve(root2, retrievalBodyFile(record2.id));
+  let text;
+  try {
+    text = await readFile17(file, "utf8");
+  } catch {
+    throw new SdlcError(`Retrieval body for ${record2.id} is missing; validate reports broken provenance.`);
+  }
+  const normalized = normalizeText(text);
+  if (sha256(normalized) !== record2.body_hash) throw new SdlcError(`Retrieval body for ${record2.id} does not match its recorded digest; validate reports broken provenance.`);
+  return normalized;
+}
+function lineCounts(lines) {
+  const counts = /* @__PURE__ */ new Map();
+  for (const line of lines) counts.set(line, (counts.get(line) ?? 0) + 1);
+  return counts;
+}
+async function researchDiff(root2, opts) {
+  await assertResearchFlow(root2);
+  const records = await loadRetrievalRecords(root2);
+  const current = records.find((record2) => record2.id === opts.ret);
+  if (!current) throw new SdlcError(`Unknown retrieval record: ${opts.ret}`);
+  if (!current.ok) throw new SdlcError(`${opts.ret} is a failed retrieval and has no body to compare.`);
+  const against = opts.against ? records.find((record2) => record2.id === opts.against) : records.filter((record2) => record2.ok && record2.url === current.url && record2.id < current.id).at(-1);
+  if (!against) throw new SdlcError(opts.against ? `Unknown retrieval record: ${opts.against}` : `No earlier successful retrieval of ${current.url} exists to compare against.`);
+  if (!against.ok) throw new SdlcError(`${against.id} is a failed retrieval and has no body to compare.`);
+  const currentBody = await retrievalBody(root2, current);
+  const againstBody = await retrievalBody(root2, against);
+  const currentLines = currentBody.split("\n");
+  const againstLines = againstBody.split("\n");
+  const currentCounts = lineCounts(currentLines);
+  const againstCounts = lineCounts(againstLines);
+  const added = [];
+  const removed = [];
+  for (const [line, count] of currentCounts) {
+    const extra = count - (againstCounts.get(line) ?? 0);
+    for (let index = 0; index < extra; index += 1) added.push(line);
+  }
+  for (const [line, count] of againstCounts) {
+    const extra = count - (currentCounts.get(line) ?? 0);
+    for (let index = 0; index < extra; index += 1) removed.push(line);
+  }
+  const previewLines = [
+    ...removed.slice(0, 10).map((line) => `- ${line}`),
+    ...added.slice(0, 10).map((line) => `+ ${line}`)
+  ];
+  return {
+    ret: current.id,
+    against: against.id,
+    url: current.url,
+    changed: currentBody !== againstBody,
+    added_lines: added.length,
+    removed_lines: removed.length,
+    preview: previewLines.join("\n")
+  };
 }
 
 // src/cli/main.ts
@@ -22493,7 +23572,7 @@ function print(value, json = false) {
   if (json || typeof value !== "string") console.log(JSON.stringify(value, null, 2));
   else console.log(value);
 }
-program2.name("ai-saas-sdlc").description("Deterministic engine for AI SaaS SDLC documentation flows.").version("1.9.0");
+program2.name("ai-saas-sdlc").description("Deterministic engine for AI SaaS SDLC documentation flows.").version("1.10.0");
 program2.command("init").description("Initialize a centralized documentation repository.").option("--project-id <id>", "Stable project identifier").option("--idea <text>", "Raw idea preserved verbatim", "").action(async (options) => {
   const projectId = options.projectId ?? root.split(/[\\/]/).at(-1)?.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") ?? "saas-project";
   await withProjectLock(root, async () => {
@@ -22507,6 +23586,7 @@ program2.command("init").description("Initialize a centralized documentation rep
     await refreshProject(root, false);
     await recordEnginePointer(root, runtimeRoot, program2.version() ?? "0.0.0");
     await ensureEnginePointerIgnored(root);
+    await ensureResearchPolicyIgnored(root);
   });
   print(`Initialized AI SaaS SDLC documentation repository: ${projectId}`);
 });
@@ -22578,6 +23658,54 @@ program2.command("verify").description("Execute only verification commands decla
   await refreshProject(root, false);
   print(records, Boolean(options.json));
   if (records.some((record2) => record2.exit_code !== 0)) process.exitCode = 1;
+});
+function positiveInt(flag) {
+  return (value) => {
+    const parsed = Number(value);
+    if (!Number.isInteger(parsed) || parsed < 1) throw new SdlcError(`${flag} must be a positive integer, got: ${value}`);
+    return parsed;
+  };
+}
+var research = program2.command("research").description("Engine-owned retrieval against optionally configured self-hosted research instruments (SearXNG, Firecrawl, Camofox). Absent configuration is rung 0: the host's own tools, unchanged.");
+research.command("probe").description("Reach each configured instrument for real and report the effective rung. Legal anywhere; writes nothing.").option("--json", "Emit JSON").action(async (options) => {
+  print(await probeResearchTools(root), Boolean(options.json));
+});
+research.command("search").description("One SearXNG discovery pass, recorded as an immutable QRY record. Requires an active genesis or reassessment flow.").requiredOption("--query <text>", "Query text").option("--pass <class>", `Protocol pass class: ${SEARCH_PASSES.join("|")}`).option("--engines <csv>", "Override the pass's engine targeting").option("--categories <csv>", "SearXNG categories").option("--language <code>", "Language code").option("--page <n>", "Result page number", positiveInt("--page")).option("--time-range <range>", "day|month|year").option("--json", "Emit JSON").action(async (options) => {
+  if (options.pass !== void 0 && !SEARCH_PASSES.includes(options.pass)) throw new SdlcError(`Unsupported pass: ${options.pass}. Expected ${SEARCH_PASSES.join("|")}.`);
+  if (options.timeRange !== void 0 && !["day", "month", "year"].includes(options.timeRange)) throw new SdlcError(`Unsupported time range: ${options.timeRange}. Expected day|month|year.`);
+  const record2 = await researchSearch(root, {
+    query: options.query,
+    pass: options.pass,
+    engines: options.engines?.split(",").map((engine) => engine.trim()).filter(Boolean),
+    categories: options.categories,
+    language: options.language,
+    page: options.page,
+    timeRange: options.timeRange
+  });
+  print(record2, Boolean(options.json));
+  if (!record2.ok) process.exitCode = 1;
+});
+research.command("fetch").description("Inspect one public page through Firecrawl, escalating to Camofox on failure when configured; body and record are committed provenance.").requiredOption("--url <url>", "Page to retrieve").option("--wait <ms>", "Rendering wait budget", positiveInt("--wait")).option("--json", "Emit JSON").action(async (options) => {
+  const record2 = await researchFetch(root, { url: options.url, wait: options.wait });
+  print(record2, Boolean(options.json));
+  if (!record2.ok) process.exitCode = 1;
+});
+research.command("map").description("Enumerate a site's URLs through Firecrawl map, recorded as a QRY record.").requiredOption("--url <url>", "Site seed URL").option("--search <term>", "Filter mapped URLs").option("--limit <n>", "Maximum URLs", positiveInt("--limit")).option("--json", "Emit JSON").action(async (options) => {
+  const record2 = await researchMap(root, { url: options.url, search: options.search, limit: options.limit });
+  print(record2, Boolean(options.json));
+  if (!record2.ok) process.exitCode = 1;
+});
+research.command("crawl").description("Capture a bounded page subtree through Firecrawl crawl; one RET record and body per page, capped by local policy.").requiredOption("--url <url>", "Crawl seed URL").option("--include <csv>", "includePaths filters").option("--limit <n>", "Page cap for this crawl", positiveInt("--limit")).option("--json", "Emit JSON").action(async (options) => {
+  const report = await researchCrawl(root, {
+    url: options.url,
+    include: options.include?.split(",").map((item) => item.trim()).filter(Boolean),
+    limit: options.limit
+  });
+  print(report, Boolean(options.json));
+  if (report.records.some((record2) => !record2.ok)) process.exitCode = 1;
+});
+research.command("diff").description("Compare two stored retrieval bodies of the same URL \u2014 the deterministic freshness check for reassessment. Local only; no HTTP, no record.").requiredOption("--ret <id>", "Current RET-### record").option("--against <id>", "Earlier RET-### record (default: the previous successful retrieval of the same URL)").option("--json", "Emit JSON").action(async (options) => {
+  print(await researchDiff(root, { ret: options.ret, against: options.against }), Boolean(options.json));
 });
 var baseline = program2.command("baseline").description("Manage verified semantic baselines.");
 baseline.command("create").option("--json", "Emit JSON").action(async (options) => print(await createBaseline(root), Boolean(options.json)));

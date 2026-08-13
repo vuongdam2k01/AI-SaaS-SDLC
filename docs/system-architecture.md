@@ -12,7 +12,7 @@ AI SaaS SDLC is one shared domain package exposed through two host-specific skil
 | Protocols | `resources/protocols/` | Shared research, behavior, solution, impact, test and repair rules loaded as needed |
 | Source patterns | `resources/artifact-patterns/` | Versioned scalable patterns and data-driven foundation/content contracts |
 | Project skeleton | `resources/project-template/` | Fixed live repository files copied by initialization |
-| Deterministic engine | `src/`, built `dist/`, `bin/ai-saas-sdlc` | State, locks, catalog resolution, creation, graph, validation, verification, baselines, generated projections and the static docs-site renderer |
+| Deterministic engine | `src/`, built `dist/`, `bin/ai-saas-sdlc` | State, locks, catalog resolution, creation, graph, validation, verification, baselines, generated projections, the static docs-site renderer and optional engine-owned research retrieval |
 | Portable hooks | `hooks/hooks.json`, `src/hooks/` | Shared session context and narrow preventive checks for Claude Code and Codex |
 
 Both manifests identify the same product/version and route to the same packaged resources and engine. Host adapters contain invocation syntax, not independent copies of the method.
@@ -25,8 +25,9 @@ Initialization produces three distinct truth classes:
 00-system/patterns/   immutable snapshot of the installed authoring contracts
 01-discovery/..05-control/   canonical live product records
 generated/            reproducible indexes, coverage and impact projections
-.ai-saas-sdlc/        engine-owned state, changes, executions, baseline manifest and
-                      the git-ignored cache/ that holds a built docs site
+.ai-saas-sdlc/        engine-owned state, changes, executions, retrievals (records
+                      plus hashed page bodies), baseline manifest and the
+                      git-ignored cache/ that holds a built docs site
 ```
 
 The source library is copied and hash-pinned. Once initialized, catalog listing, artifact creation and active-content validation use the consuming snapshot, so upgrading the installed plugin does not silently rewrite the repository's authoring contract. Live artifacts define product truth; generated files and internal records are not edited by the model.
@@ -76,6 +77,10 @@ Codex loads the same conventional `hooks/hooks.json` without a manifest override
 The engine executes only commands declared in `sdlc.config.yaml`, only during Evolution or Reconciliation, and only in the documentation root or configured implementation sources. Each attempt receives a non-reusable `EXEC-*`, captured log and `RESULT-EXEC-*`. The result is deterministically rendered and bound to the active flow, command ID/string, working directory, source commit when available, pre-execution source snapshot, exit code and log digest.
 
 Failed attempts remain immutable history. A later successful run is a new record, never an overwrite.
+
+## Retrieval provenance
+
+When optional self-hosted research instruments are configured through the environment, the engine — not the model — performs discovery and page retrieval during Genesis and Evidence Reassessment. Each discovery pass receives a non-reusable `QRY-*` record; each page retrieval receives a non-reusable `RET-*` record plus a CRLF-normalized, size-capped body whose sha256 digest the record carries. Failed operations write records too, so degradation is derivable from committed history on any machine. Evidence entries name their retrieval record, validation checks the linkage as warnings and the record structure as errors, and validation never reads the environment: a repository validates identically everywhere. Unconfigured, the flows use the host's own tools and nothing changes. See [research tools](research-tools.md).
 
 ## Safety properties
 

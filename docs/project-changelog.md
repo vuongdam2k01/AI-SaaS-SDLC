@@ -2,6 +2,19 @@
 
 See the root [CHANGELOG](../CHANGELOG.md) for the release summary. This contributor view records documentation-impact areas that must remain synchronized with implementation.
 
+## 1.10.0 - 2026-08-12
+
+| Area | Documentation impact |
+|---|---|
+| Research protocol | *Instrument rungs* section: the rung ladder, mandatory instrument depth (counter pass, map-before-profiling, escalation instead of write-off), rung-3 absolutes, unchanged stopping rules, hook-denied-URL fallback |
+| Flow method | Genesis and Reassessment playbooks open research with `ENGINE research probe --json` and state the `- Retrieval: RET-###` citation duty; Reassessment names `research diff` as the freshness check; Inspect State reports the four new warnings with `research-coverage.md` as the joined view |
+| Host adapters | All four research-flow adapters (Claude and Codex genesis/reassess) map rung ≥ 1 to `ENGINE research` commands and keep rung 0 as the exact prior behavior |
+| Commands | Command reference gains the six-row *Research retrieval* table with gating, exit codes and the lock/HTTP sequencing note; the warning paragraph counts fifteen |
+| Configuration | Configuration reference gains the env-var table and the git-ignored policy file; new `docs/research-tools.md` holds instrument setup, records, validation and limitations; README, guides index, both research guides and the Codex parity row link the capability |
+| Pinned system contracts | `VALIDATION-RULES` warning table grows to fifteen; the evidence-ledger example gains the optional `- Retrieval:` line (new repositories only) |
+| Architecture | System architecture gains the *Retrieval provenance* section, the engine-layer clause and `.ai-saas-sdlc/retrievals/` in the repository tree |
+| Compatibility | Additive, no migration; rung 0 byte-identical (asserted by the package-check probe smoke); pinned changes reach new repositories only, method files reach every repository on plugin update |
+
 ## 1.9.0 - 2026-08-12
 
 | Area | Documentation impact |

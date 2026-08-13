@@ -1,5 +1,5 @@
 import { FLOW_STAGES, FLOW_TYPES, statusesForArtifactType } from "./types.js";
-import type { ActiveFlow, BaselineManifest, ChangeRecord, ExecutionRecord } from "./types.js";
+import type { ActiveFlow, BaselineManifest, ChangeRecord, ExecutionRecord, QueryRecord, RetrievalRecord } from "./types.js";
 
 function record(value: unknown): value is Record<string, unknown> {
   return Boolean(value) && typeof value === "object" && !Array.isArray(value);
@@ -68,6 +68,84 @@ export function isExecutionRecord(value: unknown): value is ExecutionRecord {
     && typeof value.source_snapshot_hash === "string" && /^[a-f0-9]{64}$/.test(value.source_snapshot_hash)
     && (value.platforms === undefined || (artifactIds(value.platforms) && value.platforms.length > 0))
     && validHost(value.host);
+}
+
+export function isRetrievalRecord(value: unknown): value is RetrievalRecord {
+  if (!record(value) || !exactKeys(value, ["schema_version", "id", "flow_id", "url", "instrument", "via", "ok", "capability_rung", "started_at", "ended_at", "git_commit", "body_file", "body_hash", "body_bytes", "truncated", "api_version", "status_code", "title", "resolved_url", "crawl_seed", "wait_ms", "escalation", "error"])) return false;
+  const escalation = value.escalation;
+  const escalationValid = escalation === undefined || (record(escalation) && exactKeys(escalation, ["from", "reason"])
+    && escalation.from === "firecrawl" && typeof escalation.reason === "string" && escalation.reason.length > 0
+    && value.instrument === "camofox");
+  // Success carries the stored body and its provenance; failure carries the
+  // reason and nothing else. Anything between is a forged record.
+  const outcomeValid = value.ok === true
+    ? typeof value.body_file === "string" && /^\.ai-saas-sdlc\/retrievals\/RET-[0-9]{3,}\.md$/.test(value.body_file)
+      && typeof value.body_hash === "string" && /^[a-f0-9]{64}$/.test(value.body_hash)
+      && Number.isInteger(value.body_bytes) && (value.body_bytes as number) >= 0
+      && typeof value.truncated === "boolean"
+      && value.error === undefined
+    : value.ok === false
+      && typeof value.error === "string" && value.error.length > 0
+      && [value.body_file, value.body_hash, value.body_bytes, value.truncated].every((item) => item === undefined);
+  return value.schema_version === 1
+    && id(value.id, "RET")
+    && id(value.flow_id, "FLOW")
+    && typeof value.url === "string" && /^https?:\/\//.test(value.url)
+    && (value.instrument === "firecrawl" || value.instrument === "camofox")
+    && (value.via === "fetch" || value.via === "crawl")
+    && [1, 2, 3].includes(value.capability_rung as number)
+    && dateTime(value.started_at) && dateTime(value.ended_at)
+    && (value.git_commit === null || typeof value.git_commit === "string")
+    && outcomeValid
+    && (value.api_version === undefined || value.api_version === "v1" || value.api_version === "v2")
+    && (value.status_code === undefined || Number.isInteger(value.status_code))
+    && (value.title === undefined || typeof value.title === "string")
+    && (value.resolved_url === undefined || typeof value.resolved_url === "string")
+    && (value.via === "crawl" ? typeof value.crawl_seed === "string" && value.crawl_seed.length > 0 : value.crawl_seed === undefined)
+    && (value.wait_ms === undefined || (Number.isInteger(value.wait_ms) && (value.wait_ms as number) >= 0))
+    && escalationValid;
+}
+
+export function isQueryRecord(value: unknown): value is QueryRecord {
+  if (!record(value) || !exactKeys(value, ["schema_version", "id", "flow_id", "kind", "instrument", "ok", "capability_rung", "query", "started_at", "ended_at", "git_commit", "url", "pass", "engines", "categories", "language", "pageno", "time_range", "limit", "api_version", "results", "result_count", "unresponsive_engines", "error"])) return false;
+  const results = value.results;
+  const resultsValid = results === undefined || (Array.isArray(results) && results.every((item) => record(item)
+    && exactKeys(item, ["url", "title", "engine", "score", "published"])
+    && typeof item.url === "string" && item.url.length > 0
+    && (item.title === undefined || typeof item.title === "string")
+    && (item.engine === undefined || typeof item.engine === "string")
+    && (item.score === undefined || typeof item.score === "number")
+    && (item.published === undefined || typeof item.published === "string")));
+  const kindValid = value.kind === "search"
+    ? value.instrument === "searxng" && value.url === undefined
+    : value.kind === "map" && value.instrument === "firecrawl"
+      && typeof value.url === "string" && /^https?:\/\//.test(value.url)
+      && value.pass === undefined && value.unresponsive_engines === undefined;
+  const outcomeValid = value.ok === true
+    ? results !== undefined && Number.isInteger(value.result_count) && (value.result_count as number) >= 0 && value.error === undefined
+    : value.ok === false
+      && typeof value.error === "string" && value.error.length > 0
+      && results === undefined && value.result_count === undefined;
+  return value.schema_version === 1
+    && id(value.id, "QRY")
+    && id(value.flow_id, "FLOW")
+    && (value.kind === "search" || value.kind === "map")
+    && typeof value.query === "string"
+    && [1, 2, 3].includes(value.capability_rung as number)
+    && dateTime(value.started_at) && dateTime(value.ended_at)
+    && (value.git_commit === null || typeof value.git_commit === "string")
+    && kindValid
+    && outcomeValid
+    && resultsValid
+    && (value.pass === undefined || ["authority", "official", "discussion", "counter", "freshness"].includes(String(value.pass)))
+    && (value.engines === undefined || strings(value.engines))
+    && (value.categories === undefined || typeof value.categories === "string")
+    && (value.language === undefined || typeof value.language === "string")
+    && (value.pageno === undefined || (Number.isInteger(value.pageno) && (value.pageno as number) >= 1))
+    && (value.time_range === undefined || ["day", "month", "year"].includes(String(value.time_range)))
+    && (value.limit === undefined || (Number.isInteger(value.limit) && (value.limit as number) >= 1))
+    && (value.api_version === undefined || value.api_version === "v1" || value.api_version === "v2")
+    && (value.unresponsive_engines === undefined || strings(value.unresponsive_engines));
 }
 
 export function isChangeRecord(value: unknown): value is ChangeRecord {

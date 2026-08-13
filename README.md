@@ -54,7 +54,7 @@ Start Claude Code in a separate, centralized documentation repository and invoke
 /ai-saas-sdlc:inspect-state [scope]
 ```
 
-All five skills require explicit user invocation. Research uses actual `WebSearch` and `WebFetch`; a compatible already-installed tool may substitute, but no integration is mandatory.
+All five skills require explicit user invocation. Research uses actual `WebSearch` and `WebFetch`; a compatible already-installed tool may substitute, but no integration is mandatory. Optionally, self-hosted SearXNG, Firecrawl and camofox-browser instruments can be configured through environment variables — the engine then performs retrieval itself and leaves immutable `QRY-*`/`RET-*` provenance records with hashed page bodies; unconfigured, nothing changes. See [research tools](docs/research-tools.md).
 
 ## Codex
 
@@ -96,6 +96,12 @@ ai-saas-sdlc flow next [--json]
 ai-saas-sdlc flow close
 ai-saas-sdlc patterns list [--json]
 ai-saas-sdlc artifact create --type <type> --id <ID> --title <title>
+ai-saas-sdlc research probe [--json]
+ai-saas-sdlc research search --query <text> [--pass <class>] [--time-range <r>]
+ai-saas-sdlc research fetch --url <url> [--wait <ms>]
+ai-saas-sdlc research map --url <url> [--search <term>] [--limit <n>]
+ai-saas-sdlc research crawl --url <url> [--include <csv>] [--limit <n>]
+ai-saas-sdlc research diff --ret <RET-id> [--against <RET-id>]
 ai-saas-sdlc impact [--json]
 ai-saas-sdlc validate [--active|--all] [--json]
 ai-saas-sdlc tests select [--json]
@@ -123,4 +129,4 @@ npm run validate:manifests
 
 The package checks both plugin manifests, all ten host skill adapters, the 24 pattern types, isolated Claude/Codex root resolution, path confinement and reproducible projections.
 
-Further references: [how-to guides](docs/guides/README.md), [timeline](docs/end-to-end-timeline.md), [flow reference](docs/flow-reference.md), [artifact reference](docs/artifact-reference.md), [command reference](docs/command-reference.md), [configuration](docs/configuration-reference.md) and [architecture](docs/system-architecture.md).
+Further references: [how-to guides](docs/guides/README.md), [timeline](docs/end-to-end-timeline.md), [flow reference](docs/flow-reference.md), [artifact reference](docs/artifact-reference.md), [command reference](docs/command-reference.md), [configuration](docs/configuration-reference.md), [research tools](docs/research-tools.md) and [architecture](docs/system-architecture.md).

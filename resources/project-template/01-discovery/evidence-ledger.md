@@ -54,6 +54,7 @@ supersedes:
 - Author or publisher: <responsible party>
 - Observed or published date: <YYYY-MM-DD or explicitly unknown>
 - Retrieved date: <YYYY-MM-DD>
+- Retrieval: <RET-### when the engine retrieved this page; omit the line for host-tool inspection>
 - Applicable scope: <population, product/version, geography, and conditions>
 - Relevant location: <section, page, table, or record identifier>
 - Observation: <neutral fact supported by this source>

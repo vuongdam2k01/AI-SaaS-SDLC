@@ -1,7 +1,7 @@
 import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 import fg from "fast-glob";
-import type { Artifact, ArtifactGraph, BaselineManifest, ExecutionRecord, ProjectConfig } from "./types.js";
+import type { Artifact, ArtifactGraph, BaselineManifest, ExecutionRecord, ProjectConfig, QueryRecord, RetrievalRecord } from "./types.js";
 import { isLiveStatus } from "./types.js";
 import type { ImpactReport } from "./impact.js";
 import { topologicalOrder } from "./graph.js";
@@ -80,6 +80,52 @@ function platformCoverageProjection(artifacts: Artifact[], config: ProjectConfig
   )}\n## Unknown declarations\n\n${unknown.map((declaration) => `- \`${declaration}\``).join("\n") || "None."}\n`;
 }
 
+// One markdown cell; a URL or query text may legitimately contain a pipe.
+function projectionCell(value: string): string {
+  return value.replaceAll("|", "\\|");
+}
+
+/**
+ * The retrieval sections appended to research-coverage.md when — and only
+ * when — retrieval records exist. A rung-0 repository must keep its projection
+ * byte-identical, because GENERATED_DRIFT is an error and an upgrade must not
+ * fail every existing repository until someone runs refresh.
+ */
+function retrievalCoverageSections(retrievals: RetrievalRecord[], queries: QueryRecord[]): string {
+  const retrievalRows = retrievals.map((record) => [
+    `\`${record.id}\``,
+    projectionCell(record.url),
+    `${record.instrument}${record.escalation ? " (escalated)" : ""}`,
+    record.via,
+    String(record.capability_rung),
+    record.ok ? "ok" : "failed",
+    record.ok ? `${record.body_bytes}B${record.truncated ? " (truncated)" : ""}` : "—"
+  ]);
+  const queryRows = queries.map((record) => [
+    `\`${record.id}\``,
+    record.kind,
+    record.pass ?? "—",
+    projectionCell(record.query || record.url || ""),
+    record.ok ? String(record.result_count) : "failed",
+    (record.unresponsive_engines ?? []).map(projectionCell).join(", ") || "—"
+  ]);
+  const count = (predicate: (ok: boolean) => boolean) => ({
+    searxng: queries.filter((record) => record.instrument === "searxng" && predicate(record.ok)).length,
+    firecrawlQueries: queries.filter((record) => record.instrument === "firecrawl" && predicate(record.ok)).length,
+    firecrawl: retrievals.filter((record) => record.instrument === "firecrawl" && predicate(record.ok)).length,
+    camofox: retrievals.filter((record) => record.instrument === "camofox" && predicate(record.ok)).length
+  });
+  const ok = count((value) => value);
+  const failed = count((value) => !value);
+  return `\n## Retrieval provenance\n\nEngine-performed page retrievals; each row is an immutable record under \`.ai-saas-sdlc/retrievals/\` with a hashed stored body.\n\n${table(
+    ["Record", "URL", "Instrument", "Via", "Rung", "Outcome", "Body"],
+    retrievalRows
+  )}\n## Query passes\n\n${table(
+    ["Record", "Kind", "Pass", "Query", "Results", "Unresponsive engines"],
+    queryRows
+  )}\n## Instrument usage\n\n- SearXNG searches: ${ok.searxng} ok, ${failed.searxng} failed\n- Firecrawl maps: ${ok.firecrawlQueries} ok, ${failed.firecrawlQueries} failed\n- Firecrawl retrievals: ${ok.firecrawl} ok, ${failed.firecrawl} failed\n- Camofox retrievals: ${ok.camofox} ok, ${failed.camofox} failed\n`;
+}
+
 export function buildProjections(
   artifacts: Artifact[],
   graph: ArtifactGraph,
@@ -87,7 +133,9 @@ export function buildProjections(
   baseline: BaselineManifest | null,
   activeChange: string | null,
   config: ProjectConfig | null,
-  records: ExecutionRecord[]
+  records: ExecutionRecord[],
+  retrievals: RetrievalRecord[] = [],
+  queries: QueryRecord[] = []
 ): ProjectionSet {
   const projections: ProjectionSet = {};
   projections["artifact-graph.json"] = stableJson(graph);
@@ -109,7 +157,7 @@ export function buildProjections(
       const artifact = artifacts.find((item) => item.artifact_type === type);
       return [type, artifact ? `\`${artifact.id}\`` : "missing", artifact?.status ?? "missing"];
     })
-  )}`;
+  )}${retrievals.length + queries.length > 0 ? retrievalCoverageSections(retrievals, queries) : ""}`;
   projections["evidence-claim-coverage.md"] = evidenceClaimCoverage(artifacts);
   projections["acceptance-coverage.md"] = acceptanceCoverage(artifacts);
   projections["rule-coverage.md"] = ruleCoverage(artifacts);

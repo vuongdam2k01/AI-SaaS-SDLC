@@ -1,9 +1,10 @@
 import path from "node:path";
 import { readdir } from "node:fs/promises";
 import fg from "fast-glob";
-import type { Artifact, ChangeRecord, ExecutionRecord, ValidationFinding } from "./types.js";
+import type { Artifact, ChangeRecord, ExecutionRecord, QueryRecord, RetrievalRecord, ValidationFinding } from "./types.js";
 import { executionProvenanceIssues, resultBindingIssues } from "./execution-provenance.js";
-import { isChangeRecord, isExecutionRecord } from "./record-validation.js";
+import { queryProvenanceIssues, retrievalProvenanceIssues } from "./retrieval-provenance.js";
+import { isChangeRecord, isExecutionRecord, isQueryRecord, isRetrievalRecord } from "./record-validation.js";
 import { loadBaseline } from "./project.js";
 import { loadActiveFlow, loadCurrentState, pathExists } from "./state.js";
 import { assertSafeManagedPath, projectPaths } from "./paths.js";
@@ -54,6 +55,46 @@ export async function validateInternalRecords(root: string, artifacts: Artifact[
   }
   for (const [executionId, result] of resultByExecution) {
     if (!executions.has(executionId)) findings.push({ severity: "error", code: "RESULT_WITHOUT_EXECUTION", message: `${result.id} references missing execution ${executionId}`, file: result.file });
+  }
+
+  // Retrieval provenance mirrors execution provenance: the strict pass here
+  // is the single place a broken RET/QRY record becomes a finding; the
+  // lenient loaders silently skip what this loop reports.
+  const retrievalRecords = new Map<string, RetrievalRecord>();
+  const queryRecords = new Map<string, QueryRecord>();
+  let retrievalsSafe = true;
+  if (await pathExists(projectPaths(root).retrievals)) {
+    try { await assertSafeManagedPath(root, path.join(projectPaths(root).retrievals, ".managed-probe")); } catch { retrievalsSafe = false; }
+    if (!retrievalsSafe) findings.push({ severity: "error", code: "INTERNAL_PATH_ESCAPE", message: "Retrieval records directory escapes the project through a symlink" });
+  }
+  if (retrievalsSafe && await pathExists(projectPaths(root).retrievals)) {
+    for (const entry of await readdir(projectPaths(root).retrievals, { withFileTypes: true })) if (entry.isSymbolicLink()) findings.push({ severity: "error", code: "INTERNAL_RECORD_SYMLINK", message: `Retrieval record entry cannot be a symlink: ${entry.name}` });
+    const jsonFiles = await fg("*.json", { cwd: projectPaths(root).retrievals, absolute: true, followSymbolicLinks: false });
+    for (const file of jsonFiles) {
+      const name = path.basename(file);
+      try {
+        await assertSafeManagedPath(root, file);
+        const record = await readJson<unknown>(file);
+        if (name.startsWith("RET-")) {
+          if (!isRetrievalRecord(record) || name !== `${record.id}.json`) throw new Error("schema or filename mismatch");
+          retrievalRecords.set(record.id, record);
+          for (const issue of await retrievalProvenanceIssues(root, record)) findings.push({ severity: "error", code: "RETRIEVAL_PROVENANCE_INVALID", message: `${record.id}: ${issue}` });
+        } else if (name.startsWith("QRY-")) {
+          if (!isQueryRecord(record) || name !== `${record.id}.json`) throw new Error("schema or filename mismatch");
+          queryRecords.set(record.id, record);
+          for (const issue of queryProvenanceIssues(record)) findings.push({ severity: "error", code: "RETRIEVAL_PROVENANCE_INVALID", message: `${record.id}: ${issue}` });
+        } else {
+          throw new Error("unrecognized record name");
+        }
+      } catch (error) {
+        findings.push({ severity: "error", code: "RETRIEVAL_INVALID", message: `Invalid retrieval record ${file}: ${String(error)}` });
+      }
+    }
+    const bodyFiles = await fg("*.md", { cwd: projectPaths(root).retrievals, followSymbolicLinks: false });
+    for (const body of bodyFiles) {
+      const retrievalId = path.basename(body, ".md");
+      if (!retrievalRecords.has(retrievalId)) findings.push({ severity: "error", code: "RETRIEVAL_BODY_ORPHAN", message: `${body} has no retrieval record` });
+    }
   }
 
   const changes = new Map<string, ChangeRecord>();
@@ -110,6 +151,10 @@ export async function validateInternalRecords(root: string, artifacts: Artifact[
     if (state.next_execution <= maxExecution) findings.push({ severity: "error", code: "EXECUTION_COUNTER_REUSED", message: `next_execution must be greater than existing EXEC-${String(maxExecution).padStart(3, "0")}` });
     if (state.next_change <= maxChange) findings.push({ severity: "error", code: "CHANGE_COUNTER_REUSED", message: `next_change must be greater than existing CHG-${String(maxChange).padStart(3, "0")}` });
     if (state.next_flow <= maxFlow) findings.push({ severity: "error", code: "FLOW_COUNTER_REUSED", message: `next_flow must be greater than existing flow ${maxFlow}` });
+    const maxRetrieval = Math.max(0, ...[...retrievalRecords.keys()].map(numberOf));
+    const maxQuery = Math.max(0, ...[...queryRecords.keys()].map(numberOf));
+    if ((state.next_retrieval ?? 1) <= maxRetrieval) findings.push({ severity: "error", code: "RETRIEVAL_COUNTER_REUSED", message: `next_retrieval must be greater than existing RET-${String(maxRetrieval).padStart(3, "0")}` });
+    if ((state.next_query ?? 1) <= maxQuery) findings.push({ severity: "error", code: "RETRIEVAL_COUNTER_REUSED", message: `next_query must be greater than existing QRY-${String(maxQuery).padStart(3, "0")}` });
     if (activeFlow?.change_id) {
       const change = changes.get(activeFlow.change_id);
       if (!change || change.flow_id !== activeFlow.id || change.type !== activeFlow.type) findings.push({ severity: "error", code: "ACTIVE_CHANGE_MISMATCH", message: `${activeFlow.id} does not match ${activeFlow.change_id}` });

@@ -20,6 +20,8 @@ import { brokenCaseReferences } from "./test-cases.js";
 import { STALE_AFTER_BASELINES, baselinesOpen, openQuestions } from "./question-ledger.js";
 import { platformContradictionFindings, platformEvidenceFindings } from "./platform-evidence.js";
 import { loadExecutionRecords } from "./execution-records.js";
+import { loadQueryRecords, loadRetrievalRecords } from "./retrieval-records.js";
+import { retrievalEvidenceFindings } from "./retrieval-evidence.js";
 import { contractAuthorityFindings, expectedContractIdentity } from "./contract-authorities.js";
 import { areaFindings } from "./area-registry.js";
 
@@ -149,6 +151,11 @@ export async function validateProject(root: string, artifacts: Artifact[]): Prom
   // declaration they were run under, so a broken config cannot hide a
   // contradicted platform claim.
   findings.push(...platformContradictionFindings(artifacts, await loadExecutionRecords(root)));
+  // Evidence-to-retrieval linkage reads only committed records and the
+  // ledger, never the environment: a repository must validate identically on
+  // every machine, configured or not. Warnings, not errors — rung-0 evidence
+  // stays legitimate forever.
+  findings.push(...retrievalEvidenceFindings(artifacts, await loadRetrievalRecords(root), await loadQueryRecords(root)));
   // A contract family with sibling files makes ownership a declared fact. An
   // instance that names no authority file may be legitimate — an IPC-only
   // operation, a client-local entity — so the gap is a standing warning rather

@@ -139,6 +139,13 @@ export interface CurrentState {
    * earlier version still loads.
    */
   question_first_baseline?: Record<string, string>;
+  /**
+   * Counters for engine-owned retrieval provenance (RET-* and QRY-* records).
+   * Optional so that state written before research instruments existed still
+   * loads; absent means 1, exactly like a repository that never retrieved.
+   */
+  next_retrieval?: number;
+  next_query?: number;
 }
 
 export interface BaselineManifest {
@@ -200,6 +207,88 @@ export interface ExecutionRecord {
   platforms?: string[];
   /** Observed on the machine that ran the command: the fact. */
   host?: { os: string; release: string; arch: string; node: string };
+}
+
+/**
+ * One engine-performed page retrieval. The record is the engine's own
+ * observation of the fetch — status, timing, digest of the stored body — so
+ * evidence citing it rests on provenance the engine witnessed, mirroring how
+ * ExecutionRecord backs RESULT artifacts. Failed retrievals write records too
+ * (`ok: false`, no body): degradation must be derivable from committed
+ * records alone, never from the environment of the machine validating.
+ */
+export interface RetrievalRecord {
+  schema_version: 1;
+  id: string;
+  flow_id: string;
+  url: string;
+  instrument: "firecrawl" | "camofox";
+  via: "fetch" | "crawl";
+  ok: boolean;
+  /**
+   * Highest instrument tier configured on the machine when the record was
+   * written: 1 searxng, 2 firecrawl, 3 camofox. Stamped so validation can
+   * reason about what was available without ever reading live environment.
+   */
+  capability_rung: 1 | 2 | 3;
+  started_at: string;
+  ended_at: string;
+  git_commit: string | null;
+  /** Present exactly when ok: the stored page body and its provenance. */
+  body_file?: string;
+  body_hash?: string;
+  body_bytes?: number;
+  truncated?: boolean;
+  /** Firecrawl API generation observed at retrieval time. */
+  api_version?: "v1" | "v2";
+  status_code?: number;
+  title?: string;
+  resolved_url?: string;
+  /** Seed URL of the crawl this page came from; present exactly when via is crawl. */
+  crawl_seed?: string;
+  wait_ms?: number;
+  /** Camofox only: the rung-2 failure this retrieval escalated from. */
+  escalation?: { from: "firecrawl"; reason: string };
+  /** Present exactly when not ok. */
+  error?: string;
+}
+
+/**
+ * One engine-performed discovery pass — a SearXNG search or a Firecrawl site
+ * map. Query records make the protocol's "record the query" instruction a
+ * durable machine fact and preserve per-engine failure so an empty result set
+ * is never mistaken for a silent market.
+ */
+export interface QueryRecord {
+  schema_version: 1;
+  id: string;
+  flow_id: string;
+  kind: "search" | "map";
+  instrument: "searxng" | "firecrawl";
+  ok: boolean;
+  capability_rung: 1 | 2 | 3;
+  query: string;
+  started_at: string;
+  ended_at: string;
+  git_commit: string | null;
+  /** Seed URL; present exactly when kind is map. */
+  url?: string;
+  /** Search pass class from the research protocol; search only. */
+  pass?: "authority" | "official" | "discussion" | "counter" | "freshness";
+  engines?: string[];
+  categories?: string;
+  language?: string;
+  pageno?: number;
+  time_range?: "day" | "month" | "year";
+  limit?: number;
+  api_version?: "v1" | "v2";
+  /** Present exactly when ok; capped by policy, count preserved separately. */
+  results?: Array<{ url: string; title?: string; engine?: string; score?: number; published?: string }>;
+  result_count?: number;
+  /** SearXNG upstream engines that failed this query — engine failure is not market silence. */
+  unresponsive_engines?: string[];
+  /** Present exactly when not ok. */
+  error?: string;
 }
 
 export interface ChangeRecord {

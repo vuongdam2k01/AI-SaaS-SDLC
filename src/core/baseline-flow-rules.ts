@@ -1,4 +1,4 @@
-import type { ActiveFlow, Artifact, BaselineManifest, FlowType } from "./types.js";
+import type { ActiveFlow, Artifact, BaselineManifest, FlowType, RetrievalRecord } from "./types.js";
 import type { ImpactReport } from "./impact.js";
 import { SdlcError } from "./errors.js";
 
@@ -14,7 +14,7 @@ export function assertFlowAllowsArtifactType(flowType: FlowType, artifactType: s
   if (!allowed.has(artifactType)) throw new SdlcError(`${artifactType} cannot be created during ${flowType}.`);
 }
 
-export function enforceFlowArtifactBoundaries(flow: ActiveFlow, artifacts: Artifact[], previous: BaselineManifest | null, impact: ImpactReport): void {
+export function enforceFlowArtifactBoundaries(flow: ActiveFlow, artifacts: Artifact[], previous: BaselineManifest | null, impact: ImpactReport, flowRetrievals: RetrievalRecord[] = []): void {
   const previousIds = new Set(previous?.artifacts.map((artifact) => artifact.id) ?? []);
   const currentById = new Map(artifacts.map((artifact) => [artifact.id, artifact.artifact_type]));
   const previousById = new Map(previous?.artifacts.map((artifact) => [artifact.id, artifact.artifact_type]) ?? []);
@@ -32,6 +32,13 @@ export function enforceFlowArtifactBoundaries(flow: ActiveFlow, artifacts: Artif
     if (incomplete.length > 0) throw new SdlcError(`Genesis baseline requires active discovery and product foundations: ${incomplete.join(", ")}`);
     const ledger = artifacts.find((artifact) => artifact.artifact_type === "evidence_ledger");
     if (!ledger || !/^## EVD-[A-Z0-9-]+/m.test(ledger.body) || !/^- URL:\s*https?:\/\//m.test(ledger.body)) throw new SdlcError("Genesis baseline requires at least one attributable EVD entry with an inspected public URL.");
+    // A flow that retrieved through configured research instruments must let
+    // the ledger name that provenance at least once. With no retrievals the
+    // rung-0 path above stands byte-for-byte unchanged.
+    if (flowRetrievals.length > 0) {
+      const cited = new Set([...ledger.body.matchAll(/^-\s*Retrieval:\s*(RET-[0-9]{3,})\b/gm)].map((match) => match[1]!));
+      if (!flowRetrievals.some((record) => cited.has(record.id))) throw new SdlcError("Genesis retrieved pages through configured research instruments; at least one EVD entry must cite its RET-* retrieval record.");
+    }
     const original = artifacts.find((artifact) => artifact.artifact_type === "original_idea");
     if (!original || /Not provided\. Invoke/.test(original.body)) throw new SdlcError("Genesis baseline requires the raw idea to be captured during initialization.");
     const premature = artifacts.filter((artifact) => scalableTypes.has(artifact.artifact_type) && !genesisCreatable.has(artifact.artifact_type));

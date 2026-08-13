@@ -84,6 +84,20 @@ A platform target may additionally declare the host its evidence is expected to 
 
 `areas` is an opt-in namespace registry. Undeclared, IDs stay unconstrained, exactly as before. Declared, every live scalable artifact whose ID parses as `<PREFIX>-<AREA>-<NNN>` must name a registered area — `SUB-ORDERS-001` demands `ORDERS`; `SUB-ORDERS-EU-001` demands `ORDERS-EU`, never the shorter prefix. `validate` reports `AREA_UNREGISTERED` as a warning: an unregistered area is a naming decision made visible, not a broken structure, and IDs without a numeric suffix are exempt.
 
+## Research instruments (optional)
+
+Self-hosted research instruments are configured through environment variables, never through this file: `sdlc.config.yaml` is a baselined, hashed contract, and endpoints or keys are machine-local facts that must not enter committed history. `research_mode` stays `public-web-only` — the instruments change how public pages are reached, not what counts as evidence.
+
+| Variable | Meaning |
+|---|---|
+| `AI_SDLC_SEARXNG_URL` | SearXNG origin for engine-recorded discovery passes |
+| `AI_SDLC_FIRECRAWL_URL` | Firecrawl origin for engine-recorded page inspection |
+| `AI_SDLC_FIRECRAWL_KEY` | Optional bearer key; the header is attached only when set |
+| `AI_SDLC_CAMOFOX_URL` | camofox-browser origin for rung-3 escalation; setting it is consent |
+| `AI_SDLC_CAMOFOX_KEY` | Optional bearer key; only when the instance requires one |
+
+With none of these set, every flow behaves byte-identically to a build without the feature. Numeric operating caps live in the optional, git-ignored `.ai-saas-sdlc/research-tools.json` (`crawl_page_cap`, `body_max_bytes`, `search_result_cap`, `request_timeout_ms`, `wait_ms`, `crawl_poll_timeout_ms`) — user-created by hand, because the host's safety hook denies assistant writes under `.ai-saas-sdlc/`. See [research tools](research-tools.md) for instrument setup, records and validation.
+
 ## Documentation-only mode
 
 Keep `implementation_sources` and all verification command arrays empty when no implementation repository is in scope:

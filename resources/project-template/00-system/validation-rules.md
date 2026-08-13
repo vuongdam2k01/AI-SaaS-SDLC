@@ -44,7 +44,7 @@ Validation evaluates project artifacts as contracts. It detects structural absen
 
 Validation reports two severities and they mean different things. An **error** is a broken structure — a bad ID, an unresolved reference, a lifecycle or supersession violation, a mutated immutable record, a coverage gap, generated projections out of sync. Errors block a baseline and must be repaired.
 
-A **warning** names a judgement or a debt rather than a broken structure, never blocks a baseline, and is itself the durable record of what is owed. Eleven exist:
+A **warning** names a judgement or a debt rather than a broken structure, never blocks a baseline, and is itself the durable record of what is owed. Fifteen exist:
 
 | Warning | Means |
 |---|---|
@@ -59,8 +59,12 @@ A **warning** names a judgement or a debt rather than a broken structure, never 
 | `SCHEMA_AUTHORITY_UNDECLARED` | A live entity naming no owning schema file while siblings exist. |
 | `TRANSITION_AUTHORITY_UNDECLARED` | A live screen naming no owning transition graph while siblings exist. |
 | `AREA_UNREGISTERED` | A live ID naming an area outside the optional `areas` registry. |
+| `EVD_RETRIEVAL_MISSING` | An engine-retrieved URL whose evidence entry does not cite its `RET-*` record. |
+| `EVD_RETRIEVAL_BROKEN` | A cited `RET-*` record that is absent, failed, or retrieved a different URL. |
+| `RESEARCH_CAPABILITY_UNDERUSED` | Instrument discovery surfaced a cited URL no engine retrieval inspected. |
+| `RETRIEVAL_RUNG_DEGRADED` | A failed engine retrieval no later success covers — the record of a fallback to host tools. |
 
-Closing a warning by weakening the artifact that raised it is not a repair. Several are legitimately permanent: an unproven platform, an IPC-only operation with no wire owner, a client-local entity with no schema owner.
+Closing a warning by weakening the artifact that raised it is not a repair. Several are legitimately permanent: an unproven platform, an IPC-only operation with no wire owner, a client-local entity with no schema owner, a degraded retrieval whose source stayed unreachable.
 
 ## Completion contract
 

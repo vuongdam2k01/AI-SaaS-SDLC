@@ -1,0 +1,57 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/vuongdam2k01/AI-SaaS-SDLC/schemas/retrieval-record.schema.json",
+  "title": "AI SaaS SDLC Retrieval Record",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "id", "flow_id", "url", "instrument", "via", "ok", "capability_rung", "started_at", "ended_at", "git_commit"],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "id": { "type": "string", "pattern": "^RET-[0-9]{3,}$" },
+    "flow_id": { "type": "string", "pattern": "^FLOW-[0-9]{3,}$" },
+    "url": { "type": "string", "pattern": "^https?://" },
+    "instrument": { "enum": ["firecrawl", "camofox"] },
+    "via": { "enum": ["fetch", "crawl"] },
+    "ok": { "type": "boolean" },
+    "capability_rung": { "enum": [1, 2, 3] },
+    "started_at": { "type": "string", "format": "date-time" },
+    "ended_at": { "type": "string", "format": "date-time" },
+    "git_commit": { "type": ["string", "null"] },
+    "body_file": { "type": "string", "pattern": "^\\.ai-saas-sdlc/retrievals/RET-[0-9]{3,}\\.md$" },
+    "body_hash": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "body_bytes": { "type": "integer", "minimum": 0 },
+    "truncated": { "type": "boolean" },
+    "api_version": { "enum": ["v1", "v2"] },
+    "status_code": { "type": "integer" },
+    "title": { "type": "string" },
+    "resolved_url": { "type": "string" },
+    "crawl_seed": { "type": "string", "minLength": 1 },
+    "wait_ms": { "type": "integer", "minimum": 0 },
+    "escalation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["from", "reason"],
+      "properties": {
+        "from": { "const": "firecrawl" },
+        "reason": { "type": "string", "minLength": 1 }
+      }
+    },
+    "error": { "type": "string", "minLength": 1 }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "ok": { "const": true } } },
+      "then": { "required": ["body_file", "body_hash", "body_bytes", "truncated"], "not": { "required": ["error"] } },
+      "else": { "required": ["error"], "allOf": [{ "not": { "required": ["body_file"] } }, { "not": { "required": ["body_hash"] } }, { "not": { "required": ["body_bytes"] } }, { "not": { "required": ["truncated"] } }] }
+    },
+    {
+      "if": { "properties": { "via": { "const": "crawl" } } },
+      "then": { "required": ["crawl_seed"] },
+      "else": { "not": { "required": ["crawl_seed"] } }
+    },
+    {
+      "if": { "required": ["escalation"] },
+      "then": { "properties": { "instrument": { "const": "camofox" } } }
+    }
+  ]
+}

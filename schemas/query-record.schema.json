@@ -1,0 +1,60 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/vuongdam2k01/AI-SaaS-SDLC/schemas/query-record.schema.json",
+  "title": "AI SaaS SDLC Query Record",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "id", "flow_id", "kind", "instrument", "ok", "capability_rung", "query", "started_at", "ended_at", "git_commit"],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "id": { "type": "string", "pattern": "^QRY-[0-9]{3,}$" },
+    "flow_id": { "type": "string", "pattern": "^FLOW-[0-9]{3,}$" },
+    "kind": { "enum": ["search", "map"] },
+    "instrument": { "enum": ["searxng", "firecrawl"] },
+    "ok": { "type": "boolean" },
+    "capability_rung": { "enum": [1, 2, 3] },
+    "query": { "type": "string" },
+    "started_at": { "type": "string", "format": "date-time" },
+    "ended_at": { "type": "string", "format": "date-time" },
+    "git_commit": { "type": ["string", "null"] },
+    "url": { "type": "string", "pattern": "^https?://" },
+    "pass": { "enum": ["authority", "official", "discussion", "counter", "freshness"] },
+    "engines": { "type": "array", "items": { "type": "string" } },
+    "categories": { "type": "string" },
+    "language": { "type": "string" },
+    "pageno": { "type": "integer", "minimum": 1 },
+    "time_range": { "enum": ["day", "month", "year"] },
+    "limit": { "type": "integer", "minimum": 1 },
+    "api_version": { "enum": ["v1", "v2"] },
+    "results": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["url"],
+        "properties": {
+          "url": { "type": "string", "minLength": 1 },
+          "title": { "type": "string" },
+          "engine": { "type": "string" },
+          "score": { "type": "number" },
+          "published": { "type": "string" }
+        }
+      }
+    },
+    "result_count": { "type": "integer", "minimum": 0 },
+    "unresponsive_engines": { "type": "array", "items": { "type": "string" } },
+    "error": { "type": "string", "minLength": 1 }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "ok": { "const": true } } },
+      "then": { "required": ["results", "result_count"], "not": { "required": ["error"] } },
+      "else": { "required": ["error"], "allOf": [{ "not": { "required": ["results"] } }, { "not": { "required": ["result_count"] } }] }
+    },
+    {
+      "if": { "properties": { "kind": { "const": "search" } } },
+      "then": { "properties": { "instrument": { "const": "searxng" } }, "not": { "required": ["url"] } },
+      "else": { "properties": { "instrument": { "const": "firecrawl" } }, "required": ["url"], "allOf": [{ "not": { "required": ["pass"] } }, { "not": { "required": ["unresponsive_engines"] } }] }
+    }
+  ]
+}
