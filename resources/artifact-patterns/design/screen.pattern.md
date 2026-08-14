@@ -12,7 +12,7 @@ supersedes:
 
 # {{ID}} — {{TITLE}}
 
-<!-- Contract: specifies one user-visible screen or stable view state on any client surface — a web route, a desktop window, a mobile screen, or a non-window surface such as a tray or menu-bar menu — not a reusable component, API algorithm, implementation task, or visual mockup. Create when access, information hierarchy, fields, actions, validation, or transitions differ materially. One artifact covers every form factor of a surface; when phone, tablet or desktop behavior differs materially, allocate one artifact per form factor with its own permanent ID. ID is SCR-<AREA>-<NNN>; path is 03-design/screens/<ID>.md. This artifact owns screen composition and interaction semantics; CMP owns reusable parts, OpenAPI owns wire contracts, API/JOB own processing, UX-RULES owns shared interaction policy. Upstream: FTR/UC/FLOW, access, UX, errors, and decisions. Consumers: components, API processing, frontend UT, IT, ST, and implementation. Lifecycle: draft -> active -> superseded. -->
+<!-- Contract: specifies one user-visible screen or stable view state on any client surface — a web route, a desktop window, a mobile screen, or a non-window surface such as a tray or menu-bar menu — not a reusable component, API algorithm, implementation task, or visual mockup. Create when access, information hierarchy, fields, actions, validation, or transitions differ materially. One artifact covers every form factor of a surface; when phone, tablet or desktop behavior differs materially, allocate one artifact per form factor with its own permanent ID. ID is SCR-<AREA>-<NNN>; path is 03-design/screens/<ID>.md. This artifact owns screen composition and interaction semantics; CMP owns reusable parts, OpenAPI owns wire contracts, API/JOB own processing, UX-RULES owns shared interaction policy. Upstream: FTR/UC/FLOW, access, UX, errors, and decisions. Consumers: components, API processing, frontend UT, IT, ST, and implementation. Detail rule: the consumer is implementing and verifying this surface with the interface files open, so state the condition, the exact response and what must remain unchanged, and leave paths, payload fields and status codes to the owning interface file. Lifecycle: draft -> active -> superseded. -->
 
 ## Purpose and boundary
 
@@ -58,17 +58,20 @@ supersedes:
 |---|---|---|---|---|
 | T-01 | <this screen/state> | <E/V/event ID> | <SCR ID or named local state> | <condition and retained context> |
 
-## Accessibility and rationale
+## Accessibility
 
-- Focus order and restoration: <behavior>
-- Keyboard and non-pointer operation: <behavior>
-- Labels, instructions, and error association: <behavior>
-- Announced state changes: <behavior>
+| Local ID | Requirement | Applies to | Observable evidence | UX rule |
+|---|---|---|---|---|
+| AX-01 | <focus order, keyboard operation, label association, or announced state change> | <A/I/O/B/L/E ID or the whole screen> | <what a test can observe: role, name, state, focus position, announcement> | <UX ID or none> |
+<!-- One row per requirement a verification case can observe. A requirement no case can observe belongs in UX-RULES as shared policy, not here. -->
+
+### Rationale
+
 - Design rationale and rejected alternatives: <decision IDs or concise rationale>
 
 ## Completion contract
 
-- [ ] Every region, field/control, action, validation, and transition has a stable local ID.
+- [ ] Every region, field/control, action, validation, transition, and accessibility requirement has a stable local ID.
 - [ ] Sources, defaults, formats, visibility, and requiredness are deterministic.
 - [ ] Every action maps success, failure, and unchanged-state behavior.
 - [ ] Access, UX, error, feature/use-case, processing, and verification references resolve.

@@ -2,6 +2,8 @@
 
 The plugin separates an authoring contract from the product records written with that contract. There are three layers, not two competing template sets.
 
+`catalog.yaml` declares three kinds of contract, and the difference between them is what the thing they govern *is*. A **pattern** governs a scalable artifact type instantiated many times. A **foundation** governs one of the fixed singleton records a project authors once. A **system document** governs one of the four files under `00-system` that state the repository's own rules — those are never artifacts, enter no graph, manifest or projection, and are validated where they sit; before this layer existed nothing checked them at all, so a project could gut its own document rules and still validate clean.
+
 ## 1. Canonical source patterns
 
 `resources/artifact-patterns/` is the versioned source library shipped by the plugin. Its `catalog.yaml` maps each scalable artifact type to:
@@ -19,6 +21,8 @@ The same catalog holds completion contracts for the fixed foundation documents c
 `ai-saas-sdlc init` copies the source library into the new documentation repository at `00-system/patterns/`. It also writes `00-system/patterns/snapshot.json`, whose file count and catalog hash bind the snapshot to the copied files.
 
 After initialization, pattern listing, artifact creation and active-content validation resolve this pinned snapshot. They do not silently switch to a newer plugin source library. Direct edits to the snapshot fail integrity validation; changing its contract requires an explicit migration or reinitialization, not an in-place edit.
+
+`ai-saas-sdlc patterns migrate` is that explicit migration. It verifies the existing pin, copies the plugin's current catalog over it, re-pins the snapshot and prints the contract delta per artifact type; `--check` reports the same delta without writing. It never touches an instance: after migrating, `validate` names each live artifact that no longer satisfies the new shape, and repairing those is ordinary flow work with ordinary provenance. Accepted decision records and the original idea are exempt from a tightened contract, because immutability forbids the edit a repair would require — they were validated under the contract in force when they were sealed.
 
 ## 3. Live instances
 

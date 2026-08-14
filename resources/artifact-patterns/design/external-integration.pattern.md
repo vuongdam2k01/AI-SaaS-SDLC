@@ -13,7 +13,7 @@ supersedes:
 
 # {{ID}} — {{TITLE}}
 
-<!-- Contract: defines one bounded data or operation exchange with an external provider. It is not provider marketing, internal API processing, secret material, or operational procedure. Create when externally owned availability, authentication, schema, limits, or failure semantics affect product behavior. ID is INT-<AREA>-<NNN>; path is 03-design/integrations/<ID>.md. This artifact owns the internal boundary contract and mapping; cited provider specifications own external facts and ENT/EVT/OpenAPI own internal representations. Consumers: API/JOB/SUB designs, IT/ST specs, and implementation. Lifecycle: draft -> active -> superseded. -->
+<!-- Contract: defines one bounded data or operation exchange with an external provider. It is not provider marketing, internal API processing, secret material, or operational procedure. Create when externally owned availability, authentication, schema, limits, or failure semantics affect product behavior. ID is INT-<AREA>-<NNN>; path is 03-design/integrations/<ID>.md. This artifact owns the internal boundary contract and mapping; cited provider specifications own external facts and ENT/EVT/OpenAPI own internal representations. Consumers: API/JOB/SUB designs, IT/ST specs, and implementation. Detail rule: the consumer is implementing and verifying this boundary with the provider's own documentation open, so state the internal contract — mapping, timeout, retry, degradation, redaction — and cite the provider's facts with their observation date rather than copying its reference material. Lifecycle: draft -> active -> superseded. -->
 
 ## Purpose and boundary
 
@@ -36,19 +36,25 @@ supersedes:
 
 ## Authentication and secret boundary
 
-- Authentication mechanism: <mechanism, not credential value>
-- Credential ownership and storage boundary: <owner and protected location class>
-- Rotation/expiry behavior: <application-visible semantics only>
-- Least-privilege scope: <required scopes>
-- Incoming authenticity verification: <signature or trust rule, if applicable>
+| Local ID | Concern | Rule | Observable consequence |
+|---|---|---|---|
+| AU-01 | authentication mechanism | <mechanism, not credential value> | <observable when the mechanism is absent or wrong> |
+| AU-02 | credential ownership and storage | <owner and protected location class> | <what must never appear in logs or responses> |
+| AU-03 | rotation and expiry | <application-visible semantics only> | <observable at expiry> |
+| AU-04 | least-privilege scope | <required scopes> | <observable when a scope is missing> |
+| AU-05 | incoming authenticity verification | <signature or trust rule, if applicable> | <response to an unverified caller> |
+<!-- Never record credential values here; a row states the rule and what a case can observe, not the secret. -->
 
 ## Reliability
 
-- Timeout: <bounded value and rationale>
-- Rate-limit behavior: <detection and safe response>
-- Idempotency/deduplication: <key, scope, and duplicate behavior>
-- Ordering: <guarantee or explicit absence>
-- Consistency expectation: <when internal state may be considered reconciled>
+| Local ID | Concern | Rule | Observable consequence |
+|---|---|---|---|
+| RL-01 | timeout | <bounded value and rationale> | <product behavior once the bound elapses> |
+| RL-02 | rate-limit behavior | <detection and safe response> | <observable degraded behavior> |
+| RL-03 | idempotency and deduplication | <key, scope, and duplicate behavior> | <observable on a repeated exchange> |
+| RL-04 | ordering | <guarantee or explicit absence> | <observable out-of-order outcome> |
+| RL-05 | consistency expectation | <when internal state may be considered reconciled> | <state a case may assert after reconciliation> |
+<!-- Keep one row per concern that applies; state an explicit not-applicable rule rather than deleting a row. -->
 
 ## Failure and reconciliation
 
@@ -58,10 +64,13 @@ supersedes:
 
 ## Observability
 
-- Structured fields: <correlation ID, provider operation, outcome; exclude sensitive payloads>
-- Metrics: <success/failure/latency/reconciliation signals>
-- Audit events: <security- or business-relevant record>
-- Redaction rules: <fields never recorded>
+| Local ID | Concern | Rule | Observable consequence |
+|---|---|---|---|
+| OB-01 | structured fields | <correlation ID, provider operation, outcome; exclude sensitive payloads> | <fields a record must carry> |
+| OB-02 | metrics | <success/failure/latency/reconciliation signals> | <signal a case or operator can read> |
+| OB-03 | audit events | <security- or business-relevant record> | <event a case can assert was written> |
+| OB-04 | redaction rules | <fields never recorded> | <fields a case asserts absent from any record> |
+<!-- Redaction rows are negative expectations: a case proves the field is absent, not that logging happened. -->
 
 ## Completion contract
 

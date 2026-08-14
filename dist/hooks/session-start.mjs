@@ -13837,10 +13837,44 @@ var init_impact = __esm({
   }
 });
 
+// src/core/claims.ts
+var init_claims = __esm({
+  "src/core/claims.ts"() {
+    "use strict";
+  }
+});
+
 // src/core/coverage-derivation.ts
 var init_coverage_derivation = __esm({
   "src/core/coverage-derivation.ts"() {
     "use strict";
+    init_claims();
+  }
+});
+
+// src/core/foundation-coverage.ts
+var init_foundation_coverage = __esm({
+  "src/core/foundation-coverage.ts"() {
+    "use strict";
+    init_claims();
+    init_types();
+  }
+});
+
+// src/core/markdown.ts
+var init_markdown = __esm({
+  "src/core/markdown.ts"() {
+    "use strict";
+  }
+});
+
+// src/core/screen-coverage.ts
+var init_screen_coverage = __esm({
+  "src/core/screen-coverage.ts"() {
+    "use strict";
+    init_claims();
+    init_markdown();
+    init_types();
   }
 });
 
@@ -13863,6 +13897,7 @@ var init_execution_selection = __esm({
 var init_implementation_projections = __esm({
   "src/core/implementation-projections.ts"() {
     "use strict";
+    init_claims();
     init_implementation_evidence();
     init_execution_selection();
     init_graph();
@@ -13881,6 +13916,8 @@ var init_projections = __esm({
     init_state();
     init_utils();
     init_coverage_derivation();
+    init_foundation_coverage();
+    init_screen_coverage();
     init_platform_evidence();
     init_execution_selection();
     init_implementation_projections();

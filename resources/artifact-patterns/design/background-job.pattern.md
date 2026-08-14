@@ -13,7 +13,7 @@ supersedes:
 
 # {{ID}} — {{TITLE}}
 
-<!-- Contract: specifies deferred or message-driven processing with explicit trigger, state, retry, and idempotency semantics. It is not a platform scheduling guide, operational runbook, synchronous API contract, or delivery configuration. Create when work outlives a caller interaction or must be retried/serialized independently. ID is JOB-<AREA>-<NNN>; path is 03-design/jobs/<ID>.md. This artifact owns job processing semantics; EVT owns event shape, INT owns external boundaries, and DBML/ENT own data. Consumers: API/SUB/EVT designs, UT-JOB, IT/ST, and implementation. Lifecycle: draft -> active -> superseded. -->
+<!-- Contract: specifies deferred or message-driven processing with explicit trigger, state, retry, and idempotency semantics. It is not a platform scheduling guide, operational runbook, synchronous API contract, or delivery configuration. Create when work outlives a caller interaction or must be retried/serialized independently. ID is JOB-<AREA>-<NNN>; path is 03-design/jobs/<ID>.md. This artifact owns job processing semantics; EVT owns event shape, INT owns external boundaries, and DBML/ENT own data. Consumers: API/SUB/EVT designs, UT-JOB, IT/ST, and implementation. Detail rule: the consumer is implementing and verifying deferred work, so state trigger eligibility, commit boundaries, retry and idempotency semantics, and leave scheduler configuration and deployment topology out entirely. Lifecycle: draft -> active -> superseded. -->
 
 ## Purpose and boundary
 
@@ -43,11 +43,14 @@ supersedes:
 
 ## Concurrency and idempotency
 
-- Concurrency scope: <key or partition>
-- Conflict behavior: <serialize, reject, merge, or safe no-op>
-- Idempotency key and retention: <source, scope, lifetime>
-- Duplicate delivery behavior: <observable result and side-effect guarantee>
-- Ordering guarantee: <required ordering or explicit absence>
+| Local ID | Concern | Rule | Applies to | Observable consequence |
+|---|---|---|---|---|
+| CC-01 | concurrency scope | <key or partition> | <P IDs> | <what a second concurrent run observes> |
+| CC-02 | conflict behavior | <serialize, reject, merge, or safe no-op> | <P IDs> | <loser's observable outcome> |
+| CC-03 | idempotency key and retention | <source, scope, lifetime> | <trigger> | <observable on replay after retention> |
+| CC-04 | duplicate delivery behavior | <observable result and side-effect guarantee> | <trigger> | <side effects a case can count> |
+| CC-05 | ordering guarantee | <required ordering or explicit absence> | <trigger> | <observable out-of-order outcome> |
+<!-- Keep one row per concern that applies; state an explicit not-applicable rule rather than deleting a row, because a silent omission and a deliberate exemption are indistinguishable to a later reader. -->
 
 ## Retry and failure
 

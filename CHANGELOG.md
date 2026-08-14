@@ -1,5 +1,144 @@
 # Changelog
 
+## 1.19.0 - 2026-08-14
+
+The quality of an artifact type is a property of its model, not of each
+instance. Where a model is missing, quality tracks whoever happened to write
+that instance; where one exists, most of it is settled before anyone starts
+writing. An audit of this plugin against that standard found the patterns were
+strong as shape contracts and silent as models: they described what a finished
+artifact looks like and said nothing about how to derive its content, how far
+to go, or how to know when nothing had been left out.
+
+Three specific gaps followed from that. Every pattern still carried normative
+prose bullets — a screen's accessibility requirements, an operation's
+transaction semantics, an integration's reliability rules — and a prose bullet
+cannot be cited, claimed or reported as unclaimed; it can only be read and
+forgotten. That is exactly the shape of the failure this plugin exists to
+prevent, sitting inside the plugin's own templates. The closure condition that
+holds for business rules held for nothing else, so the derivation map could
+promise a test consequence for an access rule or an error code and never
+observe whether one was taken. And no protocol answered the question that
+follows level allocation: given one specification, which cases does it contain,
+and how do you know when it has them all.
+
+This release closes all three, and gives existing repositories a way to receive
+the new contracts at all.
+
+### Added
+
+- `resources/protocols/test-case-derivation.md` — the derivation between level
+  allocation and test code. Three destinations for every declared behavior
+  (case, exclusion, question); a construction-based classifier for frontend
+  specifications; the sub-case expansion of one action with its multiply-versus-
+  add rule; the two gates a region product must pass; the subtraction that keeps
+  display rules from inflating a specification; and the three-level role rule
+  whose reduced-surface case carries the negative expectation no document
+  states — that the operation supplying hidden data is not called. It adds no
+  level and no gate.
+- Five closure warnings — `ACCESS_UNVERIFIED`, `INVARIANT_UNVERIFIED`,
+  `ERROR_UNVERIFIED`, `UX_UNVERIFIED` and `SCREEN_BEHAVIOR_UNCLAIMED` — with
+  `generated/foundation-coverage.md` and `generated/screen-coverage.md` derived
+  through the same predicates, so a view and a finding can never disagree. A
+  screen behavior counts as closed by a case, by an exclusion naming its
+  receiving specification, or by an open question; reaching none of the three is
+  the silent gap these exist to name. Warnings, never errors: which level holds
+  a claim stays a judgement.
+- `ai-saas-sdlc patterns migrate` — the missing way across. A pinned snapshot
+  keeps a repository reproducible, which also means a standard improved in the
+  plugin could only ever reach repositories created afterwards. Migration
+  verifies the existing pin, re-pins the current catalog, and reports the
+  contract delta per artifact type; `--check` reports without writing. It never
+  edits an instance: `validate` afterwards names what no longer fits, and
+  repairing it is ordinary flow work.
+- Content contracts for the four `00-system` documents, and the twenty-seventh
+  warning, `SYSTEM_DOCUMENT_INCOMPLETE`. These documents state the repository's
+  own authority, lifecycle, vocabulary and validation rules, and nothing checked
+  them: `scanArtifacts` reads layers 01 through 05, so a project could gut its
+  own document rules and every command would still report a clean repository.
+  They are contracted without becoming artifacts — they enter no graph, no
+  baseline manifest and no projection, which is what makes this possible without
+  moving any existing repository's artifact count or generated views. Reported
+  as a warning rather than an error because a repository initialized under an
+  older template carries an older copy it did not author, and `patterns migrate`
+  re-pins contracts without carrying system documentation; the migration report
+  now says so when those contracts change.
+- `evals/spec-derivation` — grades whether a derived specification traverses
+  the screen it verifies, routes what it cannot prove, and records undefined
+  behavior as questions instead of inventing message strings. It runs against
+  two deliberately unequal screens, so the grader can also catch the failure a
+  single screen hides: specification size that tracks the author rather than the
+  object, in either direction — two near-equal specifications for two unequal
+  surfaces, or a small one that is small because the author stopped early. The
+  smaller screen is also where a group of behavior the larger one has none of
+  becomes visible at all.
+- `src/core/claims.ts` — one definition of what a claim is, shared by every
+  closure check, replacing three near-identical private copies.
+
+### Changed
+
+- Pattern catalog generation 4 → 5. Every normative prose block in the design,
+  product, verification and control patterns is now an identified table:
+  `AX-` accessibility, `TX-` transactions, `CC-` concurrency, `EM-`/`DL-`/`EP-`
+  event semantics, `AU-`/`RL-`/`OB-` integration boundaries, `OW-`/`T-`/`REL-`/
+  `RT-` entity ownership and lifecycle, `G-` use-case guarantees, `EE-` flow
+  entry and exit, `DEC-`/`FC-` decision statements and follow-on constraints,
+  and `EX-` unit-test exclusions, which the receiving specification can now cite
+  back. Discovery unknowns and an issue's resolution stay prose deliberately,
+  and each says so with its reason.
+- The `access_control`, `error_catalog`, `ux_rules` and `test_policy`
+  foundations gain identified tables for their rule sections — denial behavior,
+  exposure and logging, content rules, and the three policy rule blocks — and
+  those four plus `system_invariants` and `question_ledger` now declare
+  local-ID namespaces the engine enforces.
+- Integration and system specifications no longer carry a separate un-identified
+  failure-check table. Those checks are `TC-*` rows, where an execution record
+  can name them; the integration case table gains a State guarantee column and
+  both completion contracts require a failure path where one exists.
+- Every pattern's contract comment carries a `Detail rule` sentence derived from
+  its consumer — what they already have open, and therefore what this artifact
+  must not restate. `resources/artifact-patterns/README.md` carries the consumer
+  table those sentences come from.
+- `behavior-formation.md` expands its case checklist into trigger expansion,
+  naming which dimensions multiply rather than add.
+- Accepted decision records and the original idea are exempt from content
+  contracts once baselined. A contract that tightens after they were sealed
+  would otherwise demand an edit immutability forbids, leaving an error nobody
+  can repair and a baseline nobody can cut.
+- `implementation-projections.ts` now joins UX rules into work packets; they
+  were the one foundation family it omitted.
+- `00-system/document-rules.md` and `00-system/glossary.md` give their rule
+  sections local IDs (`DR-01`–`DR-16`, `NR-01`–`NR-05`) so a review can cite the
+  rule an artifact broke. `00-system/artifact-lifecycle.md` and
+  `00-system/validation-rules.md` deliberately keep theirs as prose, each with a
+  comment saying why: those rules are executed by the engine, so the code is
+  already the authority and a local ID would be a second copy of it, drifting
+  the moment either side changed. The distinction is the rule to apply when
+  identifying content anywhere — identify what a person applies, leave what the
+  engine executes.
+
+### Certification
+
+Certified end to end on repositories built from an empty directory through the
+packaged binary, with the two highest-risk claims proven red before green. That
+discipline paid for itself: the first version of the sealed-decision-record
+check was **vacuous** — it asserted no error on an ADR the fixture never
+creates, and stayed green with the exemption disabled. Evidence and the honest
+limits in `plans/reports/certifier-2026-08-14-canonical-model-certification.md`;
+the coverage no unit test held is kept as `tests/packaged-lifecycle.test.ts`.
+
+### Upgrading
+
+An existing repository keeps its pinned catalog until `patterns migrate` is run
+deliberately, and sees the two new projections only once it has a screen or a
+live foundation rule — at which point `refresh` writes them and `validate` stops
+reporting `GENERATED_DRIFT`. Run `refresh` once after upgrading the plugin.
+
+After migrating, expect `SYSTEM_DOCUMENT_INCOMPLETE` until the four `00-system`
+documents are brought forward from the current project template: migration
+re-pins contracts, and those documents ship outside the pinned catalog. The
+warning is the record of that debt and blocks nothing.
+
 ## 1.18.2 - 2026-08-14
 
 The how-to guides had drifted as far back as 1.9.0 while the engine reached

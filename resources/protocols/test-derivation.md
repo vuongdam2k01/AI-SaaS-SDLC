@@ -87,6 +87,8 @@ This matters most for anything that becomes immutable. An accepted ADR baselined
 
 ## Test artifact content
 
+Which specification holds a rule is settled above. Which cases that specification then contains — and how the traversal proves none went missing — is `resources/protocols/test-case-derivation.md`. Follow it when writing or revising the cases of any specification; it adds no level and no gate, only the derivation that makes case sets reproducible between authors.
+
 Each `UT-*`, `IT-*` or `ST-*` declares:
 
 - permanent case IDs and upstream artifact/AC/error/invariant IDs;

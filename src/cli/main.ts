@@ -17,6 +17,7 @@ import { SdlcError } from "../core/errors.js";
 import { withProjectLock } from "../core/project-lock.js";
 import { resolveRuntimeRoot } from "../core/runtime-root.js";
 import { resolveCatalog } from "../core/pattern-catalog.js";
+import { formatMigrationReport, migratePatternCatalog } from "../core/pattern-migration.js";
 import { createArtifactFromPattern } from "../core/artifact-instantiation.js";
 import { STALE_AFTER_BASELINES, baselinesOpen, openQuestions } from "../core/question-ledger.js";
 import { buildDocsSite } from "../core/docs-site.js";
@@ -41,7 +42,7 @@ function print(value: unknown, json = false): void {
   else console.log(value);
 }
 
-program.name("ai-saas-sdlc").description("Deterministic engine for AI SaaS SDLC documentation flows.").version("1.18.2");
+program.name("ai-saas-sdlc").description("Deterministic engine for AI SaaS SDLC documentation flows.").version("1.19.0");
 
 program.command("init")
   .description("Initialize a centralized documentation repository.")
@@ -68,7 +69,7 @@ program.command("init")
     print(`Initialized AI SaaS SDLC documentation repository: ${projectId}`);
   });
 
-const patterns = program.command("patterns").description("Inspect the pinned scalable artifact pattern catalog.");
+const patterns = program.command("patterns").description("Inspect and migrate the pinned scalable artifact pattern catalog.");
 patterns.command("list")
   .option("--json", "Emit JSON")
   .action(async (options: { json?: boolean }) => {
@@ -80,6 +81,15 @@ patterns.command("list")
       template: pattern.template
     }));
     print(options.json ? { version: catalog.version, patterns: entries } : entries.map((entry) => `${entry.artifact_type}\t${entry.id_pattern}\t${entry.target}`).join("\n"), Boolean(options.json));
+  });
+
+patterns.command("migrate")
+  .description("Re-pin this repository's pattern snapshot to the plugin's current catalog and report the contract change.")
+  .option("--check", "Report the contract difference without writing anything")
+  .option("--json", "Emit JSON")
+  .action(async (options: { check?: boolean; json?: boolean }) => {
+    const report = await migratePatternCatalog(root, resolve(runtimeRoot, "resources", "artifact-patterns"), options.check === true);
+    print(options.json ? report : formatMigrationReport(report), Boolean(options.json));
   });
 
 const artifact = program.command("artifact").description("Instantiate scalable artifacts from the pinned pattern catalog.");

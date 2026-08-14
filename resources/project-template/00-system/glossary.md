@@ -33,6 +33,8 @@ supersedes:
 | Platform target | The product-visible consequences of shipping on one platform or channel: constraints, OS permissions, distribution and update behavior, local data. | Build, signing or deployment procedure. | PLT artifact |
 | Evidence host token | The `host_os` value a platform target declares as the host its execution evidence is expected to be observed under. | The observed host an execution actually recorded. | PLT artifact |
 | Platform coverage | The generated join of platform targets, declaring commands, latest matching executions and observed hosts. | A claim that a platform is proven. | `generated/platform-coverage.md` |
+| Foundation coverage | The generated view of which verification specification claims each declared access rule, invariant, error code and UX rule. | A judgement about which level should claim one. | `generated/foundation-coverage.md` |
+| Screen coverage | The generated view of where each declared screen action and validation rule ends up: a case, an exclusion handoff, or an open question. | A claim that the behavior is correct. | `generated/screen-coverage.md` |
 | Implementation coverage | The generated per-feature join of design and specification mappings, latest executions per level and the unmapped complement, present once implementation sources are configured. | A claim that mapped code is correct. | `generated/implementation-coverage.md` |
 | Work packet | The generated per-feature join of its closure in dependency order, mappings, owning contract files, referenced foundation rows, covering specifications and configured commands. | Authority over any artifact it joins. | `generated/implementation-plan/<FTR-ID>.md` |
 | Runtime topology | The grouping of subsystems into runtime units, the network boundaries between them and the contracts that cross them. | Deployment, scaling operations or environment inventory. | ARCHITECTURE-OVERVIEW |
@@ -64,11 +66,14 @@ supersedes:
 
 ## Naming rules
 
-- Use the exact canonical term in artifact titles, headings, tables, and references when the glossary defines it.
-- Add project-specific domain terms as rows with a precise meaning, exclusions, and owning artifact before using ambiguous synonyms.
-- IDs remain stable even if a title changes; never encode status or assignment in an ID.
-- Local IDs are meaningful only within their owning artifact unless referenced as `<artifact ID>#<local ID>`.
-- The AREA segment between an ID's type prefix and its number groups artifacts by product area; when `sdlc.config.yaml` declares an `areas` registry, every new ID uses a registered area.
+| Local ID | Rule | Applies to |
+|---|---|---|
+| NR-01 | Use the exact canonical term in artifact titles, headings, tables, and references when the glossary defines it. | Every artifact |
+| NR-02 | Add project-specific domain terms as rows with a precise meaning, exclusions, and owning artifact before using ambiguous synonyms. | This glossary |
+| NR-03 | IDs remain stable even if a title changes; never encode status or assignment in an ID. | Every permanent ID |
+| NR-04 | Local IDs are meaningful only within their owning artifact unless referenced as `<artifact ID>#<local ID>`. | Every local ID and reference |
+| NR-05 | The AREA segment between an ID's type prefix and its number groups artifacts by product area; when `sdlc.config.yaml` declares an `areas` registry, every new ID uses a registered area. | Every new ID |
+<!-- The Canonical terms and Acronyms tables above need no local ID: the term is its own identifier, and a reference cites the term itself. These rules are different — a review cites the rule an artifact broke, so each one carries an ID. -->
 
 ## Completion contract
 

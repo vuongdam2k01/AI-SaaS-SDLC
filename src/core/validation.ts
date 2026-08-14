@@ -15,6 +15,9 @@ import { validateInternalRecords } from "./internal-validation.js";
 import { CANONICAL_MARKDOWN, CANONICAL_TYPES, FIXED_TYPES, SCALABLE_LOCATIONS } from "./artifact-contracts.js";
 import { validateActiveArtifactContent } from "./content-contracts.js";
 import { ruleCoverageEntries } from "./coverage-derivation.js";
+import { foundationCoverageFindings } from "./foundation-coverage.js";
+import { screenCoverageFindings } from "./screen-coverage.js";
+import { systemDocumentFindings } from "./system-documents.js";
 import { MAX_CASES_PER_SPEC, specSizeEntries } from "./spec-size.js";
 import { brokenCaseReferences } from "./test-cases.js";
 import { STALE_AFTER_BASELINES, baselinesOpen, openQuestions } from "./question-ledger.js";
@@ -143,6 +146,19 @@ export async function validateProject(root: string, artifacts: Artifact[]): Prom
   for (const broken of brokenCaseReferences(artifacts)) {
     findings.push({ severity: "warning", code: "CASE_REFERENCE_BROKEN", message: `${broken.reference} names a case ${broken.specification} does not declare`, file: broken.file });
   }
+  // The same closure the rule check applies to business rules, applied to the
+  // identifiers the foundations own and to the behavior a screen declares. The
+  // derivation map already promises a test consequence for an access rule, an
+  // invariant, an error code and a UX rule; without these the promise was
+  // unobservable. Warnings for the reason every closure check is one: which
+  // level holds a claim is judgement, and a baseline must not fail on it.
+  findings.push(...foundationCoverageFindings(artifacts));
+  findings.push(...screenCoverageFindings(artifacts));
+  // The `00-system` documents are the one layer no scan reaches — they state
+  // the repository's own authority, lifecycle, vocabulary and validation rules
+  // and were checked by nothing at all. Warnings, because a repository
+  // initialized under an older template carries an older copy it did not author.
+  findings.push(...await systemDocumentFindings(root));
   // A live platform target whose evidence no command declares is the repository
   // promising per-platform proof the engine can never produce. Warning, not
   // error, for the same reason as the rules above — and it fires even with zero
@@ -237,6 +253,10 @@ export async function validateProject(root: string, artifacts: Artifact[]): Prom
   } catch {
     findings.push({ severity: "error", code: "STATE_INVALID", message: `Missing or invalid ${projectPaths(root).current}` });
   }
+  // Records the baseline sealed. Collected here so the content contracts below
+  // can skip them: a pattern contract that tightens after an accepted ADR was
+  // sealed would otherwise demand an edit immutability forbids.
+  const frozen = new Set<string>();
   const baselineFile = projectPaths(root).baseline;
   if (await pathExists(baselineFile)) {
     try {
@@ -255,6 +275,7 @@ export async function validateProject(root: string, artifacts: Artifact[]): Prom
         const immutable = previous?.artifact_type === "original_idea"
           || (previous?.artifact_type === "architectural_decision" && previous.adr_status === "accepted")
           || previous?.status === "retired" || previous?.status === "superseded";
+        if (immutable) frozen.add(artifact.id);
         if (immutable && previous && previous.hash !== artifact.hash) findings.push({ severity: "error", code: "IMMUTABLE_CHANGED", message: `${artifact.id} is immutable after baselining; create a successor artifact instead`, file: artifact.file });
       }
     } catch {
@@ -262,7 +283,7 @@ export async function validateProject(root: string, artifacts: Artifact[]): Prom
     }
   }
   try {
-    findings.push(...await validateActiveArtifactContent(root, artifacts));
+    findings.push(...await validateActiveArtifactContent(root, artifacts, frozen));
   } catch (error) {
     findings.push({ severity: "error", code: "PATTERN_CATALOG_INVALID", message: String(error) });
   }

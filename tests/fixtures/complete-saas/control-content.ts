@@ -29,9 +29,12 @@ How should concurrent approval decisions preserve INV-002 while returning a dete
 ## Decision
 
 - Selected option: OPT-01.
-- Decision statement: every decision supplies the observed version; the transaction commits only while the request is pending at that version.
-- Applicability: API-APPROVAL-001 and any future writer of ENT-APPROVAL-001 terminal state.
-- Exceptions: none for binding decisions.
+
+| Local ID | Concern | Statement |
+|---|---|---|
+| DEC-01 | decision statement | Every decision supplies the observed version; the transaction commits only while the request is pending at that version. |
+| DEC-02 | applicability | API-APPROVAL-001 and any future writer of ENT-APPROVAL-001 terminal state. |
+| DEC-03 | exceptions | None for binding decisions. |
 
 ## Consequences
 
@@ -45,7 +48,9 @@ How should concurrent approval decisions preserve INV-002 while returning a dete
 
 ### Follow-on constraints
 
-- API processing and integration tests must preserve and assert version/conflict behavior.
+| Local ID | Constraint | Binds | Observable violation |
+|---|---|---|---|
+| FC-01 | API processing and integration tests preserve and assert version and conflict behavior. | API-APPROVAL-001, IT-APPROVAL-001 | A decision path that commits without checking the observed version. |
 
 ## Affected scope and verification
 

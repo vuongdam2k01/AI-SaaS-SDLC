@@ -12,7 +12,7 @@ supersedes:
 
 # {{ID}} — {{TITLE}}
 
-<!-- Contract: records one observed discrepancy against an identified authority and tracks its bounded correction and regression evidence. It is not a feature request, general question, informal note, or substitute for changing the authoritative artifact. Create when actual behavior/content differs from an explicit expected contract and closure spans one or more artifacts. ID is ISS-<AREA>-<NNN>; path is 05-control/issues/<ID>.md. This artifact owns observation, impact, resolution scope, and closure evidence; referenced artifacts own expected behavior. Consumers: affected artifacts, test specs/results, and change closure. Lifecycle: open -> resolved; reopen on recurrence. -->
+<!-- Contract: records one observed discrepancy against an identified authority and tracks its bounded correction and regression evidence. It is not a feature request, general question, informal note, or substitute for changing the authoritative artifact. Create when actual behavior/content differs from an explicit expected contract and closure spans one or more artifacts. ID is ISS-<AREA>-<NNN>; path is 05-control/issues/<ID>.md. This artifact owns observation, impact, resolution scope, and closure evidence; referenced artifacts own expected behavior. Consumers: affected artifacts, test specs/results, and change closure. Detail rule: the consumer is repairing a specific mismatch, so state the observed and expected behavior with the authority that defines the expectation, and keep the closure minimal rather than opening adjacent work. Lifecycle: open -> resolved; reopen on recurrence. -->
 
 ## Purpose and boundary
 
@@ -47,6 +47,8 @@ supersedes:
 | <ID/path> | <how affected> | <minimal correction> | <test/result/inspection evidence> |
 
 ## Resolution
+
+<!-- Prose by design: this section is empty while the issue is open, so a required table with completed rows would make an open issue unactivatable. A remaining limitation that must outlive the issue belongs in TEST-POLICY or the owning artifact, where it keeps a citable identity. -->
 
 - Root cause: <confirmed cause, separated from symptom>
 - Corrected authority or implementation: <what changed and why>

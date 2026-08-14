@@ -9,6 +9,8 @@ import { assertSafeManagedPath, isWithin, prepareSafeManagedPath, projectPaths }
 import { pathExists } from "./state.js";
 import { normalizeText, stableJson, uniqueSorted } from "./utils.js";
 import { acceptanceCoverage, evidenceClaimCoverage, ruleCoverage } from "./coverage-derivation.js";
+import { foundationCoverage, foundationCoverageEntries } from "./foundation-coverage.js";
+import { screenCoverage } from "./screen-coverage.js";
 import { declaredPlatformIds, livePlatformTargets, platformContradiction } from "./platform-evidence.js";
 import { latestExecution, matchesDefinitionEvidence } from "./execution-selection.js";
 import { implementationCoverageProjection, implementationPlanProjections } from "./implementation-projections.js";
@@ -163,6 +165,15 @@ export function buildProjections(
   projections["evidence-claim-coverage.md"] = evidenceClaimCoverage(artifacts);
   projections["acceptance-coverage.md"] = acceptanceCoverage(artifacts);
   projections["rule-coverage.md"] = ruleCoverage(artifacts);
+  // Both closure views follow the platform-coverage contract: emitted only once
+  // their subject matter exists, so a repository that predates them sees no new
+  // generated file and therefore no drift until it grows one.
+  if (foundationCoverageEntries(artifacts).length > 0) {
+    projections["foundation-coverage.md"] = foundationCoverage(artifacts);
+  }
+  if (artifacts.some((artifact) => artifact.artifact_type === "screen")) {
+    projections["screen-coverage.md"] = screenCoverage(artifacts);
+  }
   // Emitted only when platform targets exist, per the roadmap contract: a
   // repository without them sees no new generated file and therefore no drift.
   // Gated on existence rather than liveness so the file cannot flip in and out

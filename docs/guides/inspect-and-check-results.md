@@ -41,11 +41,17 @@ It will not turn a warning into a product decision, and it never claims a test p
 
 The engine's `validate` returns non-zero only when there is an **error** — a broken structure: a bad ID, a broken reference, a lifecycle or supersession violation, a coverage gap, a mutated immutable record. Those must be fixed before a baseline.
 
-Twenty-one findings are **warnings** and never block a baseline, because each names a *judgement* or a debt rather than a broken structure. They are reported precisely so that owing them stays visible:
+Twenty-seven findings are **warnings** and never block a baseline, because each names a *judgement* or a debt rather than a broken structure. They are reported precisely so that owing them stays visible:
 
 | Warning | Means | You owe |
 |---|---|---|
 | `RULE_UNVERIFIED` | A declared business rule that no specification claims | A test that covers the rule |
+| `ACCESS_UNVERIFIED` | A declared access rule that no active specification claims | A denial case at the level that can observe it |
+| `INVARIANT_UNVERIFIED` | A declared system invariant that no active specification claims | A boundary or property case that can catch the violation |
+| `ERROR_UNVERIFIED` | A declared error code that no active specification claims | A case that triggers the condition and asserts the mapping |
+| `UX_UNVERIFIED` | A declared UX rule that no active specification claims | A case asserting the rule's observable behavior |
+| `SCREEN_BEHAVIOR_UNCLAIMED` | A screen action or validation rule reaching no case, no exclusion and no question | One of the three: prove it, hand it off by ID, or ask |
+| `SYSTEM_DOCUMENT_INCOMPLETE` | A `00-system` document missing a section, table or rule ID its contract declares | Bringing that document forward from the current project template |
 | `SPEC_OVERSIZED` | A live IT/ST spec past the case threshold | Splitting the spec |
 | `CASE_REFERENCE_BROKEN` | A qualified `#TC-nn` reference naming a case its specification does not declare | Fixing the reference, or a recorded deferral when it sits in an immutable ADR |
 | `QUESTION_STALE` | An open question that has outlived three baselines | An answer, a decision, or an explicit "still open + what would close it" |
@@ -77,6 +83,7 @@ Flows write canonical artifacts by hand, but the engine regenerates the cross-cu
 - **Traceability and artifact graph/index** — how everything connects.
 - **Feature / interaction / implementation maps** — what maps to what code.
 - **`generated/rule-coverage.md`**, **`generated/acceptance-coverage.md`**, **`generated/evidence-claim-coverage.md`** — which business rules, acceptance criteria and evidence claims are claimed by a specification and which are still commitments.
+- **`generated/foundation-coverage.md`**, **`generated/screen-coverage.md`** — the same question for the rules the foundations own and for the behavior each screen declares. The screen view names all three legal destinations per row, so a behavior handed to another level or left as an open question reads as covered rather than missing. Both appear only once their subject matter exists.
 - **`generated/implementation-order.md`** — the dependency-ordered build sequence.
 - **`generated/research-coverage.md`** — present once engine retrieval has run: which cited sources carry `RET-*` provenance.
 - **`generated/decision-impact/<ADR-ID>.md`** and **`generated/change-impact/<CHG-ID>.md`** — what one decision or one change reached.

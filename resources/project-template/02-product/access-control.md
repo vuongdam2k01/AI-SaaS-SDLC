@@ -39,11 +39,14 @@ supersedes:
 
 ## Denial behavior
 
-- Default decision: deny unless one applicable rule explicitly allows.
-- Existence disclosure: <!-- when denial must conceal resource existence -->
-- Error authority: <!-- ERROR-CATALOG codes -->
-- State guarantee: denial performs no protected read disclosure or mutation.
-- Audit obligation: <!-- events/fields without sensitive payloads, if applicable -->
+| Local ID | Concern | Rule | Observable consequence |
+|---|---|---|---|
+| DEN-01 | default decision | Deny unless one applicable rule explicitly allows. | <what an unlisted subject-action pair receives> |
+| DEN-02 | existence disclosure | <!-- when denial must conceal resource existence --> | <response that must not distinguish absent from forbidden> |
+| DEN-03 | error authority | <!-- ERROR-CATALOG codes --> | <exact code a denied caller receives> |
+| DEN-04 | state guarantee | Denial performs no protected read disclosure or mutation. | <state a case asserts unchanged after a denial> |
+| DEN-05 | audit obligation | <!-- events/fields without sensitive payloads, if applicable --> | <record a case can assert was written> |
+<!-- These rows are the product's default security posture: every one is a negative expectation a verification case proves, not a statement of intent. -->
 
 ## Completion contract
 

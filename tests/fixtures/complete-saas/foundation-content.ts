@@ -226,6 +226,14 @@ ApprovalRequest supports submit, read, approve, and reject actions within its te
 
 Denials disclose no cross-tenant resource details and never mutate the request or its audit history.
 
+| Local ID | Concern | Rule | Observable consequence |
+|---|---|---|---|
+| DEN-01 | default decision | Deny unless an ACCESS rule explicitly allows the subject-action pair. | An unlisted role receives ERR-FORBIDDEN. |
+| DEN-02 | existence disclosure | A cross-tenant request is indistinguishable from an absent one. | The response body and status match the not-found case. |
+| DEN-03 | error authority | Denials return ERR-FORBIDDEN from ERROR-CATALOG. | The exact code reaches the caller. |
+| DEN-04 | state guarantee | A denial performs no protected read disclosure or mutation. | Request state and audit history are unchanged. |
+| DEN-05 | audit obligation | Denied approval attempts record subject, request, and outcome without payload fields. | An audit row exists carrying no request body. |
+
 ## Completion contract
 
 ${complete}

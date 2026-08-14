@@ -97,7 +97,15 @@ async function validateArtifact(artifact: Artifact, pattern: ArtifactPattern, ca
   return validateAgainstContract(artifact, mergedContract(pattern, deriveContract(template)), template);
 }
 
-export async function validateActiveArtifactContent(root: string, artifacts: Artifact[]): Promise<ValidationFinding[]> {
+/**
+ * @param frozen IDs of baselined records that may no longer be edited — an
+ *   accepted ADR, the original idea. Their content is exempt because a contract
+ *   that tightens after they were sealed would demand an edit immutability
+ *   forbids, leaving an error no one can repair and a baseline nobody can cut.
+ *   They were validated under the contract in force when they were written, and
+ *   IMMUTABLE_CHANGED still guards them against being altered afterwards.
+ */
+export async function validateActiveArtifactContent(root: string, artifacts: Artifact[], frozen: ReadonlySet<string> = new Set()): Promise<ValidationFinding[]> {
   const catalogRoot = path.join(root, "00-system", "patterns");
   if (!(await pathExists(path.join(catalogRoot, "catalog.yaml"))) && !(await pathExists(path.join(catalogRoot, "catalog.yml")))) {
     return [{ severity: "error", code: "PATTERN_SNAPSHOT_MISSING", message: "Pinned pattern snapshot is missing; an explicit migration is required before validation or baselining." }];
@@ -106,7 +114,7 @@ export async function validateActiveArtifactContent(root: string, artifacts: Art
   const patterns = new Map(catalog.patterns.map((pattern) => [pattern.artifact_type, pattern]));
   const foundations = new Map(catalog.foundations.map((foundation) => [foundation.artifact_type, foundation]));
   const findings: ValidationFinding[] = [];
-  for (const artifact of artifacts.filter((item) => isLiveStatus(item.status))) {
+  for (const artifact of artifacts.filter((item) => isLiveStatus(item.status) && !frozen.has(item.id))) {
     const pattern = patterns.get(artifact.artifact_type);
     if (pattern) {
       findings.push(...await validateArtifact(artifact, pattern, catalog.root));

@@ -81,6 +81,7 @@ Report compactly:
 - unresolved questions/issues and accepted/superseded ADRs;
 - UT/IT/ST specification and execution state;
 - business rules declared by live features that no specification claims, taken from `generated/rule-coverage.md` and the `RULE_UNVERIFIED` warnings, reported as unverified commitments rather than as passing coverage;
+- the same reading for the rules the foundations own and the behavior each screen declares, from `generated/foundation-coverage.md`, `generated/screen-coverage.md` and the `ACCESS_UNVERIFIED`, `INVARIANT_UNVERIFIED`, `ERROR_UNVERIFIED`, `UX_UNVERIFIED` and `SCREEN_BEHAVIOR_UNCLAIMED` warnings; a screen behavior counts as closed when a case proves it, an exclusion hands it on, or a question records that it is undefined;
 - the oldest open questions with their age in baselines and what each still blocks, taken from `open_questions` in `ENGINE state --json` and the `QUESTION_STALE` warnings — a count of open questions without their ages hides exactly the ones worth reporting;
 - verification specifications the engine reports as `SPEC_OVERSIZED`, with their case counts, reported as maintenance owed rather than as a defect;
 - qualified case references the engine reports as `CASE_REFERENCE_BROKEN`, naming both the citing artifact and the specification that does not declare the case;

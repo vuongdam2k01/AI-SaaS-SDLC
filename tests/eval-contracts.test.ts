@@ -15,13 +15,13 @@ interface EvalCase {
 }
 
 describe("forward eval contracts", () => {
-  it("ships six artifact-and-trace cases with auditable semantic graders", async () => {
+  it("ships seven artifact-and-trace cases with auditable semantic graders", async () => {
     const manifest = JSON.parse(await readFile(path.join(pluginRoot, "evals", "manifest.json"), "utf8")) as {
       schema_version: number;
       cases: Record<string, EvalCase>;
     };
     expect(manifest.schema_version).toBe(1);
-    expect(Object.keys(manifest.cases).sort()).toEqual(["anti-procedure", "evolution", "genesis", "implementation", "reconciliation", "research-tools"]);
+    expect(Object.keys(manifest.cases).sort()).toEqual(["anti-procedure", "evolution", "genesis", "implementation", "reconciliation", "research-tools", "spec-derivation"]);
     for (const [name, definition] of Object.entries(manifest.cases)) {
       const prompt = await readFile(path.join(pluginRoot, "evals", definition.prompt), "utf8");
       const grader = await readFile(path.join(pluginRoot, "evals", definition.grader), "utf8");

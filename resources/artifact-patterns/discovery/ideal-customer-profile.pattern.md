@@ -11,7 +11,7 @@ supersedes:
 
 # {{ID}} — {{TITLE}}
 
-<!-- Contract: describes one evidence-backed customer segment, not an invented individual, market total, product scope, or sales plan. Create only when a materially distinct segment changes needs, constraints, buying context, or applicability. ID is ICP-<SEGMENT>; path is 01-discovery/customer-segments/<ID>.md. This artifact owns segment boundaries and segment-level needs; cited evidence remains authoritative in EVIDENCE-LEDGER. Upstream: idea definition and evidence. Consumers: personas, problems, opportunity definition, features, and use cases. Lifecycle: draft -> active -> superseded. Active requires every completion item below. Replace angle-bracket guidance; examples belong only in comments. -->
+<!-- Contract: describes one evidence-backed customer segment, not an invented individual, market total, product scope, or sales plan. Create only when a materially distinct segment changes needs, constraints, buying context, or applicability. ID is ICP-<SEGMENT>; path is 01-discovery/customer-segments/<ID>.md. This artifact owns segment boundaries and segment-level needs; cited evidence remains authoritative in EVIDENCE-LEDGER. Upstream: idea definition and evidence. Consumers: personas, problems, opportunity definition, features, and use cases. Detail rule: the consumer is deciding who to build for and reads the evidence ledger beside this document, so cite evidence IDs rather than restating sources, and state discriminators an outsider could apply rather than adjectives only the author can score. Lifecycle: draft -> active -> superseded. Active requires every completion item below. Replace angle-bracket guidance; examples belong only in comments. -->
 
 ## Purpose and boundary
 
@@ -51,6 +51,7 @@ supersedes:
 - Inferences: <clearly label deductions that are not direct observations>
 - Unknowns: <questions that could alter the segment boundary>
 - Falsifiers: <observations that would invalidate the profile>
+<!-- Prose by design. These are consumed by a human deciding what to research next, not by a downstream artifact citing an ID; the evidence register above carries every claim that must stay traceable. -->
 
 ## Applicability
 

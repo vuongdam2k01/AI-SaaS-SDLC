@@ -12,7 +12,7 @@ supersedes:
 
 # {{ID}} — {{TITLE}}
 
-<!-- Contract: specifies deterministic unit verification for one job handler's processing, retry classification, idempotency, and state transitions in isolation. It is not queue-provider, real database, external-provider, or multi-consumer proof. Create when JOB rules or failure branches need isolated evidence. ID is UT-JOB-<AREA>-<NNN>; path is 04-verification/unit-tests/jobs/<ID>.md. This artifact owns test intent and case IDs; JOB/ENT/EVT/INT artifacts own behavior. Consumers: test implementation, results, issues, and closure. Lifecycle: draft -> active -> superseded. -->
+<!-- Contract: specifies deterministic unit verification for one job handler's processing, retry classification, idempotency, and state transitions in isolation. It is not queue-provider, real database, external-provider, or multi-consumer proof. Create when JOB rules or failure branches need isolated evidence. ID is UT-JOB-<AREA>-<NNN>; path is 04-verification/unit-tests/jobs/<ID>.md. This artifact owns test intent and case IDs; JOB/ENT/EVT/INT artifacts own behavior. Consumers: test implementation, results, issues, and closure. Detail rule: the consumer is writing test code with the job and event contracts open, so state message shape as a requirement rather than a payload, and name the side effects that must not repeat. Lifecycle: draft -> active -> superseded. -->
 
 ## Purpose and boundary
 
@@ -37,9 +37,10 @@ supersedes:
 
 ## Explicit exclusions
 
-| Excluded claim | Reason unit evidence is insufficient | Required handoff |
-|---|---|---|
-| <queue delivery, database atomicity, provider contract, or cross-consumer effect> | <boundary not exercised> | <IT or ST ID, or required new spec> |
+| Local ID | Excluded claim | Reason unit evidence is insufficient | Required handoff |
+|---|---|---|---|
+| EX-01 | <queue delivery, database atomicity, provider contract, or cross-consumer effect> | <boundary not exercised> | <IT or ST ID, or required new spec> |
+<!-- An exclusion is a handoff, not a deletion: the receiving specification cites this row back as `<this ID>#EX-NN`. A claim this unit cannot prove and no row names is a silent gap. -->
 
 ## Test data and isolation
 
@@ -48,6 +49,8 @@ supersedes:
 - Attempt and retry simulation: <deterministic strategy>
 - State reset: <case independence>
 - Prohibited evidence: <stubs that bypass idempotency or state logic>
+
+State the data *requirement* a case needs, not the literal values an implementer will choose — "a message whose deduplication key repeats an already-processed one", not one specific payload. A constraint stays true when the fixture changes; a copied value silently rots into a second, competing authority.
 
 ## Test cases
 
@@ -66,5 +69,5 @@ supersedes:
 - [ ] Cases cover eligible, ineligible, duplicate, retryable, exhausted, and malformed paths when applicable.
 - [ ] State transitions, emitted events, attempt classification, and unchanged-state guarantees are exact.
 - [ ] Isolation does not replace processing or idempotency logic under test.
-- [ ] Queue, transaction, provider, and cross-consumer exclusions have IT/ST handoffs.
+- [ ] Every queue, transaction, provider, and cross-consumer exclusion has a stable local ID and an IT/ST handoff.
 - [ ] Every case maps to executable tests and later engine-produced result evidence.

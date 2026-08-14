@@ -13,7 +13,11 @@ supersedes:
 
 ## Validation scope
 
+Validation also reads the four documents in `00-system` against their pinned contracts, even though they are not artifacts and enter no graph, manifest or projection. They state the rules everything else is graded against, so a gap here is a gap in every downstream judgement; it is reported as a warning because a repository initialized under an older template carries an older copy it did not author.
+
 Validation evaluates project artifacts as contracts. It detects structural absence, unresolved references, duplicate authority, incomplete active content, and traceability gaps. It does not invent product facts, decide architecture, execute missing tests, or treat formatting alone as semantic completeness.
+
+<!-- The three validation sections below are prose by design: each describes a check the engine performs, so the implementation is the authority and a finding cites its warning or error code rather than a line here. The severity table further down is already identified — the code is its own ID. -->
 
 ## Structural validation
 
@@ -44,11 +48,17 @@ Validation evaluates project artifacts as contracts. It detects structural absen
 
 Validation reports two severities and they mean different things. An **error** is a broken structure — a bad ID, an unresolved reference, a lifecycle or supersession violation, a mutated immutable record, a coverage gap, generated projections out of sync. Errors block a baseline and must be repaired.
 
-A **warning** names a judgement or a debt rather than a broken structure, never blocks a baseline, and is itself the durable record of what is owed. Twenty-one exist:
+A **warning** names a judgement or a debt rather than a broken structure, never blocks a baseline, and is itself the durable record of what is owed. Twenty-seven exist:
 
 | Warning | Means |
 |---|---|
 | `RULE_UNVERIFIED` | A declared business rule no specification claims. |
+| `ACCESS_UNVERIFIED` | A declared access rule no active verification specification claims. |
+| `INVARIANT_UNVERIFIED` | A declared system invariant no active verification specification claims. |
+| `ERROR_UNVERIFIED` | A declared error code no active verification specification claims. |
+| `UX_UNVERIFIED` | A declared UX rule no active verification specification claims. |
+| `SCREEN_BEHAVIOR_UNCLAIMED` | A screen action or validation rule that reaches no case, no exclusion handoff and no open question. |
+| `SYSTEM_DOCUMENT_INCOMPLETE` | A `00-system` document missing a required section, table or rule ID its pinned contract declares. |
 | `SPEC_OVERSIZED` | A live IT/ST specification past the case threshold. |
 | `CASE_REFERENCE_BROKEN` | A qualified case reference naming a case its specification does not declare. |
 | `QUESTION_STALE` | An open question that has outlived three baselines. |
@@ -70,7 +80,9 @@ A **warning** names a judgement or a debt rather than a broken structure, never 
 | `IMPLEMENTATION_MAPPING_ROW_IGNORED` | An Implementation-mapping table row that is present but unparseable: wrong column count, malformed case ID, or placeholder cells mixed with real content. |
 | `IMPLEMENTATION_MAPPING_PATH_MISSING` | On a specification that declares frontmatter mappings, a table row whose test path exists under no configured implementation source — a transposed or stale row. |
 
-Closing a warning by weakening the artifact that raised it is not a repair. Several are legitimately permanent: an unproven platform, an IPC-only operation with no wire owner, a client-local entity with no schema owner, a degraded retrieval whose source stayed unreachable, a feature validated on paper before anyone builds it.
+Closing a warning by weakening the artifact that raised it is not a repair — deleting the screen row that raised `SCREEN_BEHAVIOR_UNCLAIMED` closes the warning and keeps the gap. Several are legitimately permanent: an unproven platform, an IPC-only operation with no wire owner, a client-local entity with no schema owner, a degraded retrieval whose source stayed unreachable, a feature validated on paper before anyone builds it, a rule whose verification is genuinely impossible and recorded as such in `TEST-POLICY`.
+
+The six closure warnings above — one per declared-rule family, plus screen behavior — share one purpose: every identifier a live artifact declares must reach a verification case, a handoff, or an open question. A declared rule reaching none of the three is a commitment no execution can ever fail on. `generated/rule-coverage.md`, `generated/foundation-coverage.md` and `generated/screen-coverage.md` show the current placement per identifier.
 
 ## Completion contract
 

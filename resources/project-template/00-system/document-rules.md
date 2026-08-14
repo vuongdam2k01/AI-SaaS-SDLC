@@ -13,11 +13,14 @@ supersedes:
 
 ## Authority boundaries
 
-- Each fact has one owning artifact. Other artifacts reference its ID or stable local ID instead of restating it.
-- Product artifacts own observable behavior; design artifacts own realization contracts; verification specs own test intent; result artifacts own observed execution evidence.
-- Each interface file under `03-design/interfaces/` owns the HTTP wire shape of one surface, each `03-design/data/*.dbml` file owns the physical shape of one database, and each `03-design/*.mmd` file owns one screen-transition graph. `openapi.yaml`, `schema.dbml` and `screen-transitions.mmd` are the mandatory defaults; sibling files are first-class discovered contracts, and in a multi-file family each design artifact names its owning file in `depends_on`.
-- Shared rules live in `00-system`, `02-product`, or the applicable design singleton. Scalable artifacts may specialize them only through an explicit applicability rule or ADR.
-- A generated result, summary, or pinned snapshot never becomes normative authority.
+| Local ID | Rule | Applies to |
+|---|---|---|
+| DR-01 | Each fact has one owning artifact. Other artifacts reference its ID or stable local ID instead of restating it. | Every artifact |
+| DR-02 | Product artifacts own observable behavior; design artifacts own realization contracts; verification specs own test intent; result artifacts own observed execution evidence. | Layer boundaries |
+| DR-03 | Each interface file under `03-design/interfaces/` owns the HTTP wire shape of one surface, each `03-design/data/*.dbml` file owns the physical shape of one database, and each `03-design/*.mmd` file owns one screen-transition graph. `openapi.yaml`, `schema.dbml` and `screen-transitions.mmd` are the mandatory defaults; sibling files are first-class discovered contracts, and in a multi-file family each design artifact names its owning file in `depends_on`. | Contract files |
+| DR-04 | Shared rules live in `00-system`, `02-product`, or the applicable design singleton. Scalable artifacts may specialize them only through an explicit applicability rule or ADR. | Shared rules |
+| DR-05 | A generated result, summary, or pinned snapshot never becomes normative authority. | `generated/` and pinned snapshots |
+<!-- These rules are applied by whoever writes or reviews an artifact, so each carries an ID a finding can cite. The frontmatter table below needs none: the field name is its own identifier, and the engine enforces the field set in code. -->
 
 ## Required frontmatter
 
@@ -40,24 +43,29 @@ Three fields belong to one artifact family each and are accepted nowhere else: `
 
 ## Content rules
 
-- Use English, precise domain language, observable conditions, explicit units, and exact error/state semantics.
-- Assign stable local IDs to repeated rules, steps, fields, cases, decisions, and criteria. References use `<artifact ID>#<local ID>` where ambiguity is possible.
-- Put guidance and examples inside HTML comments. Active artifacts contain concrete project content and no angle-bracket placeholders, empty required sections, unchecked completion items, or unresolved template tokens.
-- Separate observation, inference, decision, and evidence. Never present an assumption as an observed fact.
-- Use tables for repeated records with the catalog-defined column order. Add rows rather than creating sibling summary files.
-- Record exclusions and applicability wherever a reader could otherwise overgeneralize a rule.
+| Local ID | Rule | Applies to |
+|---|---|---|
+| DR-06 | Use English, precise domain language, observable conditions, explicit units, and exact error and state semantics. | Every artifact |
+| DR-07 | Assign stable local IDs to repeated rules, steps, fields, cases, decisions, and criteria. References use `<artifact ID>#<local ID>` where ambiguity is possible. | Repeated records |
+| DR-08 | Put guidance and examples inside HTML comments. Active artifacts contain concrete project content and no angle-bracket placeholders, empty required sections, unchecked completion items, or unresolved template tokens. | Active artifacts |
+| DR-09 | Separate observation, inference, decision, and evidence. Never present an assumption as an observed fact. | Evidence-bearing artifacts |
+| DR-10 | Use tables for repeated records with the catalog-defined column order. Add rows rather than creating sibling summary files. | Repeated records |
+| DR-11 | Record exclusions and applicability wherever a reader could otherwise overgeneralize a rule. | Every stated rule |
 
 ## Cross-reference rules
 
-- `depends_on` contains direct semantic prerequisites, not every reachable ancestor.
-- Downstream links belong in traceability/mapping sections and must resolve to an artifact, path, operationId, schema symbol, or local ID.
-- Circular normative dependencies are invalid. A mutual informational relationship must still name one authority per fact.
-- Supersession is explicit and historical files remain readable; never overwrite an old ID with a different meaning.
-- When a change affects behavior, design, implementation, and tests, all affected authorities are updated together and linked by the change ID.
+| Local ID | Rule | Applies to |
+|---|---|---|
+| DR-12 | `depends_on` contains direct semantic prerequisites, not every reachable ancestor. | Frontmatter |
+| DR-13 | Downstream links belong in traceability and mapping sections and must resolve to an artifact, path, operationId, schema symbol, or local ID. | Traceability sections |
+| DR-14 | Circular normative dependencies are invalid. A mutual informational relationship must still name one authority per fact. | Dependency edges |
+| DR-15 | Supersession is explicit and historical files remain readable; never overwrite an old ID with a different meaning. | Supersession |
+| DR-16 | When a change affects behavior, design, implementation, and tests, all affected authorities are updated together and linked by the change ID. | Every change |
 
 ## Completion contract
 
 - [x] Authority rules distinguish behavior, design, interfaces, data, verification intent, and result evidence.
+- [x] Every rule a review applies per artifact carries a stable local ID a finding can cite.
 - [x] Frontmatter and reference syntax are deterministic.
 - [x] Active-content, evidence, applicability, and placeholder rules are explicit.
 - [x] Fixed and scalable artifacts use the same lifecycle and traceability semantics.

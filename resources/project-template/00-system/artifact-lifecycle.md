@@ -29,6 +29,8 @@ A decision carries a second field, `adr_status`, independent of the lifecycle ab
 
 ## Allowed transitions
 
+<!-- Prose by design, like State semantics and Supersession below. Every rule in these three sections is executed by the engine — status transitions, lifecycle dependency, immutability and supersession edges are validated in code — so the code is the authority a violation is reported against. A local ID here would be a second copy of that authority, drifting the moment either side changed. The Lifecycle states table above is already identified: the state name is its own ID. -->
+
 - Authored artifacts: `draft -> active`, then `deprecated`, `retired` or `superseded` as the subject's fate requires.
 - Issues: `open -> resolved`; recurrence returns the same issue to `open` only when identity and expected authority are unchanged.
 - Decisions: `adr_status` moves `proposed -> accepted`, then `deprecated` or `superseded` through a replacement ADR. An accepted ADR's own `status` stays `active` permanently, because accepted content is immutable; the superseded-by edge is derived into the generated decision index rather than written back into the accepted file.

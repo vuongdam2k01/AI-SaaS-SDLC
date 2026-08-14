@@ -24,10 +24,10 @@ export const APPROVAL_VERIFICATION_BODIES: Record<string, string> = {
 
 ## Explicit exclusions
 
-| Excluded claim | Reason unit evidence is insufficient | Required handoff |
-|---|---|---|
-| transaction atomicity and unique decision constraint | repository boundary is controlled | IT-APPROVAL-001#TC-01 and TC-03 |
-| visible actor journey | UI and HTTP surfaces are absent | ST-APPROVAL-001#TC-01 |
+| Local ID | Excluded claim | Reason unit evidence is insufficient | Required handoff |
+|---|---|---|---|
+| EX-01 | transaction atomicity and unique decision constraint | repository boundary is controlled | IT-APPROVAL-001#TC-01 and TC-03 |
+| EX-02 | visible actor journey | UI and HTTP surfaces are absent | ST-APPROVAL-001#TC-01 |
 
 ## Test data and isolation
 
@@ -78,6 +78,8 @@ Every case has authoritative references, exact stimulus and assertions, safe iso
 | FTR-APPROVAL-001 | AC-01–AC-03 | success, validation, denial, and conflict |
 | API-APPROVAL-001 | decideApprovalRequest, V-01/V-02, P-01–P-03, S-01/S-02 | authorized atomic processing |
 | ENT-APPROVAL-001 | ST-01–ST-03, INV-01/INV-02 | legal transition and one decision |
+| SYSTEM-INVARIANTS | INV-001, INV-002 | tenant isolation and single-decision uniqueness at the real store boundary |
+| UT-API-APPROVAL-001 | EX-01 | the unit exclusion this specification receives |
 
 - Required configuration class: local disposable database with migrations; no network or secret.
 - External dependency strategy: none; database boundary is real and local.
@@ -93,17 +95,11 @@ Every case has authoritative references, exact stimulus and assertions, safe iso
 
 ## Test cases
 
-| Local ID | Reference IDs | Setup | Stimulus | Expected cross-boundary result | Cleanup |
-|---|---|---|---|---|---|
-| TC-01 | FTR-APPROVAL-001#AC-01, INV-02 | pending version 1 assigned to actor | POST approve at version 1 | approved response, version 2, exactly one matching decision row | rollback fixture transaction |
-| TC-02 | FTR-APPROVAL-001#AC-03, ACCESS-002 | tenant-b actor and tenant-a request | POST approve | ERR-FORBIDDEN and no exposed request body; row unchanged | delete isolated tenant fixtures |
-| TC-03 | FTR-APPROVAL-001#AC-03, API-APPROVAL-001#V-02 | two decisions race with expected version 1 | release both commits concurrently | one success, one conflict, one terminal decision row | rollback fixture transaction |
-
-## Failure and unchanged-state checks
-
-| Failure or race | Injection point | Expected response | State guarantee | Reconciliation evidence |
-|---|---|---|---|---|
-| concurrent approve and reject | real version check/unique constraint | one terminal response and one ERR-DECISION-CONFLICT | exactly one state/version transition and decision row | query request and decision count after both settle |
+| Local ID | Reference IDs | Setup | Stimulus | Expected cross-boundary result | State guarantee | Cleanup |
+|---|---|---|---|---|---|---|
+| TC-01 | FTR-APPROVAL-001#AC-01, INV-02, INV-002 | pending version 1 assigned to actor | POST approve at version 1 | approved response, version 2, exactly one matching decision row | committed atomically; no second decision row exists | rollback fixture transaction |
+| TC-02 | FTR-APPROVAL-001#AC-03, ACCESS-002, INV-001 | tenant-b actor and tenant-a request | POST approve | ERR-FORBIDDEN and no exposed request body; row unchanged | tenant-a request keeps version 1 and empty history | delete isolated tenant fixtures |
+| TC-03 | FTR-APPROVAL-001#AC-03, API-APPROVAL-001#V-02, INV-002, UT-API-APPROVAL-001#EX-01 | two decisions race with expected version 1 | release both commits concurrently against the real version check and unique constraint | one success and one ERR-DECISION-CONFLICT | exactly one state and version transition and one decision row after both settle | rollback fixture transaction |
 
 ## Implementation mapping
 
@@ -147,7 +143,7 @@ Two real participants, contract references, deterministic data, success/denial/r
 
 ## Data setup and cleanup
 
-- Starting state: one pending request per case created through the supported submission setup path.
+- Starting state: one pending request per case created through the supported submission setup path under ACCESS-001.
 - Setup path: fixture invokes the product submission API because pending visibility depends on it.
 - Isolation key: unique tenant slug and request UUID.
 - Cleanup or expiry: delete fixture tenant through the test cleanup endpoint after assertions.
@@ -160,18 +156,13 @@ Two real participants, contract references, deterministic data, success/denial/r
 | TC-01 | FTR-APPROVAL-001#AC-01, UC-APPROVAL-001#M-01/M-02, SCR-APPROVAL-001#E-01/T-01 | assigned actor opens pending request | activate Approve and confirm | approved is announced; controls disabled; history names actor and time | approved version 2 with one decision |
 | TC-02 | FTR-APPROVAL-001#AC-02, UC-APPROVAL-001#A-01, SCR-APPROVAL-001#V-01 | assigned actor opens pending request | activate Reject with whitespace reason | exact validation appears and focus returns to reason | request remains pending version 1 |
 | TC-03 | FTR-APPROVAL-001#AC-03, UC-APPROVAL-001#X-01 | tenant-b actor has request URL | navigate to URL and attempt access | safe denied view contains no request details | tenant-a request remains pending |
-
-## Cross-surface and failure checks
-
-| Condition | Surfaces crossed | Expected behavior | State guarantee | Recovery or next action |
-|---|---|---|---|---|
-| stale screen after another actor decision | screen, API, request query | conflict message then terminal state reload | first decision remains the only decision | acknowledge reloaded state |
+| TC-04 | FTR-APPROVAL-001#AC-03, UC-APPROVAL-001#X-02, SCR-APPROVAL-001#E-02, UT-API-APPROVAL-001#EX-02 | screen held open after another actor decided the request | activate Reject on the stale screen | conflict message appears, then the terminal state reloads | first decision remains the only decision |
 
 ## Implementation mapping
 
 | Case IDs | Test path | Scenario name | Surfaces exercised |
 |---|---|---|---|
-| TC-01–TC-03 | implementation-unconfigured | assigned approver decision journey | browser view, decision API, request/history query |
+| TC-01–TC-04 | implementation-unconfigured | assigned approver decision journey | browser view, decision API, request/history query |
 
 ## Completion contract
 

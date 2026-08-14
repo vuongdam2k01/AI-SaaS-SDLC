@@ -11,7 +11,7 @@ supersedes:
 
 # {{ID}} — {{TITLE}}
 
-<!-- Contract: specifies one independently understandable product capability through observable behavior and acceptance, not UI layout, API mechanics, code tasks, or release sequencing. Create when behavior has a cohesive user or business outcome and can be accepted as a unit. ID is FTR-<AREA>-<NNN>; path is 02-product/features/<ID>.md. This artifact owns behavior, business rules, and AC IDs. Upstream: product requirements, problems, quality requirements, access control, and invariants as applicable. Consumers: use cases, flows, design artifacts, UT/IT/ST specs, and issues. Lifecycle: draft -> active -> superseded. -->
+<!-- Contract: specifies one independently understandable product capability through observable behavior and acceptance, not UI layout, API mechanics, code tasks, or release sequencing. Create when behavior has a cohesive user or business outcome and can be accepted as a unit. ID is FTR-<AREA>-<NNN>; path is 02-product/features/<ID>.md. This artifact owns behavior, business rules, and AC IDs. Upstream: product requirements, problems, quality requirements, access control, and invariants as applicable. Consumers: use cases, flows, design artifacts, UT/IT/ST specs, and issues. Detail rule: the consumer is writing use cases, design and verification, and holds this document open while doing it, so state observable conditions with stable IDs and leave every mechanism — routes, payloads, tables — to the artifacts that own them. Lifecycle: draft -> active -> superseded. -->
 
 ## Purpose and boundary
 

@@ -20,7 +20,11 @@ The fixed non-Markdown contracts `SDLC-CONFIG`, `OPENAPI-CONTRACT`, `PHYSICAL-SC
 
 ## Scalable records
 
-The pinned catalog contains 24 scalable artifact types. Each catalog generation carries a version — `patterns list` reports the one a repository actually pinned — and a live artifact whose type its pinned catalog predates is reported as `CONTENT_CONTRACT_UNPINNED`, an error, because an artifact no content contract covers looks validated without being validated.
+The pinned catalog contains 24 scalable artifact types. Each catalog generation carries a version — `patterns list` reports the one a repository actually pinned — and a live artifact whose type its pinned catalog predates is reported as `CONTENT_CONTRACT_UNPINNED`, an error, because an artifact no content contract covers looks validated without being validated. `patterns migrate` moves an existing repository onto a newer generation and reports what changed; it re-pins contracts and never edits an instance.
+
+Generation 5 also adds a third contract layer beside patterns and foundations: the four `00-system` documents. They are not artifacts and never become ones — no graph edge, no baseline entry, no projection row — but they state the rules every artifact is graded against, and until this layer existed nothing validated them. A shortfall there is reported as `SYSTEM_DOCUMENT_INCOMPLETE`, a warning, because a repository initialized under an older template carries a copy it did not author.
+
+Generation 5 makes every normative section of a pattern an identified table. Behavior that used to sit in prose bullets — a screen's accessibility requirements, an operation's transaction and idempotency semantics, a job's concurrency rules, an event's emission, delivery and evolution semantics, an integration's authentication, reliability and observability rules, an entity's ownership, transitions, relationships and retention, a use case's guarantees, a flow's entry and exit, a decision's statement and follow-on constraints, a unit specification's exclusions — now carries local IDs (`AX-`, `TX-`, `CC-`, `EM-`/`DL-`/`EP-`, `AU-`/`RL-`/`OB-`, `OW-`/`T-`/`REL-`/`RT-`, `G-`, `EE-`, `DEC-`/`FC-`, `EX-`). An identified row can be cited, claimed and reported as unclaimed; a prose bullet can only be read. The same generation gives the `access_control`, `system_invariants`, `error_catalog`, `ux_rules`, `test_policy` and `question_ledger` foundations their own tables and namespaces.
 
 | Layer | Catalog type | Permanent ID | Responsibility |
 |---|---|---|---|

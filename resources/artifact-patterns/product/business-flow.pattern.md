@@ -11,7 +11,7 @@ supersedes:
 
 # {{ID}} — {{TITLE}}
 
-<!-- Contract: describes an end-to-end business outcome spanning multiple actors, use cases, or system boundaries. It is not a detailed use case, implementation pipeline, operational guide, or release process. Create when sequencing, decisions, ownership handoffs, or compensation must be understood across capabilities. ID is FLOW-<AREA>-<NNN>; path is 02-product/flows/<ID>.md. This artifact owns end-to-end orchestration semantics; linked use cases own interaction detail. Consumers: subsystems, screens, API/job/event designs, integration/system tests, and implementation. Lifecycle: draft -> active -> superseded. -->
+<!-- Contract: describes an end-to-end business outcome spanning multiple actors, use cases, or system boundaries. It is not a detailed use case, implementation pipeline, operational guide, or release process. Create when sequencing, decisions, ownership handoffs, or compensation must be understood across capabilities. ID is FLOW-<AREA>-<NNN>; path is 02-product/flows/<ID>.md. This artifact owns end-to-end orchestration semantics; linked use cases own interaction detail. Consumers: subsystems, screens, API/job/event designs, integration/system tests, and implementation. Detail rule: the consumer is designing cross-feature behavior and holds the use cases already, so state ordering, decisions and compensation between them and never re-narrate a use case's internal steps. Lifecycle: draft -> active -> superseded. -->
 
 ## Purpose and boundary
 
@@ -28,10 +28,13 @@ supersedes:
 
 ## Entry and exit
 
-- Entry event: <event and required state>
-- Successful exit: <observable business state>
-- Unsuccessful exits: <bounded terminal outcomes>
-- Global invariants: <SYSTEM-INVARIANTS IDs>
+| Local ID | Concern | Statement | Observable evidence |
+|---|---|---|---|
+| EE-01 | entry event | <event and required state> | <what starts the flow> |
+| EE-02 | successful exit | <observable business state> | <state a case asserts at the terminal step> |
+| EE-03 | unsuccessful exits | <bounded terminal outcomes> | <state a case asserts on each terminal branch> |
+| EE-04 | global invariants | <SYSTEM-INVARIANTS IDs> | <what holds at every step, including compensation> |
+<!-- Every branch in Flow steps and Alternate and compensation paths must terminate at an EE-02 or EE-03 outcome. -->
 
 ## Flow steps
 

@@ -11,7 +11,7 @@ supersedes:
 
 # {{ID}} — {{TITLE}}
 
-<!-- Contract: describes one evidence-backed role in a product context, not a fictional biography, marketing character, or permission definition. Create when a role has distinct goals, decisions, responsibilities, or constraints. ID is PERSONA-<ROLE>; path is 01-discovery/customer-segments/<ID>.md. This artifact owns role context; ACCESS-CONTROL owns permissions and ICP artifacts own segment boundaries. Upstream: evidence and applicable ICPs. Consumers: problems, use cases, flows, screens, and accessibility decisions. Lifecycle: draft -> active -> superseded. -->
+<!-- Contract: describes one evidence-backed role in a product context, not a fictional biography, marketing character, or permission definition. Create when a role has distinct goals, decisions, responsibilities, or constraints. ID is PERSONA-<ROLE>; path is 01-discovery/customer-segments/<ID>.md. This artifact owns role context; ACCESS-CONTROL owns permissions and ICP artifacts own segment boundaries. Upstream: evidence and applicable ICPs. Consumers: problems, use cases, flows, screens, and accessibility decisions. Detail rule: the consumer is deciding what a user needs to accomplish and holds the ICP and the evidence ledger already, so state goals and constraints that change a product decision and omit biography that changes none. Lifecycle: draft -> active -> superseded. -->
 
 ## Purpose and boundary
 
@@ -51,6 +51,7 @@ supersedes:
 - Inferences: <deductions separated from observations>
 - Unknowns: <material unanswered questions>
 - Falsifiers: <what would make this persona invalid or require a split>
+<!-- Prose by design. These are consumed by a human deciding what to research next, not by a downstream artifact citing an ID; the evidence register above carries every claim that must stay traceable. -->
 
 ## Applicability
 

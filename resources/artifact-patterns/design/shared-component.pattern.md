@@ -12,7 +12,7 @@ supersedes:
 
 # {{ID}} — {{TITLE}}
 
-<!-- Contract: specifies reusable presentation behavior shared by two or more consumers, not a page, product feature, generic style note, or framework component without domain semantics. Create when consumers share inputs, states, actions, and accessibility behavior that must stay consistent. ID is CMP-<AREA>-<NNN>; path is 03-design/components/<ID>.md. This artifact owns the reuse contract; screens own placement and API/JOB artifacts own processing. Consumers: SCR artifacts, frontend UT, ST, and implementation. Lifecycle: draft -> active -> superseded. -->
+<!-- Contract: specifies reusable presentation behavior shared by two or more consumers, not a page, product feature, generic style note, or framework component without domain semantics. Create when consumers share inputs, states, actions, and accessibility behavior that must stay consistent. ID is CMP-<AREA>-<NNN>; path is 03-design/components/<ID>.md. This artifact owns the reuse contract; screens own placement and API/JOB artifacts own processing. Consumers: SCR artifacts, frontend UT, ST, and implementation. Detail rule: the consumer is a screen embedding this contract, so state what every consumer may rely on and what none may override, and leave one-surface placement and styling to the screen. Lifecycle: draft -> active -> superseded. -->
 
 ## Purpose and reuse boundary
 
@@ -48,11 +48,10 @@ supersedes:
 
 ## Accessibility
 
-- Semantic role and name: <contract>
-- Keyboard interaction: <contract>
-- Focus entry, movement, and restoration: <contract>
-- Status and error announcement: <contract>
-- Contrast, motion, and target-size constraints: <applicable UX rule IDs>
+| Local ID | Requirement | Applies to | Observable evidence | UX rule |
+|---|---|---|---|---|
+| AX-01 | <semantic role and name, keyboard interaction, focus movement and restoration, status announcement, or contrast/motion/target-size constraint> | <I/O/ST/E ID or the whole component> | <what a test can observe: role, name, state, focus position, announcement> | <UX ID or none> |
+<!-- One row per requirement a verification case can observe. Consumers inherit these rows; a screen may not weaken one. -->
 
 ## Traceability
 

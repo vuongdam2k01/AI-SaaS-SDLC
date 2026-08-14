@@ -1,8 +1,5 @@
+import { TEST_TYPES, UNIT_TEST_TYPES, bodyIds as ids, claimsLocalId } from "./claims.js";
 import type { Artifact } from "./types.js";
-
-function ids(body: string, pattern: RegExp): string[] {
-  return [...new Set(body.match(pattern) ?? [])].sort();
-}
 
 function cell(values: string[]): string {
   return values.length > 0 ? values.map((value) => `\`${value}\``).join(", ") : "—";
@@ -27,18 +24,16 @@ export function evidenceClaimCoverage(artifacts: Artifact[]): string {
 
 const behaviorTypes = new Set(["use_case", "business_flow"]);
 const designTypes = new Set(["screen", "component", "subsystem", "api_processing", "entity", "external_integration", "job", "event", "platform_target"]);
-const testTypes = new Set(["unit_test_backend", "unit_test_frontend", "unit_test_job", "integration_test", "system_test"]);
 
 export function acceptanceCoverage(artifacts: Artifact[]): string {
   const acceptanceIds = artifacts.filter((artifact) => artifact.artifact_type === "feature" && artifact.status !== "retired" && artifact.status !== "superseded")
     .flatMap((artifact) => ids(artifact.body, /\bAC-[A-Z0-9-]+\b/g).map((id) => ({ id, feature: artifact.id })));
   const rows = acceptanceIds.map(({ id, feature }) => {
     const qualified = `${feature}#${id}`;
-    const consumers = artifacts.filter((artifact) => artifact.id !== feature
-      && (artifact.body.includes(qualified) || artifact.depends_on.includes(feature) && new RegExp(`\\b${id}\\b`).test(artifact.body)));
+    const consumers = artifacts.filter((artifact) => artifact.id !== feature && claimsLocalId(artifact, feature, id));
     const behavior = consumers.filter((artifact) => behaviorTypes.has(artifact.artifact_type)).map((artifact) => artifact.id);
     const design = consumers.filter((artifact) => designTypes.has(artifact.artifact_type)).map((artifact) => artifact.id);
-    const tests = consumers.filter((artifact) => testTypes.has(artifact.artifact_type)).map((artifact) => artifact.id);
+    const tests = consumers.filter((artifact) => TEST_TYPES.has(artifact.artifact_type)).map((artifact) => artifact.id);
     return [`\`${qualified}\``, `\`${feature}\``, cell(behavior), cell(design), cell(tests), behavior.length > 0 && tests.length > 0 ? "covered" : "gap"];
   });
   return `# Acceptance Coverage\n\nDesign is conditional; behavior and verification references are required for complete coverage.\n\n${table(["Acceptance criterion", "Feature", "Behavior", "Design", "Tests", "Status"], rows)}`;
@@ -76,8 +71,6 @@ export interface RuleCoverageEntry {
   covered: boolean;
 }
 
-const unitTypes = new Set(["unit_test_backend", "unit_test_frontend", "unit_test_job"]);
-
 export function ruleCoverageEntries(artifacts: Artifact[]): RuleCoverageEntry[] {
   const features = artifacts.filter((artifact) => artifact.artifact_type === "feature"
     && artifact.status !== "retired" && artifact.status !== "superseded");
@@ -85,10 +78,8 @@ export function ruleCoverageEntries(artifacts: Artifact[]): RuleCoverageEntry[] 
     const qualified = `${feature.id}#${rule}`;
     // Either form counts as a claim: the qualified reference, or a bare rule ID
     // inside a specification that already declares the owning feature upstream.
-    const claimants = artifacts.filter((artifact) => testTypes.has(artifact.artifact_type)
-      && (artifact.body.includes(qualified)
-        || (artifact.depends_on.includes(feature.id) && new RegExp(`\\b${rule}\\b`).test(artifact.body))));
-    const unit = claimants.filter((artifact) => unitTypes.has(artifact.artifact_type)).map((artifact) => artifact.id);
+    const claimants = artifacts.filter((artifact) => TEST_TYPES.has(artifact.artifact_type) && claimsLocalId(artifact, feature.id, rule));
+    const unit = claimants.filter((artifact) => UNIT_TEST_TYPES.has(artifact.artifact_type)).map((artifact) => artifact.id);
     const integration = claimants.filter((artifact) => artifact.artifact_type === "integration_test").map((artifact) => artifact.id);
     const system = claimants.filter((artifact) => artifact.artifact_type === "system_test").map((artifact) => artifact.id);
     return { rule: qualified, feature: feature.id, file: feature.file, unit, integration, system, covered: claimants.length > 0 };

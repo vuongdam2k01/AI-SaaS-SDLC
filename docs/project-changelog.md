@@ -2,6 +2,20 @@
 
 See the root [CHANGELOG](../CHANGELOG.md) for the release summary. This contributor view records documentation-impact areas that must remain synchronized with implementation.
 
+## 1.19.0 - 2026-08-14
+
+| Area | Documentation impact |
+|---|---|
+| Method | New `resources/protocols/test-case-derivation.md`, cited from `test-derivation.md`, `product-evolution.md` §9 and `reconciliation.md` §7; `behavior-formation.md` case derivation expanded into trigger expansion |
+| Engine | New `claims.ts` (shared claim predicate and foundation reference table), `foundation-coverage.ts`, `screen-coverage.ts`, `system-documents.ts`, `pattern-migration.ts`; `pattern-catalog.ts` gains the `system_documents` contract layer; `pattern-snapshot.ts` gains `writePatternSnapshot`; `patterns migrate` CLI subcommand reporting three contract sections; content contracts accept a frozen-artifact exemption |
+| Validation | Six new warnings — `ACCESS_UNVERIFIED`, `INVARIANT_UNVERIFIED`, `ERROR_UNVERIFIED`, `UX_UNVERIFIED`, `SCREEN_BEHAVIOR_UNCLAIMED`, `SYSTEM_DOCUMENT_INCOMPLETE`; two new projections `foundation-coverage.md` and `screen-coverage.md`, both existence-gated; the four `00-system` documents are validated without entering the artifact graph |
+| Patterns | Catalog generation 5: every normative prose block becomes an identified table across design, product, verification and control patterns; IT/ST failure checks folded into `TC-*` rows; `Detail rule` sentence in all 24 contract comments; `artifact-patterns/README.md` gains the consumer table; catalog gains a third contract layer beside patterns and foundations |
+| Project template | `access-control.md`, `error-catalog.md`, `ux-rules.md` and `test-policy.md` rule sections become identified tables; six foundations declare local-ID namespaces; `document-rules.md` gains `DR-01`–`DR-16` and `glossary.md` gains `NR-01`–`NR-05`, while `artifact-lifecycle.md` and `validation-rules.md` keep prose with a stated reason; `validation-rules.md` warning count twenty-one → twenty-seven; `glossary.md` gains both coverage rows |
+| Evals | New `spec-derivation` case with `closure-honesty` grader, run against two deliberately unequal screens so size proportionality is graded; `eval-contracts.test.ts` and `evals/README.md` move from six cases to seven |
+| Docs | `command-reference.md` (patterns migrate, twenty-seven warnings), `artifact-reference.md` (generation 5 namespaces, system-document layer), `pattern-to-instance.md` (migration path and the third layer), `inspect-and-check-results.md` (warning table and generated views), `implement-a-feature.md`, guides index and root README generated-view lists |
+| Certification | Real-binary drive with two adversarial red-proofs in `plans/reports/certifier-2026-08-14-canonical-model-certification.md`; retained end-to-end coverage in `tests/packaged-lifecycle.test.ts` |
+| Compatibility | Catalog generation 4 → 5. Existing repositories keep their pin until `patterns migrate` is run deliberately; the two new projections appear only once a screen or live foundation rule exists, so run `refresh` once after upgrading to avoid `GENERATED_DRIFT`. All six new warnings never block a baseline. Accepted ADRs and the original idea are exempt from tightened content contracts after baselining. Migration re-pins system-document contracts without carrying the documents, so `SYSTEM_DOCUMENT_INCOMPLETE` is expected until they are brought forward from the template |
+
 ## 1.18.2 - 2026-08-14
 
 | Area | Documentation impact |

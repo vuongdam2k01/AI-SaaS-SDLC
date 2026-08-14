@@ -39,10 +39,13 @@ supersedes:
 
 ## Content rules
 
-- Labels name the user's object or action using glossary terms.
-- Instructions state what is required before an action, not hidden after failure.
-- User-safe messages explain the condition and valid next action without exposing protected details.
-- Dates, times, numbers, currencies, and units state format/context and avoid ambiguous abbreviations.
+| Local ID | Rule | Applies to | Observable consequence |
+|---|---|---|---|
+| CR-01 | Labels name the user's object or action using glossary terms. | <controls and headings> | <string a case can assert> |
+| CR-02 | Instructions state what is required before an action, not hidden after failure. | <forms and destructive actions> | <text visible before the action> |
+| CR-03 | User-safe messages explain the condition and valid next action without exposing protected details. | <error and denial surfaces> | <what the message must and must not contain> |
+| CR-04 | Dates, times, numbers, currencies, and units state format and context, avoiding ambiguous abbreviations. | <every formatted value> | <rendered format a case can assert> |
+<!-- Screens and tests cite these rows by ID rather than restating them; an implementation writing its own string where a row applies is drift. -->
 
 ## Design tokens
 

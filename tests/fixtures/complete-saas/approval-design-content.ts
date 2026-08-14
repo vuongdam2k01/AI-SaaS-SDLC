@@ -100,12 +100,17 @@ Constraints, permissions, distribution, local data, and verification consequence
 | T-01 | pending view | E-01 success | approved terminal view | returned request ID, version, actor, and decided_at |
 | T-02 | pending view | E-02 success | rejected terminal view | returned request ID, reason, version, actor, and decided_at |
 
-## Accessibility and rationale
+## Accessibility
 
-- Focus order and restoration: summary, reason, approve, reject; errors restore focus to the first invalid control.
-- Keyboard and non-pointer operation: all controls use native buttons/input and work with Enter/Space.
-- Labels, instructions, and error association: I-01 has a persistent label and V-01 is programmatically associated.
-- Announced state changes: terminal state and API errors use a polite live region; validation uses an assertive error summary.
+| Local ID | Requirement | Applies to | Observable evidence | UX rule |
+|---|---|---|---|---|
+| AX-01 | Focus order runs summary, reason, approve, reject, and a failed submit restores focus to the first invalid control. | A-01, A-02, I-01 | Focus position after tab traversal and after a rejected submit. | UX-001 |
+| AX-02 | Every control is operable from the keyboard with Enter or Space. | B-01, B-02, I-01 | Activation without pointer input. | UX-001 |
+| AX-03 | I-01 has a persistent label and V-01 is programmatically associated with it. | I-01, V-01 | Accessible name and error association on the input. | UX-002 |
+| AX-04 | Terminal state and API errors are announced politely; validation is announced assertively. | E-01, E-02, V-01 | Live-region politeness and announced text. | UX-002 |
+
+### Rationale
+
 - Design rationale and rejected alternatives: separate buttons expose the consequence more clearly than a hidden menu.
 
 ## Completion contract
@@ -153,11 +158,13 @@ Regions, fields, actions, validation, transitions, access, failures, and determi
 
 ## Transactions and idempotency
 
-- Transaction boundary: P-02 through S-02; commit only if request version and pending state still match.
-- Rollback guarantee: no terminal state or decision row survives a failed commit.
-- Idempotency key: request ID plus expected version and actor ID.
-- Duplicate behavior: same committed decision returns the current representation; a competing decision returns ERR-DECISION-CONFLICT.
-- Concurrency behavior: optimistic version check ensures exactly one pending-to-terminal transition.
+| Local ID | Concern | Rule | Applies to | Observable consequence |
+|---|---|---|---|---|
+| TX-01 | transaction boundary | Commit spans P-02 through S-02 and only if request version and pending state still match. | P-02, P-03, S-02 | A mid-commit failure leaves the request pending. |
+| TX-02 | rollback guarantee | No terminal state or decision row survives a failed commit. | S-02 | Status and audit rows are unchanged after failure. |
+| TX-03 | idempotency key | Request ID plus expected version and actor ID. | decideApprovalRequest | A replay carries the same key. |
+| TX-04 | duplicate behavior | A repeated identical decision returns the current representation; a competing decision returns ERR-DECISION-CONFLICT. | decideApprovalRequest | The second call writes no second audit row. |
+| TX-05 | concurrency behavior | An optimistic version check admits exactly one pending-to-terminal transition. | ENT-APPROVAL-001, P-03 | The losing caller receives ERR-DECISION-CONFLICT. |
 
 ## Side effects and data access
 
@@ -187,11 +194,13 @@ OpenAPI authority, authorization order, validation, errors, transaction, idempot
 
 ## Ownership and tenancy
 
-- Owning subsystem: approval workflow boundary described by ARCHITECTURE-OVERVIEW.
-- Tenant/organization scope: every row carries tenant_id and may be read or changed only inside that tenant.
-- Creation authority: ACCESS-001 through request submission processing.
-- Mutation authority: API-APPROVAL-001 under ACCESS-002.
-- Read authority: ACCESS-001 and ACCESS-002.
+| Local ID | Concern | Rule | Observable consequence |
+|---|---|---|---|
+| OW-01 | owning subsystem | The approval workflow boundary described by ARCHITECTURE-OVERVIEW owns this entity. | No other subsystem writes approval_requests. |
+| OW-02 | tenant scope | Every row carries tenant_id and may be read or changed only inside that tenant. | A cross-tenant read returns nothing. |
+| OW-03 | creation authority | ACCESS-001 through request submission processing. | Another role's submission is refused. |
+| OW-04 | mutation authority | API-APPROVAL-001 under ACCESS-002. | A direct write from any other path is refused. |
+| OW-05 | read authority | ACCESS-001 and ACCESS-002. | An unassigned member sees no request detail. |
 
 ## Attributes
 
@@ -216,24 +225,26 @@ OpenAPI authority, authorization order, validation, errors, transaction, idempot
 
 ### Allowed transitions
 
-| From state | Trigger | To state | Guard | Side effects |
-|---|---|---|---|---|
-| ST-01 | authorized approve | ST-02 | ACCESS-002 and expected version match | insert one decision audit row |
-| ST-01 | authorized reject | ST-03 | ACCESS-002, BR-02, expected version match | insert one decision audit row with reason |
+| Local ID | From state | Trigger | To state | Guard | Side effects |
+|---|---|---|---|---|---|
+| T-01 | ST-01 | authorized approve | ST-02 | ACCESS-002 and expected version match | insert one decision audit row |
+| T-02 | ST-01 | authorized reject | ST-03 | ACCESS-002, BR-02, expected version match | insert one decision audit row with reason |
 
 ## Relationships
 
-| Related entity | Cardinality | Ownership | Constraint | Deletion consequence |
-|---|---|---|---|---|
-| tenant identity authority | many requests to one tenant | identity subsystem | tenant_id must resolve within workspace | tenant deletion follows product retention policy |
+| Local ID | Related entity | Cardinality | Ownership | Constraint | Deletion consequence |
+|---|---|---|---|---|---|
+| REL-01 | tenant identity authority | many requests to one tenant | identity subsystem | tenant_id must resolve within workspace | tenant deletion follows product retention policy |
 
 ## Retention and deletion
 
-- Retention basis and duration: fixture policy retains request and decision history while the workspace exists.
-- Deletion trigger and authority: workspace owner deletion under a future explicit policy.
-- Deletion semantics: no implicit hard delete in this feature.
-- Export or portability: request state, actor, reason, and timestamps are exportable to an authorized tenant owner.
-- Sensitive-data handling: minimize reason text and restrict it to authorized tenant participants.
+| Local ID | Concern | Rule | Observable consequence |
+|---|---|---|---|
+| RT-01 | retention basis | Request and decision history are retained while the workspace exists. | History remains readable for the workspace lifetime. |
+| RT-02 | deletion trigger | Workspace owner deletion under a future explicit policy. | No other actor can trigger deletion. |
+| RT-03 | deletion semantics | This feature performs no implicit hard delete. | A decided request is never removed by a decision. |
+| RT-04 | export | Request state, actor, reason, and timestamps are exportable to an authorized tenant owner. | The export carries those fields. |
+| RT-05 | sensitive-data handling | Reason text is minimized and restricted to authorized tenant participants. | Reason text never appears outside the tenant. |
 
 ## Schema mapping
 
@@ -242,6 +253,7 @@ OpenAPI authority, authorization order, validation, errors, transaction, idempot
 | Attribute or relationship ID | Store target | Application symbol | Migration note |
 |---|---|---|---|
 | A-01 | approval_requests.request_id | ApprovalRequest.id | immutable primary identity |
+| REL-01 | approval_requests.tenant_id references tenants.tenant_id | ApprovalRequest.tenant | foreign key added with the tenant column |
 | A-02 | approval_requests.tenant_id | ApprovalRequest.tenantId | backfill prohibited without tenant authority |
 | A-04, A-05 | approval_requests.status, approval_requests.version | ApprovalRequest.status, ApprovalRequest.version | add version before enabling concurrent decisions |
 

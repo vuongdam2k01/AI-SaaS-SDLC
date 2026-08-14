@@ -40,11 +40,23 @@ export interface FoundationPattern {
   content: PatternContentContract;
 }
 
+/**
+ * A `00-system` document: shipped system documentation the engine does not scan
+ * as an artifact, and therefore something no content contract reached before.
+ * It has a path and a shape but no artifact type, because it never enters the
+ * graph, the baseline manifest or any projection.
+ */
+export interface SystemDocumentContract {
+  path: string;
+  content: PatternContentContract;
+}
+
 export interface PatternCatalog {
   version: string;
   root: string;
   patterns: ArtifactPattern[];
   foundations: FoundationPattern[];
+  system_documents: SystemDocumentContract[];
 }
 
 function strings(value: unknown): string[] {
@@ -114,6 +126,15 @@ function normalizePattern(value: unknown, fallbackType?: string): ArtifactPatter
   };
 }
 
+function normalizeSystemDocument(value: unknown, fallbackPath?: string): SystemDocumentContract | null {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return null;
+  const row = value as Record<string, unknown>;
+  const targetPath = typeof row.path === "string" ? row.path : fallbackPath;
+  if (!targetPath) return null;
+  const content = row.content && typeof row.content === "object" ? row.content as Record<string, unknown> : row;
+  return { path: targetPath, content: normalizeContent(targetPath, content, true) };
+}
+
 function normalizeFoundation(value: unknown, fallbackType?: string): FoundationPattern | null {
   if (!value || typeof value !== "object" || Array.isArray(value)) return null;
   const row = value as Record<string, unknown>;
@@ -174,10 +195,27 @@ export async function loadPatternCatalog(catalogRoot: string, projectRoot?: stri
   }
   if (new Set(foundations.map((item) => item.artifact_type)).size !== foundations.length) throw new SdlcError("Foundation artifact types must be unique.");
   if (new Set(foundations.map((item) => item.path.replaceAll("\\", "/"))).size !== foundations.length) throw new SdlcError("Foundation paths must be unique.");
+  const documentCollection = data.system_documents;
+  const documentEntries = Array.isArray(documentCollection)
+    ? documentCollection.map((item) => normalizeSystemDocument(item))
+    : documentCollection && typeof documentCollection === "object"
+      ? Object.entries(documentCollection as Record<string, unknown>).map(([documentPath, item]) => normalizeSystemDocument(item, documentPath)) : [];
+  const systemDocuments = documentEntries.filter(Boolean) as SystemDocumentContract[];
+  if (systemDocuments.length !== documentEntries.length) throw new SdlcError(`Pattern catalog contains incomplete system-document entries: ${file}`);
+  for (const document of systemDocuments) {
+    const normalizedPath = document.path.replaceAll("\\", "/");
+    if (path.isAbsolute(document.path) || normalizedPath.split("/").includes("..")) throw new SdlcError(`Unsafe system-document path: ${document.path}.`);
+    // Confined to 00-system and never into the pinned catalog: these contracts
+    // describe shipped system documentation, and a path reaching anywhere else
+    // would silently duplicate an authority that already has an owner.
+    if (!normalizedPath.startsWith("00-system/") || normalizedPath.startsWith("00-system/patterns/")) throw new SdlcError(`System-document contracts cover 00-system documents only: ${document.path}.`);
+  }
+  if (new Set(systemDocuments.map((item) => item.path.replaceAll("\\", "/"))).size !== systemDocuments.length) throw new SdlcError("System-document paths must be unique.");
   return {
     version: String(data.version ?? data.schema_version ?? "1"), root,
     patterns: patterns.sort((a, b) => a.artifact_type.localeCompare(b.artifact_type)),
-    foundations: foundations.sort((a, b) => a.artifact_type.localeCompare(b.artifact_type))
+    foundations: foundations.sort((a, b) => a.artifact_type.localeCompare(b.artifact_type)),
+    system_documents: systemDocuments.sort((a, b) => a.path.localeCompare(b.path))
   };
 }
 

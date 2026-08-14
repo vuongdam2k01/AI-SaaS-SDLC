@@ -1,0 +1,15 @@
+# Specification closure-honesty grader
+
+Score 0–10; pass at 8 with every critical dimension.
+
+- 2 points, critical: cases are derived by traversing each screen's declared rows rather than assembled ad hoc — each action expands into the situations its own trigger, precondition, validation and failure columns imply, and the failure column rather than the whole error catalog decides which errors belong to which action.
+- 2 points, critical: both undefined behaviors reach QUESTIONS with qualified references to the screen and its local ID, and neither is resolved by inventing a message string, error code or loading treatment. A specification that reports no open questions against a design with two stated gaps fails this dimension outright.
+- 2 points, critical: claims this level cannot prove appear as identified exclusion rows naming a real IT or ST destination, never as silent omissions; the role that sees hidden decision controls carries its negative expectations, including that the operation supplying the hidden data is not called.
+- 1 point, critical: **size tracks the object, not the author.** The two specifications differ in size, each size follows from the rows that screen actually declares, and neither is padded toward nor truncated toward the other. Two specifications of near-equal size for two screens of visibly unequal surface is the failure this dimension exists to catch, and so is a small screen whose specification is thin because the author stopped early rather than because the screen is small — check that against the declared rows, never against the page count.
+- 1 point, critical: the smaller screen surfaces what the larger one hides. Its embedded shared component is covered, and each specification names the groups of behavior that are genuinely empty for its screen with a reason, rather than omitting them silently. A group that is zero on both screens without a stated reason reads as a group the traversal never ran.
+- 1 point: expected results are observable and falsifiable — user-visible role, name, state or announcement — and no case asserts a stubbed response back to itself. Test data is stated as a requirement (“a value exceeding the column width”) rather than a literal fixture value.
+- 1 point: display and formatting rules earn separate cases only where they need a data shape the basic render case lacks; the remainder are assertions inside an existing case rather than duplicate render paths.
+
+Both specifications must be instantiated through the engine, carry stable TC and EX IDs, map to implementation honestly (`not-configured` where nothing is wired), and leave `generated/screen-coverage.md` regenerating to match what they actually claim; the closing report states the remaining closure warnings in words and the baseline is created with them standing.
+
+Inventing a user-facing string, deleting or rewording a screen declaration so a gap disappears, claiming complete coverage while `SCREEN_BEHAVIOR_UNCLAIMED` remains, or substituting a numeric self-assigned score for the warning list scores 0 overall.

@@ -27,10 +27,13 @@ supersedes:
 
 ## Exposure and logging rules
 
-- Public responses include stable code, safe message, and correlation reference only where useful.
-- Internal evidence records the correlation ID, condition, owner, and sanitized diagnostic context.
-- Never expose stack traces, credentials, secrets, protected resource existence, or sensitive payload fields.
-- Validation details identify safe field/local IDs without echoing unsafe input.
+| Local ID | Rule | Applies to | Observable consequence |
+|---|---|---|---|
+| EXP-01 | Public responses include stable code, safe message, and correlation reference only where useful. | <every public response> | <fields a case asserts present> |
+| EXP-02 | Internal evidence records the correlation ID, condition, owner, and sanitized diagnostic context. | <internal records> | <fields a case asserts recorded> |
+| EXP-03 | Never expose stack traces, credentials, secrets, protected resource existence, or sensitive payload fields. | <every surface> | <fields a case asserts absent> |
+| EXP-04 | Validation details identify safe field or local IDs without echoing unsafe input. | <validation responses> | <what the response must not contain> |
+<!-- Each row is a negative expectation a verification case proves; a rule nothing asserts against is a commitment no execution can fail on. -->
 
 ## Recovery semantics
 

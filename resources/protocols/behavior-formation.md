@@ -60,20 +60,22 @@ Every active feature must have downstream UC and FLOW coverage because the basel
 
 ## Derive observable cases
 
-For each acceptance criterion, check applicability rather than filling a universal checklist:
+A trigger is one line to write and several situations to accept. Expand each acceptance criterion by asking what its trigger can actually produce, rather than filling a universal checklist:
 
-- normal success;
-- validation/boundary input;
+- normal success — and how many materially different input classes reach it;
+- validation and boundary input, including what is refused before anything is attempted;
 - empty or no-result behavior;
 - alternate actor choice;
-- authorization and cross-tenant denial;
-- duplicate/retry/idempotency;
-- concurrent or stale-state action;
-- dependency unavailable/slow;
-- cancellation, partial completion or compensation;
-- retirement/migration compatibility.
+- authorization and cross-tenant denial, with the state that must remain unchanged;
+- duplicate, retry and idempotency behavior — what a second identical attempt does;
+- concurrent or stale-state action, and what the loser observes;
+- dependency unavailable or slow;
+- cancellation, partial completion or compensation, and whether cancelling truly leaves nothing behind;
+- retirement and migration compatibility.
 
-Write `N/A — <reason>` only when a pattern requires an explicit disposition. Omit inapplicable optional artifacts.
+Two of these multiply rather than add: distinct entry paths to the same outcome, and distinct input classes within the success path. The rest are separate situations reached from the same trigger. Absence is an answer worth writing — `N/A — <reason>` where a pattern requires an explicit disposition, so a later reader can tell a considered exemption from an oversight. Omit inapplicable optional artifacts.
+
+This is behavior, not verification: state what is observable, and leave which level proves it to `resources/protocols/test-derivation.md` and the case traversal in `resources/protocols/test-case-derivation.md`.
 
 ## Material interaction
 

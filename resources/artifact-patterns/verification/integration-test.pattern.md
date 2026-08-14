@@ -12,7 +12,7 @@ supersedes:
 
 # {{ID}} — {{TITLE}}
 
-<!-- Contract: specifies verification across one meaningful technical boundary using real participating implementations where that boundary is the claim. It is not isolated unit proof or an end-to-end actor journey. Create when correctness depends on collaboration among modules, database schema, OpenAPI handling, event/job delivery contract, or an external boundary. ID is IT-<AREA>-<NNN>; path is 04-verification/integration-tests/<ID>.md. This artifact owns boundary-test intent and case IDs. Upstream: TEST-POLICY plus referenced design/product contracts. Consumers: test implementation, results, issues, and closure. Lifecycle: draft -> active -> superseded. -->
+<!-- Contract: specifies verification across one meaningful technical boundary using real participating implementations where that boundary is the claim. It is not isolated unit proof or an end-to-end actor journey. Create when correctness depends on collaboration among modules, database schema, OpenAPI handling, event/job delivery contract, or an external boundary. ID is IT-<AREA>-<NNN>; path is 04-verification/integration-tests/<ID>.md. This artifact owns boundary-test intent and case IDs. Upstream: TEST-POLICY plus referenced design/product contracts. Consumers: test implementation, results, issues, and closure. Detail rule: the consumer is writing test code against a real boundary, so state which participant is real and why, and assert both the outward response and the authoritative state the boundary left behind. Lifecycle: draft -> active -> superseded. -->
 
 ## Purpose and boundary
 
@@ -48,15 +48,10 @@ supersedes:
 
 ## Test cases
 
-| Local ID | Reference IDs | Setup | Stimulus | Expected cross-boundary result | Cleanup |
-|---|---|---|---|---|---|
-| TC-01 | <AC/API/JOB/ENT/EVT/INT/ERROR/INV IDs> | <initial state> | <request/event/action> | <exact response and persisted/emitted state> | <cleanup> |
-
-## Failure and unchanged-state checks
-
-| Failure or race | Injection point | Expected response | State guarantee | Reconciliation evidence |
-|---|---|---|---|---|
-| <failure/duplicate/concurrency case> | <real boundary> | <ERROR or retry behavior> | <atomic/partial/unchanged state> | <observable proof> |
+| Local ID | Reference IDs | Setup | Stimulus | Expected cross-boundary result | State guarantee | Cleanup |
+|---|---|---|---|---|---|---|
+| TC-01 | <AC/API/JOB/ENT/EVT/INT/ERROR/INV IDs> | <initial state> | <request/event/action> | <exact response and persisted/emitted state> | <atomic, partial, or unchanged state after this case> | <cleanup> |
+<!-- Failure, duplicate and concurrency behavior are cases here, not a separate list: a failure injected at the real boundary is a TC row whose State guarantee column carries the atomicity claim. Only a TC ID can be named by an execution record, so a check written outside this table can never be proven to have run. -->
 
 ## Implementation mapping
 
@@ -69,5 +64,6 @@ supersedes:
 - [ ] At least two meaningful participants are exercised and the claimed boundary is not replaced.
 - [ ] Cases trace to contract IDs and verify both outward response and authoritative state/side effects.
 - [ ] Setup, isolation, cleanup, duplicate, concurrency, and failure behavior are deterministic.
+- [ ] At least one case exercises a failure or race at the real boundary and states the surviving state guarantee, where the boundary can fail.
 - [ ] Unit-test exclusions handed here are explicitly covered or reassigned to ST.
 - [ ] Every case maps to executable tests and engine-produced result evidence.

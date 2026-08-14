@@ -12,7 +12,7 @@ supersedes:
 
 # {{ID}} — {{TITLE}}
 
-<!-- Contract: specifies verification of an externally observable product scenario across its required surfaces and boundaries. It is not isolated component proof, implementation inspection, or operational acceptance. Create when an actor outcome, cross-screen flow, or end-to-end business state must be demonstrated as a whole. ID is ST-<AREA>-<NNN>; path is 04-verification/system-tests/<ID>.md. This artifact owns scenario-test intent and case IDs. Upstream: TEST-POLICY, FTR/UC/FLOW, SCR, access, quality, errors, and relevant design contracts. Consumers: test implementation, results, issues, and closure. Lifecycle: draft -> active -> superseded. -->
+<!-- Contract: specifies verification of an externally observable product scenario across its required surfaces and boundaries. It is not isolated component proof, implementation inspection, or operational acceptance. Create when an actor outcome, cross-screen flow, or end-to-end business state must be demonstrated as a whole. ID is ST-<AREA>-<NNN>; path is 04-verification/system-tests/<ID>.md. This artifact owns scenario-test intent and case IDs. Upstream: TEST-POLICY, FTR/UC/FLOW, SCR, access, quality, errors, and relevant design contracts. Consumers: test implementation, results, issues, and closure. Detail rule: the consumer is writing a journey through real surfaces, so state actor-visible outcomes and the final business state, and leave internal permutations to the levels that already prove them. Lifecycle: draft -> active -> superseded. -->
 
 ## Purpose and boundary
 
@@ -51,12 +51,7 @@ supersedes:
 | Local ID | Reference IDs | Starting state | Actor actions or event | Observable outcome | Final state |
 |---|---|---|---|---|---|
 | TC-01 | <AC/UC/FLOW/SCR/ACCESS/ERROR IDs> | <state> | <ordered actions/events> | <visible response> | <authoritative business state> |
-
-## Cross-surface and failure checks
-
-| Condition | Surfaces crossed | Expected behavior | State guarantee | Recovery or next action |
-|---|---|---|---|---|
-| <denial, validation, partial failure, retry, duplicate, or alternate path> | <surfaces> | <observable result> | <state> | <behavior> |
+<!-- Denial, validation, partial failure, retry, duplicate and alternate paths are cases here, not a separate list: each is a TC row whose Final state column carries the state guarantee. Only a TC ID can be named by an execution record, so a check written outside this table can never be proven to have run. -->
 
 ## Implementation mapping
 
@@ -69,5 +64,6 @@ supersedes:
 - [ ] Cases cover the actor goal, main path, applicable alternates, denials, and failures.
 - [ ] Every case traces to FTR acceptance and UC/FLOW/SCR local IDs.
 - [ ] Assertions include externally observable outcome and authoritative final state.
+- [ ] At least one case follows a denial, failure or alternate path to its terminal state, where the journey admits one.
 - [ ] UT/IT exclusions handed here are covered without claiming unexercised boundaries.
 - [ ] Every case maps to executable tests and engine-produced result evidence.

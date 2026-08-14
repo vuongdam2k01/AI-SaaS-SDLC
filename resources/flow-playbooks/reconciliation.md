@@ -83,7 +83,7 @@ For code/config-only repair, retain the issue as the semantic trace; the engine 
 
 ## 7. Derive and execute regression
 
-Follow `resources/protocols/test-derivation.md`:
+Follow `resources/protocols/test-derivation.md`, and `resources/protocols/test-case-derivation.md` when the repair changes what a specification's cases assert:
 
 - add a test for the concrete failure at the lowest effective level;
 - retain old tests selected by impact;

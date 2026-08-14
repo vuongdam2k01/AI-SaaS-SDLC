@@ -12,7 +12,7 @@ supersedes:
 
 # {{ID}} — {{TITLE}}
 
-<!-- Contract: defines an immutable fact communicated across a meaningful boundary. It is not a command, database row, logging message, or implementation-only callback. Create when producer and consumers need a stable semantic, payload, delivery, ordering, evolution, or privacy contract. ID is EVT-<AREA>-<NNN>; path is 03-design/events/<ID>.md. This artifact owns event semantics and payload; entities own domain state and jobs/integrations own handling. Consumers: SUB/API/JOB/INT designs, IT/ST, and implementation. Lifecycle: draft -> active -> superseded; incompatible semantic changes require a new event/version. -->
+<!-- Contract: defines an immutable fact communicated across a meaningful boundary. It is not a command, database row, logging message, or implementation-only callback. Create when producer and consumers need a stable semantic, payload, delivery, ordering, evolution, or privacy contract. ID is EVT-<AREA>-<NNN>; path is 03-design/events/<ID>.md. This artifact owns event semantics and payload; entities own domain state and jobs/integrations own handling. Consumers: SUB/API/JOB/INT designs, IT/ST, and implementation. Detail rule: the consumer is a producer or consumer implementing against this fact, so state payload meaning, delivery, ordering and compatibility guarantees, and leave the handling behavior to the subsystems and jobs that own it. Lifecycle: draft -> active -> superseded; incompatible semantic changes require a new event/version. -->
 
 ## Purpose and boundary
 
@@ -23,11 +23,14 @@ supersedes:
 
 ## Emission semantics
 
-- Emission trigger: <committed fact and exact condition>
-- Emission relation to state commit: <atomic/outbox/after-commit semantics>
-- Event identity: <unique ID source>
-- Aggregate/tenant identity: <scope keys>
-- Duplicate possibility: <yes/no and cause>
+| Local ID | Concern | Rule | Observable consequence |
+|---|---|---|---|
+| EM-01 | emission trigger | <committed fact and exact condition> | <when a case may expect exactly one emission> |
+| EM-02 | relation to state commit | <atomic/outbox/after-commit semantics> | <observable when the commit fails> |
+| EM-03 | event identity | <unique ID source> | <what a consumer deduplicates on> |
+| EM-04 | aggregate or tenant identity | <scope keys> | <isolation a case can assert> |
+| EM-05 | duplicate possibility | <yes/no and cause> | <observable on a duplicated emission> |
+<!-- Keep one row per concern that applies; state an explicit not-applicable rule rather than deleting a row. -->
 
 ## Envelope and payload
 
@@ -37,11 +40,14 @@ supersedes:
 
 ## Ordering and delivery
 
-- Delivery semantic: <at-most-once / at-least-once / other explicit contract>
-- Ordering key and guarantee: <key and scope, or none>
-- Retention/replay semantics: <bounded behavior>
-- Consumer deduplication key: <field set>
-- Late or out-of-order handling: <consumer obligation>
+| Local ID | Concern | Rule | Observable consequence |
+|---|---|---|---|
+| DL-01 | delivery semantic | <at-most-once / at-least-once / other explicit contract> | <what a consumer must tolerate> |
+| DL-02 | ordering key and guarantee | <key and scope, or none> | <observable out-of-order outcome> |
+| DL-03 | retention and replay | <bounded behavior> | <observable after the bound> |
+| DL-04 | consumer deduplication key | <field set> | <what a second delivery must not repeat> |
+| DL-05 | late or out-of-order handling | <consumer obligation> | <observable when the obligation is met> |
+<!-- Keep one row per concern that applies; state an explicit not-applicable rule rather than deleting a row. -->
 
 ## Consumers
 
@@ -51,11 +57,14 @@ supersedes:
 
 ## Evolution and privacy
 
-- Compatibility rule: <additive/optional/deprecation semantics>
-- Versioning rule: <when a new version or ID is required>
-- Minimum payload rule: <avoid unnecessary sensitive data>
-- Retention/redaction rule: <consumer and evidence constraints>
-- Subject deletion impact: <how retained events are handled>
+| Local ID | Concern | Rule | Observable consequence |
+|---|---|---|---|
+| EP-01 | compatibility | <additive/optional/deprecation semantics> | <what an old consumer still sees> |
+| EP-02 | versioning | <when a new version or ID is required> | <observable at the version boundary> |
+| EP-03 | minimum payload | <avoid unnecessary sensitive data> | <fields a case asserts absent> |
+| EP-04 | retention and redaction | <consumer and evidence constraints> | <observable after the retention bound> |
+| EP-05 | subject deletion impact | <how retained events are handled> | <observable after a deletion request> |
+<!-- Keep one row per concern that applies; state an explicit not-applicable rule rather than deleting a row. -->
 
 ## Traceability
 

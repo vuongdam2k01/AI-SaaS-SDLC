@@ -12,7 +12,7 @@ supersedes:
 
 # {{ID}} — {{TITLE}}
 
-<!-- Contract: engine-owned immutable execution evidence. Purpose: project observed facts from one actual test execution. Non-purpose: test intent, normative design, manual status, or inferred evidence. Create only after the runner completes. ID is RESULT-<EXECUTION-ID>; path is 04-verification/results/<ID>.md. Authority: the runner owns raw output, source control owns code identity, and this result owns the immutable projection. Dependencies: TEST-POLICY, executed UT/IT/ST specs, source revision, and runner output. Consumers: change closure, issues, audits, and summaries. Lifecycle: active and immutable; later executions create new result IDs rather than editing this artifact. Completion is defined by the integrity contract below. -->
+<!-- Contract: engine-owned immutable execution evidence. Purpose: project observed facts from one actual test execution. Non-purpose: test intent, normative design, manual status, or inferred evidence. Create only after the runner completes. ID is RESULT-<EXECUTION-ID>; path is 04-verification/results/<ID>.md. Authority: the runner owns raw output, source control owns code identity, and this result owns the immutable projection. Dependencies: TEST-POLICY, executed UT/IT/ST specs, source revision, and runner output. Consumers: change closure, issues, audits, and summaries. Detail rule: the consumer is auditing what actually ran, so every field is a recorded fact from one execution; nothing here is authored, and an absent field is reported as absent rather than filled in. Lifecycle: active and immutable; later executions create new result IDs rather than editing this artifact. Completion is defined by the integrity contract below. -->
 
 ## Execution identity
 

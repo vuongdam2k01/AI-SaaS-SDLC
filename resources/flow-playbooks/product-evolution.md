@@ -149,7 +149,7 @@ Run `ENGINE impact --json` again after design relationships stabilize. If the cl
 
 ## 9. Derive verification
 
-Follow `resources/protocols/test-derivation.md`.
+Follow `resources/protocols/test-derivation.md` for level allocation, then `resources/protocols/test-case-derivation.md` for the cases inside each specification.
 
 - create/update backend/core, frontend and job `UT-*` as applicable;
 - create/update `IT-*` for real component/persistence/provider/event/job boundaries;

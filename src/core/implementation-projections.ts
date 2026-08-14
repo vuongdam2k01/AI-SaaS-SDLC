@@ -1,4 +1,5 @@
 import type { Artifact, ArtifactGraph, ExecutionRecord, ProjectConfig } from "./types.js";
+import { FOUNDATION_REFERENCES, bodyIds } from "./claims.js";
 import { activeFeatures, featureImplementationState, unprovenLevels, IMPLEMENTATION_LEVELS } from "./implementation-evidence.js";
 import { latestExecution, matchesDefinitionEvidence } from "./execution-selection.js";
 import { topologicalOrder } from "./graph.js";
@@ -87,16 +88,6 @@ export function implementationCoverageProjection(artifacts: Artifact[], graph: A
 }
 
 const CONTRACT_DEPENDENCY = /^(?:WIRE|SCHEMA|TRANSITIONS)-/;
-
-const FOUNDATION_REFERENCES = [
-  { artifactType: "access_control", heading: "Access rules referenced", pattern: /\bACCESS-\d[A-Z0-9-]*\b/g },
-  { artifactType: "system_invariants", heading: "System invariants referenced", pattern: /\bINV-\d[A-Z0-9-]*\b/g },
-  { artifactType: "error_catalog", heading: "Error codes referenced", pattern: /\bERROR-[A-Z][A-Z0-9]*-\d+\b/g }
-] as const;
-
-function bodyIds(body: string, pattern: RegExp): string[] {
-  return [...new Set(body.match(pattern) ?? [])].sort();
-}
 
 /** The verbatim `## Test cases` table of one specification, when present. */
 function testCaseTableLines(body: string): string[] {

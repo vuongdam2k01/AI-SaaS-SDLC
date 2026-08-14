@@ -11,7 +11,7 @@ supersedes:
 
 # {{ID}} — {{TITLE}}
 
-<!-- Contract: records dated, sourced facts and bounded implications for one alternative offering. It is not a product backlog, unsourced scorecard, or permanent claim. Create for an alternative material to positioning, customer choice, or commercial feasibility. ID is COMPETITOR-<SLUG>; path is 01-discovery/competitors/<ID>.md. This artifact owns the offering snapshot; EVIDENCE-LEDGER owns sources and COMPETITIVE-AND-COMMERCIAL owns portfolio conclusions. Consumers: competitive/commercial synthesis, opportunity definition, product scope, and risk analysis. Lifecycle: draft -> active -> superseded as observations age. -->
+<!-- Contract: records dated, sourced facts and bounded implications for one alternative offering. It is not a product backlog, unsourced scorecard, or permanent claim. Create for an alternative material to positioning, customer choice, or commercial feasibility. ID is COMPETITOR-<SLUG>; path is 01-discovery/competitors/<ID>.md. This artifact owns the offering snapshot; EVIDENCE-LEDGER owns sources and COMPETITIVE-AND-COMMERCIAL owns portfolio conclusions. Consumers: competitive/commercial synthesis, opportunity definition, product scope, and risk analysis. Detail rule: the consumer is positioning against real alternatives and can revisit the cited pages, so record dated observations and their implication, not a feature inventory that ages the moment it is written. Lifecycle: draft -> active -> superseded as observations age. -->
 
 ## Purpose and boundary
 
@@ -50,6 +50,7 @@ supersedes:
 
 - Unknowns: <material gaps>
 - Inferences: <clearly labeled deductions>
+<!-- Prose by design, like the Implications below. These are consumed by a human deciding what to research next, not by a downstream artifact citing an ID; the evidence register above carries every claim that must stay traceable. -->
 - Recheck triggers: <events or age threshold that require refresh>
 
 ## Implications

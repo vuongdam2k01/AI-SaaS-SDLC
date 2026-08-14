@@ -74,9 +74,12 @@ Scope, local IDs, failures, observable criteria, and downstream handoffs are com
 
 ## Trigger and guarantees
 
-- Trigger: assigned approver opens a pending request and chooses approve or reject.
-- Success guarantee: one terminal decision and its audit metadata are observable.
-- Minimal guarantee: failure preserves request state, version, and history.
+| Local ID | Concern | Statement | Observable evidence |
+|---|---|---|---|
+| G-01 | trigger | An assigned approver opens a pending request and chooses approve or reject. | The decision controls are reachable. |
+| G-02 | success guarantee | One terminal decision and its audit metadata are observable. | Terminal status plus exactly one audit row. |
+| G-03 | minimal guarantee | Failure preserves request state, version, and history. | Status, version, and audit rows unchanged after any error path. |
+
 - Related feature acceptance: FTR-APPROVAL-001#AC-01, FTR-APPROVAL-001#AC-02, FTR-APPROVAL-001#AC-03.
 
 ## Main flow
@@ -129,10 +132,12 @@ Goal, trigger, guarantees, deterministic main, alternate, and error outcomes are
 
 ## Entry and exit
 
-- Entry event: valid contributor submission creates a tenant-scoped pending request.
-- Successful exit: assigned approver sees a terminal state and audit record.
-- Unsuccessful exits: denied/invalid decision leaves the request pending; conflict preserves the first terminal decision.
-- Global invariants: INV-001 and INV-002.
+| Local ID | Concern | Statement | Observable evidence |
+|---|---|---|---|
+| EE-01 | entry event | A valid contributor submission creates a tenant-scoped pending request. | A pending request exists with version 1. |
+| EE-02 | successful exit | The assigned approver sees a terminal state and audit record. | Terminal status plus one audit row. |
+| EE-03 | unsuccessful exits | A denied or invalid decision leaves the request pending; a conflict preserves the first terminal decision. | Status after each failure branch. |
+| EE-04 | global invariants | INV-001 and INV-002 hold at every step, including after a failed decision. | Tenant scope and single-decision uniqueness. |
 
 ## Flow steps
 
