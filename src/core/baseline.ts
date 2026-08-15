@@ -21,7 +21,24 @@ import { withProjectLock } from "./project-lock.js";
 import { enforceFlowArtifactBoundaries } from "./baseline-flow-rules.js";
 import { implementationSnapshotHash } from "./implementation-snapshot.js";
 import { collectMappingHashes } from "./mapping-hashes.js";
+import { computeEditorialDigests, diffEditorialDigests } from "./editorial-digests.js";
 import { openQuestions } from "./question-ledger.js";
+
+/**
+ * Artifacts the editorial path never absorbs a body change for. Shared by the
+ * digest writer and the sync itself so the two can never disagree about which
+ * artifacts the structural guard is responsible for: recording a digest for an
+ * artifact the sync would refuse anyway is dead weight, and refusing one no
+ * digest was recorded for would be a guard with nothing behind it.
+ */
+function editorialSyncImmutable(entry: { artifact_type: string; adr_status?: string; status: string }): boolean {
+  return entry.artifact_type === "original_idea"
+    || entry.artifact_type === "evidence_ledger"
+    || entry.artifact_type === "test_result"
+    || (entry.artifact_type === "architectural_decision" && entry.adr_status === "accepted")
+    || entry.status === "retired" || entry.status === "superseded"
+    || ["engine_configuration", "openapi_contract", "physical_schema", "screen_transitions"].includes(entry.artifact_type);
+}
 
 function nextBaselineId(current: string | null): string {
   if (!current) return "BL-000";
@@ -144,7 +161,13 @@ async function createBaselineUnlocked(root: string): Promise<BaselineManifest> {
     // Per-mapping content hashes are the reference point IMPLEMENTATION_DRIFT
     // compares against; recorded only when sources are configured, so an
     // unwired repository's manifest stays byte-identical.
-    ...(config.implementation_sources.length > 0 ? { implementation_hashes: await collectMappingHashes(root, config, artifacts) } : {})
+    ...(config.implementation_sources.length > 0 ? { implementation_hashes: await collectMappingHashes(root, config, artifacts) } : {}),
+    // Structural digests are the reference point the editorial guard compares
+    // against, recorded for exactly the artifacts that path can absorb.
+    editorial_digests: Object.fromEntries(artifacts
+      .filter((artifact) => !editorialSyncImmutable(artifact))
+      .map((artifact) => [artifact.id, computeEditorialDigests(artifact.body)])
+      .sort(([a], [b]) => String(a).localeCompare(String(b))))
   };
   for (const artifact of artifacts) state.id_registry[artifact.id] ??= artifact.file;
   // Stamp every open question with the baseline it was first seen open at, and
@@ -168,7 +191,11 @@ async function createBaselineUnlocked(root: string): Promise<BaselineManifest> {
     const change = await readJson<ChangeRecord>(file);
     if (!isChangeRecord(change)) throw new SdlcError(`Invalid change record schema: ${file}`);
     await prepareSafeManagedPath(root, file);
-    await writeJsonAtomic(file, { ...change, status: "baselined", successor_baseline: id, impact });
+    // The classification key is stamped even when empty: its presence is what
+    // tells a later validate that this change was authored under a ledger and
+    // its unanswered reaches are real debt, while its absence marks a record
+    // from before the ledger existed, which is asked nothing.
+    await writeJsonAtomic(file, { ...change, status: "baselined", successor_baseline: id, impact, classification: change.classification ?? {} });
   }
   await refreshProject(root, false);
   return manifest;
@@ -189,6 +216,7 @@ async function syncRepresentationChangesUnlocked(root: string): Promise<string[]
   if (errors.length > 0) throw new SdlcError(`Editorial synchronization requires a structurally valid repository:\n${errors.map((item) => `- ${item.code}: ${item.message}`).join("\n")}`);
   const current = new Map(artifacts.map((artifact) => [artifact.id, artifact]));
   const synchronized: string[] = [];
+  const structural: string[] = [];
   for (const entry of baseline.artifacts) {
     const artifact = current.get(entry.id);
     const relationsUnchanged = artifact
@@ -203,15 +231,27 @@ async function syncRepresentationChangesUnlocked(root: string): Promise<string[]
       && JSON.stringify(artifact.implementation) === JSON.stringify(entry.implementation)
       && artifact.adr_status === entry.adr_status;
     if (!artifact || artifact.file !== entry.file || artifact.hash === entry.hash || !relationsUnchanged) continue;
-    const immutable = entry.artifact_type === "original_idea"
-      || entry.artifact_type === "evidence_ledger"
-      || entry.artifact_type === "test_result"
-      || (entry.artifact_type === "architectural_decision" && entry.adr_status === "accepted")
-      || entry.status === "retired" || entry.status === "superseded"
-      || ["engine_configuration", "openapi_contract", "physical_schema", "screen_transitions"].includes(entry.artifact_type);
-    if (immutable) continue;
+    if (editorialSyncImmutable(entry)) continue;
+    // The body moved and the frontmatter did not, which is what an editorial
+    // edit looks like from the outside. Whether it is one is decided here: an
+    // edit that changed identifiers, numbers or table structure changed the
+    // contract, and the contract has a flow that owns it.
+    const stored = baseline.editorial_digests?.[entry.id];
+    if (stored) {
+      const changed = diffEditorialDigests(stored, computeEditorialDigests(artifact.body));
+      if (changed.length > 0) {
+        structural.push(`${entry.id} (${changed.join(", ")})`);
+        continue;
+      }
+    }
     entry.hash = artifact.hash;
     synchronized.push(entry.id);
+  }
+  // Absorb nothing when any edit was structural. A partial sync would leave the
+  // author with some edits baselined and one refused, which is a worse state to
+  // reason about than a refusal that names everything at once.
+  if (structural.length > 0) {
+    throw new SdlcError(`Editorial synchronization refused: ${structural.sort().join(", ")}. An editorial edit may rewrite prose, but these changed identifiers, numbers or table structure, which state something different about the product. This is a structural check, not a review of wording: route the change through the flow that owns it — \`flow start --type evolution\` for new behavior, \`--type reconciliation\` for a defect — or restore the structural content and re-run. Baselines recorded before structural digests existed observe nothing.`);
   }
   if (synchronized.length > 0) {
     await prepareSafeManagedPath(root, projectPaths(root).baseline);

@@ -106,7 +106,7 @@ var require_path = __commonJS({
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.convertPosixPathToPattern = exports.convertWindowsPathToPattern = exports.convertPathToPattern = exports.escapePosixPath = exports.escapeWindowsPath = exports.escape = exports.removeLeadingDotSegment = exports.makeAbsolute = exports.unixify = void 0;
     var os = __require("os");
-    var path18 = __require("path");
+    var path19 = __require("path");
     var IS_WINDOWS_PLATFORM = os.platform() === "win32";
     var LEADING_DOT_SEGMENT_CHARACTERS_COUNT = 2;
     var POSIX_UNESCAPED_GLOB_SYMBOLS_RE = /(\\?)([()*?[\]{|}]|^!|[!+@](?=\()|\\(?![!()*+?@[\]{|}]))/g;
@@ -118,7 +118,7 @@ var require_path = __commonJS({
     }
     exports.unixify = unixify;
     function makeAbsolute(cwd, filepath) {
-      return path18.resolve(cwd, filepath);
+      return path19.resolve(cwd, filepath);
     }
     exports.makeAbsolute = makeAbsolute;
     function removeLeadingDotSegment(entry) {
@@ -1415,7 +1415,7 @@ var require_braces = __commonJS({
 var require_constants2 = __commonJS({
   "node_modules/picomatch/lib/constants.js"(exports, module) {
     "use strict";
-    var path18 = __require("path");
+    var path19 = __require("path");
     var WIN_SLASH = "\\\\/";
     var WIN_NO_SLASH = `[^${WIN_SLASH}]`;
     var DEFAULT_MAX_EXTGLOB_RECURSION = 0;
@@ -1589,7 +1589,7 @@ var require_constants2 = __commonJS({
       /* | */
       CHAR_ZERO_WIDTH_NOBREAK_SPACE: 65279,
       /* \uFEFF */
-      SEP: path18.sep,
+      SEP: path19.sep,
       /**
        * Create EXTGLOB_CHARS
        */
@@ -1616,7 +1616,7 @@ var require_constants2 = __commonJS({
 var require_utils2 = __commonJS({
   "node_modules/picomatch/lib/utils.js"(exports) {
     "use strict";
-    var path18 = __require("path");
+    var path19 = __require("path");
     var win32 = process.platform === "win32";
     var {
       REGEX_BACKSLASH,
@@ -1645,7 +1645,7 @@ var require_utils2 = __commonJS({
       if (options && typeof options.windows === "boolean") {
         return options.windows;
       }
-      return win32 === true || path18.sep === "\\";
+      return win32 === true || path19.sep === "\\";
     };
     exports.escapeLast = (input2, char, lastIdx) => {
       const idx = input2.lastIndexOf(char, lastIdx);
@@ -3009,7 +3009,7 @@ var require_parse2 = __commonJS({
 var require_picomatch = __commonJS({
   "node_modules/picomatch/lib/picomatch.js"(exports, module) {
     "use strict";
-    var path18 = __require("path");
+    var path19 = __require("path");
     var scan = require_scan();
     var parse = require_parse2();
     var utils = require_utils2();
@@ -3094,7 +3094,7 @@ var require_picomatch = __commonJS({
     };
     picomatch.matchBase = (input2, glob, options, posix = utils.isWindows(options)) => {
       const regex = glob instanceof RegExp ? glob : picomatch.makeRe(glob, options);
-      return regex.test(path18.basename(input2));
+      return regex.test(path19.basename(input2));
     };
     picomatch.isMatch = (str, patterns, options) => picomatch(patterns, options)(str);
     picomatch.parse = (pattern, options) => {
@@ -3321,7 +3321,7 @@ var require_pattern = __commonJS({
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.isAbsolute = exports.partitionAbsoluteAndRelative = exports.removeDuplicateSlashes = exports.matchAny = exports.convertPatternsToRe = exports.makeRe = exports.getPatternParts = exports.expandBraceExpansion = exports.expandPatternsWithBraceExpansion = exports.isAffectDepthOfReadingPattern = exports.endsWithSlashGlobStar = exports.hasGlobStar = exports.getBaseDirectory = exports.isPatternRelatedToParentDirectory = exports.getPatternsOutsideCurrentDirectory = exports.getPatternsInsideCurrentDirectory = exports.getPositivePatterns = exports.getNegativePatterns = exports.isPositivePattern = exports.isNegativePattern = exports.convertToNegativePattern = exports.convertToPositivePattern = exports.isDynamicPattern = exports.isStaticPattern = void 0;
-    var path18 = __require("path");
+    var path19 = __require("path");
     var globParent = require_glob_parent();
     var micromatch = require_micromatch();
     var GLOBSTAR = "**";
@@ -3416,7 +3416,7 @@ var require_pattern = __commonJS({
     }
     exports.endsWithSlashGlobStar = endsWithSlashGlobStar;
     function isAffectDepthOfReadingPattern(pattern) {
-      const basename = path18.basename(pattern);
+      const basename = path19.basename(pattern);
       return endsWithSlashGlobStar(pattern) || isStaticPattern(basename);
     }
     exports.isAffectDepthOfReadingPattern = isAffectDepthOfReadingPattern;
@@ -3474,7 +3474,7 @@ var require_pattern = __commonJS({
     }
     exports.partitionAbsoluteAndRelative = partitionAbsoluteAndRelative;
     function isAbsolute(pattern) {
-      return path18.isAbsolute(pattern);
+      return path19.isAbsolute(pattern);
     }
     exports.isAbsolute = isAbsolute;
   }
@@ -3651,8 +3651,8 @@ var require_utils3 = __commonJS({
     exports.errno = errno;
     var fs = require_fs();
     exports.fs = fs;
-    var path18 = require_path();
-    exports.path = path18;
+    var path19 = require_path();
+    exports.path = path19;
     var pattern = require_pattern();
     exports.pattern = pattern;
     var stream = require_stream();
@@ -3764,8 +3764,8 @@ var require_async = __commonJS({
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.read = void 0;
-    function read(path18, settings, callback) {
-      settings.fs.lstat(path18, (lstatError, lstat3) => {
+    function read(path19, settings, callback) {
+      settings.fs.lstat(path19, (lstatError, lstat3) => {
         if (lstatError !== null) {
           callFailureCallback(callback, lstatError);
           return;
@@ -3774,7 +3774,7 @@ var require_async = __commonJS({
           callSuccessCallback(callback, lstat3);
           return;
         }
-        settings.fs.stat(path18, (statError, stat) => {
+        settings.fs.stat(path19, (statError, stat) => {
           if (statError !== null) {
             if (settings.throwErrorOnBrokenSymbolicLink) {
               callFailureCallback(callback, statError);
@@ -3806,13 +3806,13 @@ var require_sync = __commonJS({
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.read = void 0;
-    function read(path18, settings) {
-      const lstat3 = settings.fs.lstatSync(path18);
+    function read(path19, settings) {
+      const lstat3 = settings.fs.lstatSync(path19);
       if (!lstat3.isSymbolicLink() || !settings.followSymbolicLink) {
         return lstat3;
       }
       try {
-        const stat = settings.fs.statSync(path18);
+        const stat = settings.fs.statSync(path19);
         if (settings.markSymbolicLink) {
           stat.isSymbolicLink = () => true;
         }
@@ -3883,17 +3883,17 @@ var require_out = __commonJS({
     var sync = require_sync();
     var settings_1 = require_settings();
     exports.Settings = settings_1.default;
-    function stat(path18, optionsOrSettingsOrCallback, callback) {
+    function stat(path19, optionsOrSettingsOrCallback, callback) {
       if (typeof optionsOrSettingsOrCallback === "function") {
-        async.read(path18, getSettings(), optionsOrSettingsOrCallback);
+        async.read(path19, getSettings(), optionsOrSettingsOrCallback);
         return;
       }
-      async.read(path18, getSettings(optionsOrSettingsOrCallback), callback);
+      async.read(path19, getSettings(optionsOrSettingsOrCallback), callback);
     }
     exports.stat = stat;
-    function statSync(path18, optionsOrSettings) {
+    function statSync(path19, optionsOrSettings) {
       const settings = getSettings(optionsOrSettings);
-      return sync.read(path18, settings);
+      return sync.read(path19, settings);
     }
     exports.statSync = statSync;
     function getSettings(settingsOrOptions = {}) {
@@ -4053,7 +4053,7 @@ var require_async2 = __commonJS({
         readdirWithFileTypes(directory, settings, callback);
         return;
       }
-      readdir4(directory, settings, callback);
+      readdir5(directory, settings, callback);
     }
     exports.read = read;
     function readdirWithFileTypes(directory, settings, callback) {
@@ -4102,23 +4102,23 @@ var require_async2 = __commonJS({
         });
       };
     }
-    function readdir4(directory, settings, callback) {
+    function readdir5(directory, settings, callback) {
       settings.fs.readdir(directory, (readdirError, names) => {
         if (readdirError !== null) {
           callFailureCallback(callback, readdirError);
           return;
         }
         const tasks = names.map((name) => {
-          const path18 = common.joinPathSegments(directory, name, settings.pathSegmentSeparator);
+          const path19 = common.joinPathSegments(directory, name, settings.pathSegmentSeparator);
           return (done) => {
-            fsStat.stat(path18, settings.fsStatSettings, (error, stats) => {
+            fsStat.stat(path19, settings.fsStatSettings, (error, stats) => {
               if (error !== null) {
                 done(error);
                 return;
               }
               const entry = {
                 name,
-                path: path18,
+                path: path19,
                 dirent: utils.fs.createDirentFromStats(name, stats)
               };
               if (settings.stats) {
@@ -4137,7 +4137,7 @@ var require_async2 = __commonJS({
         });
       });
     }
-    exports.readdir = readdir4;
+    exports.readdir = readdir5;
     function callFailureCallback(callback, error) {
       callback(error);
     }
@@ -4161,7 +4161,7 @@ var require_sync2 = __commonJS({
       if (!settings.stats && constants_1.IS_SUPPORT_READDIR_WITH_FILE_TYPES) {
         return readdirWithFileTypes(directory, settings);
       }
-      return readdir4(directory, settings);
+      return readdir5(directory, settings);
     }
     exports.read = read;
     function readdirWithFileTypes(directory, settings) {
@@ -4186,7 +4186,7 @@ var require_sync2 = __commonJS({
       });
     }
     exports.readdirWithFileTypes = readdirWithFileTypes;
-    function readdir4(directory, settings) {
+    function readdir5(directory, settings) {
       const names = settings.fs.readdirSync(directory);
       return names.map((name) => {
         const entryPath = common.joinPathSegments(directory, name, settings.pathSegmentSeparator);
@@ -4202,7 +4202,7 @@ var require_sync2 = __commonJS({
         return entry;
       });
     }
-    exports.readdir = readdir4;
+    exports.readdir = readdir5;
   }
 });
 
@@ -4236,7 +4236,7 @@ var require_settings2 = __commonJS({
   "node_modules/@nodelib/fs.scandir/out/settings.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    var path18 = __require("path");
+    var path19 = __require("path");
     var fsStat = require_out();
     var fs = require_fs4();
     var Settings = class {
@@ -4244,7 +4244,7 @@ var require_settings2 = __commonJS({
         this._options = _options;
         this.followSymbolicLinks = this._getValue(this._options.followSymbolicLinks, false);
         this.fs = fs.createFileSystemAdapter(this._options.fs);
-        this.pathSegmentSeparator = this._getValue(this._options.pathSegmentSeparator, path18.sep);
+        this.pathSegmentSeparator = this._getValue(this._options.pathSegmentSeparator, path19.sep);
         this.stats = this._getValue(this._options.stats, false);
         this.throwErrorOnBrokenSymbolicLink = this._getValue(this._options.throwErrorOnBrokenSymbolicLink, true);
         this.fsStatSettings = new fsStat.Settings({
@@ -4271,17 +4271,17 @@ var require_out2 = __commonJS({
     var sync = require_sync2();
     var settings_1 = require_settings2();
     exports.Settings = settings_1.default;
-    function scandir(path18, optionsOrSettingsOrCallback, callback) {
+    function scandir(path19, optionsOrSettingsOrCallback, callback) {
       if (typeof optionsOrSettingsOrCallback === "function") {
-        async.read(path18, getSettings(), optionsOrSettingsOrCallback);
+        async.read(path19, getSettings(), optionsOrSettingsOrCallback);
         return;
       }
-      async.read(path18, getSettings(optionsOrSettingsOrCallback), callback);
+      async.read(path19, getSettings(optionsOrSettingsOrCallback), callback);
     }
     exports.scandir = scandir;
-    function scandirSync(path18, optionsOrSettings) {
+    function scandirSync(path19, optionsOrSettings) {
       const settings = getSettings(optionsOrSettings);
-      return sync.read(path18, settings);
+      return sync.read(path19, settings);
     }
     exports.scandirSync = scandirSync;
     function getSettings(settingsOrOptions = {}) {
@@ -4928,7 +4928,7 @@ var require_settings3 = __commonJS({
   "node_modules/@nodelib/fs.walk/out/settings.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    var path18 = __require("path");
+    var path19 = __require("path");
     var fsScandir = require_out2();
     var Settings = class {
       constructor(_options = {}) {
@@ -4938,7 +4938,7 @@ var require_settings3 = __commonJS({
         this.deepFilter = this._getValue(this._options.deepFilter, null);
         this.entryFilter = this._getValue(this._options.entryFilter, null);
         this.errorFilter = this._getValue(this._options.errorFilter, null);
-        this.pathSegmentSeparator = this._getValue(this._options.pathSegmentSeparator, path18.sep);
+        this.pathSegmentSeparator = this._getValue(this._options.pathSegmentSeparator, path19.sep);
         this.fsScandirSettings = new fsScandir.Settings({
           followSymbolicLinks: this._options.followSymbolicLinks,
           fs: this._options.fs,
@@ -5000,7 +5000,7 @@ var require_reader2 = __commonJS({
   "node_modules/fast-glob/out/readers/reader.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    var path18 = __require("path");
+    var path19 = __require("path");
     var fsStat = require_out();
     var utils = require_utils3();
     var Reader = class {
@@ -5013,7 +5013,7 @@ var require_reader2 = __commonJS({
         });
       }
       _getFullEntryPath(filepath) {
-        return path18.resolve(this._settings.cwd, filepath);
+        return path19.resolve(this._settings.cwd, filepath);
       }
       _makeEntry(stats, pattern) {
         const entry = {
@@ -5429,7 +5429,7 @@ var require_provider = __commonJS({
   "node_modules/fast-glob/out/providers/provider.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    var path18 = __require("path");
+    var path19 = __require("path");
     var deep_1 = require_deep();
     var entry_1 = require_entry();
     var error_1 = require_error();
@@ -5443,7 +5443,7 @@ var require_provider = __commonJS({
         this.entryTransformer = new entry_2.default(this._settings);
       }
       _getRootDirectory(task) {
-        return path18.resolve(this._settings.cwd, task.base);
+        return path19.resolve(this._settings.cwd, task.base);
       }
       _getReaderOptions(task) {
         const basePath = task.base === "." ? "" : task.base;
@@ -5856,17 +5856,17 @@ var require_visit = __commonJS({
     visit.BREAK = BREAK;
     visit.SKIP = SKIP;
     visit.REMOVE = REMOVE;
-    function visit_(key, node, visitor, path18) {
-      const ctrl = callVisitor(key, node, visitor, path18);
+    function visit_(key, node, visitor, path19) {
+      const ctrl = callVisitor(key, node, visitor, path19);
       if (identity.isNode(ctrl) || identity.isPair(ctrl)) {
-        replaceNode(key, path18, ctrl);
-        return visit_(key, ctrl, visitor, path18);
+        replaceNode(key, path19, ctrl);
+        return visit_(key, ctrl, visitor, path19);
       }
       if (typeof ctrl !== "symbol") {
         if (identity.isCollection(node)) {
-          path18 = Object.freeze(path18.concat(node));
+          path19 = Object.freeze(path19.concat(node));
           for (let i = 0; i < node.items.length; ++i) {
-            const ci = visit_(i, node.items[i], visitor, path18);
+            const ci = visit_(i, node.items[i], visitor, path19);
             if (typeof ci === "number")
               i = ci - 1;
             else if (ci === BREAK)
@@ -5877,13 +5877,13 @@ var require_visit = __commonJS({
             }
           }
         } else if (identity.isPair(node)) {
-          path18 = Object.freeze(path18.concat(node));
-          const ck = visit_("key", node.key, visitor, path18);
+          path19 = Object.freeze(path19.concat(node));
+          const ck = visit_("key", node.key, visitor, path19);
           if (ck === BREAK)
             return BREAK;
           else if (ck === REMOVE)
             node.key = null;
-          const cv = visit_("value", node.value, visitor, path18);
+          const cv = visit_("value", node.value, visitor, path19);
           if (cv === BREAK)
             return BREAK;
           else if (cv === REMOVE)
@@ -5904,17 +5904,17 @@ var require_visit = __commonJS({
     visitAsync.BREAK = BREAK;
     visitAsync.SKIP = SKIP;
     visitAsync.REMOVE = REMOVE;
-    async function visitAsync_(key, node, visitor, path18) {
-      const ctrl = await callVisitor(key, node, visitor, path18);
+    async function visitAsync_(key, node, visitor, path19) {
+      const ctrl = await callVisitor(key, node, visitor, path19);
       if (identity.isNode(ctrl) || identity.isPair(ctrl)) {
-        replaceNode(key, path18, ctrl);
-        return visitAsync_(key, ctrl, visitor, path18);
+        replaceNode(key, path19, ctrl);
+        return visitAsync_(key, ctrl, visitor, path19);
       }
       if (typeof ctrl !== "symbol") {
         if (identity.isCollection(node)) {
-          path18 = Object.freeze(path18.concat(node));
+          path19 = Object.freeze(path19.concat(node));
           for (let i = 0; i < node.items.length; ++i) {
-            const ci = await visitAsync_(i, node.items[i], visitor, path18);
+            const ci = await visitAsync_(i, node.items[i], visitor, path19);
             if (typeof ci === "number")
               i = ci - 1;
             else if (ci === BREAK)
@@ -5925,13 +5925,13 @@ var require_visit = __commonJS({
             }
           }
         } else if (identity.isPair(node)) {
-          path18 = Object.freeze(path18.concat(node));
-          const ck = await visitAsync_("key", node.key, visitor, path18);
+          path19 = Object.freeze(path19.concat(node));
+          const ck = await visitAsync_("key", node.key, visitor, path19);
           if (ck === BREAK)
             return BREAK;
           else if (ck === REMOVE)
             node.key = null;
-          const cv = await visitAsync_("value", node.value, visitor, path18);
+          const cv = await visitAsync_("value", node.value, visitor, path19);
           if (cv === BREAK)
             return BREAK;
           else if (cv === REMOVE)
@@ -5958,23 +5958,23 @@ var require_visit = __commonJS({
       }
       return visitor;
     }
-    function callVisitor(key, node, visitor, path18) {
+    function callVisitor(key, node, visitor, path19) {
       if (typeof visitor === "function")
-        return visitor(key, node, path18);
+        return visitor(key, node, path19);
       if (identity.isMap(node))
-        return visitor.Map?.(key, node, path18);
+        return visitor.Map?.(key, node, path19);
       if (identity.isSeq(node))
-        return visitor.Seq?.(key, node, path18);
+        return visitor.Seq?.(key, node, path19);
       if (identity.isPair(node))
-        return visitor.Pair?.(key, node, path18);
+        return visitor.Pair?.(key, node, path19);
       if (identity.isScalar(node))
-        return visitor.Scalar?.(key, node, path18);
+        return visitor.Scalar?.(key, node, path19);
       if (identity.isAlias(node))
-        return visitor.Alias?.(key, node, path18);
+        return visitor.Alias?.(key, node, path19);
       return void 0;
     }
-    function replaceNode(key, path18, node) {
-      const parent = path18[path18.length - 1];
+    function replaceNode(key, path19, node) {
+      const parent = path19[path19.length - 1];
       if (identity.isCollection(parent)) {
         parent.items[key] = node;
       } else if (identity.isPair(parent)) {
@@ -6584,10 +6584,10 @@ var require_Collection = __commonJS({
     var createNode = require_createNode();
     var identity = require_identity();
     var Node = require_Node();
-    function collectionFromPath(schema, path18, value) {
+    function collectionFromPath(schema, path19, value) {
       let v = value;
-      for (let i = path18.length - 1; i >= 0; --i) {
-        const k = path18[i];
+      for (let i = path19.length - 1; i >= 0; --i) {
+        const k = path19[i];
         if (typeof k === "number" && Number.isInteger(k) && k >= 0) {
           const a = [];
           a[k] = v;
@@ -6606,7 +6606,7 @@ var require_Collection = __commonJS({
         sourceObjects: /* @__PURE__ */ new Map()
       });
     }
-    var isEmptyPath = (path18) => path18 == null || typeof path18 === "object" && !!path18[Symbol.iterator]().next().done;
+    var isEmptyPath = (path19) => path19 == null || typeof path19 === "object" && !!path19[Symbol.iterator]().next().done;
     var Collection = class extends Node.NodeBase {
       constructor(type, schema) {
         super(type);
@@ -6636,11 +6636,11 @@ var require_Collection = __commonJS({
        * be a Pair instance or a `{ key, value }` object, which may not have a key
        * that already exists in the map.
        */
-      addIn(path18, value) {
-        if (isEmptyPath(path18))
+      addIn(path19, value) {
+        if (isEmptyPath(path19))
           this.add(value);
         else {
-          const [key, ...rest] = path18;
+          const [key, ...rest] = path19;
           const node = this.get(key, true);
           if (identity.isCollection(node))
             node.addIn(rest, value);
@@ -6654,8 +6654,8 @@ var require_Collection = __commonJS({
        * Removes a value from the collection.
        * @returns `true` if the item was found and removed.
        */
-      deleteIn(path18) {
-        const [key, ...rest] = path18;
+      deleteIn(path19) {
+        const [key, ...rest] = path19;
         if (rest.length === 0)
           return this.delete(key);
         const node = this.get(key, true);
@@ -6669,8 +6669,8 @@ var require_Collection = __commonJS({
        * scalar values from their surrounding node; to disable set `keepScalar` to
        * `true` (collections are always returned intact).
        */
-      getIn(path18, keepScalar) {
-        const [key, ...rest] = path18;
+      getIn(path19, keepScalar) {
+        const [key, ...rest] = path19;
         const node = this.get(key, true);
         if (rest.length === 0)
           return !keepScalar && identity.isScalar(node) ? node.value : node;
@@ -6688,8 +6688,8 @@ var require_Collection = __commonJS({
       /**
        * Checks if the collection includes a value with the key `key`.
        */
-      hasIn(path18) {
-        const [key, ...rest] = path18;
+      hasIn(path19) {
+        const [key, ...rest] = path19;
         if (rest.length === 0)
           return this.has(key);
         const node = this.get(key, true);
@@ -6699,8 +6699,8 @@ var require_Collection = __commonJS({
        * Sets a value in this collection. For `!!set`, `value` needs to be a
        * boolean to add/remove the item from the set.
        */
-      setIn(path18, value) {
-        const [key, ...rest] = path18;
+      setIn(path19, value) {
+        const [key, ...rest] = path19;
         if (rest.length === 0) {
           this.set(key, value);
         } else {
@@ -9215,9 +9215,9 @@ var require_Document = __commonJS({
           this.contents.add(value);
       }
       /** Adds a value to the document. */
-      addIn(path18, value) {
+      addIn(path19, value) {
         if (assertCollection(this.contents))
-          this.contents.addIn(path18, value);
+          this.contents.addIn(path19, value);
       }
       /**
        * Create a new `Alias` node, ensuring that the target `node` has the required anchor.
@@ -9292,14 +9292,14 @@ var require_Document = __commonJS({
        * Removes a value from the document.
        * @returns `true` if the item was found and removed.
        */
-      deleteIn(path18) {
-        if (Collection.isEmptyPath(path18)) {
+      deleteIn(path19) {
+        if (Collection.isEmptyPath(path19)) {
           if (this.contents == null)
             return false;
           this.contents = null;
           return true;
         }
-        return assertCollection(this.contents) ? this.contents.deleteIn(path18) : false;
+        return assertCollection(this.contents) ? this.contents.deleteIn(path19) : false;
       }
       /**
        * Returns item at `key`, or `undefined` if not found. By default unwraps
@@ -9314,10 +9314,10 @@ var require_Document = __commonJS({
        * scalar values from their surrounding node; to disable set `keepScalar` to
        * `true` (collections are always returned intact).
        */
-      getIn(path18, keepScalar) {
-        if (Collection.isEmptyPath(path18))
+      getIn(path19, keepScalar) {
+        if (Collection.isEmptyPath(path19))
           return !keepScalar && identity.isScalar(this.contents) ? this.contents.value : this.contents;
-        return identity.isCollection(this.contents) ? this.contents.getIn(path18, keepScalar) : void 0;
+        return identity.isCollection(this.contents) ? this.contents.getIn(path19, keepScalar) : void 0;
       }
       /**
        * Checks if the document includes a value with the key `key`.
@@ -9328,10 +9328,10 @@ var require_Document = __commonJS({
       /**
        * Checks if the document includes a value at `path`.
        */
-      hasIn(path18) {
-        if (Collection.isEmptyPath(path18))
+      hasIn(path19) {
+        if (Collection.isEmptyPath(path19))
           return this.contents !== void 0;
-        return identity.isCollection(this.contents) ? this.contents.hasIn(path18) : false;
+        return identity.isCollection(this.contents) ? this.contents.hasIn(path19) : false;
       }
       /**
        * Sets a value in this document. For `!!set`, `value` needs to be a
@@ -9348,13 +9348,13 @@ var require_Document = __commonJS({
        * Sets a value in this document. For `!!set`, `value` needs to be a
        * boolean to add/remove the item from the set.
        */
-      setIn(path18, value) {
-        if (Collection.isEmptyPath(path18)) {
+      setIn(path19, value) {
+        if (Collection.isEmptyPath(path19)) {
           this.contents = value;
         } else if (this.contents == null) {
-          this.contents = Collection.collectionFromPath(this.schema, Array.from(path18), value);
+          this.contents = Collection.collectionFromPath(this.schema, Array.from(path19), value);
         } else if (assertCollection(this.contents)) {
-          this.contents.setIn(path18, value);
+          this.contents.setIn(path19, value);
         }
       }
       /**
@@ -11314,9 +11314,9 @@ var require_cst_visit = __commonJS({
     visit.BREAK = BREAK;
     visit.SKIP = SKIP;
     visit.REMOVE = REMOVE;
-    visit.itemAtPath = (cst, path18) => {
+    visit.itemAtPath = (cst, path19) => {
       let item = cst;
-      for (const [field, index] of path18) {
+      for (const [field, index] of path19) {
         const tok = item?.[field];
         if (tok && "items" in tok) {
           item = tok.items[index];
@@ -11325,23 +11325,23 @@ var require_cst_visit = __commonJS({
       }
       return item;
     };
-    visit.parentCollection = (cst, path18) => {
-      const parent = visit.itemAtPath(cst, path18.slice(0, -1));
-      const field = path18[path18.length - 1][0];
+    visit.parentCollection = (cst, path19) => {
+      const parent = visit.itemAtPath(cst, path19.slice(0, -1));
+      const field = path19[path19.length - 1][0];
       const coll = parent?.[field];
       if (coll && "items" in coll)
         return coll;
       throw new Error("Parent collection not found");
     };
-    function _visit(path18, item, visitor) {
-      let ctrl = visitor(item, path18);
+    function _visit(path19, item, visitor) {
+      let ctrl = visitor(item, path19);
       if (typeof ctrl === "symbol")
         return ctrl;
       for (const field of ["key", "value"]) {
         const token = item[field];
         if (token && "items" in token) {
           for (let i = 0; i < token.items.length; ++i) {
-            const ci = _visit(Object.freeze(path18.concat([[field, i]])), token.items[i], visitor);
+            const ci = _visit(Object.freeze(path19.concat([[field, i]])), token.items[i], visitor);
             if (typeof ci === "number")
               i = ci - 1;
             else if (ci === BREAK)
@@ -11352,10 +11352,10 @@ var require_cst_visit = __commonJS({
             }
           }
           if (typeof ctrl === "function" && field === "key")
-            ctrl = ctrl(item, path18);
+            ctrl = ctrl(item, path19);
         }
       }
-      return typeof ctrl === "function" ? ctrl(item, path18) : ctrl;
+      return typeof ctrl === "function" ? ctrl(item, path19) : ctrl;
     }
     exports.visit = visit;
   }
@@ -13326,7 +13326,7 @@ function statusesForArtifactType(artifactType) {
 function isLiveStatus(status) {
   return status === "active" || status === "open" || status === "resolved";
 }
-var FLOW_TYPES, FLOW_STAGES, ARTIFACT_STATUSES, ISSUE_STATUSES, ALL_ARTIFACT_STATUSES, ADR_STATUSES;
+var FLOW_TYPES, FLOW_STAGES, ARTIFACT_STATUSES, ISSUE_STATUSES, ALL_ARTIFACT_STATUSES, ADR_STATUSES, CLASSIFICATION_LABELS;
 var init_types = __esm({
   "src/core/types.ts"() {
     "use strict";
@@ -13336,6 +13336,7 @@ var init_types = __esm({
     ISSUE_STATUSES = ["open", "resolved"];
     ALL_ARTIFACT_STATUSES = [...ARTIFACT_STATUSES, ...ISSUE_STATUSES];
     ADR_STATUSES = ["proposed", "accepted", "deprecated", "superseded"];
+    CLASSIFICATION_LABELS = ["modify", "verify-only", "deprecate", "stale-question", "not-affected"];
   }
 });
 
@@ -13536,6 +13537,12 @@ function buildGraph(artifacts) {
   return { schema_version: 1, nodes, edges };
 }
 function reverseClosure(graph, seeds) {
+  return walkClosure(graph, seeds, true);
+}
+function rippleClosure(graph, seeds) {
+  return walkClosure(graph, seeds, false);
+}
+function walkClosure(graph, seeds, contractPrerequisites) {
   const reverse = /* @__PURE__ */ new Map();
   const convergenceForward = /* @__PURE__ */ new Map();
   const typeById = new Map(graph.nodes.map((node) => [node.id, node.type]));
@@ -13551,7 +13558,7 @@ function reverseClosure(graph, seeds) {
     const values = reverse.get(edge.to) ?? /* @__PURE__ */ new Set();
     values.add(edge.from);
     reverse.set(edge.to, values);
-    if (edge.relation === "writes_to" || edge.relation === "supersedes" || edge.relation === "depends_on" && CONTRACT_ARTIFACT_TYPES.has(typeById.get(edge.from) ?? "") || edge.relation === "depends_on" && declaredAuthorityTarget(edge.to)) {
+    if (edge.relation === "writes_to" || edge.relation === "supersedes" || contractPrerequisites && edge.relation === "depends_on" && CONTRACT_ARTIFACT_TYPES.has(typeById.get(edge.from) ?? "") || edge.relation === "depends_on" && declaredAuthorityTarget(edge.to)) {
       const targets = convergenceForward.get(edge.from) ?? /* @__PURE__ */ new Set();
       targets.add(edge.to);
       convergenceForward.set(edge.from, targets);
@@ -13742,16 +13749,20 @@ function isQueryRecord(value) {
   return value.schema_version === 1 && id(value.id, "QRY") && id(value.flow_id, "FLOW") && (value.kind === "search" || value.kind === "map") && typeof value.query === "string" && [1, 2, 3].includes(value.capability_rung) && dateTime(value.started_at) && dateTime(value.ended_at) && (value.git_commit === null || typeof value.git_commit === "string") && kindValid && outcomeValid && resultsValid && (value.pass === void 0 || ["authority", "official", "discussion", "counter", "freshness"].includes(String(value.pass))) && (value.engines === void 0 || strings(value.engines)) && (value.categories === void 0 || typeof value.categories === "string") && (value.language === void 0 || typeof value.language === "string") && (value.pageno === void 0 || Number.isInteger(value.pageno) && value.pageno >= 1) && (value.time_range === void 0 || ["day", "month", "year"].includes(String(value.time_range))) && (value.limit === void 0 || Number.isInteger(value.limit) && value.limit >= 1) && (value.api_version === void 0 || value.api_version === "v1" || value.api_version === "v2") && (value.unresponsive_engines === void 0 || strings(value.unresponsive_engines));
 }
 function isChangeRecord(value) {
-  if (!record(value) || !exactKeys2(value, ["schema_version", "id", "flow_id", "type", "input", "status", "base_baseline", "started_at", "closed_at", "successor_baseline", "impact"])) return false;
+  if (!record(value) || !exactKeys2(value, ["schema_version", "id", "flow_id", "type", "input", "status", "base_baseline", "started_at", "closed_at", "successor_baseline", "impact", "classification"])) return false;
   const impact = value.impact;
-  const impactValid = impact === void 0 || record(impact) && exactKeys2(impact, ["direct", "affected", "stale"]) && artifactIds(impact.direct) && artifactIds(impact.affected) && artifactIds(impact.stale);
+  const impactValid = impact === void 0 || record(impact) && exactKeys2(impact, ["direct", "affected", "stale", "ripple"]) && artifactIds(impact.direct) && artifactIds(impact.affected) && artifactIds(impact.stale) && (impact.ripple === void 0 || artifactIds(impact.ripple));
+  const classification = value.classification;
+  const classificationValid = classification === void 0 || record(classification) && Object.entries(classification).every(([key, entry]) => /^[A-Z][A-Z0-9-]*$/.test(key) && record(entry) && exactKeys2(entry, ["label", "reason"]) && CLASSIFICATION_LABELS.includes(entry.label) && (entry.reason === void 0 ? entry.label !== "not-affected" : typeof entry.reason === "string" && entry.reason.trim().length > 0));
   const lifecycleValid = value.status === "active" ? value.closed_at === void 0 && value.successor_baseline === void 0 && value.impact === void 0 : value.status === "baselined" ? value.closed_at === void 0 && id(value.successor_baseline, "BL") && impact !== void 0 : value.status === "closed" ? dateTime(value.closed_at) && id(value.successor_baseline, "BL") && impact !== void 0 : value.status === "cancelled" && dateTime(value.closed_at) && value.successor_baseline === void 0 && value.impact === void 0;
-  return value.schema_version === 1 && id(value.id, "CHG") && id(value.flow_id, "FLOW") && (value.type === "evolution" || value.type === "reconciliation") && typeof value.input === "string" && ["active", "baselined", "closed", "cancelled"].includes(String(value.status)) && id(value.base_baseline, "BL") && dateTime(value.started_at) && (value.closed_at === void 0 || dateTime(value.closed_at)) && (value.successor_baseline === void 0 || id(value.successor_baseline, "BL")) && impactValid && lifecycleValid;
+  return value.schema_version === 1 && id(value.id, "CHG") && id(value.flow_id, "FLOW") && (value.type === "evolution" || value.type === "reconciliation") && typeof value.input === "string" && ["active", "baselined", "closed", "cancelled"].includes(String(value.status)) && id(value.base_baseline, "BL") && dateTime(value.started_at) && (value.closed_at === void 0 || dateTime(value.closed_at)) && (value.successor_baseline === void 0 || id(value.successor_baseline, "BL")) && impactValid && classificationValid && lifecycleValid;
 }
 function isBaselineManifest(value) {
-  if (!record(value) || !exactKeys2(value, ["schema_version", "id", "evidence_revision", "created_at", "git_commit", "flow_type", "flow_id", "artifacts", "executions", "verification", "implementation_hashes"]) || !Array.isArray(value.artifacts) || !strings(value.executions) || !record(value.verification)) return false;
+  if (!record(value) || !exactKeys2(value, ["schema_version", "id", "evidence_revision", "created_at", "git_commit", "flow_type", "flow_id", "artifacts", "executions", "verification", "implementation_hashes", "editorial_digests"]) || !Array.isArray(value.artifacts) || !strings(value.executions) || !record(value.verification)) return false;
   const hashes = value.implementation_hashes;
   if (hashes !== void 0 && (!record(hashes) || !Object.entries(hashes).every(([mapping, hash]) => mapping.includes(":") && typeof hash === "string" && /^[a-f0-9]{64}$/.test(hash)))) return false;
+  const digests = value.editorial_digests;
+  if (digests !== void 0 && (!record(digests) || !Object.entries(digests).every(([artifact, entry]) => /^[A-Z][A-Z0-9-]*$/.test(artifact) && record(entry) && exactKeys2(entry, ["ids", "numbers", "tables"]) && ["ids", "numbers", "tables"].every((key) => typeof entry[key] === "string" && /^[a-f0-9]{64}$/.test(String(entry[key])))))) return false;
   const verification = value.verification;
   const verdicts = ["passed", "failed", "not-configured", "not-run"];
   const baselineArtifactIds = value.artifacts.filter(record).map((item) => item.id);
@@ -13994,6 +14005,38 @@ var init_execution_records = __esm({
 });
 
 // src/core/impact.ts
+function relationships(value) {
+  return JSON.stringify({
+    depends_on: [...value.depends_on].sort(),
+    decisions: [...value.decisions].sort(),
+    supersedes: value.supersedes,
+    writes_to: [...value.writes_to].sort()
+  });
+}
+function calculateImpact(artifacts, graph, baseline) {
+  const previous = new Map((baseline?.artifacts ?? []).map((item) => [item.id, item]));
+  const current = new Map(artifacts.map((item) => [item.id, item]));
+  const direct = /* @__PURE__ */ new Set();
+  for (const artifact of artifacts) {
+    const old = previous.get(artifact.id);
+    if (!old || old.hash !== artifact.hash || old.status !== artifact.status || relationships(old) !== relationships(artifact)) direct.add(artifact.id);
+  }
+  for (const old of previous.values()) if (!current.has(old.id)) direct.add(old.id);
+  const priorArtifacts = (baseline?.artifacts ?? []).map((item) => ({
+    ...item,
+    title: item.id,
+    body: "",
+    metadata_issues: []
+  }));
+  const priorGraph = buildGraph(priorArtifacts);
+  const nodeMap = new Map(priorGraph.nodes.map((node) => [node.id, node]));
+  for (const node of graph.nodes) nodeMap.set(node.id, node);
+  const edgeMap = new Map([...priorGraph.edges, ...graph.edges].map((edge) => [`${edge.from}\0${edge.to}\0${edge.relation}`, edge]));
+  const unionGraph = { schema_version: 1, nodes: [...nodeMap.values()], edges: [...edgeMap.values()] };
+  const affected = reverseClosure(unionGraph, direct);
+  const ripple = rippleClosure(unionGraph, direct).filter((id2) => !direct.has(id2));
+  return { direct: [...direct].sort(), affected, stale: affected.filter((id2) => !direct.has(id2)), ripple };
+}
 var init_impact = __esm({
   "src/core/impact.ts"() {
     "use strict";
@@ -14294,6 +14337,23 @@ async function driftedMappings(root2, config, artifacts, baseline) {
   }
   return drifted;
 }
+async function documentationDriftedArtifacts(root2, config, artifacts, baseline) {
+  const stored = baseline?.implementation_hashes;
+  if (!stored) return [];
+  const baselineArtifactHashes = new Map((baseline?.artifacts ?? []).map((entry) => [entry.id, entry.hash]));
+  const current = await collectMappingHashes(root2, config, artifacts);
+  const drifted = [];
+  for (const artifact of artifacts) {
+    if (artifact.implementation.length === 0) continue;
+    const baselineHash = baselineArtifactHashes.get(artifact.id);
+    if (baselineHash === void 0 || baselineHash === artifact.hash) continue;
+    const observed = artifact.implementation.filter((mapping) => stored[mapping] !== void 0);
+    if (observed.length === 0) continue;
+    if (!observed.every((mapping) => current[mapping] !== void 0 && current[mapping] === stored[mapping])) continue;
+    drifted.push({ artifact, mappings: [...observed].sort() });
+  }
+  return drifted.sort((a, b) => a.artifact.id.localeCompare(b.artifact.id));
+}
 var init_mapping_hashes = __esm({
   "src/core/mapping-hashes.ts"() {
     "use strict";
@@ -14420,6 +14480,16 @@ async function implementationDriftFindings(root2, config, artifacts, baseline) {
     code: "IMPLEMENTATION_DRIFT",
     message: `Mapped file ${mapping} changed since ${baseline?.id ?? "the baseline"} while its declaring artifact(s) (${declaring.map((artifact) => artifact.id).join(", ")}) did not; bring the documents level through a flow that owns the change, revert the code, or open a Reconciliation on this recorded divergence \u2014 this warning is the standing record of docs-to-code drift.`,
     file: declaring[0].file
+  }));
+}
+async function documentationDriftFindings(root2, config, artifacts, baseline) {
+  if (config.implementation_sources.length === 0) return [];
+  const drifted = await documentationDriftedArtifacts(root2, config, artifacts, baseline);
+  return drifted.map(({ artifact, mappings }) => ({
+    severity: "warning",
+    code: "DOCUMENTATION_DRIFT",
+    message: `${artifact.id} changed since ${baseline?.id ?? "the baseline"} while every implementation file it maps (${mappings.join(", ")}) kept its baseline content; carry the change into the mapped code in this flow, correct the mappings if the change does not touch them, or let this warning stand as the record that the documents are ahead of the code \u2014 the doc-side mirror of IMPLEMENTATION_DRIFT.`,
+    file: artifact.file
   }));
 }
 async function implementationSymbolFindings(root2, config, artifacts) {
@@ -14588,7 +14658,7 @@ init_paths();
 init_utils();
 init_record_validation();
 import { readFile as readFile13 } from "node:fs/promises";
-import path17 from "node:path";
+import path18 from "node:path";
 
 // src/core/internal-validation.ts
 var import_fast_glob8 = __toESM(require_out4(), 1);
@@ -15505,6 +15575,198 @@ function baselinesOpen(firstBaseline, activeBaseline) {
 // src/core/validation.ts
 init_platform_evidence();
 init_implementation_evidence();
+
+// src/core/ripple-classification.ts
+init_types();
+init_graph();
+init_impact();
+
+// src/core/change-records.ts
+var import_fast_glob10 = __toESM(require_out4(), 1);
+init_record_validation();
+init_paths();
+init_state();
+init_utils();
+import path17 from "node:path";
+import { readdir as readdir4 } from "node:fs/promises";
+async function loadChangeRecords(root2) {
+  const directory = projectPaths(root2).changes;
+  if (!await pathExists(directory)) return [];
+  try {
+    await assertSafeManagedPath(root2, path17.join(directory, ".managed-probe"));
+  } catch {
+    return [];
+  }
+  const symlinks = /* @__PURE__ */ new Set();
+  for (const entry of await readdir4(directory, { withFileTypes: true })) if (entry.isSymbolicLink()) symlinks.add(entry.name);
+  const files = await (0, import_fast_glob10.default)("CHG-*.json", { cwd: directory, absolute: true, followSymbolicLinks: false });
+  const records = [];
+  for (const file of files) {
+    if (symlinks.has(path17.basename(file))) continue;
+    try {
+      await assertSafeManagedPath(root2, file);
+      const record2 = await readJson(file);
+      if (!isChangeRecord(record2) || path17.basename(file) !== `${record2.id}.json`) continue;
+      records.push(record2);
+    } catch {
+    }
+  }
+  return records.sort((a, b) => a.id.localeCompare(b.id));
+}
+
+// src/core/ripple-classification.ts
+init_artifacts();
+init_state();
+init_project();
+init_paths();
+init_utils();
+init_project_lock();
+init_errors();
+function changeNumber(id2) {
+  return Number(id2.slice(4));
+}
+function classifiedFrom(changes, owner) {
+  const floor = changeNumber(owner);
+  const classified = /* @__PURE__ */ new Set();
+  for (const change of changes) {
+    if (!Number.isFinite(changeNumber(change.id)) || changeNumber(change.id) < floor) continue;
+    for (const id2 of Object.keys(change.classification ?? {})) classified.add(id2);
+  }
+  return classified;
+}
+function unclassifiedImpactEntries(artifacts, graph, baseline, activeChange, changes) {
+  const byId = new Map(artifacts.map((artifact) => [artifact.id, artifact]));
+  const entry = (id2, changeId, phase, baselineId) => {
+    const artifact = byId.get(id2);
+    if (!artifact) return null;
+    return { id: id2, file: artifact.file, changeId, phase, ...baselineId ? { baselineId } : {} };
+  };
+  if (activeChange && activeChange.status === "active") {
+    const impact = calculateImpact(artifacts, graph, baseline);
+    const classified2 = classifiedFrom(changes, activeChange.id);
+    return impact.ripple.filter((id2) => !classified2.has(id2)).map((id2) => entry(id2, activeChange.id, "open")).filter((item) => item !== null);
+  }
+  if (!baseline) return [];
+  const owner = changes.find((change) => change.successor_baseline === baseline.id && (change.status === "baselined" || change.status === "closed") && change.classification !== void 0 && change.impact !== void 0);
+  if (!owner?.impact) return [];
+  const classified = classifiedFrom(changes, owner.id);
+  const baselineHashes = new Map(baseline.artifacts.map((item) => [item.id, item.hash]));
+  return (owner.impact.ripple ?? []).filter((id2) => !classified.has(id2)).filter((id2) => byId.get(id2)?.hash === baselineHashes.get(id2)).map((id2) => entry(id2, owner.id, "standing", baseline.id)).filter((item) => item !== null);
+}
+async function impactClassificationFindings(root2, artifacts, graph) {
+  let entries = [];
+  try {
+    const baseline = await loadBaseline(root2).catch(() => null);
+    const flow = await loadActiveFlow(root2).catch(() => null);
+    const changes = await loadChangeRecords(root2);
+    const activeChange = flow?.change_id ? changes.find((change) => change.id === flow.change_id) ?? null : null;
+    entries = unclassifiedImpactEntries(artifacts, graph, baseline, activeChange, changes);
+  } catch {
+    return [];
+  }
+  return entries.map((item) => ({
+    severity: "warning",
+    code: "IMPACT_UNCLASSIFIED",
+    message: item.phase === "open" ? `${item.id} is reached by ${item.changeId}'s affected closure but carries no recorded ripple decision; record one with \`impact classify --id ${item.id} --as ${CLASSIFICATION_LABELS.join("|")}\`, or edit the artifact in this flow \u2014 a direct change is the modify decision and needs no classification.` : `${item.id} was reached by ${item.changeId}'s closure into ${item.baselineId}, was never classified, and its content has not moved since; classify it from a later change with \`impact classify\`, edit it through a flow that owns the consequence, or let this warning stand as the durable record of ripple debt nobody serviced.`,
+    file: item.file
+  }));
+}
+
+// src/core/selection-evidence.ts
+init_impact();
+
+// src/core/test-selection.ts
+var testTypes = {
+  unit: /* @__PURE__ */ new Set(["unit_test_backend", "unit_test_frontend", "unit_test_job"]),
+  integration: /* @__PURE__ */ new Set(["integration_test"]),
+  system: /* @__PURE__ */ new Set(["system_test"])
+};
+function selectTests(artifacts, graph, affected) {
+  const affectedSet = new Set(affected);
+  const affectedTypes = new Set(graph.nodes.filter((node) => affectedSet.has(node.id) && node.status !== "retired" && node.status !== "superseded").map((node) => node.type));
+  const required = {
+    unit: ["feature", "use_case", "screen", "component", "subsystem", "api_processing", "entity", "job", "access_control", "system_invariants", "error_catalog", "openapi_contract", "screen_transitions"].some((type) => affectedTypes.has(type)),
+    integration: ["business_flow", "subsystem", "api_processing", "entity", "external_integration", "job", "event", "platform_target", "access_control", "quality_requirements", "system_invariants", "error_catalog", "openapi_contract", "physical_schema"].some((type) => affectedTypes.has(type)),
+    system: ["feature", "use_case", "business_flow", "platform_target", "access_control", "quality_requirements", "system_invariants", "openapi_contract", "screen_transitions"].some((type) => affectedTypes.has(type))
+  };
+  const selected = { unit: [], integration: [], system: [] };
+  for (const [level, types] of Object.entries(testTypes)) {
+    selected[level] = artifacts.filter((artifact) => artifact.status !== "retired" && artifact.status !== "superseded" && types.has(artifact.artifact_type) && artifact.depends_on.some((id2) => affectedSet.has(id2))).map((artifact) => artifact.id).sort();
+  }
+  const missing = Object.keys(required).filter((level) => required[level] && selected[level].length === 0).map((level) => `No ${level.toUpperCase()} specification covers the affected artifacts.`);
+  return { selected, required, missing };
+}
+
+// src/core/selection-evidence.ts
+init_execution_records();
+init_state();
+init_project();
+function selectionEvidenceEntries(artifacts, graph, baseline, flow, records) {
+  if (!flow || flow.type !== "evolution" && flow.type !== "reconciliation") return [];
+  const flowRecords = records.filter((record2) => record2.flow_id === flow.id);
+  if (flowRecords.length === 0) return [];
+  const impact = calculateImpact(artifacts, graph, baseline);
+  const selection = selectTests(artifacts, graph, impact.affected);
+  const selected = [.../* @__PURE__ */ new Set([...selection.selected.unit, ...selection.selected.integration, ...selection.selected.system])].sort();
+  const attributed = new Set(flowRecords.flatMap((record2) => (record2.cases ?? []).map((item) => item.spec_id).filter((id2) => Boolean(id2))));
+  const byId = new Map(artifacts.map((artifact) => [artifact.id, artifact]));
+  return selected.filter((spec) => !attributed.has(spec)).flatMap((spec) => {
+    const artifact = byId.get(spec);
+    return artifact ? [{ spec, file: artifact.file, flowId: flow.id }] : [];
+  });
+}
+async function selectionEvidenceFindings(root2, artifacts, graph) {
+  let entries = [];
+  try {
+    const baseline = await loadBaseline(root2).catch(() => null);
+    const flow = await loadActiveFlow(root2).catch(() => null);
+    entries = selectionEvidenceEntries(artifacts, graph, baseline, flow, await loadExecutionRecords(root2));
+  } catch {
+    return [];
+  }
+  return entries.map((entry) => ({
+    severity: "warning",
+    code: "SPEC_EXECUTION_UNATTRIBUTED",
+    message: `${entry.spec} was selected by ${entry.flowId}'s affected closure, but no ingested report of this flow attributes a case to it \u2014 a command that declares no report attributes nothing, and an ambiguous symbol join records no specification; declare a report on the covering command, repair the Implementation mapping rows so its cases join, or let this warning stand as the record that selection outran attributable execution.`,
+    file: entry.file
+  }));
+}
+
+// src/core/claim-dependencies.ts
+init_claims();
+var QUALIFIED_REFERENCE = /\b([A-Z][A-Z0-9]*(?:-[A-Z0-9]+)+)#([A-Z][A-Z0-9]*-[0-9]+[A-Z0-9-]*)\b/g;
+var LIVE_STATUSES = /* @__PURE__ */ new Set(["draft", "active", "deprecated"]);
+function claimDependencyEntries(artifacts) {
+  const byId = new Map(artifacts.map((artifact) => [artifact.id, artifact]));
+  const entries = [];
+  for (const spec of artifacts) {
+    if (!TEST_TYPES.has(spec.artifact_type) || !LIVE_STATUSES.has(spec.status)) continue;
+    const claimed = /* @__PURE__ */ new Map();
+    for (const [, owner, localId] of spec.body.matchAll(QUALIFIED_REFERENCE)) {
+      if (!owner || !localId || owner === spec.id) continue;
+      const target = byId.get(owner);
+      if (!target || TEST_TYPES.has(target.artifact_type)) continue;
+      if (spec.depends_on.includes(owner)) continue;
+      const ids = claimed.get(owner) ?? /* @__PURE__ */ new Set();
+      ids.add(localId);
+      claimed.set(owner, ids);
+    }
+    for (const [owner, ids] of [...claimed.entries()].sort(([a], [b]) => a.localeCompare(b))) {
+      entries.push({ spec: spec.id, file: spec.file, owner, localIds: [...ids].sort() });
+    }
+  }
+  return entries.sort((a, b) => `${a.spec}\0${a.owner}`.localeCompare(`${b.spec}\0${b.owner}`));
+}
+function claimDependencyFindings(artifacts) {
+  return claimDependencyEntries(artifacts).map((entry) => ({
+    severity: "warning",
+    code: "CLAIM_WITHOUT_DEPENDENCY",
+    message: `${entry.spec} claims ${entry.localIds.map((id2) => `${entry.owner}#${id2}`).join(", ")} but does not name ${entry.owner} in depends_on, so the claim is invisible to the reverse closure and a change to ${entry.owner} would never select this specification; declare ${entry.owner} as a prerequisite (DR-12), or drop the claim if this specification does not verify it.`,
+    file: entry.file
+  }));
+}
+
+// src/core/validation.ts
 init_project();
 init_execution_records();
 init_retrieval_records();
@@ -15633,11 +15895,11 @@ async function validateProject(root2, artifacts) {
     findings.push({ severity: "error", code: "CONFIG_INVALID", message: String(error) });
   }
   for (const file of requiredFiles) {
-    if (!await pathExists(path17.join(root2, file))) findings.push({ severity: "error", code: "REQUIRED_FILE_MISSING", message: `Required file is missing: ${file}`, file });
+    if (!await pathExists(path18.join(root2, file))) findings.push({ severity: "error", code: "REQUIRED_FILE_MISSING", message: `Required file is missing: ${file}`, file });
   }
   if (config) {
     for (const source of config.implementation_sources) {
-      const sourceRoot = path17.resolve(root2, source.path);
+      const sourceRoot = path18.resolve(root2, source.path);
       if (!await pathExists(sourceRoot)) findings.push({ severity: "error", code: "IMPLEMENTATION_SOURCE_MISSING", message: `Configured implementation source is missing: ${source.id} (${source.path})` });
     }
   }
@@ -15657,7 +15919,7 @@ async function validateProject(root2, artifacts) {
     if (canonical && (artifact.id !== canonical[0] || artifact.artifact_type !== canonical[1])) findings.push({ severity: "error", code: "CANONICAL_IDENTITY_INVALID", message: `${artifact.file} must be ${canonical[0]} with type ${canonical[1]}`, file: artifact.file });
     else if (!canonical && CANONICAL_TYPES.has(artifact.artifact_type)) findings.push({ severity: "error", code: "CANONICAL_LOCATION_INVALID", message: `${artifact.artifact_type} is a singleton canonical type and cannot appear at ${artifact.file}`, file: artifact.file });
     else if (SCALABLE_LOCATIONS[artifact.artifact_type] && !SCALABLE_LOCATIONS[artifact.artifact_type].test(artifact.file)) findings.push({ severity: "error", code: "ARTIFACT_LOCATION_INVALID", message: `${artifact.artifact_type} cannot appear at ${artifact.file}`, file: artifact.file });
-    else if (SCALABLE_LOCATIONS[artifact.artifact_type] && path17.basename(artifact.file, ".md") !== artifact.id) findings.push({ severity: "error", code: "ARTIFACT_FILENAME_MISMATCH", message: `${artifact.id} must use the matching filename ${artifact.id}.md`, file: artifact.file });
+    else if (SCALABLE_LOCATIONS[artifact.artifact_type] && path18.basename(artifact.file, ".md") !== artifact.id) findings.push({ severity: "error", code: "ARTIFACT_FILENAME_MISMATCH", message: `${artifact.id} must use the matching filename ${artifact.id}.md`, file: artifact.file });
     else if (FIXED_TYPES.has(artifact.artifact_type)) {
       const expected = expectedContractIdentity(artifact.artifact_type, artifact.file);
       if (!expected || artifact.id !== expected) findings.push({ severity: "error", code: "FIXED_IDENTITY_INVALID", message: `${artifact.artifact_type} has an invalid fixed identity`, file: artifact.file });
@@ -15700,8 +15962,8 @@ async function validateProject(root2, artifacts) {
           findings.push({ severity: "error", code: "IMPLEMENTATION_MAPPING_INVALID", message: `${artifact.id} implementation mapping must be <source-id>:<relative-path>: ${mapping}`, file: artifact.file });
           continue;
         }
-        const sourceRoot = path17.resolve(root2, source.path);
-        const target = path17.resolve(sourceRoot, relative);
+        const sourceRoot = path18.resolve(root2, source.path);
+        const target = path18.resolve(sourceRoot, relative);
         if (!isWithin(sourceRoot, target)) findings.push({ severity: "error", code: "IMPLEMENTATION_MAPPING_ESCAPE", message: `${artifact.id} implementation mapping escapes source ${sourceId}: ${mapping}`, file: artifact.file });
         else if (!await pathExists(target)) findings.push({ severity: "error", code: "IMPLEMENTATION_TARGET_MISSING", message: `${artifact.id} implementation target does not exist: ${mapping}`, file: artifact.file });
         else {
@@ -15725,6 +15987,7 @@ async function validateProject(root2, artifacts) {
   for (const broken of brokenCaseReferences(artifacts)) {
     findings.push({ severity: "warning", code: "CASE_REFERENCE_BROKEN", message: `${broken.reference} names a case ${broken.specification} does not declare`, file: broken.file });
   }
+  findings.push(...claimDependencyFindings(artifacts));
   findings.push(...foundationCoverageFindings(artifacts));
   findings.push(...screenCoverageFindings(artifacts));
   findings.push(...await systemDocumentFindings(root2));
@@ -15737,8 +16000,11 @@ async function validateProject(root2, artifacts) {
   if (config) {
     findings.push(...implementationMappingFindings(config, artifacts, graph));
     findings.push(...await implementationDriftFindings(root2, config, artifacts, await loadBaseline(root2).catch(() => null)));
+    findings.push(...await documentationDriftFindings(root2, config, artifacts, await loadBaseline(root2).catch(() => null)));
     findings.push(...await implementationSymbolFindings(root2, config, artifacts));
   }
+  findings.push(...await impactClassificationFindings(root2, artifacts, graph));
+  findings.push(...await selectionEvidenceFindings(root2, artifacts, graph));
   const order = topologicalOrder(graph);
   if (order.cycles.length > 0) findings.push({ severity: "error", code: "DEPENDENCY_CYCLE", message: `Dependency cycle contains: ${order.cycles.join(", ")}` });
   for (const artifact of artifacts) {
@@ -15754,7 +16020,7 @@ async function validateProject(root2, artifacts) {
     }
   }
   try {
-    const openapi = import_yaml4.default.parse(await readFile13(path17.join(root2, "03-design/interfaces/openapi.yaml"), "utf8"));
+    const openapi = import_yaml4.default.parse(await readFile13(path18.join(root2, "03-design/interfaces/openapi.yaml"), "utf8"));
     if (openapi.openapi !== "3.1.0") findings.push({ severity: "error", code: "OPENAPI_VERSION", message: "openapi.yaml must use OpenAPI 3.1.0" });
   } catch (error) {
     findings.push({ severity: "error", code: "OPENAPI_INVALID", message: `Invalid openapi.yaml: ${String(error)}` });

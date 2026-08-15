@@ -59,3 +59,40 @@ export async function driftedMappings(root: string, config: ProjectConfig, artif
   }
   return drifted;
 }
+
+export interface DocumentationDrift {
+  artifact: Artifact;
+  mappings: string[];
+}
+
+/**
+ * The other direction: an artifact whose own content moved since the baseline
+ * while every implementation file it maps kept exactly the content the baseline
+ * hashed — documents moved, code did not.
+ *
+ * The predicate driftedMappings uses cannot see this case, and worse, editing
+ * the document is what silences it there: the moment an artifact changes, its
+ * mappings stop qualifying as code-moved-alone. That asymmetry left the most
+ * common degradation in a documentation-first repository — a specification
+ * revised and never carried into the code implementing it — with no observer at
+ * all. A mapping the baseline never hashed observes nothing, and a mapped file
+ * that has gone missing is IMPLEMENTATION_TARGET_MISSING's business, not this
+ * check's, so both suppress rather than accuse.
+ */
+export async function documentationDriftedArtifacts(root: string, config: ProjectConfig, artifacts: Artifact[], baseline: BaselineManifest | null): Promise<DocumentationDrift[]> {
+  const stored = baseline?.implementation_hashes;
+  if (!stored) return [];
+  const baselineArtifactHashes = new Map((baseline?.artifacts ?? []).map((entry) => [entry.id, entry.hash]));
+  const current = await collectMappingHashes(root, config, artifacts);
+  const drifted: DocumentationDrift[] = [];
+  for (const artifact of artifacts) {
+    if (artifact.implementation.length === 0) continue;
+    const baselineHash = baselineArtifactHashes.get(artifact.id);
+    if (baselineHash === undefined || baselineHash === artifact.hash) continue;
+    const observed = artifact.implementation.filter((mapping) => stored[mapping] !== undefined);
+    if (observed.length === 0) continue;
+    if (!observed.every((mapping) => current[mapping] !== undefined && current[mapping] === stored[mapping])) continue;
+    drifted.push({ artifact, mappings: [...observed].sort() });
+  }
+  return drifted.sort((a, b) => a.artifact.id.localeCompare(b.artifact.id));
+}

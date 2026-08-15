@@ -1,5 +1,5 @@
-import { FLOW_STAGES, FLOW_TYPES, statusesForArtifactType } from "./types.js";
-import type { ActiveFlow, BaselineManifest, ChangeRecord, ExecutionRecord, QueryRecord, RetrievalRecord } from "./types.js";
+import { CLASSIFICATION_LABELS, FLOW_STAGES, FLOW_TYPES, statusesForArtifactType } from "./types.js";
+import type { ActiveFlow, BaselineManifest, ChangeRecord, ClassificationLabel, ExecutionRecord, QueryRecord, RetrievalRecord } from "./types.js";
 
 function record(value: unknown): value is Record<string, unknown> {
   return Boolean(value) && typeof value === "object" && !Array.isArray(value);
@@ -167,9 +167,23 @@ export function isQueryRecord(value: unknown): value is QueryRecord {
 }
 
 export function isChangeRecord(value: unknown): value is ChangeRecord {
-  if (!record(value) || !exactKeys(value, ["schema_version", "id", "flow_id", "type", "input", "status", "base_baseline", "started_at", "closed_at", "successor_baseline", "impact"])) return false;
+  if (!record(value) || !exactKeys(value, ["schema_version", "id", "flow_id", "type", "input", "status", "base_baseline", "started_at", "closed_at", "successor_baseline", "impact", "classification"])) return false;
   const impact = value.impact;
-  const impactValid = impact === undefined || (record(impact) && exactKeys(impact, ["direct", "affected", "stale"]) && artifactIds(impact.direct) && artifactIds(impact.affected) && artifactIds(impact.stale));
+  // `ripple` is optional: records stored before the ripple set was derived
+  // carry only the original three, and are asked nothing on account of it.
+  const impactValid = impact === undefined || (record(impact) && exactKeys(impact, ["direct", "affected", "stale", "ripple"])
+    && artifactIds(impact.direct) && artifactIds(impact.affected) && artifactIds(impact.stale)
+    && (impact.ripple === undefined || artifactIds(impact.ripple)));
+  // Classification is legal at every status: authored while the change is
+  // active, stamped at baselining, preserved through close. Only `not-affected`
+  // requires a reason — ruling a reached artifact out is the one decision that
+  // is worthless without the concrete ground for it.
+  const classification = value.classification;
+  const classificationValid = classification === undefined || (record(classification) && Object.entries(classification).every(([key, entry]) => /^[A-Z][A-Z0-9-]*$/.test(key)
+    && record(entry)
+    && exactKeys(entry, ["label", "reason"])
+    && CLASSIFICATION_LABELS.includes(entry.label as ClassificationLabel)
+    && (entry.reason === undefined ? entry.label !== "not-affected" : typeof entry.reason === "string" && entry.reason.trim().length > 0)));
   const lifecycleValid = value.status === "active"
     ? value.closed_at === undefined && value.successor_baseline === undefined && value.impact === undefined
     : value.status === "baselined"
@@ -188,13 +202,19 @@ export function isChangeRecord(value: unknown): value is ChangeRecord {
     && (value.closed_at === undefined || dateTime(value.closed_at))
     && (value.successor_baseline === undefined || id(value.successor_baseline, "BL"))
     && impactValid
+    && classificationValid
     && lifecycleValid;
 }
 
 export function isBaselineManifest(value: unknown): value is BaselineManifest {
-  if (!record(value) || !exactKeys(value, ["schema_version", "id", "evidence_revision", "created_at", "git_commit", "flow_type", "flow_id", "artifacts", "executions", "verification", "implementation_hashes"]) || !Array.isArray(value.artifacts) || !strings(value.executions) || !record(value.verification)) return false;
+  if (!record(value) || !exactKeys(value, ["schema_version", "id", "evidence_revision", "created_at", "git_commit", "flow_type", "flow_id", "artifacts", "executions", "verification", "implementation_hashes", "editorial_digests"]) || !Array.isArray(value.artifacts) || !strings(value.executions) || !record(value.verification)) return false;
   const hashes = value.implementation_hashes;
   if (hashes !== undefined && (!record(hashes) || !Object.entries(hashes).every(([mapping, hash]) => mapping.includes(":") && typeof hash === "string" && /^[a-f0-9]{64}$/.test(hash)))) return false;
+  const digests = value.editorial_digests;
+  if (digests !== undefined && (!record(digests) || !Object.entries(digests).every(([artifact, entry]) => /^[A-Z][A-Z0-9-]*$/.test(artifact)
+    && record(entry)
+    && exactKeys(entry, ["ids", "numbers", "tables"])
+    && (["ids", "numbers", "tables"] as const).every((key) => typeof entry[key] === "string" && /^[a-f0-9]{64}$/.test(String(entry[key])))))) return false;
   const verification = value.verification;
   const verdicts = ["passed", "failed", "not-configured", "not-run"];
   const baselineArtifactIds = value.artifacts.filter(record).map((item) => item.id);

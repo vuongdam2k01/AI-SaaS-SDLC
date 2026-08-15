@@ -217,3 +217,78 @@ describe("contract and temporal safety", () => {
     expect((await projectSnapshot(root)).impact.direct).toContain("ADR-EDITORIAL-001");
   });
 });
+
+describe("editorial synchronization structural guard", () => {
+  async function baselinedProject(): Promise<string> {
+    const root = await tempProject();
+    roots.push(root);
+    await establishGenesis(root);
+    return root;
+  }
+
+  const requirements = (root: string) => path.join(root, "02-product", "product-requirements.md");
+
+  it("still absorbs a genuine wording change, including inside a table cell", async () => {
+    const root = await baselinedProject();
+    const file = requirements(root);
+    const source = await readFile(file, "utf8");
+    await writeFile(file, source.replace("# Product Requirements", "# Product requirements"), "utf8");
+    expect(await syncRepresentationChanges(root)).toEqual(["PRODUCT-REQUIREMENTS"]);
+
+    const rules = path.join(root, "02-product", "access-control.md");
+    const table = await readFile(rules, "utf8");
+    const row = table.split("\n").find((line) => /^\|\s*ACCESS-\d/.test(line.trim()));
+    expect(row).toBeDefined();
+    // A typo fix inside a prose cell leaves the row identity, the cell count,
+    // the identifiers and the numbers exactly where they were.
+    await writeFile(rules, table.replace(row!, row!.replace(/([a-z]) ([a-z])/, "$1  $2")), "utf8");
+    expect(await syncRepresentationChanges(root)).toEqual(["ACCESS-CONTROL"]);
+  });
+
+  it("refuses an edit that changes an identifier, a number or the table structure, and absorbs nothing", async () => {
+    const root = await baselinedProject();
+    const file = requirements(root);
+    const original = await readFile(file, "utf8");
+    const baselineHash = (await loadBaseline(root))?.artifacts.find((entry) => entry.id === "PRODUCT-REQUIREMENTS")?.hash;
+
+    await writeFile(file, `${original}\nThe retention window is 30 days.\n`, "utf8");
+    await expect(syncRepresentationChanges(root)).rejects.toThrow(/Editorial synchronization refused: PRODUCT-REQUIREMENTS \(numbers\)/);
+    expect((await loadBaseline(root))?.artifacts.find((entry) => entry.id === "PRODUCT-REQUIREMENTS")?.hash).toBe(baselineHash);
+
+    await writeFile(file, `${original}\nGoverned by ACCESS-001.\n`, "utf8");
+    await expect(syncRepresentationChanges(root)).rejects.toThrow(/PRODUCT-REQUIREMENTS \(identifiers\)/);
+
+    await writeFile(file, `${original}\n| New | Row |\n`, "utf8");
+    await expect(syncRepresentationChanges(root)).rejects.toThrow(/table structure/);
+
+    // The refusal names the flow that owns the change instead of a review.
+    await expect(syncRepresentationChanges(root)).rejects.toThrow(/flow start --type evolution/);
+    await expect(syncRepresentationChanges(root)).rejects.toThrow(/structural check, not a review/);
+
+    // Nothing was absorbed by any of the refused attempts.
+    await writeFile(file, original, "utf8");
+    expect(await syncRepresentationChanges(root)).toEqual([]);
+  });
+
+  it("refuses the whole synchronization when one edit among several is structural", async () => {
+    const root = await baselinedProject();
+    const wording = requirements(root);
+    const structural = path.join(root, "02-product", "quality-requirements.md");
+    await writeFile(wording, (await readFile(wording, "utf8")).replace("# Product Requirements", "# Product requirements"), "utf8");
+    await writeFile(structural, `${await readFile(structural, "utf8")}\nThe budget is 250 ms.\n`, "utf8");
+    await expect(syncRepresentationChanges(root)).rejects.toThrow(/QUALITY-REQUIREMENTS/);
+    // The eligible edit did not land either: a mixed edit is split by the author, not by the engine.
+    expect((await projectSnapshot(root)).impact.direct).toContain("PRODUCT-REQUIREMENTS");
+  });
+
+  it("observes nothing when the baseline predates structural digests", async () => {
+    const root = await baselinedProject();
+    const manifestFile = path.join(root, "generated", "baseline-manifest.json");
+    const manifest = JSON.parse(await readFile(manifestFile, "utf8"));
+    delete manifest.editorial_digests;
+    await writeFile(manifestFile, `${JSON.stringify(manifest, null, 2)}\n`, "utf8");
+    const file = requirements(root);
+    await writeFile(file, `${await readFile(file, "utf8")}\nThe retention window is 30 days.\n`, "utf8");
+    expect(await syncRepresentationChanges(root)).toEqual(["PRODUCT-REQUIREMENTS"]);
+  });
+});

@@ -1202,7 +1202,7 @@ var require_command = __commonJS({
   "node_modules/commander/lib/command.js"(exports) {
     var EventEmitter = __require("node:events").EventEmitter;
     var childProcess = __require("node:child_process");
-    var path29 = __require("node:path");
+    var path32 = __require("node:path");
     var fs = __require("node:fs");
     var process2 = __require("node:process");
     var { Argument: Argument2, humanReadableArgName } = require_argument();
@@ -2215,9 +2215,9 @@ Expecting one of '${allowedValues.join("', '")}'`);
         let launchWithNode = false;
         const sourceExt = [".js", ".ts", ".tsx", ".mjs", ".cjs"];
         function findFile(baseDir, baseName) {
-          const localBin = path29.resolve(baseDir, baseName);
+          const localBin = path32.resolve(baseDir, baseName);
           if (fs.existsSync(localBin)) return localBin;
-          if (sourceExt.includes(path29.extname(baseName))) return void 0;
+          if (sourceExt.includes(path32.extname(baseName))) return void 0;
           const foundExt = sourceExt.find(
             (ext) => fs.existsSync(`${localBin}${ext}`)
           );
@@ -2235,17 +2235,17 @@ Expecting one of '${allowedValues.join("', '")}'`);
           } catch {
             resolvedScriptPath = this._scriptPath;
           }
-          executableDir = path29.resolve(
-            path29.dirname(resolvedScriptPath),
+          executableDir = path32.resolve(
+            path32.dirname(resolvedScriptPath),
             executableDir
           );
         }
         if (executableDir) {
           let localFile = findFile(executableDir, executableFile);
           if (!localFile && !subcommand._executableFile && this._scriptPath) {
-            const legacyName = path29.basename(
+            const legacyName = path32.basename(
               this._scriptPath,
-              path29.extname(this._scriptPath)
+              path32.extname(this._scriptPath)
             );
             if (legacyName !== this._name) {
               localFile = findFile(
@@ -2256,7 +2256,7 @@ Expecting one of '${allowedValues.join("', '")}'`);
           }
           executableFile = localFile || executableFile;
         }
-        launchWithNode = sourceExt.includes(path29.extname(executableFile));
+        launchWithNode = sourceExt.includes(path32.extname(executableFile));
         let proc;
         if (process2.platform !== "win32") {
           if (launchWithNode) {
@@ -3171,7 +3171,7 @@ Expecting one of '${allowedValues.join("', '")}'`);
        * @return {Command}
        */
       nameFromFilename(filename) {
-        this._name = path29.basename(filename, path29.extname(filename));
+        this._name = path32.basename(filename, path32.extname(filename));
         return this;
       }
       /**
@@ -3185,9 +3185,9 @@ Expecting one of '${allowedValues.join("', '")}'`);
        * @param {string} [path]
        * @return {(string|null|Command)}
        */
-      executableDir(path30) {
-        if (path30 === void 0) return this._executableDir;
-        this._executableDir = path30;
+      executableDir(path33) {
+        if (path33 === void 0) return this._executableDir;
+        this._executableDir = path33;
         return this;
       }
       /**
@@ -3537,7 +3537,7 @@ var require_path = __commonJS({
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.convertPosixPathToPattern = exports.convertWindowsPathToPattern = exports.convertPathToPattern = exports.escapePosixPath = exports.escapeWindowsPath = exports.escape = exports.removeLeadingDotSegment = exports.makeAbsolute = exports.unixify = void 0;
     var os2 = __require("os");
-    var path29 = __require("path");
+    var path32 = __require("path");
     var IS_WINDOWS_PLATFORM = os2.platform() === "win32";
     var LEADING_DOT_SEGMENT_CHARACTERS_COUNT = 2;
     var POSIX_UNESCAPED_GLOB_SYMBOLS_RE = /(\\?)([()*?[\]{|}]|^!|[!+@](?=\()|\\(?![!()*+?@[\]{|}]))/g;
@@ -3549,7 +3549,7 @@ var require_path = __commonJS({
     }
     exports.unixify = unixify;
     function makeAbsolute(cwd, filepath) {
-      return path29.resolve(cwd, filepath);
+      return path32.resolve(cwd, filepath);
     }
     exports.makeAbsolute = makeAbsolute;
     function removeLeadingDotSegment(entry) {
@@ -4846,7 +4846,7 @@ var require_braces = __commonJS({
 var require_constants2 = __commonJS({
   "node_modules/picomatch/lib/constants.js"(exports, module) {
     "use strict";
-    var path29 = __require("path");
+    var path32 = __require("path");
     var WIN_SLASH = "\\\\/";
     var WIN_NO_SLASH = `[^${WIN_SLASH}]`;
     var DEFAULT_MAX_EXTGLOB_RECURSION = 0;
@@ -5020,7 +5020,7 @@ var require_constants2 = __commonJS({
       /* | */
       CHAR_ZERO_WIDTH_NOBREAK_SPACE: 65279,
       /* \uFEFF */
-      SEP: path29.sep,
+      SEP: path32.sep,
       /**
        * Create EXTGLOB_CHARS
        */
@@ -5047,7 +5047,7 @@ var require_constants2 = __commonJS({
 var require_utils2 = __commonJS({
   "node_modules/picomatch/lib/utils.js"(exports) {
     "use strict";
-    var path29 = __require("path");
+    var path32 = __require("path");
     var win32 = process.platform === "win32";
     var {
       REGEX_BACKSLASH,
@@ -5076,7 +5076,7 @@ var require_utils2 = __commonJS({
       if (options && typeof options.windows === "boolean") {
         return options.windows;
       }
-      return win32 === true || path29.sep === "\\";
+      return win32 === true || path32.sep === "\\";
     };
     exports.escapeLast = (input, char, lastIdx) => {
       const idx = input.lastIndexOf(char, lastIdx);
@@ -6440,7 +6440,7 @@ var require_parse2 = __commonJS({
 var require_picomatch = __commonJS({
   "node_modules/picomatch/lib/picomatch.js"(exports, module) {
     "use strict";
-    var path29 = __require("path");
+    var path32 = __require("path");
     var scan = require_scan();
     var parse = require_parse2();
     var utils = require_utils2();
@@ -6525,7 +6525,7 @@ var require_picomatch = __commonJS({
     };
     picomatch.matchBase = (input, glob, options, posix = utils.isWindows(options)) => {
       const regex = glob instanceof RegExp ? glob : picomatch.makeRe(glob, options);
-      return regex.test(path29.basename(input));
+      return regex.test(path32.basename(input));
     };
     picomatch.isMatch = (str, patterns2, options) => picomatch(patterns2, options)(str);
     picomatch.parse = (pattern, options) => {
@@ -6752,7 +6752,7 @@ var require_pattern = __commonJS({
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.isAbsolute = exports.partitionAbsoluteAndRelative = exports.removeDuplicateSlashes = exports.matchAny = exports.convertPatternsToRe = exports.makeRe = exports.getPatternParts = exports.expandBraceExpansion = exports.expandPatternsWithBraceExpansion = exports.isAffectDepthOfReadingPattern = exports.endsWithSlashGlobStar = exports.hasGlobStar = exports.getBaseDirectory = exports.isPatternRelatedToParentDirectory = exports.getPatternsOutsideCurrentDirectory = exports.getPatternsInsideCurrentDirectory = exports.getPositivePatterns = exports.getNegativePatterns = exports.isPositivePattern = exports.isNegativePattern = exports.convertToNegativePattern = exports.convertToPositivePattern = exports.isDynamicPattern = exports.isStaticPattern = void 0;
-    var path29 = __require("path");
+    var path32 = __require("path");
     var globParent = require_glob_parent();
     var micromatch = require_micromatch();
     var GLOBSTAR = "**";
@@ -6847,7 +6847,7 @@ var require_pattern = __commonJS({
     }
     exports.endsWithSlashGlobStar = endsWithSlashGlobStar;
     function isAffectDepthOfReadingPattern(pattern) {
-      const basename = path29.basename(pattern);
+      const basename = path32.basename(pattern);
       return endsWithSlashGlobStar(pattern) || isStaticPattern(basename);
     }
     exports.isAffectDepthOfReadingPattern = isAffectDepthOfReadingPattern;
@@ -6905,7 +6905,7 @@ var require_pattern = __commonJS({
     }
     exports.partitionAbsoluteAndRelative = partitionAbsoluteAndRelative;
     function isAbsolute(pattern) {
-      return path29.isAbsolute(pattern);
+      return path32.isAbsolute(pattern);
     }
     exports.isAbsolute = isAbsolute;
   }
@@ -7082,8 +7082,8 @@ var require_utils3 = __commonJS({
     exports.errno = errno;
     var fs = require_fs();
     exports.fs = fs;
-    var path29 = require_path();
-    exports.path = path29;
+    var path32 = require_path();
+    exports.path = path32;
     var pattern = require_pattern();
     exports.pattern = pattern;
     var stream = require_stream();
@@ -7195,8 +7195,8 @@ var require_async = __commonJS({
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.read = void 0;
-    function read(path29, settings, callback) {
-      settings.fs.lstat(path29, (lstatError, lstat5) => {
+    function read(path32, settings, callback) {
+      settings.fs.lstat(path32, (lstatError, lstat5) => {
         if (lstatError !== null) {
           callFailureCallback(callback, lstatError);
           return;
@@ -7205,7 +7205,7 @@ var require_async = __commonJS({
           callSuccessCallback(callback, lstat5);
           return;
         }
-        settings.fs.stat(path29, (statError, stat2) => {
+        settings.fs.stat(path32, (statError, stat2) => {
           if (statError !== null) {
             if (settings.throwErrorOnBrokenSymbolicLink) {
               callFailureCallback(callback, statError);
@@ -7237,13 +7237,13 @@ var require_sync = __commonJS({
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.read = void 0;
-    function read(path29, settings) {
-      const lstat5 = settings.fs.lstatSync(path29);
+    function read(path32, settings) {
+      const lstat5 = settings.fs.lstatSync(path32);
       if (!lstat5.isSymbolicLink() || !settings.followSymbolicLink) {
         return lstat5;
       }
       try {
-        const stat2 = settings.fs.statSync(path29);
+        const stat2 = settings.fs.statSync(path32);
         if (settings.markSymbolicLink) {
           stat2.isSymbolicLink = () => true;
         }
@@ -7314,17 +7314,17 @@ var require_out = __commonJS({
     var sync = require_sync();
     var settings_1 = require_settings();
     exports.Settings = settings_1.default;
-    function stat2(path29, optionsOrSettingsOrCallback, callback) {
+    function stat2(path32, optionsOrSettingsOrCallback, callback) {
       if (typeof optionsOrSettingsOrCallback === "function") {
-        async.read(path29, getSettings(), optionsOrSettingsOrCallback);
+        async.read(path32, getSettings(), optionsOrSettingsOrCallback);
         return;
       }
-      async.read(path29, getSettings(optionsOrSettingsOrCallback), callback);
+      async.read(path32, getSettings(optionsOrSettingsOrCallback), callback);
     }
     exports.stat = stat2;
-    function statSync(path29, optionsOrSettings) {
+    function statSync(path32, optionsOrSettings) {
       const settings = getSettings(optionsOrSettings);
-      return sync.read(path29, settings);
+      return sync.read(path32, settings);
     }
     exports.statSync = statSync;
     function getSettings(settingsOrOptions = {}) {
@@ -7484,7 +7484,7 @@ var require_async2 = __commonJS({
         readdirWithFileTypes(directory, settings, callback);
         return;
       }
-      readdir8(directory, settings, callback);
+      readdir9(directory, settings, callback);
     }
     exports.read = read;
     function readdirWithFileTypes(directory, settings, callback) {
@@ -7533,23 +7533,23 @@ var require_async2 = __commonJS({
         });
       };
     }
-    function readdir8(directory, settings, callback) {
+    function readdir9(directory, settings, callback) {
       settings.fs.readdir(directory, (readdirError, names) => {
         if (readdirError !== null) {
           callFailureCallback(callback, readdirError);
           return;
         }
         const tasks = names.map((name) => {
-          const path29 = common.joinPathSegments(directory, name, settings.pathSegmentSeparator);
+          const path32 = common.joinPathSegments(directory, name, settings.pathSegmentSeparator);
           return (done) => {
-            fsStat.stat(path29, settings.fsStatSettings, (error, stats) => {
+            fsStat.stat(path32, settings.fsStatSettings, (error, stats) => {
               if (error !== null) {
                 done(error);
                 return;
               }
               const entry = {
                 name,
-                path: path29,
+                path: path32,
                 dirent: utils.fs.createDirentFromStats(name, stats)
               };
               if (settings.stats) {
@@ -7568,7 +7568,7 @@ var require_async2 = __commonJS({
         });
       });
     }
-    exports.readdir = readdir8;
+    exports.readdir = readdir9;
     function callFailureCallback(callback, error) {
       callback(error);
     }
@@ -7592,7 +7592,7 @@ var require_sync2 = __commonJS({
       if (!settings.stats && constants_1.IS_SUPPORT_READDIR_WITH_FILE_TYPES) {
         return readdirWithFileTypes(directory, settings);
       }
-      return readdir8(directory, settings);
+      return readdir9(directory, settings);
     }
     exports.read = read;
     function readdirWithFileTypes(directory, settings) {
@@ -7617,7 +7617,7 @@ var require_sync2 = __commonJS({
       });
     }
     exports.readdirWithFileTypes = readdirWithFileTypes;
-    function readdir8(directory, settings) {
+    function readdir9(directory, settings) {
       const names = settings.fs.readdirSync(directory);
       return names.map((name) => {
         const entryPath = common.joinPathSegments(directory, name, settings.pathSegmentSeparator);
@@ -7633,7 +7633,7 @@ var require_sync2 = __commonJS({
         return entry;
       });
     }
-    exports.readdir = readdir8;
+    exports.readdir = readdir9;
   }
 });
 
@@ -7667,7 +7667,7 @@ var require_settings2 = __commonJS({
   "node_modules/@nodelib/fs.scandir/out/settings.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    var path29 = __require("path");
+    var path32 = __require("path");
     var fsStat = require_out();
     var fs = require_fs4();
     var Settings = class {
@@ -7675,7 +7675,7 @@ var require_settings2 = __commonJS({
         this._options = _options;
         this.followSymbolicLinks = this._getValue(this._options.followSymbolicLinks, false);
         this.fs = fs.createFileSystemAdapter(this._options.fs);
-        this.pathSegmentSeparator = this._getValue(this._options.pathSegmentSeparator, path29.sep);
+        this.pathSegmentSeparator = this._getValue(this._options.pathSegmentSeparator, path32.sep);
         this.stats = this._getValue(this._options.stats, false);
         this.throwErrorOnBrokenSymbolicLink = this._getValue(this._options.throwErrorOnBrokenSymbolicLink, true);
         this.fsStatSettings = new fsStat.Settings({
@@ -7702,17 +7702,17 @@ var require_out2 = __commonJS({
     var sync = require_sync2();
     var settings_1 = require_settings2();
     exports.Settings = settings_1.default;
-    function scandir(path29, optionsOrSettingsOrCallback, callback) {
+    function scandir(path32, optionsOrSettingsOrCallback, callback) {
       if (typeof optionsOrSettingsOrCallback === "function") {
-        async.read(path29, getSettings(), optionsOrSettingsOrCallback);
+        async.read(path32, getSettings(), optionsOrSettingsOrCallback);
         return;
       }
-      async.read(path29, getSettings(optionsOrSettingsOrCallback), callback);
+      async.read(path32, getSettings(optionsOrSettingsOrCallback), callback);
     }
     exports.scandir = scandir;
-    function scandirSync(path29, optionsOrSettings) {
+    function scandirSync(path32, optionsOrSettings) {
       const settings = getSettings(optionsOrSettings);
-      return sync.read(path29, settings);
+      return sync.read(path32, settings);
     }
     exports.scandirSync = scandirSync;
     function getSettings(settingsOrOptions = {}) {
@@ -8359,7 +8359,7 @@ var require_settings3 = __commonJS({
   "node_modules/@nodelib/fs.walk/out/settings.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    var path29 = __require("path");
+    var path32 = __require("path");
     var fsScandir = require_out2();
     var Settings = class {
       constructor(_options = {}) {
@@ -8369,7 +8369,7 @@ var require_settings3 = __commonJS({
         this.deepFilter = this._getValue(this._options.deepFilter, null);
         this.entryFilter = this._getValue(this._options.entryFilter, null);
         this.errorFilter = this._getValue(this._options.errorFilter, null);
-        this.pathSegmentSeparator = this._getValue(this._options.pathSegmentSeparator, path29.sep);
+        this.pathSegmentSeparator = this._getValue(this._options.pathSegmentSeparator, path32.sep);
         this.fsScandirSettings = new fsScandir.Settings({
           followSymbolicLinks: this._options.followSymbolicLinks,
           fs: this._options.fs,
@@ -8431,7 +8431,7 @@ var require_reader2 = __commonJS({
   "node_modules/fast-glob/out/readers/reader.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    var path29 = __require("path");
+    var path32 = __require("path");
     var fsStat = require_out();
     var utils = require_utils3();
     var Reader = class {
@@ -8444,7 +8444,7 @@ var require_reader2 = __commonJS({
         });
       }
       _getFullEntryPath(filepath) {
-        return path29.resolve(this._settings.cwd, filepath);
+        return path32.resolve(this._settings.cwd, filepath);
       }
       _makeEntry(stats, pattern) {
         const entry = {
@@ -8860,7 +8860,7 @@ var require_provider = __commonJS({
   "node_modules/fast-glob/out/providers/provider.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    var path29 = __require("path");
+    var path32 = __require("path");
     var deep_1 = require_deep();
     var entry_1 = require_entry();
     var error_1 = require_error2();
@@ -8874,7 +8874,7 @@ var require_provider = __commonJS({
         this.entryTransformer = new entry_2.default(this._settings);
       }
       _getRootDirectory(task) {
-        return path29.resolve(this._settings.cwd, task.base);
+        return path32.resolve(this._settings.cwd, task.base);
       }
       _getReaderOptions(task) {
         const basePath = task.base === "." ? "" : task.base;
@@ -9320,7 +9320,7 @@ function statusesForArtifactType(artifactType) {
 function isLiveStatus(status) {
   return status === "active" || status === "open" || status === "resolved";
 }
-var FLOW_TYPES, FLOW_STAGES, ARTIFACT_STATUSES, ISSUE_STATUSES, ALL_ARTIFACT_STATUSES, ADR_STATUSES;
+var FLOW_TYPES, FLOW_STAGES, ARTIFACT_STATUSES, ISSUE_STATUSES, ALL_ARTIFACT_STATUSES, ADR_STATUSES, CLASSIFICATION_LABELS;
 var init_types = __esm({
   "src/core/types.ts"() {
     "use strict";
@@ -9330,6 +9330,7 @@ var init_types = __esm({
     ISSUE_STATUSES = ["open", "resolved"];
     ALL_ARTIFACT_STATUSES = [...ARTIFACT_STATUSES, ...ISSUE_STATUSES];
     ADR_STATUSES = ["proposed", "accepted", "deprecated", "superseded"];
+    CLASSIFICATION_LABELS = ["modify", "verify-only", "deprecate", "stale-question", "not-affected"];
   }
 });
 
@@ -9439,16 +9440,20 @@ function isQueryRecord(value) {
   return value.schema_version === 1 && id(value.id, "QRY") && id(value.flow_id, "FLOW") && (value.kind === "search" || value.kind === "map") && typeof value.query === "string" && [1, 2, 3].includes(value.capability_rung) && dateTime(value.started_at) && dateTime(value.ended_at) && (value.git_commit === null || typeof value.git_commit === "string") && kindValid && outcomeValid && resultsValid && (value.pass === void 0 || ["authority", "official", "discussion", "counter", "freshness"].includes(String(value.pass))) && (value.engines === void 0 || strings(value.engines)) && (value.categories === void 0 || typeof value.categories === "string") && (value.language === void 0 || typeof value.language === "string") && (value.pageno === void 0 || Number.isInteger(value.pageno) && value.pageno >= 1) && (value.time_range === void 0 || ["day", "month", "year"].includes(String(value.time_range))) && (value.limit === void 0 || Number.isInteger(value.limit) && value.limit >= 1) && (value.api_version === void 0 || value.api_version === "v1" || value.api_version === "v2") && (value.unresponsive_engines === void 0 || strings(value.unresponsive_engines));
 }
 function isChangeRecord(value) {
-  if (!record(value) || !exactKeys(value, ["schema_version", "id", "flow_id", "type", "input", "status", "base_baseline", "started_at", "closed_at", "successor_baseline", "impact"])) return false;
-  const impact = value.impact;
-  const impactValid = impact === void 0 || record(impact) && exactKeys(impact, ["direct", "affected", "stale"]) && artifactIds(impact.direct) && artifactIds(impact.affected) && artifactIds(impact.stale);
-  const lifecycleValid = value.status === "active" ? value.closed_at === void 0 && value.successor_baseline === void 0 && value.impact === void 0 : value.status === "baselined" ? value.closed_at === void 0 && id(value.successor_baseline, "BL") && impact !== void 0 : value.status === "closed" ? dateTime(value.closed_at) && id(value.successor_baseline, "BL") && impact !== void 0 : value.status === "cancelled" && dateTime(value.closed_at) && value.successor_baseline === void 0 && value.impact === void 0;
-  return value.schema_version === 1 && id(value.id, "CHG") && id(value.flow_id, "FLOW") && (value.type === "evolution" || value.type === "reconciliation") && typeof value.input === "string" && ["active", "baselined", "closed", "cancelled"].includes(String(value.status)) && id(value.base_baseline, "BL") && dateTime(value.started_at) && (value.closed_at === void 0 || dateTime(value.closed_at)) && (value.successor_baseline === void 0 || id(value.successor_baseline, "BL")) && impactValid && lifecycleValid;
+  if (!record(value) || !exactKeys(value, ["schema_version", "id", "flow_id", "type", "input", "status", "base_baseline", "started_at", "closed_at", "successor_baseline", "impact", "classification"])) return false;
+  const impact2 = value.impact;
+  const impactValid = impact2 === void 0 || record(impact2) && exactKeys(impact2, ["direct", "affected", "stale", "ripple"]) && artifactIds(impact2.direct) && artifactIds(impact2.affected) && artifactIds(impact2.stale) && (impact2.ripple === void 0 || artifactIds(impact2.ripple));
+  const classification = value.classification;
+  const classificationValid = classification === void 0 || record(classification) && Object.entries(classification).every(([key, entry]) => /^[A-Z][A-Z0-9-]*$/.test(key) && record(entry) && exactKeys(entry, ["label", "reason"]) && CLASSIFICATION_LABELS.includes(entry.label) && (entry.reason === void 0 ? entry.label !== "not-affected" : typeof entry.reason === "string" && entry.reason.trim().length > 0));
+  const lifecycleValid = value.status === "active" ? value.closed_at === void 0 && value.successor_baseline === void 0 && value.impact === void 0 : value.status === "baselined" ? value.closed_at === void 0 && id(value.successor_baseline, "BL") && impact2 !== void 0 : value.status === "closed" ? dateTime(value.closed_at) && id(value.successor_baseline, "BL") && impact2 !== void 0 : value.status === "cancelled" && dateTime(value.closed_at) && value.successor_baseline === void 0 && value.impact === void 0;
+  return value.schema_version === 1 && id(value.id, "CHG") && id(value.flow_id, "FLOW") && (value.type === "evolution" || value.type === "reconciliation") && typeof value.input === "string" && ["active", "baselined", "closed", "cancelled"].includes(String(value.status)) && id(value.base_baseline, "BL") && dateTime(value.started_at) && (value.closed_at === void 0 || dateTime(value.closed_at)) && (value.successor_baseline === void 0 || id(value.successor_baseline, "BL")) && impactValid && classificationValid && lifecycleValid;
 }
 function isBaselineManifest(value) {
-  if (!record(value) || !exactKeys(value, ["schema_version", "id", "evidence_revision", "created_at", "git_commit", "flow_type", "flow_id", "artifacts", "executions", "verification", "implementation_hashes"]) || !Array.isArray(value.artifacts) || !strings(value.executions) || !record(value.verification)) return false;
+  if (!record(value) || !exactKeys(value, ["schema_version", "id", "evidence_revision", "created_at", "git_commit", "flow_type", "flow_id", "artifacts", "executions", "verification", "implementation_hashes", "editorial_digests"]) || !Array.isArray(value.artifacts) || !strings(value.executions) || !record(value.verification)) return false;
   const hashes = value.implementation_hashes;
   if (hashes !== void 0 && (!record(hashes) || !Object.entries(hashes).every(([mapping, hash]) => mapping.includes(":") && typeof hash === "string" && /^[a-f0-9]{64}$/.test(hash)))) return false;
+  const digests = value.editorial_digests;
+  if (digests !== void 0 && (!record(digests) || !Object.entries(digests).every(([artifact2, entry]) => /^[A-Z][A-Z0-9-]*$/.test(artifact2) && record(entry) && exactKeys(entry, ["ids", "numbers", "tables"]) && ["ids", "numbers", "tables"].every((key) => typeof entry[key] === "string" && /^[a-f0-9]{64}$/.test(String(entry[key])))))) return false;
   const verification = value.verification;
   const verdicts = ["passed", "failed", "not-configured", "not-run"];
   const baselineArtifactIds = value.artifacts.filter(record).map((item) => item.id);
@@ -9539,17 +9544,17 @@ var require_visit = __commonJS({
     visit.BREAK = BREAK;
     visit.SKIP = SKIP;
     visit.REMOVE = REMOVE;
-    function visit_(key, node, visitor, path29) {
-      const ctrl = callVisitor(key, node, visitor, path29);
+    function visit_(key, node, visitor, path32) {
+      const ctrl = callVisitor(key, node, visitor, path32);
       if (identity.isNode(ctrl) || identity.isPair(ctrl)) {
-        replaceNode(key, path29, ctrl);
-        return visit_(key, ctrl, visitor, path29);
+        replaceNode(key, path32, ctrl);
+        return visit_(key, ctrl, visitor, path32);
       }
       if (typeof ctrl !== "symbol") {
         if (identity.isCollection(node)) {
-          path29 = Object.freeze(path29.concat(node));
+          path32 = Object.freeze(path32.concat(node));
           for (let i = 0; i < node.items.length; ++i) {
-            const ci = visit_(i, node.items[i], visitor, path29);
+            const ci = visit_(i, node.items[i], visitor, path32);
             if (typeof ci === "number")
               i = ci - 1;
             else if (ci === BREAK)
@@ -9560,13 +9565,13 @@ var require_visit = __commonJS({
             }
           }
         } else if (identity.isPair(node)) {
-          path29 = Object.freeze(path29.concat(node));
-          const ck = visit_("key", node.key, visitor, path29);
+          path32 = Object.freeze(path32.concat(node));
+          const ck = visit_("key", node.key, visitor, path32);
           if (ck === BREAK)
             return BREAK;
           else if (ck === REMOVE)
             node.key = null;
-          const cv = visit_("value", node.value, visitor, path29);
+          const cv = visit_("value", node.value, visitor, path32);
           if (cv === BREAK)
             return BREAK;
           else if (cv === REMOVE)
@@ -9587,17 +9592,17 @@ var require_visit = __commonJS({
     visitAsync.BREAK = BREAK;
     visitAsync.SKIP = SKIP;
     visitAsync.REMOVE = REMOVE;
-    async function visitAsync_(key, node, visitor, path29) {
-      const ctrl = await callVisitor(key, node, visitor, path29);
+    async function visitAsync_(key, node, visitor, path32) {
+      const ctrl = await callVisitor(key, node, visitor, path32);
       if (identity.isNode(ctrl) || identity.isPair(ctrl)) {
-        replaceNode(key, path29, ctrl);
-        return visitAsync_(key, ctrl, visitor, path29);
+        replaceNode(key, path32, ctrl);
+        return visitAsync_(key, ctrl, visitor, path32);
       }
       if (typeof ctrl !== "symbol") {
         if (identity.isCollection(node)) {
-          path29 = Object.freeze(path29.concat(node));
+          path32 = Object.freeze(path32.concat(node));
           for (let i = 0; i < node.items.length; ++i) {
-            const ci = await visitAsync_(i, node.items[i], visitor, path29);
+            const ci = await visitAsync_(i, node.items[i], visitor, path32);
             if (typeof ci === "number")
               i = ci - 1;
             else if (ci === BREAK)
@@ -9608,13 +9613,13 @@ var require_visit = __commonJS({
             }
           }
         } else if (identity.isPair(node)) {
-          path29 = Object.freeze(path29.concat(node));
-          const ck = await visitAsync_("key", node.key, visitor, path29);
+          path32 = Object.freeze(path32.concat(node));
+          const ck = await visitAsync_("key", node.key, visitor, path32);
           if (ck === BREAK)
             return BREAK;
           else if (ck === REMOVE)
             node.key = null;
-          const cv = await visitAsync_("value", node.value, visitor, path29);
+          const cv = await visitAsync_("value", node.value, visitor, path32);
           if (cv === BREAK)
             return BREAK;
           else if (cv === REMOVE)
@@ -9641,23 +9646,23 @@ var require_visit = __commonJS({
       }
       return visitor;
     }
-    function callVisitor(key, node, visitor, path29) {
+    function callVisitor(key, node, visitor, path32) {
       if (typeof visitor === "function")
-        return visitor(key, node, path29);
+        return visitor(key, node, path32);
       if (identity.isMap(node))
-        return visitor.Map?.(key, node, path29);
+        return visitor.Map?.(key, node, path32);
       if (identity.isSeq(node))
-        return visitor.Seq?.(key, node, path29);
+        return visitor.Seq?.(key, node, path32);
       if (identity.isPair(node))
-        return visitor.Pair?.(key, node, path29);
+        return visitor.Pair?.(key, node, path32);
       if (identity.isScalar(node))
-        return visitor.Scalar?.(key, node, path29);
+        return visitor.Scalar?.(key, node, path32);
       if (identity.isAlias(node))
-        return visitor.Alias?.(key, node, path29);
+        return visitor.Alias?.(key, node, path32);
       return void 0;
     }
-    function replaceNode(key, path29, node) {
-      const parent = path29[path29.length - 1];
+    function replaceNode(key, path32, node) {
+      const parent = path32[path32.length - 1];
       if (identity.isCollection(parent)) {
         parent.items[key] = node;
       } else if (identity.isPair(parent)) {
@@ -10267,10 +10272,10 @@ var require_Collection = __commonJS({
     var createNode = require_createNode();
     var identity = require_identity();
     var Node = require_Node();
-    function collectionFromPath(schema, path29, value) {
+    function collectionFromPath(schema, path32, value) {
       let v2 = value;
-      for (let i = path29.length - 1; i >= 0; --i) {
-        const k2 = path29[i];
+      for (let i = path32.length - 1; i >= 0; --i) {
+        const k2 = path32[i];
         if (typeof k2 === "number" && Number.isInteger(k2) && k2 >= 0) {
           const a = [];
           a[k2] = v2;
@@ -10289,7 +10294,7 @@ var require_Collection = __commonJS({
         sourceObjects: /* @__PURE__ */ new Map()
       });
     }
-    var isEmptyPath = (path29) => path29 == null || typeof path29 === "object" && !!path29[Symbol.iterator]().next().done;
+    var isEmptyPath = (path32) => path32 == null || typeof path32 === "object" && !!path32[Symbol.iterator]().next().done;
     var Collection = class extends Node.NodeBase {
       constructor(type, schema) {
         super(type);
@@ -10319,11 +10324,11 @@ var require_Collection = __commonJS({
        * be a Pair instance or a `{ key, value }` object, which may not have a key
        * that already exists in the map.
        */
-      addIn(path29, value) {
-        if (isEmptyPath(path29))
+      addIn(path32, value) {
+        if (isEmptyPath(path32))
           this.add(value);
         else {
-          const [key, ...rest] = path29;
+          const [key, ...rest] = path32;
           const node = this.get(key, true);
           if (identity.isCollection(node))
             node.addIn(rest, value);
@@ -10337,8 +10342,8 @@ var require_Collection = __commonJS({
        * Removes a value from the collection.
        * @returns `true` if the item was found and removed.
        */
-      deleteIn(path29) {
-        const [key, ...rest] = path29;
+      deleteIn(path32) {
+        const [key, ...rest] = path32;
         if (rest.length === 0)
           return this.delete(key);
         const node = this.get(key, true);
@@ -10352,8 +10357,8 @@ var require_Collection = __commonJS({
        * scalar values from their surrounding node; to disable set `keepScalar` to
        * `true` (collections are always returned intact).
        */
-      getIn(path29, keepScalar) {
-        const [key, ...rest] = path29;
+      getIn(path32, keepScalar) {
+        const [key, ...rest] = path32;
         const node = this.get(key, true);
         if (rest.length === 0)
           return !keepScalar && identity.isScalar(node) ? node.value : node;
@@ -10371,8 +10376,8 @@ var require_Collection = __commonJS({
       /**
        * Checks if the collection includes a value with the key `key`.
        */
-      hasIn(path29) {
-        const [key, ...rest] = path29;
+      hasIn(path32) {
+        const [key, ...rest] = path32;
         if (rest.length === 0)
           return this.has(key);
         const node = this.get(key, true);
@@ -10382,8 +10387,8 @@ var require_Collection = __commonJS({
        * Sets a value in this collection. For `!!set`, `value` needs to be a
        * boolean to add/remove the item from the set.
        */
-      setIn(path29, value) {
-        const [key, ...rest] = path29;
+      setIn(path32, value) {
+        const [key, ...rest] = path32;
         if (rest.length === 0) {
           this.set(key, value);
         } else {
@@ -12898,9 +12903,9 @@ var require_Document = __commonJS({
           this.contents.add(value);
       }
       /** Adds a value to the document. */
-      addIn(path29, value) {
+      addIn(path32, value) {
         if (assertCollection(this.contents))
-          this.contents.addIn(path29, value);
+          this.contents.addIn(path32, value);
       }
       /**
        * Create a new `Alias` node, ensuring that the target `node` has the required anchor.
@@ -12975,14 +12980,14 @@ var require_Document = __commonJS({
        * Removes a value from the document.
        * @returns `true` if the item was found and removed.
        */
-      deleteIn(path29) {
-        if (Collection.isEmptyPath(path29)) {
+      deleteIn(path32) {
+        if (Collection.isEmptyPath(path32)) {
           if (this.contents == null)
             return false;
           this.contents = null;
           return true;
         }
-        return assertCollection(this.contents) ? this.contents.deleteIn(path29) : false;
+        return assertCollection(this.contents) ? this.contents.deleteIn(path32) : false;
       }
       /**
        * Returns item at `key`, or `undefined` if not found. By default unwraps
@@ -12997,10 +13002,10 @@ var require_Document = __commonJS({
        * scalar values from their surrounding node; to disable set `keepScalar` to
        * `true` (collections are always returned intact).
        */
-      getIn(path29, keepScalar) {
-        if (Collection.isEmptyPath(path29))
+      getIn(path32, keepScalar) {
+        if (Collection.isEmptyPath(path32))
           return !keepScalar && identity.isScalar(this.contents) ? this.contents.value : this.contents;
-        return identity.isCollection(this.contents) ? this.contents.getIn(path29, keepScalar) : void 0;
+        return identity.isCollection(this.contents) ? this.contents.getIn(path32, keepScalar) : void 0;
       }
       /**
        * Checks if the document includes a value with the key `key`.
@@ -13011,10 +13016,10 @@ var require_Document = __commonJS({
       /**
        * Checks if the document includes a value at `path`.
        */
-      hasIn(path29) {
-        if (Collection.isEmptyPath(path29))
+      hasIn(path32) {
+        if (Collection.isEmptyPath(path32))
           return this.contents !== void 0;
-        return identity.isCollection(this.contents) ? this.contents.hasIn(path29) : false;
+        return identity.isCollection(this.contents) ? this.contents.hasIn(path32) : false;
       }
       /**
        * Sets a value in this document. For `!!set`, `value` needs to be a
@@ -13031,13 +13036,13 @@ var require_Document = __commonJS({
        * Sets a value in this document. For `!!set`, `value` needs to be a
        * boolean to add/remove the item from the set.
        */
-      setIn(path29, value) {
-        if (Collection.isEmptyPath(path29)) {
+      setIn(path32, value) {
+        if (Collection.isEmptyPath(path32)) {
           this.contents = value;
         } else if (this.contents == null) {
-          this.contents = Collection.collectionFromPath(this.schema, Array.from(path29), value);
+          this.contents = Collection.collectionFromPath(this.schema, Array.from(path32), value);
         } else if (assertCollection(this.contents)) {
-          this.contents.setIn(path29, value);
+          this.contents.setIn(path32, value);
         }
       }
       /**
@@ -14997,9 +15002,9 @@ var require_cst_visit = __commonJS({
     visit.BREAK = BREAK;
     visit.SKIP = SKIP;
     visit.REMOVE = REMOVE;
-    visit.itemAtPath = (cst, path29) => {
+    visit.itemAtPath = (cst, path32) => {
       let item = cst;
-      for (const [field, index] of path29) {
+      for (const [field, index] of path32) {
         const tok = item?.[field];
         if (tok && "items" in tok) {
           item = tok.items[index];
@@ -15008,23 +15013,23 @@ var require_cst_visit = __commonJS({
       }
       return item;
     };
-    visit.parentCollection = (cst, path29) => {
-      const parent = visit.itemAtPath(cst, path29.slice(0, -1));
-      const field = path29[path29.length - 1][0];
+    visit.parentCollection = (cst, path32) => {
+      const parent = visit.itemAtPath(cst, path32.slice(0, -1));
+      const field = path32[path32.length - 1][0];
       const coll = parent?.[field];
       if (coll && "items" in coll)
         return coll;
       throw new Error("Parent collection not found");
     };
-    function _visit(path29, item, visitor) {
-      let ctrl = visitor(item, path29);
+    function _visit(path32, item, visitor) {
+      let ctrl = visitor(item, path32);
       if (typeof ctrl === "symbol")
         return ctrl;
       for (const field of ["key", "value"]) {
         const token = item[field];
         if (token && "items" in token) {
           for (let i = 0; i < token.items.length; ++i) {
-            const ci = _visit(Object.freeze(path29.concat([[field, i]])), token.items[i], visitor);
+            const ci = _visit(Object.freeze(path32.concat([[field, i]])), token.items[i], visitor);
             if (typeof ci === "number")
               i = ci - 1;
             else if (ci === BREAK)
@@ -15035,10 +15040,10 @@ var require_cst_visit = __commonJS({
             }
           }
           if (typeof ctrl === "function" && field === "key")
-            ctrl = ctrl(item, path29);
+            ctrl = ctrl(item, path32);
         }
       }
-      return typeof ctrl === "function" ? ctrl(item, path29) : ctrl;
+      return typeof ctrl === "function" ? ctrl(item, path32) : ctrl;
     }
     exports.visit = visit;
   }
@@ -17453,6 +17458,12 @@ function buildGraph(artifacts) {
   return { schema_version: 1, nodes, edges };
 }
 function reverseClosure(graph, seeds) {
+  return walkClosure(graph, seeds, true);
+}
+function rippleClosure(graph, seeds) {
+  return walkClosure(graph, seeds, false);
+}
+function walkClosure(graph, seeds, contractPrerequisites) {
   const reverse = /* @__PURE__ */ new Map();
   const convergenceForward = /* @__PURE__ */ new Map();
   const typeById = new Map(graph.nodes.map((node) => [node.id, node.type]));
@@ -17468,7 +17479,7 @@ function reverseClosure(graph, seeds) {
     const values = reverse.get(edge.to) ?? /* @__PURE__ */ new Set();
     values.add(edge.from);
     reverse.set(edge.to, values);
-    if (edge.relation === "writes_to" || edge.relation === "supersedes" || edge.relation === "depends_on" && CONTRACT_ARTIFACT_TYPES.has(typeById.get(edge.from) ?? "") || edge.relation === "depends_on" && declaredAuthorityTarget(edge.to)) {
+    if (edge.relation === "writes_to" || edge.relation === "supersedes" || contractPrerequisites && edge.relation === "depends_on" && CONTRACT_ARTIFACT_TYPES.has(typeById.get(edge.from) ?? "") || edge.relation === "depends_on" && declaredAuthorityTarget(edge.to)) {
       const targets = convergenceForward.get(edge.from) ?? /* @__PURE__ */ new Set();
       targets.add(edge.to);
       convergenceForward.set(edge.from, targets);
@@ -17563,7 +17574,8 @@ function calculateImpact(artifacts, graph, baseline2) {
   const edgeMap = new Map([...priorGraph.edges, ...graph.edges].map((edge) => [`${edge.from}\0${edge.to}\0${edge.relation}`, edge]));
   const unionGraph = { schema_version: 1, nodes: [...nodeMap.values()], edges: [...edgeMap.values()] };
   const affected = reverseClosure(unionGraph, direct);
-  return { direct: [...direct].sort(), affected, stale: affected.filter((id2) => !direct.has(id2)) };
+  const ripple = rippleClosure(unionGraph, direct).filter((id2) => !direct.has(id2));
+  return { direct: [...direct].sort(), affected, stale: affected.filter((id2) => !direct.has(id2)), ripple };
 }
 var init_impact = __esm({
   "src/core/impact.ts"() {
@@ -17625,6 +17637,11 @@ This projection shows which canonical synthesis artifacts explicitly consume eac
 
 ${table(["Evidence", "Referenced by", "Status"], rows)}`;
 }
+function acceptanceStatus(hasBehavior, hasTests) {
+  if (hasBehavior && hasTests) return "covered";
+  if (!hasTests && !hasBehavior) return "unclaimed";
+  return hasTests ? "unrouted" : "unverified";
+}
 function acceptanceCoverage(artifacts) {
   const acceptanceIds = artifacts.filter((artifact2) => artifact2.artifact_type === "feature" && artifact2.status !== "retired" && artifact2.status !== "superseded").flatMap((artifact2) => bodyIds(artifact2.body, /\bAC-[A-Z0-9-]+\b/g).map((id2) => ({ id: id2, feature: artifact2.id })));
   const rows = acceptanceIds.map(({ id: id2, feature }) => {
@@ -17633,11 +17650,13 @@ function acceptanceCoverage(artifacts) {
     const behavior = consumers.filter((artifact2) => behaviorTypes.has(artifact2.artifact_type)).map((artifact2) => artifact2.id);
     const design = consumers.filter((artifact2) => designTypes.has(artifact2.artifact_type)).map((artifact2) => artifact2.id);
     const tests2 = consumers.filter((artifact2) => TEST_TYPES.has(artifact2.artifact_type)).map((artifact2) => artifact2.id);
-    return [`\`${qualified}\``, `\`${feature}\``, cell(behavior), cell(design), cell(tests2), behavior.length > 0 && tests2.length > 0 ? "covered" : "gap"];
+    return [`\`${qualified}\``, `\`${feature}\``, cell(behavior), cell(design), cell(tests2), acceptanceStatus(behavior.length > 0, tests2.length > 0)];
   });
   return `# Acceptance Coverage
 
 Design is conditional; behavior and verification references are required for complete coverage.
+
+A criterion is \`covered\` only when both references exist. The two ways of falling short are reported separately, because they are different debts: \`unverified\` is a criterion no test specification claims, and \`unrouted\` is a criterion tests do claim but no use case or flow carries. Reading \`unrouted\` as missing verification overstates the gap.
 
 ${table(["Acceptance criterion", "Feature", "Behavior", "Design", "Tests", "Status"], rows)}`;
 }
@@ -17984,6 +18003,23 @@ async function driftedMappings(root2, config, artifacts, baseline2) {
   }
   return drifted;
 }
+async function documentationDriftedArtifacts(root2, config, artifacts, baseline2) {
+  const stored = baseline2?.implementation_hashes;
+  if (!stored) return [];
+  const baselineArtifactHashes = new Map((baseline2?.artifacts ?? []).map((entry) => [entry.id, entry.hash]));
+  const current = await collectMappingHashes(root2, config, artifacts);
+  const drifted = [];
+  for (const artifact2 of artifacts) {
+    if (artifact2.implementation.length === 0) continue;
+    const baselineHash = baselineArtifactHashes.get(artifact2.id);
+    if (baselineHash === void 0 || baselineHash === artifact2.hash) continue;
+    const observed = artifact2.implementation.filter((mapping) => stored[mapping] !== void 0);
+    if (observed.length === 0) continue;
+    if (!observed.every((mapping) => current[mapping] !== void 0 && current[mapping] === stored[mapping])) continue;
+    drifted.push({ artifact: artifact2, mappings: [...observed].sort() });
+  }
+  return drifted.sort((a, b2) => a.artifact.id.localeCompare(b2.artifact.id));
+}
 var init_mapping_hashes = __esm({
   "src/core/mapping-hashes.ts"() {
     "use strict";
@@ -18172,6 +18208,16 @@ async function implementationDriftFindings(root2, config, artifacts, baseline2) 
     code: "IMPLEMENTATION_DRIFT",
     message: `Mapped file ${mapping} changed since ${baseline2?.id ?? "the baseline"} while its declaring artifact(s) (${declaring.map((artifact2) => artifact2.id).join(", ")}) did not; bring the documents level through a flow that owns the change, revert the code, or open a Reconciliation on this recorded divergence \u2014 this warning is the standing record of docs-to-code drift.`,
     file: declaring[0].file
+  }));
+}
+async function documentationDriftFindings(root2, config, artifacts, baseline2) {
+  if (config.implementation_sources.length === 0) return [];
+  const drifted = await documentationDriftedArtifacts(root2, config, artifacts, baseline2);
+  return drifted.map(({ artifact: artifact2, mappings }) => ({
+    severity: "warning",
+    code: "DOCUMENTATION_DRIFT",
+    message: `${artifact2.id} changed since ${baseline2?.id ?? "the baseline"} while every implementation file it maps (${mappings.join(", ")}) kept its baseline content; carry the change into the mapped code in this flow, correct the mappings if the change does not touch them, or let this warning stand as the record that the documents are ahead of the code \u2014 the doc-side mirror of IMPLEMENTATION_DRIFT.`,
+    file: artifact2.file
   }));
 }
 async function implementationSymbolFindings(root2, config, artifacts) {
@@ -18427,17 +18473,31 @@ var init_implementation_projections = __esm({
 // src/core/projections.ts
 import { mkdir as mkdir3, readFile as readFile8, rm as rm2, writeFile as writeFile3 } from "node:fs/promises";
 import path11 from "node:path";
-function changeImpactProjection(changeId, impact) {
-  return `# Change Impact: ${changeId}
+function changeImpactProjection(changeId, impact2, classification) {
+  const closure = `# Change Impact: ${changeId}
 
 ## Direct
 
-${impact.direct.map((id2) => `- \`${id2}\``).join("\n") || "None."}
+${impact2.direct.map((id2) => `- \`${id2}\``).join("\n") || "None."}
 
 ## Affected closure
 
-${impact.affected.map((id2) => `- \`${id2}\``).join("\n") || "None."}
+${impact2.affected.map((id2) => `- \`${id2}\``).join("\n") || "None."}
 `;
+  if (!classification) return closure;
+  const rows = [
+    ...impact2.direct.map((id2) => [`\`${id2}\``, "modify (direct)", "Edited by this change."]),
+    ...(impact2.ripple ?? []).map((id2) => {
+      const decision = classification[id2];
+      return [`\`${id2}\``, decision ? decision.label : "unclassified", decision?.reason ?? "\u2014"];
+    })
+  ];
+  return `${closure}
+## Classification
+
+A direct change is the modify decision. Every artifact this change's revisions put in question carries the decision recorded through \`impact classify\`; \`unclassified\` is what IMPACT_UNCLASSIFIED reports. Artifacts reached only as prerequisites of something this change created are not decisions and are not listed.
+
+${table3(["Artifact", "Decision", "Reason"], rows)}`;
 }
 function table3(headers3, rows) {
   const head = `| ${headers3.join(" | ")} |`;
@@ -18561,7 +18621,7 @@ ${table3(
 - Camofox retrievals: ${ok.camofox} ok, ${failed.camofox} failed
 `;
 }
-function buildProjections(artifacts, graph, impact, baseline2, activeChange, config, records, retrievals = [], queries = [], driftedImplementationMappings) {
+function buildProjections(artifacts, graph, impact2, baseline2, activeChange, config, records, retrievals = [], queries = [], driftedImplementationMappings, activeClassification) {
   const projections = {};
   projections["artifact-graph.json"] = stableJson(graph);
   projections["artifact-index.md"] = `# Artifact Index
@@ -18641,7 +18701,7 @@ ${order.order.map((id2, index) => `${index + 1}. \`${id2}\``).join("\n") || "No 
 
 Baseline: **${baseline2?.id ?? "none"}**
 
-${impact.stale.map((id2) => `- \`${id2}\``).join("\n") || "No indirectly affected artifacts."}
+${impact2.stale.map((id2) => `- \`${id2}\``).join("\n") || "No indirectly affected artifacts."}
 `;
   projections["issue-index.md"] = `# Issue Index
 
@@ -18687,7 +18747,7 @@ ${successors.map((id2) => `- \`${id2}\``).join("\n") || "No successor."}
 `;
   }
   if (activeChange) {
-    projections[`change-impact/${activeChange}.md`] = changeImpactProjection(activeChange, impact);
+    projections[`change-impact/${activeChange}.md`] = changeImpactProjection(activeChange, impact2, activeClassification);
   }
   return projections;
 }
@@ -18774,9 +18834,9 @@ async function refreshProjectUnlocked(root2, check) {
   const artifacts = await scanArtifacts(root2);
   const graph = buildGraph(artifacts);
   const baseline2 = await loadBaseline(root2);
-  const impact = calculateImpact(artifacts, graph, baseline2);
+  const impact2 = calculateImpact(artifacts, graph, baseline2);
   const flow2 = await loadActiveFlow(root2);
-  const activeChange = flow2?.change_id && impact.direct.length > 0 ? flow2.change_id : null;
+  const activeChange = flow2?.change_id && impact2.direct.length > 0 ? flow2.change_id : null;
   let config = null;
   try {
     config = await loadConfig(root2);
@@ -18787,7 +18847,8 @@ async function refreshProjectUnlocked(root2, check) {
   const retrievals = await loadRetrievalRecords(root2);
   const queries = await loadQueryRecords(root2);
   const drifted = config && config.implementation_sources.length > 0 && baseline2?.implementation_hashes ? new Set((await driftedMappings(root2, config, artifacts, baseline2)).map((entry) => entry.mapping)) : void 0;
-  const projections = buildProjections(artifacts, graph, impact, baseline2, activeChange, config, records, retrievals, queries, drifted);
+  const activeLedger = activeChange ? (await loadChange(root2, activeChange).catch(() => null))?.classification ?? {} : void 0;
+  const projections = buildProjections(artifacts, graph, impact2, baseline2, activeChange, config, records, retrievals, queries, drifted, activeLedger);
   if (await pathExists(projectPaths(root2).changes)) {
     await assertSafeManagedPath(root2, path12.join(projectPaths(root2).changes, ".managed-probe"));
     for (const entry of await readdir3(projectPaths(root2).changes, { withFileTypes: true })) if (entry.isSymbolicLink() && /^CHG-.*\.json$/.test(entry.name)) throw new SdlcError(`Change record cannot be a symlink: ${entry.name}`);
@@ -18797,7 +18858,7 @@ async function refreshProjectUnlocked(root2, check) {
       try {
         const change = await readJson(file);
         if (isChangeRecord(change) && change.impact) {
-          projections[`change-impact/${change.id}.md`] = changeImpactProjection(change.id, change.impact);
+          projections[`change-impact/${change.id}.md`] = changeImpactProjection(change.id, change.impact, change.classification);
         }
       } catch {
       }
@@ -19318,6 +19379,70 @@ init_state();
 
 // src/core/flow-guidance.ts
 init_types();
+import path15 from "node:path";
+import { readFile as readFile11 } from "node:fs/promises";
+
+// src/core/engine-pointer.ts
+init_paths();
+init_state();
+import path14 from "node:path";
+import { mkdir as mkdir5, readFile as readFile10, writeFile as writeFile5 } from "node:fs/promises";
+var ENGINE_POINTER_FILE = path14.join(INTERNAL_DIR, "engine.json");
+var IGNORE_ENTRY = ".ai-saas-sdlc/engine.json";
+var RESEARCH_POLICY_IGNORE_ENTRY = ".ai-saas-sdlc/research-tools.json";
+var VERIFICATION_POLICY_IGNORE_ENTRY = ".ai-saas-sdlc/verification-tools.json";
+function quoted(target) {
+  return `node "${target.replace(/\\/g, "/")}"`;
+}
+function buildEnginePointer(runtimeRoot2, pluginVersion) {
+  const enginePath = path14.join(runtimeRoot2, "bin", "ai-saas-sdlc");
+  return {
+    schema_version: 1,
+    plugin_version: pluginVersion,
+    engine_path: enginePath,
+    editorial_command: `${quoted(enginePath)} refresh --editorial`
+  };
+}
+async function recordEnginePointer(root2, runtimeRoot2, pluginVersion) {
+  const target = path14.join(root2, ENGINE_POINTER_FILE);
+  const pointer = buildEnginePointer(runtimeRoot2, pluginVersion);
+  const serialized = `${JSON.stringify(pointer, null, 2)}
+`;
+  if (await pathExists(target)) {
+    const existing = await readFile10(target, "utf8").catch(() => "");
+    if (existing === serialized) return;
+  }
+  await mkdir5(path14.dirname(target), { recursive: true });
+  await writeFile5(target, serialized, "utf8");
+}
+async function ensureIgnoredEntry(root2, entry) {
+  const target = path14.join(root2, ".gitignore");
+  const existing = await pathExists(target) ? await readFile10(target, "utf8").catch(() => "") : "";
+  if (existing.split(/\r?\n/).some((line) => line.trim() === entry)) return;
+  const prefix = existing === "" || existing.endsWith("\n") ? existing : `${existing}
+`;
+  await writeFile5(target, `${prefix}${entry}
+`, "utf8");
+}
+async function ensureEnginePointerIgnored(root2) {
+  await ensureIgnoredEntry(root2, IGNORE_ENTRY);
+}
+async function ensureResearchPolicyIgnored(root2) {
+  await ensureIgnoredEntry(root2, RESEARCH_POLICY_IGNORE_ENTRY);
+}
+async function ensureVerificationPolicyIgnored(root2) {
+  await ensureIgnoredEntry(root2, VERIFICATION_POLICY_IGNORE_ENTRY);
+}
+
+// src/core/runtime-root.ts
+import { dirname, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
+function resolveRuntimeRoot(moduleUrl) {
+  const configured = process.env.CODEX_PLUGIN_ROOT ?? process.env.CLAUDE_PLUGIN_ROOT;
+  return configured ? resolve(configured) : resolve(dirname(fileURLToPath(moduleUrl)), "..");
+}
+
+// src/core/flow-guidance.ts
 init_state();
 init_config();
 init_artifacts();
@@ -19374,6 +19499,20 @@ async function suggestNextSegment(root2) {
     return void 0;
   }
 }
+async function engineInvocation(root2) {
+  const raw = await readFile11(path15.join(root2, ENGINE_POINTER_FILE), "utf8").catch(() => null);
+  if (raw !== null) {
+    try {
+      const pointer = JSON.parse(raw);
+      if (typeof pointer.engine_path === "string" && pointer.engine_path.length > 0) {
+        return `node "${pointer.engine_path.replace(/\\/g, "/")}"`;
+      }
+    } catch {
+    }
+  }
+  const fallback = path15.join(resolveRuntimeRoot(import.meta.url), "bin", "ai-saas-sdlc");
+  return `node "${fallback.replace(/\\/g, "/")}"`;
+}
 async function flowGuidance(root2) {
   const flow2 = await loadActiveFlow(root2);
   const state = await loadCurrentState(root2).catch(() => null);
@@ -19415,7 +19554,7 @@ async function flowGuidance(root2) {
       reached_stage: reached,
       remaining_stages: [],
       baseline_created: flow2.baseline_created,
-      next_command: `ENGINE flow close`,
+      next_command: `${await engineInvocation(root2)} flow close`,
       reason: `${flow2.baseline_created} exists and no drift remains, so ${flow2.id} is ready to close.`
     };
   }
@@ -19427,7 +19566,7 @@ async function flowGuidance(root2) {
       reached_stage: reached,
       remaining_stages: [],
       baseline_created: null,
-      next_command: `ENGINE baseline create`,
+      next_command: `${await engineInvocation(root2)} baseline create`,
       reason: `${flow2.id} has reached every checkpoint; a verified baseline closes it.`
     };
   }
@@ -19449,61 +19588,141 @@ async function flowGuidance(root2) {
 
 // src/cli/main.ts
 init_types();
-init_project();
 
-// src/core/engine-pointer.ts
+// src/core/ripple-classification.ts
+init_types();
+init_graph();
+init_impact();
+import path17 from "node:path";
+
+// src/core/change-records.ts
+var import_fast_glob9 = __toESM(require_out4(), 1);
+init_record_validation();
 init_paths();
 init_state();
-import path14 from "node:path";
-import { mkdir as mkdir5, readFile as readFile10, writeFile as writeFile5 } from "node:fs/promises";
-var ENGINE_POINTER_FILE = path14.join(INTERNAL_DIR, "engine.json");
-var IGNORE_ENTRY = ".ai-saas-sdlc/engine.json";
-var RESEARCH_POLICY_IGNORE_ENTRY = ".ai-saas-sdlc/research-tools.json";
-var VERIFICATION_POLICY_IGNORE_ENTRY = ".ai-saas-sdlc/verification-tools.json";
-function quoted(target) {
-  return `node "${target.replace(/\\/g, "/")}"`;
-}
-function buildEnginePointer(runtimeRoot2, pluginVersion) {
-  const enginePath = path14.join(runtimeRoot2, "bin", "ai-saas-sdlc");
-  return {
-    schema_version: 1,
-    plugin_version: pluginVersion,
-    engine_path: enginePath,
-    editorial_command: `${quoted(enginePath)} refresh --editorial`
-  };
-}
-async function recordEnginePointer(root2, runtimeRoot2, pluginVersion) {
-  const target = path14.join(root2, ENGINE_POINTER_FILE);
-  const pointer = buildEnginePointer(runtimeRoot2, pluginVersion);
-  const serialized = `${JSON.stringify(pointer, null, 2)}
-`;
-  if (await pathExists(target)) {
-    const existing = await readFile10(target, "utf8").catch(() => "");
-    if (existing === serialized) return;
+init_utils();
+import path16 from "node:path";
+import { readdir as readdir5 } from "node:fs/promises";
+async function loadChangeRecords(root2) {
+  const directory = projectPaths(root2).changes;
+  if (!await pathExists(directory)) return [];
+  try {
+    await assertSafeManagedPath(root2, path16.join(directory, ".managed-probe"));
+  } catch {
+    return [];
   }
-  await mkdir5(path14.dirname(target), { recursive: true });
-  await writeFile5(target, serialized, "utf8");
+  const symlinks = /* @__PURE__ */ new Set();
+  for (const entry of await readdir5(directory, { withFileTypes: true })) if (entry.isSymbolicLink()) symlinks.add(entry.name);
+  const files = await (0, import_fast_glob9.default)("CHG-*.json", { cwd: directory, absolute: true, followSymbolicLinks: false });
+  const records = [];
+  for (const file of files) {
+    if (symlinks.has(path16.basename(file))) continue;
+    try {
+      await assertSafeManagedPath(root2, file);
+      const record2 = await readJson(file);
+      if (!isChangeRecord(record2) || path16.basename(file) !== `${record2.id}.json`) continue;
+      records.push(record2);
+    } catch {
+    }
+  }
+  return records.sort((a, b2) => a.id.localeCompare(b2.id));
 }
-async function ensureIgnoredEntry(root2, entry) {
-  const target = path14.join(root2, ".gitignore");
-  const existing = await pathExists(target) ? await readFile10(target, "utf8").catch(() => "") : "";
-  if (existing.split(/\r?\n/).some((line) => line.trim() === entry)) return;
-  const prefix = existing === "" || existing.endsWith("\n") ? existing : `${existing}
-`;
-  await writeFile5(target, `${prefix}${entry}
-`, "utf8");
+
+// src/core/ripple-classification.ts
+init_artifacts();
+init_state();
+init_project();
+init_paths();
+init_utils();
+init_project_lock();
+init_errors();
+function changeNumber(id2) {
+  return Number(id2.slice(4));
 }
-async function ensureEnginePointerIgnored(root2) {
-  await ensureIgnoredEntry(root2, IGNORE_ENTRY);
+function classifiedFrom(changes, owner) {
+  const floor = changeNumber(owner);
+  const classified = /* @__PURE__ */ new Set();
+  for (const change of changes) {
+    if (!Number.isFinite(changeNumber(change.id)) || changeNumber(change.id) < floor) continue;
+    for (const id2 of Object.keys(change.classification ?? {})) classified.add(id2);
+  }
+  return classified;
 }
-async function ensureResearchPolicyIgnored(root2) {
-  await ensureIgnoredEntry(root2, RESEARCH_POLICY_IGNORE_ENTRY);
+function unclassifiedImpactEntries(artifacts, graph, baseline2, activeChange, changes) {
+  const byId = new Map(artifacts.map((artifact2) => [artifact2.id, artifact2]));
+  const entry = (id2, changeId, phase, baselineId) => {
+    const artifact2 = byId.get(id2);
+    if (!artifact2) return null;
+    return { id: id2, file: artifact2.file, changeId, phase, ...baselineId ? { baselineId } : {} };
+  };
+  if (activeChange && activeChange.status === "active") {
+    const impact2 = calculateImpact(artifacts, graph, baseline2);
+    const classified2 = classifiedFrom(changes, activeChange.id);
+    return impact2.ripple.filter((id2) => !classified2.has(id2)).map((id2) => entry(id2, activeChange.id, "open")).filter((item) => item !== null);
+  }
+  if (!baseline2) return [];
+  const owner = changes.find((change) => change.successor_baseline === baseline2.id && (change.status === "baselined" || change.status === "closed") && change.classification !== void 0 && change.impact !== void 0);
+  if (!owner?.impact) return [];
+  const classified = classifiedFrom(changes, owner.id);
+  const baselineHashes = new Map(baseline2.artifacts.map((item) => [item.id, item.hash]));
+  return (owner.impact.ripple ?? []).filter((id2) => !classified.has(id2)).filter((id2) => byId.get(id2)?.hash === baselineHashes.get(id2)).map((id2) => entry(id2, owner.id, "standing", baseline2.id)).filter((item) => item !== null);
 }
-async function ensureVerificationPolicyIgnored(root2) {
-  await ensureIgnoredEntry(root2, VERIFICATION_POLICY_IGNORE_ENTRY);
+async function impactClassificationFindings(root2, artifacts, graph) {
+  let entries = [];
+  try {
+    const baseline2 = await loadBaseline(root2).catch(() => null);
+    const flow2 = await loadActiveFlow(root2).catch(() => null);
+    const changes = await loadChangeRecords(root2);
+    const activeChange = flow2?.change_id ? changes.find((change) => change.id === flow2.change_id) ?? null : null;
+    entries = unclassifiedImpactEntries(artifacts, graph, baseline2, activeChange, changes);
+  } catch {
+    return [];
+  }
+  return entries.map((item) => ({
+    severity: "warning",
+    code: "IMPACT_UNCLASSIFIED",
+    message: item.phase === "open" ? `${item.id} is reached by ${item.changeId}'s affected closure but carries no recorded ripple decision; record one with \`impact classify --id ${item.id} --as ${CLASSIFICATION_LABELS.join("|")}\`, or edit the artifact in this flow \u2014 a direct change is the modify decision and needs no classification.` : `${item.id} was reached by ${item.changeId}'s closure into ${item.baselineId}, was never classified, and its content has not moved since; classify it from a later change with \`impact classify\`, edit it through a flow that owns the consequence, or let this warning stand as the durable record of ripple debt nobody serviced.`,
+    file: item.file
+  }));
+}
+async function classifyImpact(root2, id2, label, reason) {
+  return withProjectLock(root2, async () => {
+    if (!CLASSIFICATION_LABELS.includes(label)) {
+      throw new SdlcError(`Unsupported classification: ${label}. Expected ${CLASSIFICATION_LABELS.join("|")}.`);
+    }
+    if (label === "not-affected" && !reason?.trim()) {
+      throw new SdlcError("A not-affected classification requires --reason: ruling a reached artifact out is only a decision when the concrete ground for it is recorded.");
+    }
+    const flow2 = await loadActiveFlow(root2);
+    if (!flow2?.change_id) throw new SdlcError("Classification records a decision on a semantic change; open an evolution or reconciliation flow first.");
+    const change = await loadChange(root2, flow2.change_id);
+    if (!change) throw new SdlcError(`Change record ${flow2.change_id} not found.`);
+    if (change.status !== "active" && change.status !== "baselined") throw new SdlcError(`${change.id} is ${change.status}; a closed change cannot take new classifications.`);
+    const artifacts = await scanArtifacts(root2);
+    const scope = change.status === "active" ? calculateImpact(artifacts, buildGraph(artifacts), await loadBaseline(root2)) : change.impact ?? { direct: [], affected: [], stale: [], ripple: [] };
+    if (scope.direct.includes(id2)) {
+      throw new SdlcError(`${id2} is a direct change of ${change.id} and counts as modify by definition; classification records decisions about artifacts the closure reached but the change did not edit.`);
+    }
+    if (!(scope.ripple ?? []).includes(id2)) {
+      throw new SdlcError(`${id2} is not in ${change.id}'s ripple set \u2014 nothing this change revised reaches it; run \`impact --json\` to see what this change put in question.`);
+    }
+    const updated = {
+      ...change,
+      classification: { ...change.classification ?? {}, [id2]: { label, ...reason?.trim() ? { reason: reason.trim() } : {} } }
+    };
+    const file = path17.join(projectPaths(root2).changes, `${change.id}.json`);
+    await assertSafeManagedPath(root2, file);
+    await prepareSafeManagedPath(root2, file);
+    await writeJsonAtomic(file, updated);
+    return updated;
+  }).then(async (updated) => {
+    await refreshProject(root2, false);
+    return updated;
+  });
 }
 
 // src/cli/main.ts
+init_project();
 init_artifacts();
 init_graph();
 
@@ -19517,19 +19736,19 @@ init_paths();
 init_paths();
 init_utils();
 init_record_validation();
-import { readFile as readFile17 } from "node:fs/promises";
-import path22 from "node:path";
+import { readFile as readFile18 } from "node:fs/promises";
+import path25 from "node:path";
 
 // src/core/internal-validation.ts
-var import_fast_glob9 = __toESM(require_out4(), 1);
-import path17 from "node:path";
-import { readdir as readdir5 } from "node:fs/promises";
+var import_fast_glob10 = __toESM(require_out4(), 1);
+import path20 from "node:path";
+import { readdir as readdir6 } from "node:fs/promises";
 
 // src/core/execution-provenance.ts
 init_paths();
 init_state();
-import { readFile as readFile11 } from "node:fs/promises";
-import path15 from "node:path";
+import { readFile as readFile12 } from "node:fs/promises";
+import path18 from "node:path";
 
 // src/core/result-artifact.ts
 var NOT_REPORTED = "not reported by configured command";
@@ -19646,14 +19865,14 @@ async function executionProvenanceIssues(root2, record2) {
   const expectedOutput = `.ai-saas-sdlc/executions/${record2.id}.log`;
   if (record2.output_file.replaceAll("\\", "/") !== expectedOutput) issues.push(`output_file must be ${expectedOutput}`);
   if (Date.parse(record2.ended_at) < Date.parse(record2.started_at)) issues.push("ended_at precedes started_at");
-  const logFile = path15.resolve(root2, record2.output_file);
+  const logFile = path18.resolve(root2, record2.output_file);
   if (!isWithin(projectPaths(root2).executions, logFile)) issues.push("output_file escapes executions directory");
   else if (!await pathExists(logFile)) issues.push("execution log is missing");
   else {
     try {
       await assertSafeManagedPath(root2, logFile);
       if (!await isRealPathWithin(projectPaths(root2).executions, logFile)) issues.push("execution log escapes through a symlink");
-      else if (sha256(await readFile11(logFile, "utf8")) !== record2.output_hash) issues.push("execution log digest does not match output_hash");
+      else if (sha256(await readFile12(logFile, "utf8")) !== record2.output_hash) issues.push("execution log digest does not match output_hash");
     } catch {
       issues.push("execution log cannot be resolved safely");
     }
@@ -19673,12 +19892,12 @@ init_paths();
 init_state();
 init_retrieval_records();
 init_utils();
-import { readFile as readFile12 } from "node:fs/promises";
-import path16 from "node:path";
+import { readFile as readFile13 } from "node:fs/promises";
+import path19 from "node:path";
 async function retrievalProvenanceIssues(root2, record2) {
   const issues = [];
   if (Date.parse(record2.ended_at) < Date.parse(record2.started_at)) issues.push("ended_at precedes started_at");
-  const bodyFile = path16.resolve(root2, retrievalBodyFile(record2.id));
+  const bodyFile = path19.resolve(root2, retrievalBodyFile(record2.id));
   if (!record2.ok) {
     if (await pathExists(bodyFile)) issues.push("failed retrieval must not have a body file");
     return issues;
@@ -19691,7 +19910,7 @@ async function retrievalProvenanceIssues(root2, record2) {
     try {
       await assertSafeManagedPath(root2, bodyFile);
       if (!await isRealPathWithin(projectPaths(root2).retrievals, bodyFile)) issues.push("retrieval body escapes through a symlink");
-      else if (sha256(await readFile12(bodyFile, "utf8")) !== record2.body_hash) issues.push("retrieval body digest does not match body_hash");
+      else if (sha256(await readFile13(bodyFile, "utf8")) !== record2.body_hash) issues.push("retrieval body digest does not match body_hash");
     } catch {
       issues.push("retrieval body cannot be resolved safely");
     }
@@ -19727,20 +19946,20 @@ async function validateInternalRecords(root2, artifacts) {
   let executionsSafe = true;
   if (await pathExists(projectPaths(root2).executions)) {
     try {
-      await assertSafeManagedPath(root2, path17.join(projectPaths(root2).executions, ".managed-probe"));
+      await assertSafeManagedPath(root2, path20.join(projectPaths(root2).executions, ".managed-probe"));
     } catch {
       executionsSafe = false;
     }
     if (!executionsSafe) findings.push({ severity: "error", code: "INTERNAL_PATH_ESCAPE", message: "Execution records directory escapes the project through a symlink" });
   }
   if (executionsSafe && await pathExists(projectPaths(root2).executions)) {
-    for (const entry of await readdir5(projectPaths(root2).executions, { withFileTypes: true })) if (entry.isSymbolicLink()) findings.push({ severity: "error", code: "INTERNAL_RECORD_SYMLINK", message: `Execution record entry cannot be a symlink: ${entry.name}` });
-    const jsonFiles = await (0, import_fast_glob9.default)("*.json", { cwd: projectPaths(root2).executions, absolute: true, followSymbolicLinks: false });
+    for (const entry of await readdir6(projectPaths(root2).executions, { withFileTypes: true })) if (entry.isSymbolicLink()) findings.push({ severity: "error", code: "INTERNAL_RECORD_SYMLINK", message: `Execution record entry cannot be a symlink: ${entry.name}` });
+    const jsonFiles = await (0, import_fast_glob10.default)("*.json", { cwd: projectPaths(root2).executions, absolute: true, followSymbolicLinks: false });
     for (const file of jsonFiles) {
       try {
         await assertSafeManagedPath(root2, file);
         const record2 = await readJson(file);
-        if (!isExecutionRecord(record2) || path17.basename(file) !== `${record2.id}.json`) throw new Error("schema or filename mismatch");
+        if (!isExecutionRecord(record2) || path20.basename(file) !== `${record2.id}.json`) throw new Error("schema or filename mismatch");
         executions.set(record2.id, record2);
         for (const issue of await executionProvenanceIssues(root2, record2)) findings.push({ severity: "error", code: "EXECUTION_PROVENANCE_INVALID", message: `${record2.id}: ${issue}` });
         const result = resultByExecution.get(record2.id);
@@ -19750,9 +19969,9 @@ async function validateInternalRecords(root2, artifacts) {
         findings.push({ severity: "error", code: "EXECUTION_INVALID", message: `Invalid execution record ${file}: ${String(error)}` });
       }
     }
-    const logFiles = await (0, import_fast_glob9.default)("*.log", { cwd: projectPaths(root2).executions, followSymbolicLinks: false });
+    const logFiles = await (0, import_fast_glob10.default)("*.log", { cwd: projectPaths(root2).executions, followSymbolicLinks: false });
     for (const log of logFiles) {
-      const executionId = path17.basename(log, ".log");
+      const executionId = path20.basename(log, ".log");
       if (!executions.has(executionId)) findings.push({ severity: "error", code: "EXECUTION_LOG_ORPHAN", message: `${log} has no execution record` });
     }
   }
@@ -19764,17 +19983,17 @@ async function validateInternalRecords(root2, artifacts) {
   let retrievalsSafe = true;
   if (await pathExists(projectPaths(root2).retrievals)) {
     try {
-      await assertSafeManagedPath(root2, path17.join(projectPaths(root2).retrievals, ".managed-probe"));
+      await assertSafeManagedPath(root2, path20.join(projectPaths(root2).retrievals, ".managed-probe"));
     } catch {
       retrievalsSafe = false;
     }
     if (!retrievalsSafe) findings.push({ severity: "error", code: "INTERNAL_PATH_ESCAPE", message: "Retrieval records directory escapes the project through a symlink" });
   }
   if (retrievalsSafe && await pathExists(projectPaths(root2).retrievals)) {
-    for (const entry of await readdir5(projectPaths(root2).retrievals, { withFileTypes: true })) if (entry.isSymbolicLink()) findings.push({ severity: "error", code: "INTERNAL_RECORD_SYMLINK", message: `Retrieval record entry cannot be a symlink: ${entry.name}` });
-    const jsonFiles = await (0, import_fast_glob9.default)("*.json", { cwd: projectPaths(root2).retrievals, absolute: true, followSymbolicLinks: false });
+    for (const entry of await readdir6(projectPaths(root2).retrievals, { withFileTypes: true })) if (entry.isSymbolicLink()) findings.push({ severity: "error", code: "INTERNAL_RECORD_SYMLINK", message: `Retrieval record entry cannot be a symlink: ${entry.name}` });
+    const jsonFiles = await (0, import_fast_glob10.default)("*.json", { cwd: projectPaths(root2).retrievals, absolute: true, followSymbolicLinks: false });
     for (const file of jsonFiles) {
-      const name = path17.basename(file);
+      const name = path20.basename(file);
       try {
         await assertSafeManagedPath(root2, file);
         const record2 = await readJson(file);
@@ -19793,9 +20012,9 @@ async function validateInternalRecords(root2, artifacts) {
         findings.push({ severity: "error", code: "RETRIEVAL_INVALID", message: `Invalid retrieval record ${file}: ${String(error)}` });
       }
     }
-    const bodyFiles = await (0, import_fast_glob9.default)("*.md", { cwd: projectPaths(root2).retrievals, followSymbolicLinks: false });
+    const bodyFiles = await (0, import_fast_glob10.default)("*.md", { cwd: projectPaths(root2).retrievals, followSymbolicLinks: false });
     for (const body of bodyFiles) {
-      const retrievalId = path17.basename(body, ".md");
+      const retrievalId = path20.basename(body, ".md");
       if (!retrievalRecords.has(retrievalId)) findings.push({ severity: "error", code: "RETRIEVAL_BODY_ORPHAN", message: `${body} has no retrieval record` });
     }
   }
@@ -19803,34 +20022,34 @@ async function validateInternalRecords(root2, artifacts) {
   let changesSafe = true;
   if (await pathExists(projectPaths(root2).changes)) {
     try {
-      await assertSafeManagedPath(root2, path17.join(projectPaths(root2).changes, ".managed-probe"));
+      await assertSafeManagedPath(root2, path20.join(projectPaths(root2).changes, ".managed-probe"));
     } catch {
       changesSafe = false;
     }
     if (!changesSafe) findings.push({ severity: "error", code: "INTERNAL_PATH_ESCAPE", message: "Change records directory escapes the project through a symlink" });
   }
   if (changesSafe && await pathExists(projectPaths(root2).changes)) {
-    for (const entry of await readdir5(projectPaths(root2).changes, { withFileTypes: true })) if (entry.isSymbolicLink()) findings.push({ severity: "error", code: "INTERNAL_RECORD_SYMLINK", message: `Change record entry cannot be a symlink: ${entry.name}` });
-    const files = await (0, import_fast_glob9.default)("*.json", { cwd: projectPaths(root2).changes, absolute: true, followSymbolicLinks: false });
+    for (const entry of await readdir6(projectPaths(root2).changes, { withFileTypes: true })) if (entry.isSymbolicLink()) findings.push({ severity: "error", code: "INTERNAL_RECORD_SYMLINK", message: `Change record entry cannot be a symlink: ${entry.name}` });
+    const files = await (0, import_fast_glob10.default)("*.json", { cwd: projectPaths(root2).changes, absolute: true, followSymbolicLinks: false });
     for (const file of files) {
       try {
         await assertSafeManagedPath(root2, file);
         const change = await readJson(file);
-        if (!isChangeRecord(change) || path17.basename(file) !== `${change.id}.json`) throw new Error("schema or filename mismatch");
+        if (!isChangeRecord(change) || path20.basename(file) !== `${change.id}.json`) throw new Error("schema or filename mismatch");
         changes.set(change.id, change);
       } catch (error) {
         findings.push({ severity: "error", code: "CHANGE_RECORD_INVALID", message: `Invalid change record ${file}: ${String(error)}` });
       }
     }
   }
-  const resultDirectory = path17.join(root2, "04-verification", "results");
+  const resultDirectory = path20.join(root2, "04-verification", "results");
   if (await pathExists(resultDirectory)) {
-    for (const entry of await readdir5(resultDirectory, { withFileTypes: true })) if (entry.isSymbolicLink()) findings.push({ severity: "error", code: "RESULT_PATH_INVALID", message: `Result entry cannot be a symlink: ${entry.name}` });
+    for (const entry of await readdir6(resultDirectory, { withFileTypes: true })) if (entry.isSymbolicLink()) findings.push({ severity: "error", code: "RESULT_PATH_INVALID", message: `Result entry cannot be a symlink: ${entry.name}` });
   }
   for (const artifact2 of artifacts) {
     if (artifact2.artifact_type === "test_result") {
       try {
-        await assertSafeManagedPath(root2, path17.join(root2, artifact2.file));
+        await assertSafeManagedPath(root2, path20.join(root2, artifact2.file));
       } catch (error) {
         findings.push({ severity: "error", code: "RESULT_PATH_INVALID", message: `${artifact2.id}: ${String(error)}`, file: artifact2.file });
       }
@@ -19956,37 +20175,37 @@ var CANONICAL_TYPES = new Set(Object.values(CANONICAL_MARKDOWN).map(([, type]) =
 
 // src/core/content-contracts.ts
 init_types();
-import { readFile as readFile15 } from "node:fs/promises";
-import path20 from "node:path";
+import { readFile as readFile16 } from "node:fs/promises";
+import path23 from "node:path";
 
 // src/core/pattern-catalog.ts
 var import_yaml3 = __toESM(require_dist(), 1);
 init_errors();
 init_paths();
 init_state();
-import { lstat as lstat4, readFile as readFile14, realpath as realpath4 } from "node:fs/promises";
-import path19 from "node:path";
+import { lstat as lstat4, readFile as readFile15, realpath as realpath4 } from "node:fs/promises";
+import path22 from "node:path";
 
 // src/core/pattern-snapshot.ts
-var import_fast_glob10 = __toESM(require_out4(), 1);
+var import_fast_glob11 = __toESM(require_out4(), 1);
 init_errors();
 init_paths();
 init_state();
 init_utils();
-import { readFile as readFile13, writeFile as writeFile6 } from "node:fs/promises";
-import path18 from "node:path";
+import { readFile as readFile14, writeFile as writeFile6 } from "node:fs/promises";
+import path21 from "node:path";
 async function snapshotHashes(catalogRoot) {
-  const files = await (0, import_fast_glob10.default)("**/*", { cwd: catalogRoot, onlyFiles: true, dot: true, followSymbolicLinks: false, ignore: ["snapshot.json"] });
+  const files = await (0, import_fast_glob11.default)("**/*", { cwd: catalogRoot, onlyFiles: true, dot: true, followSymbolicLinks: false, ignore: ["snapshot.json"] });
   const hashes = [];
   for (const relative of files.sort()) {
-    const content = await readFile13(path18.join(catalogRoot, relative), "utf8");
+    const content = await readFile14(path21.join(catalogRoot, relative), "utf8");
     hashes.push(`00-system/patterns/${relative.replaceAll("\\", "/")}:${sha256(content)}`);
   }
   return hashes;
 }
 async function writePatternSnapshot(catalogRoot) {
   const hashes = await snapshotHashes(catalogRoot);
-  await writeFile6(path18.join(catalogRoot, "snapshot.json"), stableJson({ schema_version: 1, catalog_hash: sha256(hashes.join("\n")), files: hashes.length }), "utf8");
+  await writeFile6(path21.join(catalogRoot, "snapshot.json"), stableJson({ schema_version: 1, catalog_hash: sha256(hashes.join("\n")), files: hashes.length }), "utf8");
   return hashes.length;
 }
 function isSnapshot(value) {
@@ -19996,13 +20215,13 @@ function isSnapshot(value) {
 }
 async function verifyPatternSnapshot(projectRoot, catalogRoot) {
   if (!isWithin(projectRoot, catalogRoot)) throw new SdlcError("Pinned pattern catalog must be inside the documentation repository.");
-  const snapshotFile = path18.join(catalogRoot, "snapshot.json");
+  const snapshotFile = path21.join(catalogRoot, "snapshot.json");
   if (!await pathExists(snapshotFile)) throw new SdlcError("Pinned pattern snapshot metadata is missing.");
   await assertSafeManagedPath(projectRoot, snapshotFile);
   const snapshot = await readJson(snapshotFile);
   if (!isSnapshot(snapshot)) throw new SdlcError("Pinned pattern snapshot metadata is invalid.");
-  const files = await (0, import_fast_glob10.default)("**/*", { cwd: catalogRoot, onlyFiles: true, dot: true, followSymbolicLinks: false, ignore: ["snapshot.json"] });
-  for (const relative of files.sort()) await assertSafeManagedPath(projectRoot, path18.join(catalogRoot, relative));
+  const files = await (0, import_fast_glob11.default)("**/*", { cwd: catalogRoot, onlyFiles: true, dot: true, followSymbolicLinks: false, ignore: ["snapshot.json"] });
+  for (const relative of files.sort()) await assertSafeManagedPath(projectRoot, path21.join(catalogRoot, relative));
   const hashes = await snapshotHashes(catalogRoot);
   if (hashes.length !== snapshot.files || sha256(hashes.join("\n")) !== snapshot.catalog_hash) throw new SdlcError("Pinned pattern snapshot was modified; migrate or reinitialize patterns instead of editing them in place.");
 }
@@ -20103,14 +20322,14 @@ async function assertSourceFile(root2, file) {
   if (!isWithin(realRoot, realFile)) throw new SdlcError(`Pattern source resolves outside its catalog root: ${file}`);
 }
 async function loadPatternCatalog(catalogRoot, projectRoot) {
-  const root2 = path19.resolve(catalogRoot);
+  const root2 = path22.resolve(catalogRoot);
   if (projectRoot) await verifyPatternSnapshot(projectRoot, root2);
-  const candidates = [path19.join(root2, "catalog.yaml"), path19.join(root2, "catalog.yml")];
+  const candidates = [path22.join(root2, "catalog.yaml"), path22.join(root2, "catalog.yml")];
   const file = (await Promise.all(candidates.map(async (candidate) => await pathExists(candidate) ? candidate : null))).find(Boolean);
   if (!file) throw new SdlcError(`Pattern catalog is missing from ${root2}.`);
   if (projectRoot) await assertSafeManagedPath(projectRoot, file);
   else await assertSourceFile(root2, file);
-  const raw = import_yaml3.default.parse(await readFile14(file, "utf8"));
+  const raw = import_yaml3.default.parse(await readFile15(file, "utf8"));
   if (!raw || typeof raw !== "object" || Array.isArray(raw)) throw new SdlcError(`Pattern catalog must be a mapping: ${file}`);
   const data = raw;
   const collection = data.patterns ?? data.artifact_patterns;
@@ -20124,18 +20343,18 @@ async function loadPatternCatalog(catalogRoot, projectRoot) {
     } catch {
       throw new SdlcError(`Invalid ID pattern for ${pattern.artifact_type}: ${pattern.id_pattern}`);
     }
-    if (path19.isAbsolute(pattern.template) || path19.isAbsolute(pattern.target) || pattern.target.includes("..")) throw new SdlcError(`Unsafe catalog path for ${pattern.artifact_type}.`);
+    if (path22.isAbsolute(pattern.template) || path22.isAbsolute(pattern.target) || pattern.target.includes("..")) throw new SdlcError(`Unsafe catalog path for ${pattern.artifact_type}.`);
     const exampleId = SCALABLE_EXAMPLE_IDS[pattern.artifact_type];
     const exampleTarget = pattern.target.replaceAll("{{ID}}", exampleId ?? "").replaceAll("{id}", exampleId ?? "").replaceAll("\\", "/");
     if (!exampleId || exampleTarget.includes("{{") || !SCALABLE_LOCATIONS[pattern.artifact_type]?.test(exampleTarget)) throw new SdlcError(`Catalog target violates the approved location for ${pattern.artifact_type}: ${pattern.target}`);
-    await assertSourceFile(root2, path19.resolve(root2, pattern.template));
+    await assertSourceFile(root2, path22.resolve(root2, pattern.template));
   }
   const foundationCollection = data.foundations;
   const foundationEntries = Array.isArray(foundationCollection) ? foundationCollection.map((item) => normalizeFoundation(item)) : foundationCollection && typeof foundationCollection === "object" ? Object.entries(foundationCollection).map(([type, item]) => normalizeFoundation(item, type)) : [];
   const foundations = foundationEntries.filter(Boolean);
   if (foundations.length !== foundationEntries.length) throw new SdlcError(`Pattern catalog contains incomplete foundation entries: ${file}`);
   for (const foundation of foundations) {
-    if (path19.isAbsolute(foundation.path) || foundation.path.split(/[\\/]/).includes("..")) throw new SdlcError(`Unsafe foundation path for ${foundation.artifact_type}.`);
+    if (path22.isAbsolute(foundation.path) || foundation.path.split(/[\\/]/).includes("..")) throw new SdlcError(`Unsafe foundation path for ${foundation.artifact_type}.`);
     const normalizedPath = foundation.path.replaceAll("\\", "/");
     const canonical = CANONICAL_MARKDOWN[normalizedPath];
     if (!canonical || canonical[1] !== foundation.artifact_type) throw new SdlcError(`Foundation contract does not match a canonical path and type: ${foundation.path} (${foundation.artifact_type}).`);
@@ -20148,7 +20367,7 @@ async function loadPatternCatalog(catalogRoot, projectRoot) {
   if (systemDocuments.length !== documentEntries.length) throw new SdlcError(`Pattern catalog contains incomplete system-document entries: ${file}`);
   for (const document of systemDocuments) {
     const normalizedPath = document.path.replaceAll("\\", "/");
-    if (path19.isAbsolute(document.path) || normalizedPath.split("/").includes("..")) throw new SdlcError(`Unsafe system-document path: ${document.path}.`);
+    if (path22.isAbsolute(document.path) || normalizedPath.split("/").includes("..")) throw new SdlcError(`Unsafe system-document path: ${document.path}.`);
     if (!normalizedPath.startsWith("00-system/") || normalizedPath.startsWith("00-system/patterns/")) throw new SdlcError(`System-document contracts cover 00-system documents only: ${document.path}.`);
   }
   if (new Set(systemDocuments.map((item) => item.path.replaceAll("\\", "/"))).size !== systemDocuments.length) throw new SdlcError("System-document paths must be unique.");
@@ -20161,11 +20380,11 @@ async function loadPatternCatalog(catalogRoot, projectRoot) {
   };
 }
 async function resolveCatalog(root2, runtimeRoot2) {
-  const pinned = path19.join(root2, "00-system", "patterns");
-  const hasPinned = await pathExists(path19.join(pinned, "catalog.yaml")) || await pathExists(path19.join(pinned, "catalog.yml"));
+  const pinned = path22.join(root2, "00-system", "patterns");
+  const hasPinned = await pathExists(path22.join(pinned, "catalog.yaml")) || await pathExists(path22.join(pinned, "catalog.yml"));
   if (hasPinned) return loadPatternCatalog(pinned, root2);
-  if (await pathExists(path19.join(root2, "sdlc.config.yaml"))) throw new SdlcError("Initialized repository is missing its pinned pattern catalog; run an explicit migration before creating artifacts.");
-  return loadPatternCatalog(path19.join(runtimeRoot2, "resources", "artifact-patterns"));
+  if (await pathExists(path22.join(root2, "sdlc.config.yaml"))) throw new SdlcError("Initialized repository is missing its pinned pattern catalog; run an explicit migration before creating artifacts.");
+  return loadPatternCatalog(path22.join(runtimeRoot2, "resources", "artifact-patterns"));
 }
 
 // src/core/content-contracts.ts
@@ -20249,12 +20468,12 @@ async function validateAgainstContract(artifact2, contract, template) {
   return findings;
 }
 async function validateArtifact(artifact2, pattern, catalogRoot) {
-  const template = await readFile15(path20.join(catalogRoot, pattern.template), "utf8");
+  const template = await readFile16(path23.join(catalogRoot, pattern.template), "utf8");
   return validateAgainstContract(artifact2, mergedContract(pattern, deriveContract(template)), template);
 }
 async function validateActiveArtifactContent(root2, artifacts, frozen = /* @__PURE__ */ new Set()) {
-  const catalogRoot = path20.join(root2, "00-system", "patterns");
-  if (!await pathExists(path20.join(catalogRoot, "catalog.yaml")) && !await pathExists(path20.join(catalogRoot, "catalog.yml"))) {
+  const catalogRoot = path23.join(root2, "00-system", "patterns");
+  if (!await pathExists(path23.join(catalogRoot, "catalog.yaml")) && !await pathExists(path23.join(catalogRoot, "catalog.yml"))) {
     return [{ severity: "error", code: "PATTERN_SNAPSHOT_MISSING", message: "Pinned pattern snapshot is missing; an explicit migration is required before validation or baselining." }];
   }
   const catalog = await loadPatternCatalog(catalogRoot, root2);
@@ -20287,8 +20506,8 @@ init_screen_coverage();
 
 // src/core/system-documents.ts
 init_markdown();
-import { readFile as readFile16 } from "node:fs/promises";
-import path21 from "node:path";
+import { readFile as readFile17 } from "node:fs/promises";
+import path24 from "node:path";
 init_paths();
 init_state();
 function tableMatches2(columns, required) {
@@ -20322,8 +20541,8 @@ function checkDocument(relative, body, contract) {
   return problems.map((problem) => `${relative} ${problem}`);
 }
 async function systemDocumentFindings(root2) {
-  const catalogRoot = path21.join(root2, "00-system", "patterns");
-  if (!await pathExists(path21.join(catalogRoot, "catalog.yaml")) && !await pathExists(path21.join(catalogRoot, "catalog.yml"))) return [];
+  const catalogRoot = path24.join(root2, "00-system", "patterns");
+  if (!await pathExists(path24.join(catalogRoot, "catalog.yaml")) && !await pathExists(path24.join(catalogRoot, "catalog.yml"))) return [];
   let documents;
   try {
     documents = (await loadPatternCatalog(catalogRoot, root2)).system_documents;
@@ -20333,13 +20552,13 @@ async function systemDocumentFindings(root2) {
   const findings = [];
   for (const document of documents) {
     const relative = document.path.replaceAll("\\", "/");
-    const file = path21.join(root2, relative);
+    const file = path24.join(root2, relative);
     if (!await pathExists(file)) {
       findings.push({ severity: "warning", code: "SYSTEM_DOCUMENT_INCOMPLETE", message: `${relative} is declared by the pinned catalog and absent from this repository; restore it from the project template.`, file: relative });
       continue;
     }
     await assertSafeManagedPath(root2, file);
-    const problems = checkDocument(relative, await readFile16(file, "utf8"), document.content);
+    const problems = checkDocument(relative, await readFile17(file, "utf8"), document.content);
     for (const problem of problems) {
       findings.push({ severity: "warning", code: "SYSTEM_DOCUMENT_INCOMPLETE", message: `${problem}; this repository's own rules are stated here, so a gap here is a gap in every rule downstream work is graded against.`, file: relative });
     }
@@ -20447,6 +20666,102 @@ function baselinesOpen(firstBaseline, activeBaseline) {
 // src/core/validation.ts
 init_platform_evidence();
 init_implementation_evidence();
+
+// src/core/selection-evidence.ts
+init_impact();
+
+// src/core/test-selection.ts
+var testTypes = {
+  unit: /* @__PURE__ */ new Set(["unit_test_backend", "unit_test_frontend", "unit_test_job"]),
+  integration: /* @__PURE__ */ new Set(["integration_test"]),
+  system: /* @__PURE__ */ new Set(["system_test"])
+};
+function selectTests(artifacts, graph, affected) {
+  const affectedSet = new Set(affected);
+  const affectedTypes = new Set(graph.nodes.filter((node) => affectedSet.has(node.id) && node.status !== "retired" && node.status !== "superseded").map((node) => node.type));
+  const required = {
+    unit: ["feature", "use_case", "screen", "component", "subsystem", "api_processing", "entity", "job", "access_control", "system_invariants", "error_catalog", "openapi_contract", "screen_transitions"].some((type) => affectedTypes.has(type)),
+    integration: ["business_flow", "subsystem", "api_processing", "entity", "external_integration", "job", "event", "platform_target", "access_control", "quality_requirements", "system_invariants", "error_catalog", "openapi_contract", "physical_schema"].some((type) => affectedTypes.has(type)),
+    system: ["feature", "use_case", "business_flow", "platform_target", "access_control", "quality_requirements", "system_invariants", "openapi_contract", "screen_transitions"].some((type) => affectedTypes.has(type))
+  };
+  const selected = { unit: [], integration: [], system: [] };
+  for (const [level, types] of Object.entries(testTypes)) {
+    selected[level] = artifacts.filter((artifact2) => artifact2.status !== "retired" && artifact2.status !== "superseded" && types.has(artifact2.artifact_type) && artifact2.depends_on.some((id2) => affectedSet.has(id2))).map((artifact2) => artifact2.id).sort();
+  }
+  const missing = Object.keys(required).filter((level) => required[level] && selected[level].length === 0).map((level) => `No ${level.toUpperCase()} specification covers the affected artifacts.`);
+  return { selected, required, missing };
+}
+
+// src/core/selection-evidence.ts
+init_execution_records();
+init_state();
+init_project();
+function selectionEvidenceEntries(artifacts, graph, baseline2, flow2, records) {
+  if (!flow2 || flow2.type !== "evolution" && flow2.type !== "reconciliation") return [];
+  const flowRecords = records.filter((record2) => record2.flow_id === flow2.id);
+  if (flowRecords.length === 0) return [];
+  const impact2 = calculateImpact(artifacts, graph, baseline2);
+  const selection = selectTests(artifacts, graph, impact2.affected);
+  const selected = [.../* @__PURE__ */ new Set([...selection.selected.unit, ...selection.selected.integration, ...selection.selected.system])].sort();
+  const attributed = new Set(flowRecords.flatMap((record2) => (record2.cases ?? []).map((item) => item.spec_id).filter((id2) => Boolean(id2))));
+  const byId = new Map(artifacts.map((artifact2) => [artifact2.id, artifact2]));
+  return selected.filter((spec) => !attributed.has(spec)).flatMap((spec) => {
+    const artifact2 = byId.get(spec);
+    return artifact2 ? [{ spec, file: artifact2.file, flowId: flow2.id }] : [];
+  });
+}
+async function selectionEvidenceFindings(root2, artifacts, graph) {
+  let entries = [];
+  try {
+    const baseline2 = await loadBaseline(root2).catch(() => null);
+    const flow2 = await loadActiveFlow(root2).catch(() => null);
+    entries = selectionEvidenceEntries(artifacts, graph, baseline2, flow2, await loadExecutionRecords(root2));
+  } catch {
+    return [];
+  }
+  return entries.map((entry) => ({
+    severity: "warning",
+    code: "SPEC_EXECUTION_UNATTRIBUTED",
+    message: `${entry.spec} was selected by ${entry.flowId}'s affected closure, but no ingested report of this flow attributes a case to it \u2014 a command that declares no report attributes nothing, and an ambiguous symbol join records no specification; declare a report on the covering command, repair the Implementation mapping rows so its cases join, or let this warning stand as the record that selection outran attributable execution.`,
+    file: entry.file
+  }));
+}
+
+// src/core/claim-dependencies.ts
+init_claims();
+var QUALIFIED_REFERENCE = /\b([A-Z][A-Z0-9]*(?:-[A-Z0-9]+)+)#([A-Z][A-Z0-9]*-[0-9]+[A-Z0-9-]*)\b/g;
+var LIVE_STATUSES = /* @__PURE__ */ new Set(["draft", "active", "deprecated"]);
+function claimDependencyEntries(artifacts) {
+  const byId = new Map(artifacts.map((artifact2) => [artifact2.id, artifact2]));
+  const entries = [];
+  for (const spec of artifacts) {
+    if (!TEST_TYPES.has(spec.artifact_type) || !LIVE_STATUSES.has(spec.status)) continue;
+    const claimed = /* @__PURE__ */ new Map();
+    for (const [, owner, localId] of spec.body.matchAll(QUALIFIED_REFERENCE)) {
+      if (!owner || !localId || owner === spec.id) continue;
+      const target = byId.get(owner);
+      if (!target || TEST_TYPES.has(target.artifact_type)) continue;
+      if (spec.depends_on.includes(owner)) continue;
+      const ids = claimed.get(owner) ?? /* @__PURE__ */ new Set();
+      ids.add(localId);
+      claimed.set(owner, ids);
+    }
+    for (const [owner, ids] of [...claimed.entries()].sort(([a], [b2]) => a.localeCompare(b2))) {
+      entries.push({ spec: spec.id, file: spec.file, owner, localIds: [...ids].sort() });
+    }
+  }
+  return entries.sort((a, b2) => `${a.spec}\0${a.owner}`.localeCompare(`${b2.spec}\0${b2.owner}`));
+}
+function claimDependencyFindings(artifacts) {
+  return claimDependencyEntries(artifacts).map((entry) => ({
+    severity: "warning",
+    code: "CLAIM_WITHOUT_DEPENDENCY",
+    message: `${entry.spec} claims ${entry.localIds.map((id2) => `${entry.owner}#${id2}`).join(", ")} but does not name ${entry.owner} in depends_on, so the claim is invisible to the reverse closure and a change to ${entry.owner} would never select this specification; declare ${entry.owner} as a prerequisite (DR-12), or drop the claim if this specification does not verify it.`,
+    file: entry.file
+  }));
+}
+
+// src/core/validation.ts
 init_project();
 init_execution_records();
 init_retrieval_records();
@@ -20575,11 +20890,11 @@ async function validateProject(root2, artifacts) {
     findings.push({ severity: "error", code: "CONFIG_INVALID", message: String(error) });
   }
   for (const file of requiredFiles) {
-    if (!await pathExists(path22.join(root2, file))) findings.push({ severity: "error", code: "REQUIRED_FILE_MISSING", message: `Required file is missing: ${file}`, file });
+    if (!await pathExists(path25.join(root2, file))) findings.push({ severity: "error", code: "REQUIRED_FILE_MISSING", message: `Required file is missing: ${file}`, file });
   }
   if (config) {
     for (const source of config.implementation_sources) {
-      const sourceRoot = path22.resolve(root2, source.path);
+      const sourceRoot = path25.resolve(root2, source.path);
       if (!await pathExists(sourceRoot)) findings.push({ severity: "error", code: "IMPLEMENTATION_SOURCE_MISSING", message: `Configured implementation source is missing: ${source.id} (${source.path})` });
     }
   }
@@ -20599,7 +20914,7 @@ async function validateProject(root2, artifacts) {
     if (canonical && (artifact2.id !== canonical[0] || artifact2.artifact_type !== canonical[1])) findings.push({ severity: "error", code: "CANONICAL_IDENTITY_INVALID", message: `${artifact2.file} must be ${canonical[0]} with type ${canonical[1]}`, file: artifact2.file });
     else if (!canonical && CANONICAL_TYPES.has(artifact2.artifact_type)) findings.push({ severity: "error", code: "CANONICAL_LOCATION_INVALID", message: `${artifact2.artifact_type} is a singleton canonical type and cannot appear at ${artifact2.file}`, file: artifact2.file });
     else if (SCALABLE_LOCATIONS[artifact2.artifact_type] && !SCALABLE_LOCATIONS[artifact2.artifact_type].test(artifact2.file)) findings.push({ severity: "error", code: "ARTIFACT_LOCATION_INVALID", message: `${artifact2.artifact_type} cannot appear at ${artifact2.file}`, file: artifact2.file });
-    else if (SCALABLE_LOCATIONS[artifact2.artifact_type] && path22.basename(artifact2.file, ".md") !== artifact2.id) findings.push({ severity: "error", code: "ARTIFACT_FILENAME_MISMATCH", message: `${artifact2.id} must use the matching filename ${artifact2.id}.md`, file: artifact2.file });
+    else if (SCALABLE_LOCATIONS[artifact2.artifact_type] && path25.basename(artifact2.file, ".md") !== artifact2.id) findings.push({ severity: "error", code: "ARTIFACT_FILENAME_MISMATCH", message: `${artifact2.id} must use the matching filename ${artifact2.id}.md`, file: artifact2.file });
     else if (FIXED_TYPES.has(artifact2.artifact_type)) {
       const expected = expectedContractIdentity(artifact2.artifact_type, artifact2.file);
       if (!expected || artifact2.id !== expected) findings.push({ severity: "error", code: "FIXED_IDENTITY_INVALID", message: `${artifact2.artifact_type} has an invalid fixed identity`, file: artifact2.file });
@@ -20642,8 +20957,8 @@ async function validateProject(root2, artifacts) {
           findings.push({ severity: "error", code: "IMPLEMENTATION_MAPPING_INVALID", message: `${artifact2.id} implementation mapping must be <source-id>:<relative-path>: ${mapping}`, file: artifact2.file });
           continue;
         }
-        const sourceRoot = path22.resolve(root2, source.path);
-        const target = path22.resolve(sourceRoot, relative);
+        const sourceRoot = path25.resolve(root2, source.path);
+        const target = path25.resolve(sourceRoot, relative);
         if (!isWithin(sourceRoot, target)) findings.push({ severity: "error", code: "IMPLEMENTATION_MAPPING_ESCAPE", message: `${artifact2.id} implementation mapping escapes source ${sourceId}: ${mapping}`, file: artifact2.file });
         else if (!await pathExists(target)) findings.push({ severity: "error", code: "IMPLEMENTATION_TARGET_MISSING", message: `${artifact2.id} implementation target does not exist: ${mapping}`, file: artifact2.file });
         else {
@@ -20667,6 +20982,7 @@ async function validateProject(root2, artifacts) {
   for (const broken of brokenCaseReferences(artifacts)) {
     findings.push({ severity: "warning", code: "CASE_REFERENCE_BROKEN", message: `${broken.reference} names a case ${broken.specification} does not declare`, file: broken.file });
   }
+  findings.push(...claimDependencyFindings(artifacts));
   findings.push(...foundationCoverageFindings(artifacts));
   findings.push(...screenCoverageFindings(artifacts));
   findings.push(...await systemDocumentFindings(root2));
@@ -20679,8 +20995,11 @@ async function validateProject(root2, artifacts) {
   if (config) {
     findings.push(...implementationMappingFindings(config, artifacts, graph));
     findings.push(...await implementationDriftFindings(root2, config, artifacts, await loadBaseline(root2).catch(() => null)));
+    findings.push(...await documentationDriftFindings(root2, config, artifacts, await loadBaseline(root2).catch(() => null)));
     findings.push(...await implementationSymbolFindings(root2, config, artifacts));
   }
+  findings.push(...await impactClassificationFindings(root2, artifacts, graph));
+  findings.push(...await selectionEvidenceFindings(root2, artifacts, graph));
   const order = topologicalOrder(graph);
   if (order.cycles.length > 0) findings.push({ severity: "error", code: "DEPENDENCY_CYCLE", message: `Dependency cycle contains: ${order.cycles.join(", ")}` });
   for (const artifact2 of artifacts) {
@@ -20696,7 +21015,7 @@ async function validateProject(root2, artifacts) {
     }
   }
   try {
-    const openapi = import_yaml4.default.parse(await readFile17(path22.join(root2, "03-design/interfaces/openapi.yaml"), "utf8"));
+    const openapi = import_yaml4.default.parse(await readFile18(path25.join(root2, "03-design/interfaces/openapi.yaml"), "utf8"));
     if (openapi.openapi !== "3.1.0") findings.push({ severity: "error", code: "OPENAPI_VERSION", message: "openapi.yaml must use OpenAPI 3.1.0" });
   } catch (error) {
     findings.push({ severity: "error", code: "OPENAPI_INVALID", message: `Invalid openapi.yaml: ${String(error)}` });
@@ -20762,37 +21081,15 @@ async function validateProject(root2, artifacts) {
   return { valid: findings.every((item) => item.severity !== "error"), findings, artifact_count: artifacts.length };
 }
 
-// src/core/test-selection.ts
-var testTypes = {
-  unit: /* @__PURE__ */ new Set(["unit_test_backend", "unit_test_frontend", "unit_test_job"]),
-  integration: /* @__PURE__ */ new Set(["integration_test"]),
-  system: /* @__PURE__ */ new Set(["system_test"])
-};
-function selectTests(artifacts, graph, affected) {
-  const affectedSet = new Set(affected);
-  const affectedTypes = new Set(graph.nodes.filter((node) => affectedSet.has(node.id) && node.status !== "retired" && node.status !== "superseded").map((node) => node.type));
-  const required = {
-    unit: ["feature", "use_case", "screen", "component", "subsystem", "api_processing", "entity", "job", "access_control", "system_invariants", "error_catalog", "openapi_contract", "screen_transitions"].some((type) => affectedTypes.has(type)),
-    integration: ["business_flow", "subsystem", "api_processing", "entity", "external_integration", "job", "event", "platform_target", "access_control", "quality_requirements", "system_invariants", "error_catalog", "openapi_contract", "physical_schema"].some((type) => affectedTypes.has(type)),
-    system: ["feature", "use_case", "business_flow", "platform_target", "access_control", "quality_requirements", "system_invariants", "openapi_contract", "screen_transitions"].some((type) => affectedTypes.has(type))
-  };
-  const selected = { unit: [], integration: [], system: [] };
-  for (const [level, types] of Object.entries(testTypes)) {
-    selected[level] = artifacts.filter((artifact2) => artifact2.status !== "retired" && artifact2.status !== "superseded" && types.has(artifact2.artifact_type) && artifact2.depends_on.some((id2) => affectedSet.has(id2))).map((artifact2) => artifact2.id).sort();
-  }
-  const missing = Object.keys(required).filter((level) => required[level] && selected[level].length === 0).map((level) => `No ${level.toUpperCase()} specification covers the affected artifacts.`);
-  return { selected, required, missing };
-}
-
 // src/cli/main.ts
 init_config();
 
 // src/core/verification.ts
 import { spawn } from "node:child_process";
 import { StringDecoder } from "node:string_decoder";
-import { readFile as readFile18, readdir as readdir6, writeFile as writeFile7 } from "node:fs/promises";
+import { readFile as readFile19, readdir as readdir7, writeFile as writeFile7 } from "node:fs/promises";
 import os from "node:os";
-import path23 from "node:path";
+import path26 from "node:path";
 
 // src/core/git.ts
 import { execFileSync as execFileSync2 } from "node:child_process";
@@ -20843,16 +21140,16 @@ async function loadVerificationPolicy(root2) {
   return { ...DEFAULT_VERIFICATION_POLICY, ...candidate };
 }
 function allowedRoots(root2, config) {
-  return [root2, ...config.implementation_sources.map((source) => path23.resolve(root2, source.path))];
+  return [root2, ...config.implementation_sources.map((source) => path26.resolve(root2, source.path))];
 }
 async function executionsForFlow(root2, flowId) {
   const directory = projectPaths(root2).executions;
   if (!await pathExists(directory)) return [];
-  const files = (await readdir6(directory)).filter((name) => name.endsWith(".json")).sort();
+  const files = (await readdir7(directory)).filter((name) => name.endsWith(".json")).sort();
   const records = [];
   for (const name of files) {
     try {
-      const candidate = await readJson(path23.join(directory, name));
+      const candidate = await readJson(path26.join(directory, name));
       if (isExecutionRecord(candidate) && candidate.flow_id === flowId) records.push(candidate);
     } catch {
     }
@@ -20911,7 +21208,7 @@ ${String(error)}`, started, ended: (/* @__PURE__ */ new Date()).toISOString(), s
 }
 async function ingestReport(definition, cwd, roots, artifacts, level) {
   if (!definition.report) return {};
-  const target = path23.resolve(cwd, definition.report.path);
+  const target = path26.resolve(cwd, definition.report.path);
   try {
     const confined = await Promise.all(roots.map(async (allowed) => {
       try {
@@ -20921,7 +21218,7 @@ async function ingestReport(definition, cwd, roots, artifacts, level) {
       }
     }));
     if (!confined.some(Boolean)) throw new SdlcError(`report path resolves outside configured sources: ${definition.report.path}`);
-    const content = await readFile18(target, "utf8");
+    const content = await readFile19(target, "utf8");
     const parsed = definition.report.format === "junit" ? parseJunit(content) : parseTap(content);
     const specs = artifacts.filter((artifact2) => LEVEL_SPEC_TYPES[level].includes(artifact2.artifact_type) && artifact2.status === "active");
     return {
@@ -20949,7 +21246,7 @@ async function executeVerificationUnlocked(root2, config, levels) {
   const planned = [];
   for (const level of levels) {
     for (const definition of config.verification[level]) {
-      const cwd = path23.resolve(root2, definition.cwd);
+      const cwd = path26.resolve(root2, definition.cwd);
       const checks = await Promise.all(roots.map(async (allowed) => {
         try {
           return await isRealPathWithin(allowed, cwd);
@@ -20972,9 +21269,9 @@ async function executeVerificationUnlocked(root2, config, levels) {
       continue;
     }
     const id2 = formatId("EXEC", state.next_execution);
-    const logFile = path23.join(projectPaths(root2).executions, `${id2}.log`);
-    const recordFile = path23.join(projectPaths(root2).executions, `${id2}.json`);
-    const resultFile = path23.join(root2, "04-verification", "results", `RESULT-${id2}.md`);
+    const logFile = path26.join(projectPaths(root2).executions, `${id2}.log`);
+    const recordFile = path26.join(projectPaths(root2).executions, `${id2}.json`);
+    const resultFile = path26.join(root2, "04-verification", "results", `RESULT-${id2}.md`);
     if (await pathExists(logFile) || await pathExists(recordFile) || await pathExists(resultFile)) throw new SdlcError(`Execution ID ${id2} is already reserved; repair state without overwriting provenance.`);
     await prepareSafeManagedPath(root2, logFile);
     await prepareSafeManagedPath(root2, recordFile);
@@ -21031,12 +21328,12 @@ async function executeVerification(root2, config, levels) {
 }
 
 // src/core/baseline.ts
-var import_fast_glob11 = __toESM(require_out4(), 1);
+var import_fast_glob12 = __toESM(require_out4(), 1);
 init_artifacts();
 init_graph();
 init_impact();
-import path24 from "node:path";
-import { readdir as readdir7 } from "node:fs/promises";
+import path27 from "node:path";
+import { readdir as readdir8 } from "node:fs/promises";
 init_config();
 init_state();
 init_project();
@@ -21060,11 +21357,11 @@ function assertFlowAllowsArtifactType(flowType, artifactType) {
   const allowed = flowType === "genesis" ? genesisCreatable : flowType === "reassessment" ? reassessmentCreatable : semanticCreatable;
   if (!allowed.has(artifactType)) throw new SdlcError(`${artifactType} cannot be created during ${flowType}.`);
 }
-function enforceFlowArtifactBoundaries(flow2, artifacts, previous, impact, flowRetrievals = []) {
+function enforceFlowArtifactBoundaries(flow2, artifacts, previous, impact2, flowRetrievals = []) {
   const previousIds = new Set(previous?.artifacts.map((artifact2) => artifact2.id) ?? []);
   const currentById = new Map(artifacts.map((artifact2) => [artifact2.id, artifact2.artifact_type]));
   const previousById = new Map(previous?.artifacts.map((artifact2) => [artifact2.id, artifact2.artifact_type]) ?? []);
-  const directTypes = new Map(impact.direct.map((id2) => [id2, currentById.get(id2) ?? previousById.get(id2) ?? "unknown"]));
+  const directTypes = new Map(impact2.direct.map((id2) => [id2, currentById.get(id2) ?? previousById.get(id2) ?? "unknown"]));
   const created = artifacts.filter((artifact2) => !previousIds.has(artifact2.id) && artifact2.id !== "SDLC-CONFIG" && !["openapi_contract", "physical_schema", "screen_transitions"].includes(artifact2.artifact_type));
   const expectedCreator = flow2.type === "genesis" ? /* @__PURE__ */ new Set(["GENESIS", flow2.id]) : /* @__PURE__ */ new Set([flow2.change_id ?? flow2.id]);
   const wronglyAttributed = created.filter((artifact2) => !expectedCreator.has(artifact2.created_by_change));
@@ -21093,12 +21390,55 @@ function enforceFlowArtifactBoundaries(flow2, artifacts, previous, impact, flowR
   }
   const semantic = flow2.type === "evolution" || flow2.type === "reconciliation";
   if (semantic && [...directTypes.values()].includes("evidence_ledger")) throw new SdlcError("Evidence changes require Evidence Reassessment so EVR advances before product repair or evolution.");
-  if (semantic && impact.direct.length === 0) throw new SdlcError(`${flow2.type} cannot create a baseline without a semantic artifact change.`);
+  if (semantic && impact2.direct.length === 0) throw new SdlcError(`${flow2.type} cannot create a baseline without a semantic artifact change.`);
 }
 
 // src/core/baseline.ts
 init_implementation_snapshot();
 init_mapping_hashes();
+
+// src/core/editorial-digests.ts
+init_utils();
+var ID_TOKEN = /\b[A-Z][A-Z0-9]*(?:-[A-Z0-9]+)+\b/g;
+var TABLE_ROW = /^\s*\|.*\|\s*$/;
+var TABLE_DIVIDER = /^\s*\|(?:\s*:?-+:?\s*\|)+\s*$/;
+function digestable(body) {
+  return normalizeText(body).replace(/<!--[\s\S]*?-->/g, "");
+}
+function idTokens(text) {
+  return (text.match(ID_TOKEN) ?? []).filter((token) => /\d/.test(token));
+}
+function idsDigest(text) {
+  return sha256([...new Set(idTokens(text))].sort().join("\n"));
+}
+function numbersDigest(text) {
+  const withoutIds = text.replace(ID_TOKEN, (token) => /\d/.test(token) ? " " : token);
+  return sha256((withoutIds.match(/-?\d+(?:\.\d+)?/g) ?? []).join("\n"));
+}
+function tablesDigest(text) {
+  const rows = text.split("\n").filter((line) => TABLE_ROW.test(line) && !TABLE_DIVIDER.test(line)).map((line) => {
+    const cells = line.trim().slice(1, -1).split("|").map((cell5) => cell5.trim());
+    const first = (cells[0] ?? "").replace(/`/g, "").trim();
+    return `${cells.length}\0${/^[A-Z][A-Z0-9]*(?:-[A-Z0-9]+)+$/.test(first) ? first : ""}`;
+  });
+  return sha256(rows.join("\n"));
+}
+function computeEditorialDigests(body) {
+  const text = digestable(body);
+  return { ids: idsDigest(text), numbers: numbersDigest(text), tables: tablesDigest(text) };
+}
+function diffEditorialDigests(stored, current) {
+  const changed = [];
+  if (stored.ids !== current.ids) changed.push("identifiers");
+  if (stored.numbers !== current.numbers) changed.push("numbers");
+  if (stored.tables !== current.tables) changed.push("table structure");
+  return changed;
+}
+
+// src/core/baseline.ts
+function editorialSyncImmutable(entry) {
+  return entry.artifact_type === "original_idea" || entry.artifact_type === "evidence_ledger" || entry.artifact_type === "test_result" || entry.artifact_type === "architectural_decision" && entry.adr_status === "accepted" || entry.status === "retired" || entry.status === "superseded" || ["engine_configuration", "openapi_contract", "physical_schema", "screen_transitions"].includes(entry.artifact_type);
+}
 function nextBaselineId(current) {
   if (!current) return "BL-000";
   const number = Number(current.slice(3));
@@ -21108,9 +21448,9 @@ function nextBaselineId(current) {
 async function flowExecutions(root2, flowId) {
   const executionsDirectory = projectPaths(root2).executions;
   if (!await pathExists(executionsDirectory)) return [];
-  await assertSafeManagedPath(root2, path24.join(executionsDirectory, ".managed-probe"));
-  for (const entry of await readdir7(executionsDirectory, { withFileTypes: true })) if (entry.isSymbolicLink() && /^EXEC-.*\.json$/.test(entry.name)) throw new SdlcError(`Execution record cannot be a symlink: ${entry.name}`);
-  const files = await (0, import_fast_glob11.default)("EXEC-*.json", { cwd: executionsDirectory, absolute: true, followSymbolicLinks: false });
+  await assertSafeManagedPath(root2, path27.join(executionsDirectory, ".managed-probe"));
+  for (const entry of await readdir8(executionsDirectory, { withFileTypes: true })) if (entry.isSymbolicLink() && /^EXEC-.*\.json$/.test(entry.name)) throw new SdlcError(`Execution record cannot be a symlink: ${entry.name}`);
+  const files = await (0, import_fast_glob12.default)("EXEC-*.json", { cwd: executionsDirectory, absolute: true, followSymbolicLinks: false });
   const records = [];
   for (const file of files) {
     await assertSafeManagedPath(root2, file);
@@ -21131,11 +21471,11 @@ async function createBaselineUnlocked(root2) {
 ${validation.findings.filter((item) => item.severity === "error").map((item) => `- ${item.code}: ${item.message}`).join("\n")}`);
   const previous = await loadBaseline(root2);
   const graph = buildGraph(artifacts);
-  const impact = calculateImpact(artifacts, graph, previous);
+  const impact2 = calculateImpact(artifacts, graph, previous);
   const flowRetrievals = (await loadRetrievalRecords(root2)).filter((record2) => record2.flow_id === flow2.id && record2.ok);
-  enforceFlowArtifactBoundaries(flow2, artifacts, previous, impact, flowRetrievals);
+  enforceFlowArtifactBoundaries(flow2, artifacts, previous, impact2, flowRetrievals);
   if (flow2.type === "evolution" || flow2.type === "reconciliation") {
-    const tests2 = selectTests(artifacts, graph, impact.affected);
+    const tests2 = selectTests(artifacts, graph, impact2.affected);
     if (tests2.missing.length > 0) throw new SdlcError(`Baseline blocked by missing test specifications:
 ${tests2.missing.map((item) => `- ${item}`).join("\n")}`);
     const unfinished = artifacts.filter((artifact2) => artifact2.created_by_change === flow2.change_id && artifact2.status === "draft");
@@ -21172,12 +21512,12 @@ ${tests2.missing.map((item) => `- ${item}`).join("\n")}`);
   if (Object.values(verification).includes("failed")) throw new SdlcError("Baseline blocked because a configured verification command failed.");
   if ((flow2.type === "evolution" || flow2.type === "reconciliation") && Object.values(verification).includes("not-run")) throw new SdlcError("Baseline blocked because configured verification commands were not run in the active flow.");
   if (flow2.type === "reconciliation") {
-    const repairedCanonical = artifacts.some((artifact2) => impact.direct.includes(artifact2.id) && artifact2.artifact_type !== "issue" && artifact2.artifact_type !== "test_result" && artifact2.id !== "SDLC-CONFIG");
+    const repairedCanonical = artifacts.some((artifact2) => impact2.direct.includes(artifact2.id) && artifact2.artifact_type !== "issue" && artifact2.artifact_type !== "test_result" && artifact2.id !== "SDLC-CONFIG");
     const successfulExecution = executions.some((record2) => record2.exit_code === 0);
     if (!repairedCanonical && !successfulExecution) throw new SdlcError("Reconciliation requires a repaired canonical artifact or a successful execution proving a code/configuration-only repair.");
   }
   if ((flow2.type === "evolution" || flow2.type === "reconciliation") && config.implementation_sources.length > 0) {
-    const required = selectTests(artifacts, graph, impact.affected).required;
+    const required = selectTests(artifacts, graph, impact2.affected).required;
     const missingExecutionLevel = Object.keys(required).filter((level) => required[level] && verification[level] === "not-configured");
     if (missingExecutionLevel.length > 0) throw new SdlcError(`Configured implementation sources require verification commands for: ${missingExecutionLevel.join(", ")}`);
   }
@@ -21209,7 +21549,10 @@ ${tests2.missing.map((item) => `- ${item}`).join("\n")}`);
     // Per-mapping content hashes are the reference point IMPLEMENTATION_DRIFT
     // compares against; recorded only when sources are configured, so an
     // unwired repository's manifest stays byte-identical.
-    ...config.implementation_sources.length > 0 ? { implementation_hashes: await collectMappingHashes(root2, config, artifacts) } : {}
+    ...config.implementation_sources.length > 0 ? { implementation_hashes: await collectMappingHashes(root2, config, artifacts) } : {},
+    // Structural digests are the reference point the editorial guard compares
+    // against, recorded for exactly the artifacts that path can absorb.
+    editorial_digests: Object.fromEntries(artifacts.filter((artifact2) => !editorialSyncImmutable(artifact2)).map((artifact2) => [artifact2.id, computeEditorialDigests(artifact2.body)]).sort(([a], [b2]) => String(a).localeCompare(String(b2))))
   };
   for (const artifact2 of artifacts) state.id_registry[artifact2.id] ??= artifact2.file;
   const open2 = openQuestions(artifacts);
@@ -21225,12 +21568,12 @@ ${tests2.missing.map((item) => `- ${item}`).join("\n")}`);
   await prepareSafeManagedPath(root2, projectPaths(root2).activeFlow);
   await writeJsonAtomic(projectPaths(root2).activeFlow, flow2);
   if (flow2.change_id) {
-    const file = path24.join(projectPaths(root2).changes, `${flow2.change_id}.json`);
+    const file = path27.join(projectPaths(root2).changes, `${flow2.change_id}.json`);
     await assertSafeManagedPath(root2, file);
     const change = await readJson(file);
     if (!isChangeRecord(change)) throw new SdlcError(`Invalid change record schema: ${file}`);
     await prepareSafeManagedPath(root2, file);
-    await writeJsonAtomic(file, { ...change, status: "baselined", successor_baseline: id2, impact });
+    await writeJsonAtomic(file, { ...change, status: "baselined", successor_baseline: id2, impact: impact2, classification: change.classification ?? {} });
   }
   await refreshProject(root2, false);
   return manifest;
@@ -21250,14 +21593,25 @@ async function syncRepresentationChangesUnlocked(root2) {
 ${errors.map((item) => `- ${item.code}: ${item.message}`).join("\n")}`);
   const current = new Map(artifacts.map((artifact2) => [artifact2.id, artifact2]));
   const synchronized = [];
+  const structural = [];
   for (const entry of baseline2.artifacts) {
     const artifact2 = current.get(entry.id);
     const relationsUnchanged = artifact2 && artifact2.artifact_type === entry.artifact_type && artifact2.title === entry.title && artifact2.created_by_change === entry.created_by_change && artifact2.status === entry.status && artifact2.supersedes === entry.supersedes && JSON.stringify(artifact2.depends_on) === JSON.stringify(entry.depends_on) && JSON.stringify(artifact2.decisions) === JSON.stringify(entry.decisions) && JSON.stringify(artifact2.writes_to) === JSON.stringify(entry.writes_to) && JSON.stringify(artifact2.implementation) === JSON.stringify(entry.implementation) && artifact2.adr_status === entry.adr_status;
     if (!artifact2 || artifact2.file !== entry.file || artifact2.hash === entry.hash || !relationsUnchanged) continue;
-    const immutable = entry.artifact_type === "original_idea" || entry.artifact_type === "evidence_ledger" || entry.artifact_type === "test_result" || entry.artifact_type === "architectural_decision" && entry.adr_status === "accepted" || entry.status === "retired" || entry.status === "superseded" || ["engine_configuration", "openapi_contract", "physical_schema", "screen_transitions"].includes(entry.artifact_type);
-    if (immutable) continue;
+    if (editorialSyncImmutable(entry)) continue;
+    const stored = baseline2.editorial_digests?.[entry.id];
+    if (stored) {
+      const changed = diffEditorialDigests(stored, computeEditorialDigests(artifact2.body));
+      if (changed.length > 0) {
+        structural.push(`${entry.id} (${changed.join(", ")})`);
+        continue;
+      }
+    }
     entry.hash = artifact2.hash;
     synchronized.push(entry.id);
+  }
+  if (structural.length > 0) {
+    throw new SdlcError(`Editorial synchronization refused: ${structural.sort().join(", ")}. An editorial edit may rewrite prose, but these changed identifiers, numbers or table structure, which state something different about the product. This is a structural check, not a review of wording: route the change through the flow that owns it \u2014 \`flow start --type evolution\` for new behavior, \`--type reconciliation\` for a defect \u2014 or restore the structural content and re-run. Baselines recorded before structural digests existed observe nothing.`);
   }
   if (synchronized.length > 0) {
     await prepareSafeManagedPath(root2, projectPaths(root2).baseline);
@@ -21273,20 +21627,12 @@ async function syncRepresentationChanges(root2) {
 init_errors();
 init_project_lock();
 
-// src/core/runtime-root.ts
-import { dirname, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
-function resolveRuntimeRoot(moduleUrl) {
-  const configured = process.env.CODEX_PLUGIN_ROOT ?? process.env.CLAUDE_PLUGIN_ROOT;
-  return configured ? resolve(configured) : resolve(dirname(fileURLToPath(moduleUrl)), "..");
-}
-
 // src/core/pattern-migration.ts
-var import_fast_glob12 = __toESM(require_out4(), 1);
+var import_fast_glob13 = __toESM(require_out4(), 1);
 init_errors();
 init_paths();
-import { mkdir as mkdir6, readFile as readFile19, rm as rm4, writeFile as writeFile8 } from "node:fs/promises";
-import path25 from "node:path";
+import { mkdir as mkdir6, readFile as readFile20, rm as rm4, writeFile as writeFile8 } from "node:fs/promises";
+import path28 from "node:path";
 init_project_lock();
 init_state();
 function shapeOf(content) {
@@ -21340,18 +21686,18 @@ async function migratePatternCatalog(root2, sourcePatternRoot, check = false) {
   return withProjectLock(root2, () => migrateUnlocked(root2, sourcePatternRoot, check));
 }
 async function migrateUnlocked(root2, sourcePatternRoot, check) {
-  const pinnedRoot = path25.join(root2, "00-system", "patterns");
-  if (!await pathExists(path25.join(pinnedRoot, "catalog.yaml")) && !await pathExists(path25.join(pinnedRoot, "catalog.yml"))) {
+  const pinnedRoot = path28.join(root2, "00-system", "patterns");
+  if (!await pathExists(path28.join(pinnedRoot, "catalog.yaml")) && !await pathExists(path28.join(pinnedRoot, "catalog.yml"))) {
     throw new SdlcError("This repository has no pinned pattern catalog to migrate; initialize it first.");
   }
-  if (!await pathExists(path25.join(sourcePatternRoot, "catalog.yaml")) && !await pathExists(path25.join(sourcePatternRoot, "catalog.yml"))) {
+  if (!await pathExists(path28.join(sourcePatternRoot, "catalog.yaml")) && !await pathExists(path28.join(sourcePatternRoot, "catalog.yml"))) {
     throw new SdlcError(`Pattern catalog is missing from ${sourcePatternRoot}.`);
   }
   await verifyPatternSnapshot(root2, pinnedRoot);
   const before = await loadPatternCatalog(pinnedRoot, root2);
   const after = await loadPatternCatalog(sourcePatternRoot);
-  const sourceFiles = (await (0, import_fast_glob12.default)("**/*", { cwd: sourcePatternRoot, onlyFiles: true, dot: true, followSymbolicLinks: false })).sort();
-  const pinnedFiles = (await (0, import_fast_glob12.default)("**/*", { cwd: pinnedRoot, onlyFiles: true, dot: true, followSymbolicLinks: false, ignore: ["snapshot.json"] })).sort();
+  const sourceFiles = (await (0, import_fast_glob13.default)("**/*", { cwd: sourcePatternRoot, onlyFiles: true, dot: true, followSymbolicLinks: false })).sort();
+  const pinnedFiles = (await (0, import_fast_glob13.default)("**/*", { cwd: pinnedRoot, onlyFiles: true, dot: true, followSymbolicLinks: false, ignore: ["snapshot.json"] })).sort();
   const stale = pinnedFiles.filter((relative) => !sourceFiles.includes(relative));
   const report = {
     from_version: before.version,
@@ -21365,14 +21711,14 @@ async function migrateUnlocked(root2, sourcePatternRoot, check) {
   };
   if (check) return report;
   for (const relative of sourceFiles) {
-    const target = path25.join(pinnedRoot, relative);
+    const target = path28.join(pinnedRoot, relative);
     if (!isWithin(pinnedRoot, target)) throw new SdlcError(`Pattern migration path escapes the pinned catalog: ${relative}`);
-    await assertSafeManagedPath(root2, path25.dirname(target));
-    await mkdir6(path25.dirname(target), { recursive: true });
-    await writeFile8(target, await readFile19(path25.join(sourcePatternRoot, relative), "utf8"), "utf8");
+    await assertSafeManagedPath(root2, path28.dirname(target));
+    await mkdir6(path28.dirname(target), { recursive: true });
+    await writeFile8(target, await readFile20(path28.join(sourcePatternRoot, relative), "utf8"), "utf8");
   }
   for (const relative of stale) {
-    const target = path25.join(pinnedRoot, relative);
+    const target = path28.join(pinnedRoot, relative);
     if (!isWithin(pinnedRoot, target)) continue;
     await rm4(target, { force: true });
   }
@@ -21411,8 +21757,8 @@ function formatMigrationReport(report) {
 }
 
 // src/core/artifact-instantiation.ts
-import { mkdir as mkdir7, readFile as readFile20, writeFile as writeFile9 } from "node:fs/promises";
-import path26 from "node:path";
+import { mkdir as mkdir7, readFile as readFile21, writeFile as writeFile9 } from "node:fs/promises";
+import path29 from "node:path";
 init_errors();
 init_paths();
 init_state();
@@ -21453,12 +21799,12 @@ function render(template, values) {
 }
 function resolveTarget(root2, pattern, id2) {
   const relative = pattern.target.replaceAll("{{ID}}", id2).replaceAll("{id}", id2);
-  if (relative.includes("{{") || path26.isAbsolute(relative)) throw new SdlcError(`Pattern target is not instantiable: ${pattern.target}`);
-  const target = path26.resolve(root2, relative);
+  if (relative.includes("{{") || path29.isAbsolute(relative)) throw new SdlcError(`Pattern target is not instantiable: ${pattern.target}`);
+  const target = path29.resolve(root2, relative);
   if (!isWithin(root2, target)) throw new SdlcError(`Artifact target escapes project root: ${relative}`);
-  const normalized = path26.relative(root2, target).replaceAll("\\", "/");
+  const normalized = path29.relative(root2, target).replaceAll("\\", "/");
   const location = SCALABLE_LOCATIONS[pattern.artifact_type];
-  if (!location || !location.test(normalized) || path26.basename(normalized, ".md") !== id2) throw new SdlcError(`Catalog target violates the approved location for ${pattern.artifact_type}: ${normalized}`);
+  if (!location || !location.test(normalized) || path29.basename(normalized, ".md") !== id2) throw new SdlcError(`Catalog target violates the approved location for ${pattern.artifact_type}: ${normalized}`);
   return target;
 }
 async function createUnlocked(root2, catalog, artifactType, id2, title) {
@@ -21472,14 +21818,14 @@ async function createUnlocked(root2, catalog, artifactType, id2, title) {
   if (title.trim() === "" || /[\r\n\0]/.test(title) || title.includes("{{")) throw new SdlcError("Artifact title must be one non-empty line without template tokens.");
   const target = resolveTarget(root2, pattern, id2);
   await prepareSafeManagedPath(root2, target);
-  if (await pathExists(target)) throw new SdlcError(`Artifact already exists: ${path26.relative(root2, target)}`);
-  const source = path26.resolve(catalog.root, pattern.template);
+  if (await pathExists(target)) throw new SdlcError(`Artifact already exists: ${path29.relative(root2, target)}`);
+  const source = path29.resolve(catalog.root, pattern.template);
   if (!isWithin(catalog.root, source)) throw new SdlcError(`Pattern source escapes catalog root: ${pattern.template}`);
   const createdBy = flow2.change_id ?? flow2.id;
-  const content = render(await readFile20(source, "utf8"), tokenValues(id2, title.trim(), createdBy));
-  await mkdir7(path26.dirname(target), { recursive: true });
+  const content = render(await readFile21(source, "utf8"), tokenValues(id2, title.trim(), createdBy));
+  await mkdir7(path29.dirname(target), { recursive: true });
   await writeFile9(target, content, { encoding: "utf8", flag: "wx" });
-  return { id: id2, artifact_type: artifactType, file: path26.relative(root2, target).replaceAll("\\", "/") };
+  return { id: id2, artifact_type: artifactType, file: path29.relative(root2, target).replaceAll("\\", "/") };
 }
 async function createArtifactFromPattern(root2, catalog, artifactType, id2, title) {
   return withProjectLock(root2, async () => {
@@ -21489,10 +21835,10 @@ async function createArtifactFromPattern(root2, catalog, artifactType, id2, titl
 }
 
 // src/core/docs-site.ts
-var import_fast_glob13 = __toESM(require_out4(), 1);
+var import_fast_glob14 = __toESM(require_out4(), 1);
 var import_yaml5 = __toESM(require_dist(), 1);
-import path27 from "node:path";
-import { mkdir as mkdir8, readFile as readFile21, rm as rm5, writeFile as writeFile10 } from "node:fs/promises";
+import path30 from "node:path";
+import { mkdir as mkdir8, readFile as readFile22, rm as rm5, writeFile as writeFile10 } from "node:fs/promises";
 
 // node_modules/marked/lib/marked.esm.js
 function L() {
@@ -22667,9 +23013,9 @@ function routeFor(file) {
   return posix.endsWith(".md") ? `${posix.slice(0, -3)}.html` : `${posix}.html`;
 }
 function relativeHref(fromRoute, toRoute) {
-  const fromDir = path27.posix.dirname(fromRoute);
-  const relative = path27.posix.relative(fromDir === "." ? "" : fromDir, toRoute);
-  return relative === "" ? path27.posix.basename(toRoute) : relative;
+  const fromDir = path30.posix.dirname(fromRoute);
+  const relative = path30.posix.relative(fromDir === "." ? "" : fromDir, toRoute);
+  return relative === "" ? path30.posix.basename(toRoute) : relative;
 }
 function escapeHtml(value) {
   return value.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;");
@@ -23054,12 +23400,12 @@ function sourceView(page, mermaidAvailable) {
 }
 async function collectSystemPages(root2) {
   const pages = [];
-  const files = await (0, import_fast_glob13.default)(["00-system/**/*.{md,yaml,json}"], { cwd: root2, onlyFiles: true, dot: false, followSymbolicLinks: false });
+  const files = await (0, import_fast_glob14.default)(["00-system/**/*.{md,yaml,json}"], { cwd: root2, onlyFiles: true, dot: false, followSymbolicLinks: false });
   for (const relative of files.sort((a, b2) => a.localeCompare(b2))) {
-    const raw = await readFile21(path27.join(root2, relative), "utf8");
+    const raw = await readFile22(path30.join(root2, relative), "utf8");
     const posix = toPosix(relative);
     if (posix.startsWith("00-system/patterns/") && posix !== "00-system/patterns/README.md") {
-      pages.push({ route: routeFor(posix), sourceFile: posix, title: path27.posix.basename(posix), kind: "source", raw });
+      pages.push({ route: routeFor(posix), sourceFile: posix, title: path30.posix.basename(posix), kind: "source", raw });
       continue;
     }
     if (posix.endsWith(".md")) {
@@ -23069,27 +23415,27 @@ async function collectSystemPages(root2) {
         pages.push({
           route: routeFor(posix),
           sourceFile: posix,
-          title: meta.title || path27.posix.basename(posix),
+          title: meta.title || path30.posix.basename(posix),
           kind: "system",
           markdown: parsed.body,
           artifact: { ...meta, file: posix, body: parsed.body, hash: "", metadata_issues: [] }
         });
       } catch {
-        pages.push({ route: routeFor(posix), sourceFile: posix, title: path27.posix.basename(posix), kind: "system", markdown: raw });
+        pages.push({ route: routeFor(posix), sourceFile: posix, title: path30.posix.basename(posix), kind: "system", markdown: raw });
       }
       continue;
     }
-    pages.push({ route: routeFor(posix), sourceFile: posix, title: path27.posix.basename(posix), kind: "source", raw });
+    pages.push({ route: routeFor(posix), sourceFile: posix, title: path30.posix.basename(posix), kind: "source", raw });
   }
   return pages;
 }
 async function collectReportPages(root2) {
   const pages = [];
-  const files = await (0, import_fast_glob13.default)(["generated/**/*.{md,json}"], { cwd: root2, onlyFiles: true, dot: false, followSymbolicLinks: false });
+  const files = await (0, import_fast_glob14.default)(["generated/**/*.{md,json}"], { cwd: root2, onlyFiles: true, dot: false, followSymbolicLinks: false });
   for (const relative of files.sort((a, b2) => a.localeCompare(b2))) {
-    const raw = await readFile21(path27.join(root2, relative), "utf8");
+    const raw = await readFile22(path30.join(root2, relative), "utf8");
     const posix = toPosix(relative);
-    const title = path27.posix.basename(posix).replace(/\.(md|json)$/, "");
+    const title = path30.posix.basename(posix).replace(/\.(md|json)$/, "");
     if (posix.endsWith(".md")) pages.push({ route: routeFor(posix), sourceFile: posix, title, kind: "report", markdown: raw });
     else pages.push({ route: routeFor(posix), sourceFile: posix, title, kind: "source", raw });
   }
@@ -23151,7 +23497,7 @@ function graphSvg(graph, idRoutes) {
   return parts.join("\n");
 }
 function groupOf(file) {
-  const dir = path27.posix.dirname(toPosix(file));
+  const dir = path30.posix.dirname(toPosix(file));
   return dir === "." ? "root" : dir;
 }
 function graphPage(graph, idRoutes, titles) {
@@ -23224,7 +23570,7 @@ function indexPage(pages, graph, projectLabel) {
   const sections2 = [...byLayer.keys()].sort().map((layer) => {
     const byGroup = /* @__PURE__ */ new Map();
     for (const page of byLayer.get(layer) ?? []) {
-      const group = path27.posix.dirname(page.sourceFile).split("/").slice(1).join("/");
+      const group = path30.posix.dirname(page.sourceFile).split("/").slice(1).join("/");
       const list = byGroup.get(group) ?? [];
       list.push(page);
       byGroup.set(group, list);
@@ -23996,10 +24342,10 @@ var SITE_JS = `(function () {
 })();
 `;
 function resolveOutDir(root2, out) {
-  const resolved = path27.resolve(root2, out ?? path27.join(projectPaths(root2).cache, "site"));
-  if (path27.resolve(resolved) === path27.resolve(root2)) throw new SdlcError("Docs site output cannot be the project root.");
+  const resolved = path30.resolve(root2, out ?? path30.join(projectPaths(root2).cache, "site"));
+  if (path30.resolve(resolved) === path30.resolve(root2)) throw new SdlcError("Docs site output cannot be the project root.");
   if (isWithin(root2, resolved)) {
-    const relative = toPosix(path27.relative(root2, resolved));
+    const relative = toPosix(path30.relative(root2, resolved));
     const managed = /^(0[0-5]-[a-z-]+|generated)(\/|$)/.test(relative);
     if (managed) throw new SdlcError(`Docs site output cannot live inside managed content: ${relative}`);
   }
@@ -24008,7 +24354,7 @@ function resolveOutDir(root2, out) {
 async function buildDocsSite(root2, options = {}) {
   const outDir = resolveOutDir(root2, options.out);
   if (!await pathExists(projectPaths(root2).config)) {
-    throw new SdlcError(`Not an initialized documentation repository (missing ${path27.basename(projectPaths(root2).config)}): ${root2}`);
+    throw new SdlcError(`Not an initialized documentation repository (missing ${path30.basename(projectPaths(root2).config)}): ${root2}`);
   }
   const artifacts = await scanArtifacts(root2);
   const graph = buildGraph(artifacts);
@@ -24032,7 +24378,7 @@ async function buildDocsSite(root2, options = {}) {
   for (const page of pages) if (page.artifact?.id) idRoutes.set(page.artifact.id, page.route);
   const matcher = buildIdMatcher([...idRoutes.keys()]);
   const projectLabel = await projectLabelFor(root2);
-  const mermaidSource = options.mermaidAsset && await pathExists(options.mermaidAsset) ? await readFile21(options.mermaidAsset, "utf8") : null;
+  const mermaidSource = options.mermaidAsset && await pathExists(options.mermaidAsset) ? await readFile22(options.mermaidAsset, "utf8") : null;
   let linkedTotal = 0;
   const rendered = /* @__PURE__ */ new Map();
   for (const page of pages) {
@@ -24077,31 +24423,31 @@ function supersededBanner(artifact2, backlinks, idRoutes, route) {
 }
 async function projectLabelFor(root2) {
   try {
-    const raw = await readFile21(projectPaths(root2).config, "utf8");
+    const raw = await readFile22(projectPaths(root2).config, "utf8");
     const parsed = import_yaml5.default.parse(raw);
     if (parsed?.project_id) return parsed.project_id;
   } catch {
   }
-  return path27.basename(root2);
+  return path30.basename(root2);
 }
 async function writeSite(root2, outDir, rendered) {
-  const manifestPath = path27.join(outDir, MANIFEST_FILE);
+  const manifestPath = path30.join(outDir, MANIFEST_FILE);
   if (await pathExists(outDir)) {
     if (await pathExists(manifestPath)) {
-      const previous = JSON.parse(await readFile21(manifestPath, "utf8"));
+      const previous = JSON.parse(await readFile22(manifestPath, "utf8"));
       for (const file of previous.files ?? []) {
-        const target = path27.join(outDir, file);
+        const target = path30.join(outDir, file);
         if (isWithin(outDir, target)) await rm5(target, { force: true });
       }
     } else {
-      const existing = await (0, import_fast_glob13.default)(["**/*"], { cwd: outDir, onlyFiles: true, dot: true });
+      const existing = await (0, import_fast_glob14.default)(["**/*"], { cwd: outDir, onlyFiles: true, dot: true });
       if (existing.length > 0) throw new SdlcError(`Docs site output directory is not empty and was not produced by docs build: ${outDir}`);
     }
   }
   const files = [...rendered.keys()].sort((a, b2) => a.localeCompare(b2));
   for (const file of files) {
-    const target = path27.join(outDir, file);
-    await mkdir8(path27.dirname(target), { recursive: true });
+    const target = path30.join(outDir, file);
+    await mkdir8(path30.dirname(target), { recursive: true });
     await writeFile10(target, rendered.get(file) ?? "", "utf8");
   }
   await writeFile10(manifestPath, `${JSON.stringify({ schema_version: 1, files }, null, 2)}
@@ -24109,7 +24455,7 @@ async function writeSite(root2, outDir, rendered) {
   const cacheDir = projectPaths(root2).cache;
   if (isWithin(cacheDir, outDir)) {
     await mkdir8(cacheDir, { recursive: true });
-    await writeFile10(path27.join(cacheDir, ".gitignore"), "*\n", "utf8");
+    await writeFile10(path30.join(cacheDir, ".gitignore"), "*\n", "utf8");
   }
 }
 
@@ -24259,8 +24605,8 @@ async function searxngSearch(config, query, timeoutMs) {
 
 // src/core/research.ts
 init_errors();
-import { readFile as readFile22 } from "node:fs/promises";
-import path28 from "node:path";
+import { readFile as readFile23 } from "node:fs/promises";
+import path31 from "node:path";
 init_state();
 init_utils();
 init_project();
@@ -24619,10 +24965,10 @@ async function researchCrawl(root2, opts) {
   return { records, pages_returned: records.filter((record2) => record2.ok).length, page_cap: pageCap };
 }
 async function retrievalBody(root2, record2) {
-  const file = path28.resolve(root2, retrievalBodyFile(record2.id));
+  const file = path31.resolve(root2, retrievalBodyFile(record2.id));
   let text;
   try {
-    text = await readFile22(file, "utf8");
+    text = await readFile23(file, "utf8");
   } catch {
     throw new SdlcError(`Retrieval body for ${record2.id} is missing; validate reports broken provenance.`);
   }
@@ -24687,7 +25033,7 @@ function print(value, json = false) {
   if (json || typeof value !== "string") console.log(JSON.stringify(value, null, 2));
   else console.log(value);
 }
-program2.name("ai-saas-sdlc").description("Deterministic engine for AI SaaS SDLC documentation flows.").version("1.19.0");
+program2.name("ai-saas-sdlc").description("Deterministic engine for AI SaaS SDLC documentation flows.").version("1.20.0");
 program2.command("init").description("Initialize a centralized documentation repository.").option("--project-id <id>", "Stable project identifier").option("--idea <text>", "Raw idea preserved verbatim", "").option("--force", "Initialize even though the directory contains a code-project marker").action(async (options) => {
   const projectId = options.projectId ?? root.split(/[\\/]/).at(-1)?.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") ?? "saas-project";
   await withProjectLock(root, async () => {
@@ -24756,7 +25102,11 @@ flow.command("checkpoint").description("Record the checkpoint an open flow has r
 });
 flow.command("next").description("Report the open flow's progress and the exact command to run next.").option("--json", "Emit JSON").action(async (options) => print(await flowGuidance(root), Boolean(options.json)));
 flow.command("close").option("--json", "Emit JSON").action(async (options) => print(await closeFlow(root), Boolean(options.json)));
-program2.command("impact").description("Compute direct changes and reverse dependency closure.").option("--json", "Emit JSON").action(async (options) => print((await projectSnapshot(root)).impact, Boolean(options.json)));
+var impact = program2.command("impact").description("Compute direct changes and reverse dependency closure.").option("--json", "Emit JSON").action(async (options) => print((await projectSnapshot(root)).impact, Boolean(options.json)));
+impact.command("classify").description("Record one affected artifact's ripple decision on the active change.").requiredOption("--id <artifact-id>", "Affected artifact to classify").requiredOption("--as <label>", CLASSIFICATION_LABELS.join("|")).option("--reason <text>", "Concrete reason; required with --as not-affected").option("--json", "Emit JSON").action(async (options) => {
+  const change = await classifyImpact(root, options.id, options.as, options.reason);
+  print({ change: change.id, classification: change.classification ?? {} }, Boolean(options.json));
+});
 program2.command("validate").description("Validate schemas, IDs, lifecycle, references, immutable artifacts and results.").option("--active", "Validate during the active flow").option("--all", "Validate the full repository").option("--json", "Emit JSON").action(async (options) => {
   const artifacts = await scanArtifacts(root);
   const report = await validateProject(root, artifacts);
@@ -24827,7 +25177,7 @@ research.command("crawl").description("Capture a bounded page subtree through Fi
   print(report, Boolean(options.json));
   if (report.records.some((record2) => !record2.ok)) process.exitCode = 1;
 });
-research.command("diff").description("Compare two stored retrieval bodies of the same URL \u2014 the deterministic freshness check for reassessment. Local only; no HTTP, no record.").requiredOption("--ret <id>", "Current RET-### record").option("--against <id>", "Earlier RET-### record (default: the previous successful retrieval of the same URL)").option("--json", "Emit JSON").action(async (options) => {
+research.command("diff").description("Compare two stored retrieval bodies of the same URL \xE2\u20AC\u201D the deterministic freshness check for reassessment. Local only; no HTTP, no record.").requiredOption("--ret <id>", "Current RET-### record").option("--against <id>", "Earlier RET-### record (default: the previous successful retrieval of the same URL)").option("--json", "Emit JSON").action(async (options) => {
   print(await researchDiff(root, { ret: options.ret, against: options.against }), Boolean(options.json));
 });
 var baseline = program2.command("baseline").description("Manage verified semantic baselines.");

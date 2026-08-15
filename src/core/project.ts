@@ -57,7 +57,11 @@ async function refreshProjectUnlocked(root: string, check: boolean): Promise<str
   const drifted = config && config.implementation_sources.length > 0 && baseline?.implementation_hashes
     ? new Set((await driftedMappings(root, config, artifacts, baseline)).map((entry) => entry.mapping))
     : undefined;
-  const projections = buildProjections(artifacts, graph, impact, baseline, activeChange, config, records, retrievals, queries, drifted);
+  // The open change's ledger, so the live change-impact view shows the same
+  // decisions the stored ones do. A change that has recorded nothing yet still
+  // gets the section: the whole point is showing what is still unclassified.
+  const activeLedger = activeChange ? (await loadChange(root, activeChange).catch(() => null))?.classification ?? {} : undefined;
+  const projections = buildProjections(artifacts, graph, impact, baseline, activeChange, config, records, retrievals, queries, drifted, activeLedger);
   if (await pathExists(projectPaths(root).changes)) {
     await assertSafeManagedPath(root, path.join(projectPaths(root).changes, ".managed-probe"));
     for (const entry of await readdir(projectPaths(root).changes, { withFileTypes: true })) if (entry.isSymbolicLink() && /^CHG-.*\.json$/.test(entry.name)) throw new SdlcError(`Change record cannot be a symlink: ${entry.name}`);
@@ -67,7 +71,7 @@ async function refreshProjectUnlocked(root: string, check: boolean): Promise<str
       try {
         const change = await readJson<ChangeRecord>(file);
         if (isChangeRecord(change) && change.impact) {
-          projections[`change-impact/${change.id}.md`] = changeImpactProjection(change.id, change.impact);
+          projections[`change-impact/${change.id}.md`] = changeImpactProjection(change.id, change.impact, change.classification);
         }
       } catch {
         // Invalid change JSON is reported when its flow/baseline is used.

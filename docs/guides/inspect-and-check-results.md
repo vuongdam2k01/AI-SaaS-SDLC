@@ -41,11 +41,15 @@ It will not turn a warning into a product decision, and it never claims a test p
 
 The engine's `validate` returns non-zero only when there is an **error** — a broken structure: a bad ID, a broken reference, a lifecycle or supersession violation, a coverage gap, a mutated immutable record. Those must be fixed before a baseline.
 
-Twenty-seven findings are **warnings** and never block a baseline, because each names a *judgement* or a debt rather than a broken structure. They are reported precisely so that owing them stays visible:
+Thirty-one findings are **warnings** and never block a baseline, because each names a *judgement* or a debt rather than a broken structure. They are reported precisely so that owing them stays visible:
 
 | Warning | Means | You owe |
 |---|---|---|
 | `RULE_UNVERIFIED` | A declared business rule that no specification claims | A test that covers the rule |
+| `CLAIM_WITHOUT_DEPENDENCY` | A spec proving `FTR-X#BR-01` without naming `FTR-X` in `depends_on`, so a change to the feature would never select it | Adding the dependency, or dropping the claim if the spec does not verify it |
+| `IMPACT_UNCLASSIFIED` | An artifact a change put in question with no recorded decision — open while the change lives, then standing until the artifact is touched | `impact classify --id <ID> --as modify\|verify-only\|deprecate\|stale-question\|not-affected` |
+| `SPEC_EXECUTION_UNATTRIBUTED` | A selected specification that no ingested report of this flow attributes a case to | A declared report on the covering command and mapping rows its cases join through |
+| `DOCUMENTATION_DRIFT` | An artifact that moved while every implementation file it maps stayed exactly as the baseline hashed it | Carrying the change into the mapped code, or correcting the mappings |
 | `ACCESS_UNVERIFIED` | A declared access rule that no active specification claims | A denial case at the level that can observe it |
 | `INVARIANT_UNVERIFIED` | A declared system invariant that no active specification claims | A boundary or property case that can catch the violation |
 | `ERROR_UNVERIFIED` | A declared error code that no active specification claims | A case that triggers the condition and asserts the mapping |
@@ -133,6 +137,8 @@ node "<PLUGIN_ROOT>/bin/ai-saas-sdlc" refresh --editorial
 ```
 
 - It accepts a change **only** when it is body-only: metadata, relationships, evidence, immutable records and machine-owned files are all unchanged. It creates no change record and runs no tests.
+- Within the body, it accepts only edits that leave the structure alone. The engine records three digests per artifact at baseline time — its identifiers, its numbers in order, and its table skeleton — and refuses the synchronization by name when any of them moves. Rewording a sentence, retitling a heading, rewriting a guidance comment or fixing a typo inside a prose cell all pass. Changing `AC-01` to `AC-02`, changing 200 to 500, or adding, removing or re-columning a table row are refused, because each states something different about the product. Two consequences are worth knowing rather than discovering: reordering prose that carries numbers is refused too, and one structural edit refuses the whole run — nothing is absorbed — so a mixed edit is split by you rather than half-applied by the engine.
+- This is a *structural* check, not a review of your writing. The engine never judges wording; it only notices that the tokens a contract is made of have moved. When it refuses, the fix is to route the change through the flow that owns it (`flow start --type evolution`, or `--type reconciliation` for a defect), not to rephrase. Repositories baselined before structural digests existed observe nothing and behave exactly as before.
 - Because it runs outside every flow, the session applying it has no skill context and cannot resolve the plugin root on its own. **Do not search the filesystem for a copy of the engine** — a different copy may be a different version. The resolved command is recorded for you in `.ai-saas-sdlc/engine.json` as `editorial_command`; run that verbatim. Inspect State also prints it, fully resolved, whenever an editorial edit is the next valid action.
 
 If you try to route a wording change through Product Evolution, it is bounced back here — a wording-only edit bypasses the semantic flows by design.

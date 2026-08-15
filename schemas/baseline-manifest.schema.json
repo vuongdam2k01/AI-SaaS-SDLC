@@ -58,6 +58,20 @@
       "type": "object",
       "propertyNames": { "pattern": ".+:.+" },
       "additionalProperties": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
+    },
+    "editorial_digests": {
+      "type": "object",
+      "propertyNames": { "pattern": "^[A-Z][A-Z0-9-]*$" },
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["ids", "numbers", "tables"],
+        "properties": {
+          "ids": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+          "numbers": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+          "tables": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
+        }
+      }
     }
   },
   "$defs": { "verdict": { "enum": ["passed", "failed", "not-configured", "not-run"] } }

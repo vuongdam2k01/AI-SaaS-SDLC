@@ -56,11 +56,11 @@ Three fields belong to one artifact family each and are accepted nowhere else: `
 
 | Local ID | Rule | Applies to |
 |---|---|---|
-| DR-12 | `depends_on` contains direct semantic prerequisites, not every reachable ancestor. | Frontmatter |
+| DR-12 | `depends_on` contains direct semantic prerequisites, not every reachable ancestor. A specification proving another artifact's rule declares that artifact, or the closure cannot reach it — machine-checked as `CLAIM_WITHOUT_DEPENDENCY`. | Frontmatter |
 | DR-13 | Downstream links belong in traceability and mapping sections and must resolve to an artifact, path, operationId, schema symbol, or local ID. | Traceability sections |
 | DR-14 | Circular normative dependencies are invalid. A mutual informational relationship must still name one authority per fact. | Dependency edges |
 | DR-15 | Supersession is explicit and historical files remain readable; never overwrite an old ID with a different meaning. | Supersession |
-| DR-16 | When a change affects behavior, design, implementation, and tests, all affected authorities are updated together and linked by the change ID. | Every change |
+| DR-16 | When a change affects behavior, design, implementation, and tests, all affected authorities are updated together and linked by the change ID. What the change put in question and did not update carries a recorded decision instead — machine-checked as `IMPACT_UNCLASSIFIED` and `DOCUMENTATION_DRIFT`. | Every change |
 
 ## Completion contract
 

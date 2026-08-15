@@ -15,8 +15,9 @@ Use this protocol in Product Evolution and Reconciliation. Impact is computed fr
 Run `impact --json` after the first canonical change creates a meaningful diff. Treat its fields as structural facts:
 
 - `direct`: artifacts whose identity, content or declared relationships differ from the active baseline;
-- `affected`: reverse dependency closure, including convergence through shared contracts;
-- `stale`: artifacts whose stored assumptions/coverage may no longer match their upstream source.
+- `affected`: reverse dependency closure, including convergence through shared contracts — what to read;
+- `stale`: artifacts whose stored assumptions/coverage may no longer match their upstream source;
+- `ripple`: the subset this change put at risk rather than merely reached — consumers of what it revised, and co-owners of a shared target it began writing. Prerequisites cited by something the change created are excluded, because nothing they say has moved. This is the set that owes a decision.
 
 Run it again after adding or removing design/test relationships. Removed dependencies, shared writes and supersession edges still matter because the engine compares current and prior baseline graphs.
 
@@ -48,17 +49,27 @@ For every multi-writer target, explicitly resolve concurrency, ordering, idempot
 
 ## Classify affected items
 
-- `modify`: contract must change to implement/repair the intent;
-- `verify-only`: contract should remain but regression must prove it;
-- `deprecate/retire`: behavior is intentionally leaving the product;
-- `stale-question`: dependency is structurally reached but semantic consequence needs a material decision;
-- `not-affected`: inspected and ruled out with a concrete reason.
+Every member of `ripple` takes exactly one decision, recorded through the engine:
 
-Store semantic decisions in canonical artifacts/issues, not in generated impact projections.
+```text
+ENGINE impact classify --id <ID> --as <label> [--reason "<why>"] --json
+```
+
+- `modify`: contract must change to implement/repair the intent. Editing the artifact in this flow *is* this decision; a direct change needs no classification and the engine refuses one.
+- `verify-only`: contract should remain but regression must prove it;
+- `deprecate`: behavior is intentionally leaving the product, whole-artifact or rule-level;
+- `stale-question`: structurally reached, but the semantic consequence needs a material decision — record the decision itself in `QUESTIONS`;
+- `not-affected`: inspected and ruled out. `--reason` is required, because ruling a reached artifact out is only a decision when the ground for it is written down.
+
+The label is a machine-readable record of *that a decision was made*; the substance of the decision still belongs in the canonical artifacts, the issue, or `QUESTIONS`. Never in generated impact projections — `generated/change-impact/<CHG-ID>.md` renders the ledger and is not where it lives.
+
+`ENGINE validate` reports `IMPACT_UNCLASSIFIED` for every ripple member with no decision, and keeps reporting it after the flow closes for as long as the artifact stays untouched. That standing warning is the durable record of an unserviced ripple; a later change may answer it with the same verb.
 
 ## Test selection
 
 Run `tests select --json` after the closure stabilizes. Preserve existing regression tests for reached artifacts and add tests for new acceptance/error/invariant obligations. Do not delete an old test merely because the changed feature has a new test.
+
+Selection is an obligation, not evidence that anything ran. After executing, `ENGINE validate` reports `SPEC_EXECUTION_UNATTRIBUTED` for every selected specification no ingested report attributes a case to — which includes a command that declares no report at all. Close it by declaring the report and repairing the mapping rows, or let it stand as the recorded distance between what was selected and what was proven.
 
 ## Limits and stop condition
 
@@ -66,7 +77,7 @@ The graph proves declared relationships and coverage, not semantic correctness. 
 
 Stop when:
 
-- all direct seeds and reverse consumers are classified;
+- all direct seeds and reverse consumers are classified — `IMPACT_UNCLASSIFIED` lists whatever remains, so this is observable rather than asserted;
 - convergence-node questions have explicit answers or one consolidated material question;
 - required existing regression tests are selected;
 - no unresolved broken reference or undeclared shared write remains.

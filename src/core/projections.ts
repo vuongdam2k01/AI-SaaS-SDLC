@@ -17,8 +17,29 @@ import { implementationCoverageProjection, implementationPlanProjections } from 
 
 export interface ProjectionSet { [relative: string]: string }
 
-export function changeImpactProjection(changeId: string, impact: ImpactReport): string {
-  return `# Change Impact: ${changeId}\n\n## Direct\n\n${impact.direct.map((id) => `- \`${id}\``).join("\n") || "None."}\n\n## Affected closure\n\n${impact.affected.map((id) => `- \`${id}\``).join("\n") || "None."}\n`;
+/**
+ * The change's closure, and — once it carries a classification ledger — what
+ * the change decided about each artifact the closure reached. The section is
+ * emitted only when the ledger exists, so a change recorded before the ledger
+ * did renders exactly as it always has and no upgrade reports generated drift.
+ */
+export function changeImpactProjection(
+  changeId: string,
+  // Looser than ImpactReport on purpose: a change recorded before the ripple
+  // set was derived carries only the original three fields.
+  impact: { direct: string[]; affected: string[]; stale: string[]; ripple?: string[] },
+  classification?: Record<string, { label: string; reason?: string }>
+): string {
+  const closure = `# Change Impact: ${changeId}\n\n## Direct\n\n${impact.direct.map((id) => `- \`${id}\``).join("\n") || "None."}\n\n## Affected closure\n\n${impact.affected.map((id) => `- \`${id}\``).join("\n") || "None."}\n`;
+  if (!classification) return closure;
+  const rows = [
+    ...impact.direct.map((id) => [`\`${id}\``, "modify (direct)", "Edited by this change."]),
+    ...(impact.ripple ?? []).map((id) => {
+      const decision = classification[id];
+      return [`\`${id}\``, decision ? decision.label : "unclassified", decision?.reason ?? "—"];
+    })
+  ];
+  return `${closure}\n## Classification\n\nA direct change is the modify decision. Every artifact this change's revisions put in question carries the decision recorded through \`impact classify\`; \`unclassified\` is what IMPACT_UNCLASSIFIED reports. Artifacts reached only as prerequisites of something this change created are not decisions and are not listed.\n\n${table(["Artifact", "Decision", "Reason"], rows)}`;
 }
 
 function table(headers: string[], rows: string[][]): string {
@@ -139,7 +160,8 @@ export function buildProjections(
   records: ExecutionRecord[],
   retrievals: RetrievalRecord[] = [],
   queries: QueryRecord[] = [],
-  driftedImplementationMappings?: Set<string>
+  driftedImplementationMappings?: Set<string>,
+  activeClassification?: Record<string, { label: string; reason?: string }>
 ): ProjectionSet {
   const projections: ProjectionSet = {};
   projections["artifact-graph.json"] = stableJson(graph);
@@ -245,7 +267,7 @@ export function buildProjections(
     projections[`decision-impact/${adr.id}.md`] = `# Decision Impact: ${adr.id}\n\n## Current dependents\n\n${affected.map((id) => `- \`${id}\``).join("\n") || "No artifact currently declares this decision."}\n\n## Successors\n\n${successors.map((id) => `- \`${id}\``).join("\n") || "No successor."}\n`;
   }
   if (activeChange) {
-    projections[`change-impact/${activeChange}.md`] = changeImpactProjection(activeChange, impact);
+    projections[`change-impact/${activeChange}.md`] = changeImpactProjection(activeChange, impact, activeClassification);
   }
   return projections;
 }

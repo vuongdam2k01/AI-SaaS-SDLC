@@ -27,6 +27,30 @@ export function buildGraph(artifacts: Artifact[]): ArtifactGraph {
 }
 
 export function reverseClosure(graph: ArtifactGraph, seeds: Iterable<string>): string[] {
+  return walkClosure(graph, seeds, true);
+}
+
+/**
+ * The closure restricted to consequence.
+ *
+ * `reverseClosure` also lets a fixed-contract artifact converge forward into
+ * the documents it depends on, which is right for "what should I read": the
+ * interface file and the architecture it was written under belong in one
+ * reading. It is wrong for "what did this change endanger", because the walk
+ * then continues *down* from that foundation into everything else citing it —
+ * so adding a single feature reports the invariants, the error catalog and
+ * every other consumer of them as reached, and the signal drowns.
+ *
+ * Dropping that one hop leaves the two convergences that carry real
+ * consequence: a shared target somebody new began writing, and a supersession.
+ * Both mean an old contract has to be re-argued. A prerequisite being cited
+ * does not.
+ */
+export function rippleClosure(graph: ArtifactGraph, seeds: Iterable<string>): string[] {
+  return walkClosure(graph, seeds, false);
+}
+
+function walkClosure(graph: ArtifactGraph, seeds: Iterable<string>, contractPrerequisites: boolean): string[] {
   const reverse = new Map<string, Set<string>>();
   const convergenceForward = new Map<string, Set<string>>();
   const typeById = new Map(graph.nodes.map((node) => [node.id, node.type]));
@@ -49,7 +73,7 @@ export function reverseClosure(graph: ArtifactGraph, seeds: Iterable<string>): s
     values.add(edge.from);
     reverse.set(edge.to, values);
     if (edge.relation === "writes_to" || edge.relation === "supersedes"
-      || (edge.relation === "depends_on" && CONTRACT_ARTIFACT_TYPES.has(typeById.get(edge.from) ?? ""))
+      || (contractPrerequisites && edge.relation === "depends_on" && CONTRACT_ARTIFACT_TYPES.has(typeById.get(edge.from) ?? ""))
       || (edge.relation === "depends_on" && declaredAuthorityTarget(edge.to))) {
       const targets = convergenceForward.get(edge.from) ?? new Set<string>();
       targets.add(edge.to);

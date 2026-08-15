@@ -3,7 +3,8 @@ import { resolve } from "node:path";
 import { initializeProject } from "../core/template.js";
 import { loadCurrentState, loadActiveFlow, startFlow, closeFlow, checkpointFlow } from "../core/state.js";
 import { flowGuidance } from "../core/flow-guidance.js";
-import { FLOW_STAGES, type FlowStage } from "../core/types.js";
+import { CLASSIFICATION_LABELS, FLOW_STAGES, type FlowStage } from "../core/types.js";
+import { classifyImpact } from "../core/ripple-classification.js";
 import { projectSnapshot, refreshProject } from "../core/project.js";
 import { ensureEnginePointerIgnored, ensureResearchPolicyIgnored, ensureVerificationPolicyIgnored, recordEnginePointer } from "../core/engine-pointer.js";
 import { scanArtifacts } from "../core/artifacts.js";
@@ -42,7 +43,7 @@ function print(value: unknown, json = false): void {
   else console.log(value);
 }
 
-program.name("ai-saas-sdlc").description("Deterministic engine for AI SaaS SDLC documentation flows.").version("1.19.0");
+program.name("ai-saas-sdlc").description("Deterministic engine for AI SaaS SDLC documentation flows.").version("1.20.0");
 
 program.command("init")
   .description("Initialize a centralized documentation repository.")
@@ -160,10 +161,24 @@ flow.command("close")
   .option("--json", "Emit JSON")
   .action(async (options: { json?: boolean }) => print(await closeFlow(root), Boolean(options.json)));
 
-program.command("impact")
+// A group with its own action: bare `impact` keeps computing the closure, which
+// every playbook invokes verbatim, while `impact classify` records what the
+// change decided about each artifact that closure reached.
+const impact = program.command("impact")
   .description("Compute direct changes and reverse dependency closure.")
   .option("--json", "Emit JSON")
   .action(async (options: { json?: boolean }) => print((await projectSnapshot(root)).impact, Boolean(options.json)));
+
+impact.command("classify")
+  .description("Record one affected artifact's ripple decision on the active change.")
+  .requiredOption("--id <artifact-id>", "Affected artifact to classify")
+  .requiredOption("--as <label>", CLASSIFICATION_LABELS.join("|"))
+  .option("--reason <text>", "Concrete reason; required with --as not-affected")
+  .option("--json", "Emit JSON")
+  .action(async (options: { id: string; as: string; reason?: string; json?: boolean }) => {
+    const change = await classifyImpact(root, options.id, options.as, options.reason);
+    print({ change: change.id, classification: change.classification ?? {} }, Boolean(options.json));
+  });
 
 program.command("validate")
   .description("Validate schemas, IDs, lifecycle, references, immutable artifacts and results.")
@@ -205,7 +220,7 @@ program.command("verify")
     const records = await executeVerification(root, await loadConfig(root), [...levels]);
     // Projections derive from execution records, so a completed run would leave
     // record-dependent views (platform coverage) stale until the close
-    // sequence's refresh â€” and mid-flow `validate` reports stale projections as
+    // sequence's refresh Ã¢â‚¬â€ and mid-flow `validate` reports stale projections as
     // GENERATED_DRIFT. Resynchronizing here mirrors `baseline create`, which
     // already refreshes internally; it adds no gate and changes no flow.
     await refreshProject(root, false);
@@ -294,7 +309,7 @@ research.command("crawl")
     if (report.records.some((record) => !record.ok)) process.exitCode = 1;
   });
 research.command("diff")
-  .description("Compare two stored retrieval bodies of the same URL — the deterministic freshness check for reassessment. Local only; no HTTP, no record.")
+  .description("Compare two stored retrieval bodies of the same URL â€” the deterministic freshness check for reassessment. Local only; no HTTP, no record.")
   .requiredOption("--ret <id>", "Current RET-### record")
   .option("--against <id>", "Earlier RET-### record (default: the previous successful retrieval of the same URL)")
   .option("--json", "Emit JSON")

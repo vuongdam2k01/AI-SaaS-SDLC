@@ -2,7 +2,7 @@ import { readFile } from "node:fs/promises";
 import path from "node:path";
 import type { Artifact, ArtifactGraph, BaselineManifest, ProjectConfig, ValidationFinding } from "./types.js";
 import { reverseClosure } from "./graph.js";
-import { driftedMappings } from "./mapping-hashes.js";
+import { documentationDriftedArtifacts, driftedMappings } from "./mapping-hashes.js";
 import { ignoredImplementationMappingRows, implementationMappingRows } from "./test-report.js";
 import { pathExists } from "./state.js";
 import { isWithin } from "./paths.js";
@@ -141,6 +141,24 @@ export async function implementationDriftFindings(root: string, config: ProjectC
     code: "IMPLEMENTATION_DRIFT",
     message: `Mapped file ${mapping} changed since ${baseline?.id ?? "the baseline"} while its declaring artifact(s) (${declaring.map((artifact) => artifact.id).join(", ")}) did not; bring the documents level through a flow that owns the change, revert the code, or open a Reconciliation on this recorded divergence — this warning is the standing record of docs-to-code drift.`,
     file: declaring[0]!.file
+  }));
+}
+
+/**
+ * The doc-side mirror: the artifact moved and every implementation file it maps
+ * stayed exactly as the baseline hashed it. Warning for the same reason its
+ * twin is one — the divergence is a fact, which side is right is a judgement,
+ * and a documentation-first flow that specifies before it builds passes through
+ * this state legitimately on its way to the implementation stage.
+ */
+export async function documentationDriftFindings(root: string, config: ProjectConfig, artifacts: Artifact[], baseline: BaselineManifest | null): Promise<ValidationFinding[]> {
+  if (config.implementation_sources.length === 0) return [];
+  const drifted = await documentationDriftedArtifacts(root, config, artifacts, baseline);
+  return drifted.map(({ artifact, mappings }) => ({
+    severity: "warning" as const,
+    code: "DOCUMENTATION_DRIFT",
+    message: `${artifact.id} changed since ${baseline?.id ?? "the baseline"} while every implementation file it maps (${mappings.join(", ")}) kept its baseline content; carry the change into the mapped code in this flow, correct the mappings if the change does not touch them, or let this warning stand as the record that the documents are ahead of the code — the doc-side mirror of IMPLEMENTATION_DRIFT.`,
+    file: artifact.file
   }));
 }
 

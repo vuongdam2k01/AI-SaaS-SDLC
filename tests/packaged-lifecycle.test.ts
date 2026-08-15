@@ -81,7 +81,7 @@ describe("generation 5 reaches instances created through the binary", () => {
       if (!body.includes("Detail rule:")) missing.push(`${type} lacks a Detail rule`);
     }
     expect(missing).toEqual([]);
-  }, 240000);
+  });
 });
 
 describe("closure warnings across a whole flow", () => {
@@ -123,7 +123,7 @@ describe("closure warnings across a whole flow", () => {
     await writeFile(ledgerFile, `${ledger.slice(0, rowAt)}\n| QST-900 | What does SCR-APPROVAL-001#E-03 do when the request is already terminal? | Withdrawal after a decision is undefined. | SCR-APPROVAL-001 | Product decision | ACCESS-CONTROL | open |${ledger.slice(rowAt)}`, "utf8");
     cli(root, ["refresh", "--json"]);
     expect(findings(root).filter((f) => f.code === "SCREEN_BEHAVIOR_UNCLAIMED")).toEqual([]);
-  }, 240000);
+  });
 
 });
 
@@ -168,7 +168,7 @@ describe("a contract tightened after a baseline", () => {
     // The control: a live, mutable screen is still held to the new contract.
     expect(screenErrors.length).toBeGreaterThan(0);
     expect(screenErrors.some((f) => f.code === "CONTENT_TABLE_MISSING")).toBe(true);
-  }, 240000);
+  });
 });
 
 describe("the shipped surface states what the code does", () => {
@@ -187,17 +187,20 @@ describe("the shipped surface states what the code does", () => {
   it("matches the warning table to the codes the engine actually emits", async () => {
     const table = await readFile(path.join(pluginRoot, "resources", "project-template", "00-system", "validation-rules.md"), "utf8");
     const documented = new Set([...table.matchAll(/^\| `([A-Z_]+)` \|/gm)].map((match) => match[1]!));
-    expect(documented.size).toBe(27);
-    for (const code of ["ACCESS_UNVERIFIED", "INVARIANT_UNVERIFIED", "ERROR_UNVERIFIED", "UX_UNVERIFIED", "SCREEN_BEHAVIOR_UNCLAIMED", "SYSTEM_DOCUMENT_INCOMPLETE"]) {
+    expect(documented.size).toBe(31);
+    for (const code of [
+      "ACCESS_UNVERIFIED", "INVARIANT_UNVERIFIED", "ERROR_UNVERIFIED", "UX_UNVERIFIED", "SCREEN_BEHAVIOR_UNCLAIMED", "SYSTEM_DOCUMENT_INCOMPLETE",
+      "IMPACT_UNCLASSIFIED", "DOCUMENTATION_DRIFT", "SPEC_EXECUTION_UNATTRIBUTED", "CLAIM_WITHOUT_DEPENDENCY"
+    ]) {
       expect(documented.has(code), code).toBe(true);
     }
-    expect(table).toContain("Twenty-seven exist");
+    expect(table).toContain("Thirty-one exist");
   });
 
   it("carries one identical version in all five places that carry it", async () => {
     const read = async (relative: string) => JSON.parse(await readFile(path.join(pluginRoot, relative), "utf8"));
     const expected = (await read("package.json")).version;
-    expect(expected).toBe("1.19.0");
+    expect(expected).toBe("1.20.0");
     expect((await read(".claude-plugin/plugin.json")).version).toBe(expected);
     expect((await read(".codex-plugin/plugin.json")).version).toBe(expected);
     const marketplace = await read(".claude-plugin/marketplace.json");

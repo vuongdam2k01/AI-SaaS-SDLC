@@ -2,6 +2,18 @@
 
 See the root [CHANGELOG](../CHANGELOG.md) for the release summary. This contributor view records documentation-impact areas that must remain synchronized with implementation.
 
+## 1.20.0 - 2026-08-14
+
+| Area | Documentation impact |
+|---|---|
+| Method | `impact-analysis.md` "Engine observations" gains `ripple`; "Classify affected items" replaces the storage sentence with the `impact classify` verb and keeps the substance in canonical artifacts/issues; "Test selection" gains `SPEC_EXECUTION_UNATTRIBUTED`; the stop condition becomes observable. `product-evolution.md` §5/§8/§12, `reconciliation.md` §6/§9 and `inspect-state.md` reporting contract updated |
+| Engine | New `ripple-classification.ts` (verb + derivation + findings), `selection-evidence.ts`, `claim-dependencies.ts`, `change-records.ts` (lenient loader), `editorial-digests.ts`; `graph.ts` gains `rippleClosure` beside `reverseClosure`; `impact.ts` gains the `ripple` field; `mapping-hashes.ts` gains `documentationDriftedArtifacts`; `baseline.ts` stamps the ledger, records structural digests and refuses structural editorial edits; `impact` becomes a command group retaining its parent action |
+| Validation | Four new warnings — `IMPACT_UNCLASSIFIED`, `DOCUMENTATION_DRIFT`, `SPEC_EXECUTION_UNATTRIBUTED`, `CLAIM_WITHOUT_DEPENDENCY`; `change-impact/<CHG-ID>.md` gains an existence-gated `Classification` section; no new projection files |
+| Project template | `validation-rules.md` warning count twenty-seven → thirty-one plus the consequence-warning paragraph; `document-rules.md` DR-12 and DR-16 name where they are machine-checked |
+| Docs | `command-reference.md` (impact/classify/tests/refresh rows, thirty-one warnings), `inspect-and-check-results.md` (four table rows, count, editorial structural-guard section), `configuration-reference.md` (drift paragraph), `evolve-existing-behavior.md`, `reconcile-a-failure.md`, `implement-a-feature.md`, root README command block |
+| Certification | New `tests/ripple-classification.test.ts`, `tests/selection-evidence.test.ts`, `tests/claim-dependencies.test.ts`, `tests/editorial-digests.test.ts`; `proof-depth.test.ts` and `contract-and-flow-safety.test.ts` extended; `cli.test.ts` pins bare `impact --json` against the group conversion |
+| Compatibility | Additive schema on both records: `ChangeRecord.classification` and `impact.ripple`, `BaselineManifest.editorial_digests`. Records and baselines written before 1.20.0 observe nothing — no debt reported, editorial path unchanged. A 1.19 engine rejects records a 1.20 engine touched; do not downgrade mid-repository. Run `refresh` once after upgrading. All four warnings never block a baseline |
+
 ## 1.19.0 - 2026-08-14
 
 | Area | Documentation impact |

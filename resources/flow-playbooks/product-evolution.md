@@ -105,7 +105,15 @@ After the behavior diff is real, run:
 ENGINE impact --json
 ```
 
-Follow `resources/protocols/impact-analysis.md`. Include old features reached through changed access/invariants or shared component, subsystem, entity, API, integration, job and event contracts. Classify affected items as modify, verify-only, deprecate/retire, material question or not affected with reason.
+Follow `resources/protocols/impact-analysis.md`. Include old features reached through changed access/invariants or shared component, subsystem, entity, API, integration, job and event contracts.
+
+The report's `ripple` field is what this change put at risk rather than merely reached, and every member takes one recorded decision:
+
+```text
+ENGINE impact classify --id <ID> --as modify|verify-only|deprecate|stale-question|not-affected [--reason "<why>"] --json
+```
+
+Editing an artifact in this flow is the `modify` decision and needs no classification. `not-affected` requires `--reason`. `ENGINE validate` reports `IMPACT_UNCLASSIFIED` for whatever is still undecided, and keeps reporting it after this flow closes for as long as the artifact stays untouched — the standing record of a ripple nobody serviced.
 
 ## 6. One consolidated material interaction
 
@@ -145,7 +153,7 @@ Resolve all affected shared writes, ordering, concurrency, idempotency, compensa
 
 ## 8. Recompute impact
 
-Run `ENGINE impact --json` again after design relationships stabilize. If the closure expands, inspect/classify only the newly reached items and update shared contracts/regression obligations. Do not regenerate unaffected documents.
+Run `ENGINE impact --json` again after design relationships stabilize. If the closure expands, inspect and classify only the newly reached items and update shared contracts/regression obligations. Do not regenerate unaffected documents, and do not re-classify what already carries a decision — the ledger is not rebuilt each round.
 
 ## 9. Derive verification
 
@@ -212,7 +220,7 @@ Fix structural/reference/coverage failures and failed configured tests. Do not o
 Report:
 
 - normalized intent/change class;
-- direct changed and full affected IDs;
+- direct changed and full affected IDs, plus the ripple set with the decision recorded for each and any that remain unclassified;
 - created/updated/deprecated/retired artifacts;
 - old features pulled into regression through shared contracts;
 - ADRs created/superseded and why they met the threshold;

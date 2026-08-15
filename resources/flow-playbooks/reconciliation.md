@@ -63,7 +63,7 @@ Do not ask for approval of mechanical fixes. If the answer chooses new product b
 
 ## 6. Compute and repair the closure
 
-Run `ENGINE impact --json` after `ISS-*` identifies its targets, then follow `resources/protocols/impact-analysis.md`.
+Run `ENGINE impact --json` after `ISS-*` identifies its targets, then follow `resources/protocols/impact-analysis.md`. Record a decision for every `ripple` member with `ENGINE impact classify`; a repair that ruled an artifact out states why with `--as not-affected --reason "<why>"` rather than leaving the reach unanswered.
 
 Repair only:
 
@@ -127,7 +127,7 @@ Report:
 
 - observation and reproduced/inspected evidence;
 - root cause and authoritative side;
-- issue and changed/affected IDs;
+- issue and changed/affected IDs, with the decision recorded for each ripple member;
 - code/config paths repaired;
 - selected old/new regression tests;
 - real execution/result IDs or `not-configured`;

@@ -199,6 +199,14 @@ export interface BaselineManifest {
    * which therefore observe nothing.
    */
   implementation_hashes?: Record<string, string>;
+  /**
+   * Structural digests per artifact body at baseline time — its identifiers,
+   * its numbers and its table skeleton. The reference point `refresh
+   * --editorial` compares against so a representation change cannot carry a
+   * contract change through a path that opens no flow; absent on older
+   * baselines, which therefore observe nothing.
+   */
+  editorial_digests?: Record<string, { ids: string; numbers: string; tables: string }>;
 }
 
 export interface ValidationFinding {
@@ -331,6 +339,15 @@ export interface QueryRecord {
   error?: string;
 }
 
+/**
+ * The five ripple decisions an affected artifact can carry. The vocabulary is
+ * the impact-analysis protocol's own; recording it on the change record is what
+ * makes "all reverse consumers are classified" observable instead of asserted.
+ */
+export const CLASSIFICATION_LABELS = ["modify", "verify-only", "deprecate", "stale-question", "not-affected"] as const;
+
+export type ClassificationLabel = (typeof CLASSIFICATION_LABELS)[number];
+
 export interface ChangeRecord {
   schema_version: 1;
   id: string;
@@ -342,5 +359,18 @@ export interface ChangeRecord {
   started_at: string;
   closed_at?: string;
   successor_baseline?: string;
-  impact?: { direct: string[]; affected: string[]; stale: string[] };
+  /**
+   * The closure this change produced. `ripple` is optional because records
+   * stored before it was derived carry only the original three, and are asked
+   * nothing on account of it.
+   */
+  impact?: { direct: string[]; affected: string[]; stale: string[]; ripple?: string[] };
+  /**
+   * Ripple decision per affected-but-not-direct artifact, recorded by
+   * `impact classify` while the flow can still act on it. Direct changes are
+   * never stored: editing an artifact is the modify decision. Stamped at
+   * baseline time even when empty, so a record without the key predates
+   * classification and observes nothing — the implementation_hashes precedent.
+   */
+  classification?: Record<string, { label: ClassificationLabel; reason?: string }>;
 }

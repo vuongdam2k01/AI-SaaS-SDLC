@@ -23,7 +23,23 @@
       "properties": {
         "direct": { "type": "array", "items": { "type": "string", "pattern": "^[A-Z][A-Z0-9-]*$" }, "uniqueItems": true },
         "affected": { "type": "array", "items": { "type": "string", "pattern": "^[A-Z][A-Z0-9-]*$" }, "uniqueItems": true },
-        "stale": { "type": "array", "items": { "type": "string", "pattern": "^[A-Z][A-Z0-9-]*$" }, "uniqueItems": true }
+        "stale": { "type": "array", "items": { "type": "string", "pattern": "^[A-Z][A-Z0-9-]*$" }, "uniqueItems": true },
+        "ripple": { "type": "array", "items": { "type": "string", "pattern": "^[A-Z][A-Z0-9-]*$" }, "uniqueItems": true }
+      }
+    },
+    "classification": {
+      "type": "object",
+      "propertyNames": { "pattern": "^[A-Z][A-Z0-9-]*$" },
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["label"],
+        "properties": {
+          "label": { "enum": ["modify", "verify-only", "deprecate", "stale-question", "not-affected"] },
+          "reason": { "type": "string", "minLength": 1 }
+        },
+        "if": { "properties": { "label": { "const": "not-affected" } }, "required": ["label"] },
+        "then": { "required": ["reason"] }
       }
     }
   },

@@ -22,7 +22,10 @@ import { MAX_CASES_PER_SPEC, specSizeEntries } from "./spec-size.js";
 import { brokenCaseReferences } from "./test-cases.js";
 import { STALE_AFTER_BASELINES, baselinesOpen, openQuestions } from "./question-ledger.js";
 import { platformContradictionFindings, platformEvidenceFindings } from "./platform-evidence.js";
-import { implementationDriftFindings, implementationMappingFindings, implementationSymbolFindings } from "./implementation-evidence.js";
+import { documentationDriftFindings, implementationDriftFindings, implementationMappingFindings, implementationSymbolFindings } from "./implementation-evidence.js";
+import { impactClassificationFindings } from "./ripple-classification.js";
+import { selectionEvidenceFindings } from "./selection-evidence.js";
+import { claimDependencyFindings } from "./claim-dependencies.js";
 import { loadBaseline } from "./project.js";
 import { loadExecutionRecords } from "./execution-records.js";
 import { loadQueryRecords, loadRetrievalRecords } from "./retrieval-records.js";
@@ -146,6 +149,11 @@ export async function validateProject(root: string, artifacts: Artifact[]): Prom
   for (const broken of brokenCaseReferences(artifacts)) {
     findings.push({ severity: "warning", code: "CASE_REFERENCE_BROKEN", message: `${broken.reference} names a case ${broken.specification} does not declare`, file: broken.file });
   }
+  // A qualified claim reads as proof from either side, but only a declared
+  // dependency puts the specification in the closure that would select it. The
+  // pair disagreeing is how a rule stays covered on paper and unreachable in
+  // practice.
+  findings.push(...claimDependencyFindings(artifacts));
   // The same closure the rule check applies to business rules, applied to the
   // identifiers the foundations own and to the behavior a screen declares. The
   // derivation map already promises a test consequence for an access rule, an
@@ -196,8 +204,16 @@ export async function validateProject(root: string, artifacts: Artifact[]): Prom
   if (config) {
     findings.push(...implementationMappingFindings(config, artifacts, graph));
     findings.push(...await implementationDriftFindings(root, config, artifacts, await loadBaseline(root).catch(() => null)));
+    findings.push(...await documentationDriftFindings(root, config, artifacts, await loadBaseline(root).catch(() => null)));
     findings.push(...await implementationSymbolFindings(root, config, artifacts));
   }
+  // The ripple checks close the loop the impact closure opens. One reports the
+  // affected artifacts a change never decided about — while it can still decide,
+  // and afterwards for as long as the artifact stays untouched. The other reports
+  // the specifications selection asked for that no ingested report reaches.
+  // Warnings both: the closure proves what was reached, never what it deserves.
+  findings.push(...await impactClassificationFindings(root, artifacts, graph));
+  findings.push(...await selectionEvidenceFindings(root, artifacts, graph));
   const order = topologicalOrder(graph);
   if (order.cycles.length > 0) findings.push({ severity: "error", code: "DEPENDENCY_CYCLE", message: `Dependency cycle contains: ${order.cycles.join(", ")}` });
   for (const artifact of artifacts) {

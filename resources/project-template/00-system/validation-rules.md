@@ -48,11 +48,15 @@ Validation evaluates project artifacts as contracts. It detects structural absen
 
 Validation reports two severities and they mean different things. An **error** is a broken structure — a bad ID, an unresolved reference, a lifecycle or supersession violation, a mutated immutable record, a coverage gap, generated projections out of sync. Errors block a baseline and must be repaired.
 
-A **warning** names a judgement or a debt rather than a broken structure, never blocks a baseline, and is itself the durable record of what is owed. Twenty-seven exist:
+A **warning** names a judgement or a debt rather than a broken structure, never blocks a baseline, and is itself the durable record of what is owed. Thirty-one exist:
 
 | Warning | Means |
 |---|---|
 | `RULE_UNVERIFIED` | A declared business rule no specification claims. |
+| `CLAIM_WITHOUT_DEPENDENCY` | A specification proving another artifact's rule by qualified reference without declaring it in `depends_on`, so the closure cannot reach it. |
+| `IMPACT_UNCLASSIFIED` | An artifact a change put in question that carries no recorded ripple decision — while the change is open, and afterwards for as long as the artifact stays untouched. |
+| `SPEC_EXECUTION_UNATTRIBUTED` | A specification the affected closure selected that no ingested report of the flow attributes a case to. |
+| `DOCUMENTATION_DRIFT` | An artifact whose content left the baseline behind while every implementation file it maps did not — documents moved, code did not. |
 | `ACCESS_UNVERIFIED` | A declared access rule no active verification specification claims. |
 | `INVARIANT_UNVERIFIED` | A declared system invariant no active verification specification claims. |
 | `ERROR_UNVERIFIED` | A declared error code no active verification specification claims. |
@@ -80,9 +84,11 @@ A **warning** names a judgement or a debt rather than a broken structure, never 
 | `IMPLEMENTATION_MAPPING_ROW_IGNORED` | An Implementation-mapping table row that is present but unparseable: wrong column count, malformed case ID, or placeholder cells mixed with real content. |
 | `IMPLEMENTATION_MAPPING_PATH_MISSING` | On a specification that declares frontmatter mappings, a table row whose test path exists under no configured implementation source — a transposed or stale row. |
 
-Closing a warning by weakening the artifact that raised it is not a repair — deleting the screen row that raised `SCREEN_BEHAVIOR_UNCLAIMED` closes the warning and keeps the gap. Several are legitimately permanent: an unproven platform, an IPC-only operation with no wire owner, a client-local entity with no schema owner, a degraded retrieval whose source stayed unreachable, a feature validated on paper before anyone builds it, a rule whose verification is genuinely impossible and recorded as such in `TEST-POLICY`.
+Closing a warning by weakening the artifact that raised it is not a repair — deleting the screen row that raised `SCREEN_BEHAVIOR_UNCLAIMED` closes the warning and keeps the gap. Several are legitimately permanent: an unproven platform, an IPC-only operation with no wire owner, a client-local entity with no schema owner, a degraded retrieval whose source stayed unreachable, a feature validated on paper before anyone builds it, a rule whose verification is genuinely impossible and recorded as such in `TEST-POLICY`, an artifact deliberately ruled `not-affected` in a change that has since closed, and a specification whose covering command declares no machine-readable report.
 
 The six closure warnings above — one per declared-rule family, plus screen behavior — share one purpose: every identifier a live artifact declares must reach a verification case, a handoff, or an open question. A declared rule reaching none of the three is a commitment no execution can ever fail on. `generated/rule-coverage.md`, `generated/foundation-coverage.md` and `generated/screen-coverage.md` show the current placement per identifier.
+
+The four consequence warnings — `IMPACT_UNCLASSIFIED`, `SPEC_EXECUTION_UNATTRIBUTED`, `DOCUMENTATION_DRIFT` and `CLAIM_WITHOUT_DEPENDENCY` — cover the other direction: not what a document promises, but what changing it put at risk. A change computes the artifacts it put in question, and each one takes a recorded decision through `impact classify` — `modify`, `verify-only`, `deprecate`, `stale-question` or `not-affected` with a concrete reason. What is reached only as a prerequisite of something the change created is not a decision and is never asked about. The remainder survives the baseline that left it: an artifact reached, undecided and untouched keeps its warning until a later change decides it or somebody edits it. `generated/change-impact/<CHG-ID>.md` shows the decision per artifact.
 
 ## Completion contract
 

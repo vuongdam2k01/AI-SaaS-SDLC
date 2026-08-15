@@ -35,4 +35,23 @@ describe("CLI", () => {
     expect(cli(root, ["refresh", "--check", "--json"]).status).toBe(0);
     expect(cli(root, ["flow", "close", "--json"]).status).toBe(0);
   });
+
+  it("keeps bare impact working now that it also carries a subcommand", async () => {
+    const root = await mkdtemp(path.join(os.tmpdir(), "ai-saas-sdlc-cli-"));
+    roots.push(root);
+    expect(cli(root, ["init", "--project-id", "agency-approval", "--idea", "Content approval SaaS"]).status).toBe(0);
+
+    // The playbooks invoke this exact form; the group must not have shadowed it.
+    const bare = cli(root, ["impact", "--json"]);
+    expect(bare.status).toBe(0);
+    expect(Object.keys(JSON.parse(bare.stdout)).sort()).toEqual(["affected", "direct", "ripple", "stale"]);
+
+    // Classification is a decision on a semantic change, so it needs one open.
+    const noFlow = cli(root, ["impact", "classify", "--id", "FTR-X-001", "--as", "verify-only"]);
+    expect(noFlow.status).toBe(1);
+    expect(noFlow.stderr).toContain("open an evolution or reconciliation flow first");
+
+    expect(cli(root, ["impact", "classify", "--id", "FTR-X-001", "--as", "invented"]).status).toBe(1);
+    expect(cli(root, ["impact", "classify", "--as", "verify-only"]).status).not.toBe(0);
+  });
 });

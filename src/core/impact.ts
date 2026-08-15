@@ -1,11 +1,24 @@
 import type { Artifact, ArtifactGraph, BaselineManifest } from "./types.js";
-import { reverseClosure } from "./graph.js";
+import { reverseClosure, rippleClosure } from "./graph.js";
 import { buildGraph } from "./graph.js";
 
 export interface ImpactReport {
   direct: string[];
   affected: string[];
   stale: string[];
+  /**
+   * The artifacts this change put in question: reached through consequence
+   * rather than through reading. Always a subset of `stale`.
+   *
+   * The difference is between a prerequisite and a dependent. A new feature
+   * cites the invariants, the error catalog and the test policy, and the
+   * reading closure reaches all of them; none is at risk, because nothing they
+   * say has changed. Editing the entity three features already write, or
+   * becoming the fourth writer of it, puts those features in question. Only the
+   * second kind is a decision somebody owes an answer to, and only this set is
+   * what IMPACT_UNCLASSIFIED asks about.
+   */
+  ripple: string[];
 }
 
 function relationships(value: Pick<Artifact, "depends_on" | "decisions" | "supersedes" | "writes_to">): string {
@@ -37,5 +50,6 @@ export function calculateImpact(
   const edgeMap = new Map([...priorGraph.edges, ...graph.edges].map((edge) => [`${edge.from}\u0000${edge.to}\u0000${edge.relation}`, edge]));
   const unionGraph: ArtifactGraph = { schema_version: 1, nodes: [...nodeMap.values()], edges: [...edgeMap.values()] };
   const affected = reverseClosure(unionGraph, direct);
-  return { direct: [...direct].sort(), affected, stale: affected.filter((id) => !direct.has(id)) };
+  const ripple = rippleClosure(unionGraph, direct).filter((id) => !direct.has(id));
+  return { direct: [...direct].sort(), affected, stale: affected.filter((id) => !direct.has(id)), ripple };
 }

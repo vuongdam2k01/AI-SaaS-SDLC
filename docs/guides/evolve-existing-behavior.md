@@ -36,7 +36,7 @@ Two overlapping behaviors should become one.
 > *"Merge 'request changes' and 'reject' into a single 'send back with reason' action."*
 
 - Expect supersession: the surviving artifact absorbs the behavior; the replaced ones move to `superseded`, keeping their IDs and history.
-- Impact is usually wider than it looks — anything that referenced either original is in the closure. Review the `impact` output carefully at the design checkpoint.
+- Impact is usually wider than it looks — anything that referenced either original is in the closure. Review the `impact` output carefully at the design checkpoint, and read `ripple` in particular: it is the narrower set your change put *at risk* rather than merely reached, and every member of it takes a recorded decision (`impact classify --id <ID> --as ...`). Whatever you leave undecided is reported as `IMPACT_UNCLASSIFIED` and keeps being reported after the flow closes.
 
 ### 3. Breaking change
 
@@ -83,10 +83,10 @@ Same as any Evolution — but pay attention to the parts specific to changing ex
 
 Confirm:
 
-- **Old features pulled into regression** appear in the closure and their `UT/IT/ST` were re-selected and (if configured) re-executed. A shared-contract change that *didn't* reach its dependents is a red flag — look again at the `impact` output.
+- **Old features pulled into regression** appear in the closure and their `UT/IT/ST` were re-selected and (if configured) re-executed. A shared-contract change that *didn't* reach its dependents is a red flag — look again at the `impact` output. Each old feature the change reached carries a decision in `generated/change-impact/<CHG-ID>.md`; `unclassified` rows there are the ones nobody answered for.
 - **Supersession/deprecation is recorded, not faked**: superseded artifacts still carry their IDs and history; deprecated rules carry a replacement and a removal condition.
 - The closing report's **explicit statements**: which boundaries were named but not allocated (and why), which artifacts changed status vs. carry a rule-level deprecation, and which ADRs were created or superseded and why they met the threshold.
-- Validation **errors: 0**; a lingering `RULE_UNVERIFIED` or `QUESTION_STALE` warning tells you what is still owed.
+- Validation **errors: 0**; a lingering `RULE_UNVERIFIED`, `QUESTION_STALE` or `IMPACT_UNCLASSIFIED` warning tells you what is still owed.
 
 ## What NOT to use this for
 

@@ -1,5 +1,109 @@
 # Changelog
 
+## 1.20.0 - 2026-08-14
+
+A documentation-first method earns its cost on the second change, not the
+first. Writing a feature down before building it is cheap discipline; keeping
+forty linked documents honest when one field's length changes is the part that
+decides whether the method survives contact with a real product. An audit of
+this plugin against that standard found the closure was computed exactly and
+then thrown away.
+
+`impact` already derived the reverse dependency closure, already converged
+through shared contracts, and already published a `stale` set naming every
+artifact the change reached and left untouched. Nothing read it. No warning
+named it, no gate consulted it, and the baseline that closed the flow re-hashed
+every artifact — so the ripple vanished at precisely the moment it became debt.
+The five-way classification the impact-analysis protocol has always mandated
+lived only in prose: a model was told to decide `modify` or `verify-only` or
+`not-affected` per artifact, and nothing anywhere recorded that it had. Three
+smaller gaps sat beside it. `IMPLEMENTATION_DRIFT` watched code move away from
+its documents but structurally could not watch documents move away from their
+code — editing the document is what silences it — which is the exact shape of a
+specification revised and never built. Test selection was derived and executions
+were recorded, and nothing ever compared them. And a specification could prove
+`FTR-X#BR-01` without declaring `FTR-X`, staying green in rule coverage while
+being invisible to the closure that would have selected it.
+
+Closing them required distinguishing two questions the closure had been
+answering with one number. `affected` asks what to read, and a fixed contract
+file legitimately converges into the architecture it was written under. What a
+change *endangered* is narrower: adding one feature reaches the invariants, the
+error catalog and the test policy through ordinary citation, and asking an
+author to defend all three every time a feature mentions them turns a real
+signal into a ritual. `impact` now reports `ripple` beside `stale` — consumers
+of what the change revised, plus co-owners of a shared target it began writing,
+with prerequisites of newly created artifacts excluded. On this repository's own
+fixture a purely additive feature reports nothing, and a second feature that
+starts writing an existing entity puts the whole original feature in question.
+
+### Added
+
+- `impact classify --id <ID> --as <label> [--reason <text>]` records one ripple
+  decision on the active change, using the protocol's own vocabulary — `modify`,
+  `verify-only`, `deprecate`, `stale-question`, `not-affected`. `--reason` is
+  required for `not-affected`, because ruling a reached artifact out is only a
+  decision when the ground for it is written down. Editing an artifact in the
+  flow is the `modify` decision and the engine refuses to classify it twice. The
+  ledger lives on the change record under `.ai-saas-sdlc/changes/`, which is why
+  it is an engine verb: an agent cannot write there, and a ledger an agent could
+  hand-write would not be evidence.
+- `IMPACT_UNCLASSIFIED` reports every ripple member carrying no decision. While
+  the change is open it lists what the author still owes; once the change has
+  baselined it keeps reporting, for as long as the artifact stays untouched, as
+  the durable record of a ripple nobody serviced. Editing the artifact answers
+  it, and so does a later change classifying it.
+- `DOCUMENTATION_DRIFT`, the mirror of `IMPLEMENTATION_DRIFT`: an artifact whose
+  content left the baseline behind while every implementation file it maps kept
+  exactly the content the baseline hashed. Documents moved, code did not. It
+  needs no new stored state — the same per-mapping hashes serve both directions.
+- `SPEC_EXECUTION_UNATTRIBUTED` reports each specification the closure selected
+  that no ingested report of the flow attributes a case to. The claim is
+  deliberately narrow and the message says so: a command that declares no report
+  attributes nothing, and an ambiguous symbol join records no specification, so
+  the finding means "nothing joins this spec", never "this spec did not run". It
+  fires only once the flow has executed something, because before that the
+  baseline's own not-run gate owns the gap.
+- `CLAIM_WITHOUT_DEPENDENCY` reports a specification that proves another
+  artifact's rule by qualified reference without declaring that artifact in
+  `depends_on`. Rule coverage counts the claim; the closure cannot see it; a
+  change to the owner would never select the specification. DR-12 already
+  required the edge, and now says where it is machine-checked.
+- `refresh --editorial` gained a structural guard. Baselines record three
+  digests per artifact body — its identifiers, its numbers in order, and its
+  table skeleton — and the editorial path refuses, by name, an edit that moves
+  any of them. Rewording, retitling, rewriting a guidance comment and fixing a
+  typo inside a prose cell all still pass; changing `AC-01` to `AC-02`, changing
+  200 to 500, or adding a table row do not. This is a structural check and never
+  a review of wording: the refusal names the flow that owns the change. One
+  structural edit refuses the whole run rather than absorbing the rest, so a
+  mixed edit is split by the author instead of half-landing.
+
+### Changed
+
+- `impact --json` gains a `ripple` field beside `direct`, `affected` and
+  `stale`. The three existing fields are unchanged in meaning and value.
+- `generated/change-impact/<CHG-ID>.md` gains a `Classification` section listing
+  the decision per artifact, emitted only for changes that carry a ledger.
+- `resources/protocols/impact-analysis.md` now names the verb that records a
+  classification and keeps the substance where it always belonged: the label is
+  a machine-readable record *that* a decision was made; the decision itself
+  still lives in the canonical artifacts, the issue or `QUESTIONS`.
+
+### Upgrading
+
+Run `refresh` once after upgrading. Expect `IMPACT_UNCLASSIFIED` in any open
+semantic flow and `DOCUMENTATION_DRIFT` in a wired repository whose documents
+have moved ahead of their mapped code: both are the record this release exists
+to create, both are cleared by ordinary flow work, and neither blocks anything.
+
+Nothing is asked of history. Change records written before this release carry no
+classification key and no `ripple` set, so they report no debt; baselines written
+before it carry no structural digests, so the editorial path behaves exactly as
+it did. A 1.19 engine will reject a change record or manifest a 1.20 engine has
+touched, so do not downgrade a repository mid-flight — the `implementation_hashes`
+precedent applies unchanged.
+
 ## 1.19.0 - 2026-08-14
 
 The quality of an artifact type is a property of its model, not of each

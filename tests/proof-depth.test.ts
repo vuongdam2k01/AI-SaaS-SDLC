@@ -298,6 +298,70 @@ describe("drift and symbol warnings", () => {
     expect(await driftCodes()).toEqual([]);
   });
 
+  it("reports DOCUMENTATION_DRIFT when the artifact moves and every file it maps stays put", async () => {
+    const root = await tempProject();
+    roots.push(root);
+    await establishGenesis(root);
+    await startFlow(root, "evolution", "Implement approval, code segment");
+    await addApprovalFeature(root);
+    await mkdir(path.join(root, "app", "src"), { recursive: true });
+    await patchConfig(root, (config) => {
+      config.implementation_sources = [{ id: "app", path: "./app" }];
+      config.verification = {
+        unit: [{ id: "u", cwd: ".", command: `node -e "process.exit(0)"` }],
+        integration: [{ id: "i", cwd: ".", command: `node -e "process.exit(0)"` }],
+        system: [{ id: "s", cwd: ".", command: `node -e "process.exit(0)"` }]
+      };
+    });
+    await mapArtifact(root, "03-design/interfaces/API-APPROVAL-001.md", ["app:src/approval-decision.ts"]);
+    await executeVerification(root, await loadConfig(root), ["unit", "integration", "system"]);
+    await createBaseline(root);
+    await closeFlow(root);
+    const docCodes = async () => (await validateProject(root, await scanArtifacts(root))).findings.filter((finding) => finding.code === "DOCUMENTATION_DRIFT");
+    expect(await docCodes()).toEqual([]);
+
+    // The specification is revised; the code implementing it is not. This is
+    // the degradation IMPLEMENTATION_DRIFT structurally cannot see, because
+    // editing the document is what silences it there.
+    const apiFile = path.join(root, "03-design", "interfaces", "API-APPROVAL-001.md");
+    await writeFile(apiFile, `${await readFile(apiFile, "utf8")}\nThe reason field now accepts 500 characters.\n`, "utf8");
+    const drifted = await docCodes();
+    expect(drifted).toHaveLength(1);
+    expect(drifted[0]!.severity).toBe("warning");
+    expect(drifted[0]!.message.startsWith("API-APPROVAL-001")).toBe(true);
+    expect(drifted[0]!.message).toContain("app:src/approval-decision.ts");
+    expect(drifted[0]!.message).toContain("the doc-side mirror of IMPLEMENTATION_DRIFT");
+    // A warning, so the repository still baselines with the debt recorded.
+    expect((await validateProject(root, await scanArtifacts(root))).valid).toBe(true);
+
+    // Carrying the change into the mapped code answers it.
+    await writeFile(path.join(root, "app", "src", "approval-decision.ts"), "// reason accepts 500 characters\n", "utf8");
+    expect(await docCodes()).toEqual([]);
+  });
+
+  it("stays silent about documentation drift when the baseline never hashed the mapping", async () => {
+    const root = await tempProject();
+    roots.push(root);
+    await establishGenesis(root);
+    await startFlow(root, "evolution", "Implement approval, code segment");
+    await addApprovalFeature(root);
+    await mkdir(path.join(root, "app", "src"), { recursive: true });
+    await patchConfig(root, (config) => {
+      config.implementation_sources = [{ id: "app", path: "./app" }];
+      config.verification = {
+        unit: [{ id: "u", cwd: ".", command: `node -e "process.exit(0)"` }],
+        integration: [{ id: "i", cwd: ".", command: `node -e "process.exit(0)"` }],
+        system: [{ id: "s", cwd: ".", command: `node -e "process.exit(0)"` }]
+      };
+    });
+    await executeVerification(root, await loadConfig(root), ["unit", "integration", "system"]);
+    await createBaseline(root);
+    await closeFlow(root);
+    // Mapping added after the baseline: nothing recorded it, so nothing observes it.
+    await mapArtifact(root, "03-design/interfaces/API-APPROVAL-001.md", ["app:src/approval-decision.ts"]);
+    expect((await validateProject(root, await scanArtifacts(root))).findings.filter((finding) => finding.code === "DOCUMENTATION_DRIFT")).toEqual([]);
+  });
+
   it("reports IMPLEMENTATION_SYMBOL_MISSING for a mapping row whose symbol the mapped file does not contain", async () => {
     const root = await tempProject();
     roots.push(root);

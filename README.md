@@ -108,6 +108,7 @@ ai-saas-sdlc research map --url <url> [--search <term>] [--limit <n>]
 ai-saas-sdlc research crawl --url <url> [--include <csv>] [--limit <n>]
 ai-saas-sdlc research diff --ret <RET-id> [--against <RET-id>]
 ai-saas-sdlc impact [--json]
+ai-saas-sdlc impact classify --id <ID> --as <label> [--reason <text>] [--json]
 ai-saas-sdlc validate [--active|--all] [--json]
 ai-saas-sdlc tests select [--json]
 ai-saas-sdlc verify [--unit|--integration|--system|--all] --execute
