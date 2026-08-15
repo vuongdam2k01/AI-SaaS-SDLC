@@ -22,6 +22,21 @@ export function evidenceClaimCoverage(artifacts: Artifact[]): string {
   return `# Evidence-to-Claim Coverage\n\nThis projection shows which canonical synthesis artifacts explicitly consume each evidence entry.\n\n${table(["Evidence", "Referenced by", "Status"], rows)}`;
 }
 
+/**
+ * Which of the two references a criterion is missing, named rather than merged.
+ *
+ * One undifferentiated `gap` made a criterion with complete verification but no
+ * behavior back-reference indistinguishable from one nothing tests at all, and
+ * the first reading a reader reaches for is the alarming one. A reader coming to
+ * this projection cold reported it as "55 of 61 criteria uncovered" against a
+ * repository whose every feature was fully mapped and green.
+ */
+function acceptanceStatus(hasBehavior: boolean, hasTests: boolean): string {
+  if (hasBehavior && hasTests) return "covered";
+  if (!hasTests && !hasBehavior) return "unclaimed";
+  return hasTests ? "unrouted" : "unverified";
+}
+
 const behaviorTypes = new Set(["use_case", "business_flow"]);
 const designTypes = new Set(["screen", "component", "subsystem", "api_processing", "entity", "external_integration", "job", "event", "platform_target"]);
 
@@ -34,9 +49,9 @@ export function acceptanceCoverage(artifacts: Artifact[]): string {
     const behavior = consumers.filter((artifact) => behaviorTypes.has(artifact.artifact_type)).map((artifact) => artifact.id);
     const design = consumers.filter((artifact) => designTypes.has(artifact.artifact_type)).map((artifact) => artifact.id);
     const tests = consumers.filter((artifact) => TEST_TYPES.has(artifact.artifact_type)).map((artifact) => artifact.id);
-    return [`\`${qualified}\``, `\`${feature}\``, cell(behavior), cell(design), cell(tests), behavior.length > 0 && tests.length > 0 ? "covered" : "gap"];
+    return [`\`${qualified}\``, `\`${feature}\``, cell(behavior), cell(design), cell(tests), acceptanceStatus(behavior.length > 0, tests.length > 0)];
   });
-  return `# Acceptance Coverage\n\nDesign is conditional; behavior and verification references are required for complete coverage.\n\n${table(["Acceptance criterion", "Feature", "Behavior", "Design", "Tests", "Status"], rows)}`;
+  return `# Acceptance Coverage\n\nDesign is conditional; behavior and verification references are required for complete coverage.\n\nA criterion is \`covered\` only when both references exist. The two ways of falling short are reported separately, because they are different debts: \`unverified\` is a criterion no test specification claims, and \`unrouted\` is a criterion tests do claim but no use case or flow carries. Reading \`unrouted\` as missing verification overstates the gap.\n\n${table(["Acceptance criterion", "Feature", "Behavior", "Design", "Tests", "Status"], rows)}`;
 }
 
 /**

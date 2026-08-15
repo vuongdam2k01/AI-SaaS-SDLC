@@ -1,5 +1,9 @@
+import path from "node:path";
+import { readFile } from "node:fs/promises";
 import { FLOW_STAGES, stageIndex } from "./types.js";
 import type { ActiveFlow, FlowStage } from "./types.js";
+import { ENGINE_POINTER_FILE } from "./engine-pointer.js";
+import { resolveRuntimeRoot } from "./runtime-root.js";
 import { loadActiveFlow, loadCurrentState } from "./state.js";
 import { loadConfig } from "./config.js";
 import { scanArtifacts } from "./artifacts.js";
@@ -124,6 +128,34 @@ export async function suggestNextSegment(root: string): Promise<SegmentSuggestio
 }
 
 /**
+ * The engine as the author can actually type it.
+ *
+ * `next_command` is a contract: the exact string that continues the flow. Two
+ * branches of the guidance below have no skill to name — closing a flow and
+ * creating a baseline are engine operations — and they used to emit the literal
+ * `ENGINE` placeholder, which only resolves inside a skill adapter's own text
+ * and is not a runnable command anywhere else. Resolve it the way the editorial
+ * command already is: prefer the pointer this repository records, which is
+ * written on every refresh and names the exact engine that wrote it, and fall
+ * back to this running bundle when no pointer exists yet.
+ */
+async function engineInvocation(root: string): Promise<string> {
+  const raw = await readFile(path.join(root, ENGINE_POINTER_FILE), "utf8").catch(() => null);
+  if (raw !== null) {
+    try {
+      const pointer = JSON.parse(raw) as { engine_path?: unknown };
+      if (typeof pointer.engine_path === "string" && pointer.engine_path.length > 0) {
+        return `node "${pointer.engine_path.replace(/\\/g, "/")}"`;
+      }
+    } catch {
+      // A malformed pointer is not worth failing read-only guidance over.
+    }
+  }
+  const fallback = path.join(resolveRuntimeRoot(import.meta.url), "bin", "ai-saas-sdlc");
+  return `node "${fallback.replace(/\\/g, "/")}"`;
+}
+
+/**
  * What the author should type next.
  *
  * A flow that stops at a checkpoint leaves the author holding a repository in a
@@ -167,7 +199,7 @@ export async function flowGuidance(root: string): Promise<FlowGuidance> {
     return {
       active_flow: flow.id, flow_type: flow.type, target_stage: target, reached_stage: reached,
       remaining_stages: [], baseline_created: flow.baseline_created,
-      next_command: `ENGINE flow close`,
+      next_command: `${await engineInvocation(root)} flow close`,
       reason: `${flow.baseline_created} exists and no drift remains, so ${flow.id} is ready to close.`
     };
   }
@@ -176,7 +208,7 @@ export async function flowGuidance(root: string): Promise<FlowGuidance> {
     return {
       active_flow: flow.id, flow_type: flow.type, target_stage: target, reached_stage: reached,
       remaining_stages: [], baseline_created: null,
-      next_command: `ENGINE baseline create`,
+      next_command: `${await engineInvocation(root)} baseline create`,
       reason: `${flow.id} has reached every checkpoint; a verified baseline closes it.`
     };
   }
