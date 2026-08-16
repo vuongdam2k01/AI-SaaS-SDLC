@@ -1,6 +1,8 @@
 # Phase 5 — Solution-class selection
 
-Status: complete (released as 1.23.0)
+Status: complete (released as 1.23.0; formulation corrected in 1.24.0)
+
+The 1.23.0 formulation — "commodity infrastructure is adopted; the burden of proof sits on hand-rolling, never on adoption" — overcorrected. Distilled against `dietrichgebert/ponytail` (MIT), the professional default is an **ordered ladder, stopping at the first rung that holds**: not-needed → reuse in this codebase → stdlib → native platform → installed dependency → only then a recorded new-dependency-or-custom decision. Under that ladder, `node:http` for eleven routes and CSS custom properties for token plumbing are *correct* rungs, not defects — the defect was that the rung was chosen silently. 1.24.0 replaces the adoption doctrine with the ladder in the scouting output, the profile contract, the review findings and the EXTRA clarification, and adds the code-site ceiling marker for deliberate simplifications (ceiling + upgrade path at the site where it bites).
 
 ## Outcome
 

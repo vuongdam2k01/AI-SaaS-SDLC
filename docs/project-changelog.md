@@ -2,6 +2,14 @@
 
 See the root [CHANGELOG](../CHANGELOG.md) for the release summary. This contributor view records documentation-impact areas that must remain synchronized with implementation.
 
+## 1.24.0 - 2026-08-16
+
+| Area | Documentation impact |
+|---|---|
+| Method | The 1.23.0 adoption doctrine becomes the ordered solution ladder (not-needed → reuse → stdlib → native platform → installed dependency → recorded new-dependency-or-custom decision), distilled from `dietrichgebert/ponytail` (MIT): `implementation-scouting.md` output 6 states the rung taken per commodity component; `spec-compliance-review.md` EXTRA covers every rung; `implementation-review-checklists.md` reports the skipped rung and unmarked deliberate simplifications (code-site ceiling + upgrade-path marker); `implementation.md` profile-silent branch routes to the ladder |
+| Template | `architecture-overview.md` profile solution-class rows record the rung, including stdlib/native choices with revisit conditions |
+| Compatibility | Method-layer only; no engine, finding, catalog or migration change |
+
 ## 1.23.0 - 2026-08-16
 
 | Area | Documentation impact |

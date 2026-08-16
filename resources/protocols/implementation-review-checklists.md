@@ -13,7 +13,8 @@ The checklist library the quality pass of `spec-compliance-review.md` loads by s
 - A segment hand-rolls a concern whose Engineering profile row names an adopted library — that is drift against the recorded substrate, same class as contradicting any other profile convention.
 
 **Informational:**
-- A hand-rolled implementation of a commodity solution class (HTTP routing, validation, forms, styling plumbing, animation, state, data fetching, jobs/scheduling, auth mechanics) with no Engineering profile row recording the refusal — reported as an unrecorded decision, naming the ecosystem-standard candidate the scouting check should have surfaced.
+- A commodity solution-class component (HTTP routing, validation, forms, styling plumbing, animation, state, data fetching, jobs/scheduling, auth mechanics) written where a lower ladder rung was available and unexamined — an existing helper, the stdlib, a native platform feature, an installed dependency — or hand-rolled at subsystem size with no Engineering profile row recording the decision. Reported as an unrecorded decision, naming the rung that was skipped.
+- A deliberate simplification with a known ceiling (global lock, O(n²) scan, non-redelivering queue) missing its code-site marker naming the ceiling and the upgrade path.
 - A branch that skips its side effect (status set, dependent data forgotten); logs claiming actions that were conditionally skipped.
 - Bare literals shared across files; error strings doubling as query filters.
 - Dead assignments, stale comments, unused imports.

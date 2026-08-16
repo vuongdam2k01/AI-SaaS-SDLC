@@ -1,5 +1,51 @@
 # Changelog
 
+## 1.24.0 - 2026-08-16
+
+1.23.0 fixed the right defect with the wrong doctrine. It made the pipeline
+ask before hand-rolling — correct — but answered with "commodity
+infrastructure is adopted; the burden of proof sits on hand-rolling, never on
+adoption". Distilled against `dietrichgebert/ponytail` (MIT), the actual
+professional default is an **ordered ladder, stopped at the first rung that
+holds**, not a doctrine in either direction:
+
+1. Not required by the segment's spec rows → don't build it.
+2. Already in this codebase → reuse it.
+3. The standard library does it → use it.
+4. A native platform feature covers it → use it — `<input type="date">` over
+   a picker library, CSS over JS, a database constraint over application code.
+5. An already-installed dependency solves it → use it; never add a new one
+   for what an installed one covers.
+6. Only then is it a real decision — new dependency versus minimal custom —
+   and it lands in the Engineering profile either way, before the first line.
+
+Under that ladder, `node:http` behind eleven routes and CSS custom properties
+carrying design tokens are *correct rungs*, not defects; the defect was
+always that the rung was chosen silently. The ladder runs after the scout
+understands the problem, never instead of it — lazy about the solution,
+never about the reading.
+
+### Changed
+
+- `implementation-scouting.md` — the sixth mandatory output becomes the
+  solution ladder: rung stated per commodity component, profile rows binding,
+  silent invention not a rung.
+- The Engineering profile contract — a solution-class row records the rung
+  the code stands on: an adopted library, a stdlib/native choice with its
+  revisit condition ("node:http — revisit when route count or middleware
+  needs grow"), or an explicit refusal.
+- `spec-compliance-review.md` — the EXTRA clarification now covers every
+  rung: unused capability of a library *or platform feature* is not EXTRA;
+  reimplementing what a lower rung provides is the reviewable event.
+- `implementation-review-checklists.md` — the informational finding reports
+  the specific rung that was skipped, and a new one reports a deliberate
+  simplification with a known ceiling missing its code-site marker naming
+  the ceiling and upgrade path (the `ponytail:`-comment idiom, generalized).
+- `implementation.md` — the profile-silent branch routes to the ladder.
+
+Method-layer only, again: no engine change, no new finding, no catalog
+generation change, no migration needed.
+
 ## 1.23.0 - 2026-08-16
 
 The third surface of the same defect. The reference repository adopted a
