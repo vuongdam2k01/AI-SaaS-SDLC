@@ -187,20 +187,20 @@ describe("the shipped surface states what the code does", () => {
   it("matches the warning table to the codes the engine actually emits", async () => {
     const table = await readFile(path.join(pluginRoot, "resources", "project-template", "00-system", "validation-rules.md"), "utf8");
     const documented = new Set([...table.matchAll(/^\| `([A-Z_]+)` \|/gm)].map((match) => match[1]!));
-    expect(documented.size).toBe(31);
+    expect(documented.size).toBe(32);
     for (const code of [
       "ACCESS_UNVERIFIED", "INVARIANT_UNVERIFIED", "ERROR_UNVERIFIED", "UX_UNVERIFIED", "SCREEN_BEHAVIOR_UNCLAIMED", "SYSTEM_DOCUMENT_INCOMPLETE",
-      "IMPACT_UNCLASSIFIED", "DOCUMENTATION_DRIFT", "SPEC_EXECUTION_UNATTRIBUTED", "CLAIM_WITHOUT_DEPENDENCY"
+      "IMPACT_UNCLASSIFIED", "DOCUMENTATION_DRIFT", "SPEC_EXECUTION_UNATTRIBUTED", "CLAIM_WITHOUT_DEPENDENCY", "DESIGN_TOKENS_UNCOMMITTED"
     ]) {
       expect(documented.has(code), code).toBe(true);
     }
-    expect(table).toContain("Thirty-one exist");
+    expect(table).toContain("Thirty-two exist");
   });
 
   it("carries one identical version in all five places that carry it", async () => {
     const read = async (relative: string) => JSON.parse(await readFile(path.join(pluginRoot, relative), "utf8"));
     const expected = (await read("package.json")).version;
-    expect(expected).toBe("1.20.0");
+    expect(expected).toBe("1.21.0");
     expect((await read(".claude-plugin/plugin.json")).version).toBe(expected);
     expect((await read(".codex-plugin/plugin.json")).version).toBe(expected);
     const marketplace = await read(".claude-plugin/marketplace.json");

@@ -68,7 +68,7 @@ function normalizeTable(value: unknown): PatternTableContract | null {
   const row = value as Record<string, unknown>;
   const columns = strings(row.columns);
   const minimum = row.min_rows === undefined ? 1 : Number(row.min_rows);
-  if (typeof row.heading !== "string" || row.heading.trim() === "" || columns.length === 0 || !Number.isInteger(minimum) || minimum < 1) return null;
+  if (typeof row.heading !== "string" || row.heading.trim() === "" || columns.length === 0 || !Number.isInteger(minimum) || minimum < 0) return null;
   return { heading: row.heading, columns, min_rows: minimum };
 }
 
@@ -76,7 +76,7 @@ function normalizeLocalId(value: unknown): PatternLocalIdContract | null {
   if (!value || typeof value !== "object" || Array.isArray(value)) return null;
   const row = value as Record<string, unknown>;
   const minimum = row.minimum === undefined ? 1 : Number(row.minimum);
-  if (typeof row.pattern !== "string" || row.pattern.trim() === "" || row.pattern.includes("\\\\") || !Number.isInteger(minimum) || minimum < 1) return null;
+  if (typeof row.pattern !== "string" || row.pattern.trim() === "" || row.pattern.includes("\\\\") || !Number.isInteger(minimum) || minimum < 0) return null;
   try { new RegExp(row.pattern, "gm"); } catch { return null; }
   return {
     namespace: typeof row.namespace === "string" ? row.namespace : row.pattern,

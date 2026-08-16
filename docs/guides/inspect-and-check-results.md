@@ -41,7 +41,7 @@ It will not turn a warning into a product decision, and it never claims a test p
 
 The engine's `validate` returns non-zero only when there is an **error** — a broken structure: a bad ID, a broken reference, a lifecycle or supersession violation, a coverage gap, a mutated immutable record. Those must be fixed before a baseline.
 
-Thirty-one findings are **warnings** and never block a baseline, because each names a *judgement* or a debt rather than a broken structure. They are reported precisely so that owing them stays visible:
+Thirty-two findings are **warnings** and never block a baseline, because each names a *judgement* or a debt rather than a broken structure. They are reported precisely so that owing them stays visible:
 
 | Warning | Means | You owe |
 |---|---|---|
@@ -55,6 +55,7 @@ Thirty-one findings are **warnings** and never block a baseline, because each na
 | `ERROR_UNVERIFIED` | A declared error code that no active specification claims | A case that triggers the condition and asserts the mapping |
 | `UX_UNVERIFIED` | A declared UX rule that no active specification claims | A case asserting the rule's observable behavior |
 | `SCREEN_BEHAVIOR_UNCLAIMED` | A screen action or validation rule reaching no case, no exclusion and no question | One of the three: prove it, hand it off by ID, or ask |
+| `DESIGN_TOKENS_UNCOMMITTED` | A live screen rendering with no committed `DT-*` design token and no deferring question | Committing the tokens through Product Evolution, or a `QST-*` citing `UX-RULES#design-tokens` while this warning stands as the record |
 | `SYSTEM_DOCUMENT_INCOMPLETE` | A `00-system` document missing a section, table or rule ID its contract declares | Bringing that document forward from the current project template |
 | `SPEC_OVERSIZED` | A live IT/ST spec past the case threshold | Splitting the spec |
 | `CASE_REFERENCE_BROKEN` | A qualified `#TC-nn` reference naming a case its specification does not declare | Fixing the reference, or a recorded deferral when it sits in an immutable ADR |

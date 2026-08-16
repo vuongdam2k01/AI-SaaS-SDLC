@@ -17,6 +17,7 @@ import { validateActiveArtifactContent } from "./content-contracts.js";
 import { ruleCoverageEntries } from "./coverage-derivation.js";
 import { foundationCoverageFindings } from "./foundation-coverage.js";
 import { screenCoverageFindings } from "./screen-coverage.js";
+import { designTokenFindings } from "./design-tokens.js";
 import { systemDocumentFindings } from "./system-documents.js";
 import { MAX_CASES_PER_SPEC, specSizeEntries } from "./spec-size.js";
 import { brokenCaseReferences } from "./test-cases.js";
@@ -162,6 +163,12 @@ export async function validateProject(root: string, artifacts: Artifact[]): Prom
   // level holds a claim is judgement, and a baseline must not fail on it.
   findings.push(...foundationCoverageFindings(artifacts));
   findings.push(...screenCoverageFindings(artifacts));
+  // A live screen with no committed design token renders in the browser's
+  // default visual system, and nothing anywhere records that as a choice.
+  // Warning, not error: the commitment belongs to Product Evolution, and an
+  // explicit deferral through the question ledger is a legitimate standing
+  // state — the platform-evidence doctrine applied to the visual layer.
+  findings.push(...designTokenFindings(artifacts));
   // The `00-system` documents are the one layer no scan reaches — they state
   // the repository's own authority, lifecycle, vocabulary and validation rules
   // and were checked by nothing at all. Warnings, because a repository

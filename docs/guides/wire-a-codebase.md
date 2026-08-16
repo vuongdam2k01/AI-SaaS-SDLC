@@ -59,7 +59,7 @@ The stack you chose is now a fact of the product, and facts of the product live 
 
 A stack choice that was genuinely contested — two viable options, expensive to reverse — additionally earns an `ADR-*` in the same flow; the profile records what is, the ADR records why.
 
-If the product commits to a visual system, the same flow (or the first screen segment) fills the optional `## Design tokens` section of `UX-RULES` — the semantic palette, spacing and typography values every screen consumes — so surfaces stop re-deciding them per segment.
+The visual system is a product commitment made in Product Evolution: a `DT-*` row set in the `## Design tokens` section of `UX-RULES` — the semantic palette, spacing and typography values every screen consumes — or an open question citing `UX-RULES#design-tokens` that defers it deliberately. A wire flow neither commits nor defers it; while live screens exist with neither, `DESIGN_TOKENS_UNCOMMITTED` stands as the record.
 
 ## How to check it worked
 

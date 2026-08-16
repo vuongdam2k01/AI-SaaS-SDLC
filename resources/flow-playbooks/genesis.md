@@ -111,7 +111,7 @@ Do not create named prospect lists, interviews, presell/landing/concierge kits o
 
 ## 8. One consolidated material interaction
 
-After the initial research synthesis, resolve all material product choices in one interaction. Ask only questions where alternatives would change selected segment/problem, opportunity boundary, commercial direction, product promise, access model or non-negotiable quality/invariant.
+After the initial research synthesis, resolve all material product choices in one interaction. Ask only questions where alternatives would change selected segment/problem, opportunity boundary, commercial direction, product promise, access model, non-negotiable quality/invariant, or the visual identity commitment — whether the owner commits a visual direction now or explicitly defers it. A deferral is legal only as a `QUESTIONS` row citing `UX-RULES#design-tokens`; silence is not a deferral, and once a live screen exists with neither the commitment nor the question, `DESIGN_TOKENS_UNCOMMITTED` stands as the record.
 
 For each question provide:
 

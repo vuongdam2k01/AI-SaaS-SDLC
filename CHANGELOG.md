@@ -1,5 +1,88 @@
 # Changelog
 
+## 1.21.0 - 2026-08-16
+
+A pipeline that governs everything it can derive will silently drop what only
+its owner can supply. A real initialized repository proved it: genesis, six
+evolutions and an implemented creation slice, every gate green, and four
+screens shipped in browser-default styling — because taste is an owner input,
+and the pipeline had no channel for it. The `Design tokens` section of
+`UX-RULES` sat under no contract at all: not one of the six required headings,
+not a required table, deletable without a finding. Its template comment
+deferred the commitment to "the flow that makes that commitment", and no
+playbook contained that flow — a dangling pointer shipped in every initialized
+repository. Genesis resolved segment, problem, commercial direction, product
+promise, access model and quality in its consolidated interaction, and never
+asked about visual identity, so the owner was never given the chance to answer.
+The repository closed its flows with the table reading "Not yet committed" and
+every completion box checked.
+
+The repair follows the doctrine the platform layer already established: a
+commitment this repository has not made belongs in the evidence layer as a
+standing warning, never in a draft artifact or a blocking error. Catalog
+generation 6 puts the section under contract — heading required, table shape
+required, and the first zero-minimum row count in the catalog, because the
+shape is structural while the commitment is the product's to make: a
+repository with no screens owes no palette. What was silence becomes a
+finding: `DESIGN_TOKENS_UNCOMMITTED` stands once a live screen renders with no
+committed `DT-*` row and no open question citing `UX-RULES#design-tokens`.
+A narrative row is not a commitment — the predicate is the identifier, not row
+presence, which is exactly what the observed repository's "Not yet committed"
+row would otherwise have satisfied.
+
+### Added
+
+- `DESIGN_TOKENS_UNCOMMITTED` — a warning, never blocking: at least one live
+  `SCR-*` renders while the `Design tokens` table of `UX-RULES` holds no
+  completed row carrying a `DT-NN` identifier and no open question cites
+  `UX-RULES#design-tokens`. Committing tokens through Product Evolution closes
+  it; an open deferring question suppresses it deliberately; a resolved one
+  stops suppressing. The check reads the ux_rules artifact in any status, the
+  way the question ledger already does, because the section is the authority
+  whether or not the foundation has been activated.
+- `src/core/design-tokens.ts` — `committedDesignTokens` as the single shared
+  predicate (the platform-contradiction pattern, so a future projection can
+  never disagree with the finding), `designTokensDeferred`, and the findings
+  function wired beside screen coverage.
+- Catalog generation 6: the `ux_rules` foundation contract gains the
+  `Design tokens` heading, the `Token`/`Value`/`Applies to`/`Accessibility
+  note` table at `min_rows: 0`, and the `design_token` namespace
+  (`DT-[0-9]{2}`, minimum 0). `pattern-catalog.ts` accepts zero minimums for
+  exactly this case — a contract that owns a shape without forcing a
+  premature commitment.
+- Genesis §8 adds the visual identity commitment to the consolidated material
+  interaction: the owner commits a visual direction or defers it explicitly as
+  a `QUESTIONS` row citing `UX-RULES#design-tokens`. Silence is not a
+  deferral.
+
+### Changed
+
+- The template's Design tokens comment stops naming a nonexistent flow. It now
+  states the commit-or-defer rule, the `DT-NN` row form, and the cite-by-ID
+  discipline the Content rules section already carries; the completion
+  contract gains the corresponding box. The section stays empty at genesis —
+  what changed is that the emptiness now has a name.
+- `design-implementation.md` resolves the latitude contradiction exactly: a
+  value a `DT-*` row owns is consumed by citing the row, never restated with a
+  diverging value; a choice no row governs is the implementer's to make and
+  record back once shared; an empty table with no deferring question leaves
+  the segment legal under the standing warning, whose interim choices seed the
+  eventual commitment.
+- `screen.pattern.md` and `shared-component.pattern.md` extend the
+  never-restate rule to token values; `wire-a-codebase.md` stops routing the
+  visual commitment to the wire flow — it is Product Evolution work.
+
+### Upgrading
+
+Run `patterns migrate` deliberately to move onto generation 6, then `refresh`.
+A repository with live screens and no committed tokens will begin reporting
+`DESIGN_TOKENS_UNCOMMITTED` — expected, healthy, and the point: it is the
+durable record of a commitment the product owes itself. Close it with a
+Product Evolution flow that fills the token table, or defer it with an open
+question citing `UX-RULES#design-tokens`. Nothing is asked of history:
+accepted ADRs and the original idea stay exempt from the tightened contract,
+and the warning never blocks a baseline.
+
 ## 1.20.0 - 2026-08-14
 
 A documentation-first method earns its cost on the second change, not the

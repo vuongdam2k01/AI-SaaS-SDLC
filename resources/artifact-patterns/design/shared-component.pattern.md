@@ -12,7 +12,7 @@ supersedes:
 
 # {{ID}} — {{TITLE}}
 
-<!-- Contract: specifies reusable presentation behavior shared by two or more consumers, not a page, product feature, generic style note, or framework component without domain semantics. Create when consumers share inputs, states, actions, and accessibility behavior that must stay consistent. ID is CMP-<AREA>-<NNN>; path is 03-design/components/<ID>.md. This artifact owns the reuse contract; screens own placement and API/JOB artifacts own processing. Consumers: SCR artifacts, frontend UT, ST, and implementation. Detail rule: the consumer is a screen embedding this contract, so state what every consumer may rely on and what none may override, and leave one-surface placement and styling to the screen. Lifecycle: draft -> active -> superseded. -->
+<!-- Contract: specifies reusable presentation behavior shared by two or more consumers, not a page, product feature, generic style note, or framework component without domain semantics. Create when consumers share inputs, states, actions, and accessibility behavior that must stay consistent. ID is CMP-<AREA>-<NNN>; path is 03-design/components/<ID>.md. This artifact owns the reuse contract; screens own placement and API/JOB artifacts own processing. Consumers: SCR artifacts, frontend UT, ST, and implementation. Detail rule: the consumer is a screen embedding this contract, so state what every consumer may rely on and what none may override, and leave one-surface placement to the screen; token values stay with the UX-RULES Design tokens table, cited by DT-* ID (the Traceability Upstream cell carries them), never restated with a diverging value. Lifecycle: draft -> active -> superseded. -->
 
 ## Purpose and reuse boundary
 

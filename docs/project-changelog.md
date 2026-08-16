@@ -2,6 +2,19 @@
 
 See the root [CHANGELOG](../CHANGELOG.md) for the release summary. This contributor view records documentation-impact areas that must remain synchronized with implementation.
 
+## 1.21.0 - 2026-08-16
+
+| Area | Documentation impact |
+|---|---|
+| Method | `genesis.md` §8 adds the visual identity commitment to the consolidated material interaction — commit now or defer as a `QST-*` citing `UX-RULES#design-tokens`, silence is not a deferral; `design-implementation.md` §1 makes the token-versus-implementer boundary exact (cite `DT-*` rows, record shared choices back, proceed under the standing warning when the table is empty) |
+| Engine | New `design-tokens.ts` (`committedDesignTokens` shared predicate, `designTokensDeferred`, `designTokenFindings`); `pattern-catalog.ts` accepts `min_rows: 0` and `minimum: 0` so a contract can own a shape without forcing a premature commitment; `validation.ts` pushes the new findings beside screen coverage |
+| Validation | One new warning — `DESIGN_TOKENS_UNCOMMITTED`: live screens rendering with no committed `DT-*` token and no open question citing `UX-RULES#design-tokens`; no new projection files |
+| Patterns | Catalog generation 6: `ux_rules` gains the `Design tokens` heading, table shape and `design_token` namespace (`DT-NN`), the first zero-minimum contract; `screen.pattern.md` and `shared-component.pattern.md` contract comments extend the never-restate rule to token values; `artifact-patterns/README.md` consumer row updated |
+| Project template | `ux-rules.md` Design tokens comment stops naming a flow that does not exist and states the commit-or-defer rule with `DT-*` IDs; completion contract gains the tokens box; `validation-rules.md` warning count thirty-one → thirty-two plus the commitment-warning paragraph |
+| Docs | `command-reference.md` (thirty-two warnings), `inspect-and-check-results.md` (table row, count), `artifact-reference.md` (generation 6 paragraph), `wire-a-codebase.md` (visual commitment routed to Product Evolution, no longer to the wire flow), `implement-a-feature.md`, `inspect-state.md` reporting contract |
+| Certification | New `tests/design-tokens.test.ts` — pure findings tiers plus a packaged-repository arc through `addApprovalFeature`; `packaged-lifecycle.test.ts` count and version pins moved |
+| Compatibility | Catalog generation 5 → 6. Existing repositories keep their pin until `patterns migrate` is run deliberately; after migrating, a repository with live screens and no committed tokens reports `DESIGN_TOKENS_UNCOMMITTED` — a warning that never blocks a baseline, closed through Product Evolution or a deferring question. Accepted ADRs and the original idea stay exempt from the tightened contract |
+
 ## 1.20.0 - 2026-08-14
 
 | Area | Documentation impact |

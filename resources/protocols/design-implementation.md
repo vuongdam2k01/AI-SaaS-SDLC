@@ -11,11 +11,11 @@ Before implementing an `SCR-*`, assemble its brief in the turn from the owned so
 | Regions, fields, actions, validation and empty/loading/error states | The `SCR-*` artifact's own tables |
 | Screen-to-screen transitions | The owning `TRANSITIONS-*`/`screen-transitions.mmd` graph |
 | Interaction, feedback, accessibility and content rules in scope | `UX-RULES` rows the screen names |
-| Design tokens (palette, spacing, typography, state colors) | The `## Design tokens` section of `UX-RULES`, when the product declares them |
+| Design tokens (palette, spacing, typography, state colors) | The `## Design tokens` section of `UX-RULES` — committed `DT-*` rows, or the open question that defers them |
 | User-safe error strings and recovery semantics | `ERROR-CATALOG` rows the screen's actions can raise |
 | Access-dependent visibility and denial behavior | `ACCESS-CONTROL` rows in scope |
 
-A visual choice the brief does not constrain is the implementer's to make — once, consistently, and recorded in `UX-RULES` or the Design tokens section when it becomes a shared convention. A visual choice that contradicts the brief is not a choice; it is drift being born.
+The boundary between the table and the implementer is exact: a value a `DT-*` row owns is consumed by citing the row, never restated with a diverging value; a choice no row governs is the implementer's to make — once, consistently — and is recorded back into the Design tokens table the moment a second surface shares it. A visual choice that contradicts the brief is not a choice; it is drift being born. When the table is empty and no open question citing `UX-RULES#design-tokens` defers it, the segment still proceeds — `DESIGN_TOKENS_UNCOMMITTED` stands as the record that the product owes itself the commitment, and the implementer's consistent interim choices are the seed rows a Product Evolution flow commits.
 
 ## 2. Countable self-review gate
 

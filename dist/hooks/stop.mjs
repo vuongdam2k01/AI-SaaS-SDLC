@@ -15151,14 +15151,14 @@ function normalizeTable(value) {
   const row = value;
   const columns = strings2(row.columns);
   const minimum = row.min_rows === void 0 ? 1 : Number(row.min_rows);
-  if (typeof row.heading !== "string" || row.heading.trim() === "" || columns.length === 0 || !Number.isInteger(minimum) || minimum < 1) return null;
+  if (typeof row.heading !== "string" || row.heading.trim() === "" || columns.length === 0 || !Number.isInteger(minimum) || minimum < 0) return null;
   return { heading: row.heading, columns, min_rows: minimum };
 }
 function normalizeLocalId(value) {
   if (!value || typeof value !== "object" || Array.isArray(value)) return null;
   const row = value;
   const minimum = row.minimum === void 0 ? 1 : Number(row.minimum);
-  if (typeof row.pattern !== "string" || row.pattern.trim() === "" || row.pattern.includes("\\\\") || !Number.isInteger(minimum) || minimum < 1) return null;
+  if (typeof row.pattern !== "string" || row.pattern.trim() === "" || row.pattern.includes("\\\\") || !Number.isInteger(minimum) || minimum < 0) return null;
   try {
     new RegExp(row.pattern, "gm");
   } catch {
@@ -15326,7 +15326,7 @@ function regexForTemplate(value) {
 }
 function tableMatches(columns, required) {
   const actual = columns.map(headingKey);
-  return required.every((column2) => actual.includes(headingKey(column2)));
+  return required.every((column3) => actual.includes(headingKey(column3)));
 }
 function placeholderPatterns(contract) {
   const defaults = ["\\{\\{[^}]+\\}\\}", "\\[TODO(?::[^\\]]*)?\\]", "<[a-z][^>\\n]{1,100}>", "\\bTBD\\b", "^-\\s*\\[ \\]"];
@@ -15413,6 +15413,88 @@ init_coverage_derivation();
 init_foundation_coverage();
 init_screen_coverage();
 
+// src/core/design-tokens.ts
+init_types();
+init_markdown();
+
+// src/core/question-ledger.ts
+init_markdown();
+var STALE_AFTER_BASELINES = 3;
+function column(columns, name) {
+  return columns.map(headingKey).indexOf(headingKey(name));
+}
+function openQuestions(artifacts) {
+  const ledger = artifacts.find((artifact) => artifact.artifact_type === "question_ledger");
+  if (!ledger) return [];
+  const section = sectionBody(ledger.body, "Open questions");
+  if (!section) return [];
+  const rows = dataRows(section);
+  const header = rows.find((row) => column(row, "Question ID") >= 0 && column(row, "Status") >= 0);
+  if (!header) return [];
+  const idIndex = column(header, "Question ID");
+  const statusIndex = column(header, "Status");
+  const questionIndex = column(header, "Question");
+  const affectedIndex = column(header, "Affected artifacts");
+  const questions = /* @__PURE__ */ new Map();
+  for (const row of rows) {
+    if (!completedRow(row)) continue;
+    const id2 = (row[idIndex] ?? "").replace(/[`*]/g, "").trim().toUpperCase();
+    if (!/^QST-[A-Z0-9-]+$/.test(id2)) continue;
+    if ((row[statusIndex] ?? "").trim().toLowerCase() === "resolved") continue;
+    questions.set(id2, {
+      id: id2,
+      question: (row[questionIndex] ?? "").trim(),
+      affected: (row[affectedIndex] ?? "").trim(),
+      file: ledger.file
+    });
+  }
+  return [...questions.values()];
+}
+function baselineNumber(id2) {
+  if (!id2) return null;
+  const number = Number(id2.slice(3));
+  return Number.isInteger(number) ? number : null;
+}
+function baselinesOpen(firstBaseline, activeBaseline) {
+  const first = baselineNumber(firstBaseline);
+  const active = baselineNumber(activeBaseline);
+  if (first === null || active === null) return null;
+  return Math.max(0, active - first);
+}
+
+// src/core/design-tokens.ts
+var TOKEN_ID = /\bDT-[0-9]{2}\b/;
+var DESIGN_TOKENS_CITATION = "UX-RULES#design-tokens";
+function column2(columns, name) {
+  return columns.map(headingKey).indexOf(headingKey(name));
+}
+function committedDesignTokens(artifacts) {
+  const uxRules = artifacts.find((artifact) => artifact.artifact_type === "ux_rules");
+  if (!uxRules) return false;
+  const section = sectionBody(uxRules.body, "Design tokens");
+  if (!section) return false;
+  const rows = dataRows(section);
+  const header = rows.find((row) => column2(row, "Token") >= 0 && column2(row, "Value") >= 0);
+  if (!header) return false;
+  const tokenIndex = column2(header, "Token");
+  return rows.some((row) => row !== header && completedRow(row) && TOKEN_ID.test(row[tokenIndex] ?? ""));
+}
+function designTokensDeferred(artifacts) {
+  return openQuestions(artifacts).some((question) => question.question.includes(DESIGN_TOKENS_CITATION) || question.affected.includes(DESIGN_TOKENS_CITATION));
+}
+function designTokenFindings(artifacts) {
+  const liveScreens = artifacts.filter((artifact) => artifact.artifact_type === "screen" && isLiveStatus(artifact.status));
+  if (liveScreens.length === 0) return [];
+  if (committedDesignTokens(artifacts) || designTokensDeferred(artifacts)) return [];
+  const uxRules = artifacts.find((artifact) => artifact.artifact_type === "ux_rules");
+  return [{
+    severity: "warning",
+    code: "DESIGN_TOKENS_UNCOMMITTED",
+    message: `${liveScreens.length} live screen(s) render with no committed visual system: the Design tokens table of UX-RULES holds no DT-NN row; commit the tokens through Product Evolution, or open a QST-* citing ${DESIGN_TOKENS_CITATION} and let this warning stand as its durable record.`,
+    file: uxRules?.file ?? "03-design/ux-rules.md"
+  }];
+}
+
 // src/core/system-documents.ts
 init_markdown();
 import { readFile as readFile12 } from "node:fs/promises";
@@ -15420,7 +15502,7 @@ import path16 from "node:path";
 init_paths();
 init_state();
 function tableMatches2(columns, required) {
-  return required.every((column2, index) => headingKey(columns[index] ?? "") === headingKey(column2));
+  return required.every((column3, index) => headingKey(columns[index] ?? "") === headingKey(column3));
 }
 function checkDocument(relative, body, contract) {
   const problems = [];
@@ -15525,51 +15607,6 @@ function specSizeEntries(artifacts) {
       split_axis: SPLIT_AXIS[artifact.artifact_type]
     };
   });
-}
-
-// src/core/question-ledger.ts
-init_markdown();
-var STALE_AFTER_BASELINES = 3;
-function column(columns, name) {
-  return columns.map(headingKey).indexOf(headingKey(name));
-}
-function openQuestions(artifacts) {
-  const ledger = artifacts.find((artifact) => artifact.artifact_type === "question_ledger");
-  if (!ledger) return [];
-  const section = sectionBody(ledger.body, "Open questions");
-  if (!section) return [];
-  const rows = dataRows(section);
-  const header = rows.find((row) => column(row, "Question ID") >= 0 && column(row, "Status") >= 0);
-  if (!header) return [];
-  const idIndex = column(header, "Question ID");
-  const statusIndex = column(header, "Status");
-  const questionIndex = column(header, "Question");
-  const affectedIndex = column(header, "Affected artifacts");
-  const questions = /* @__PURE__ */ new Map();
-  for (const row of rows) {
-    if (!completedRow(row)) continue;
-    const id2 = (row[idIndex] ?? "").replace(/[`*]/g, "").trim().toUpperCase();
-    if (!/^QST-[A-Z0-9-]+$/.test(id2)) continue;
-    if ((row[statusIndex] ?? "").trim().toLowerCase() === "resolved") continue;
-    questions.set(id2, {
-      id: id2,
-      question: (row[questionIndex] ?? "").trim(),
-      affected: (row[affectedIndex] ?? "").trim(),
-      file: ledger.file
-    });
-  }
-  return [...questions.values()];
-}
-function baselineNumber(id2) {
-  if (!id2) return null;
-  const number = Number(id2.slice(3));
-  return Number.isInteger(number) ? number : null;
-}
-function baselinesOpen(firstBaseline, activeBaseline) {
-  const first = baselineNumber(firstBaseline);
-  const active = baselineNumber(activeBaseline);
-  if (first === null || active === null) return null;
-  return Math.max(0, active - first);
 }
 
 // src/core/validation.ts
@@ -15990,6 +16027,7 @@ async function validateProject(root2, artifacts) {
   findings.push(...claimDependencyFindings(artifacts));
   findings.push(...foundationCoverageFindings(artifacts));
   findings.push(...screenCoverageFindings(artifacts));
+  findings.push(...designTokenFindings(artifacts));
   findings.push(...await systemDocumentFindings(root2));
   if (config) findings.push(...platformEvidenceFindings(config, artifacts));
   findings.push(...platformContradictionFindings(artifacts, await loadExecutionRecords(root2)));
