@@ -20396,9 +20396,29 @@ async function loadPatternCatalog(catalogRoot, projectRoot) {
 async function resolveCatalog(root2, runtimeRoot2) {
   const pinned = path22.join(root2, "00-system", "patterns");
   const hasPinned = await pathExists(path22.join(pinned, "catalog.yaml")) || await pathExists(path22.join(pinned, "catalog.yml"));
-  if (hasPinned) return loadPatternCatalog(pinned, root2);
+  if (hasPinned) {
+    try {
+      return await loadPatternCatalog(pinned, root2);
+    } catch (error) {
+      const plugin = await loadPatternCatalog(path22.join(runtimeRoot2, "resources", "artifact-patterns")).catch(() => null);
+      const pinnedVersion = await readPinnedCatalogVersion(pinned);
+      if (plugin && pinnedVersion !== null && pinnedVersion > Number(plugin.version)) {
+        throw new SdlcError(`This repository pins pattern catalog generation ${pinnedVersion}, but this engine ships generation ${plugin.version} and cannot read it. The plugin is older than the repository \u2014 update the plugin, then retry. (Underlying parse error: ${error instanceof Error ? error.message : String(error)})`);
+      }
+      throw error;
+    }
+  }
   if (await pathExists(path22.join(root2, "sdlc.config.yaml"))) throw new SdlcError("Initialized repository is missing its pinned pattern catalog; run an explicit migration before creating artifacts.");
   return loadPatternCatalog(path22.join(runtimeRoot2, "resources", "artifact-patterns"));
+}
+async function readPinnedCatalogVersion(pinned) {
+  for (const name of ["catalog.yaml", "catalog.yml"]) {
+    const file = path22.join(pinned, name);
+    if (!await pathExists(file)) continue;
+    const match = /^version:\s*["']?(\d+)["']?\s*$/m.exec(await readFile15(file, "utf8").catch(() => ""));
+    if (match?.[1]) return Number(match[1]);
+  }
+  return null;
 }
 
 // src/core/content-contracts.ts
@@ -25258,7 +25278,7 @@ function print(value, json = false) {
   if (json || typeof value !== "string") console.log(JSON.stringify(value, null, 2));
   else console.log(value);
 }
-program2.name("ai-saas-sdlc").description("Deterministic engine for AI SaaS SDLC documentation flows.").version("1.27.0");
+program2.name("ai-saas-sdlc").description("Deterministic engine for AI SaaS SDLC documentation flows.").version("1.28.0");
 program2.command("init").description("Initialize a centralized documentation repository.").option("--project-id <id>", "Stable project identifier").option("--idea <text>", "Raw idea preserved verbatim", "").option("--force", "Initialize even though the directory contains a code-project marker").action(async (options) => {
   const projectId = options.projectId ?? root.split(/[\\/]/).at(-1)?.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") ?? "saas-project";
   await withProjectLock(root, async () => {

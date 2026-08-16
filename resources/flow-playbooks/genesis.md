@@ -154,6 +154,7 @@ Fix only reported structural/reference/completion failures. Do not open an adver
 Report:
 
 - selected customer/problem/opportunity and explicit exclusions;
+- every material decision the flow met, with how it was resolved: `asked` (the interaction), `stated` (the invocation carried it), or `deferred` (the `QST-*` opened, with its `Blocked on` class);
 - important supporting and contradicting `EVD-*` IDs;
 - conditional detail artifacts created;
 - unresolved `QUESTIONS` and evidence limitations;

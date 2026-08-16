@@ -1,5 +1,29 @@
 # Changelog
 
+## 1.28.0 - 2026-08-16
+
+The self-run sweep, before the owner has to point again. Four holes, found by
+walking every flow and every failure this session actually hit.
+
+- Reconciliation's authority call and Evidence Reassessment's close-by-decision
+  are owner decisions, and 1.26.0 bound only three of the five flows to the
+  host's ask facility. Both are now bound: an ambiguous authority or a
+  by-decision closure is presented through the ask, and a non-interactive run
+  records `Blocked on: owner-decision` instead of deciding — closing a
+  question by decision is always the owner's act, never the flow's.
+- Every mutation flow's closing report now enumerates the material decisions
+  it met and how each was resolved: `asked`, `stated` in the invocation, or
+  `deferred` as a classified `QST-*`. A checkpoint that was skipped now shows
+  as a decision resolved no legal way — visible in the record, not just in
+  the owner's memory of never having been asked.
+- Version skew diagnosed as version skew. The observed field failure: an
+  engine older than the repository's pinned catalog generation died with
+  "malformed required table contract" and sent the reader to debug a healthy
+  repository. `resolveCatalog` now compares generations before the parse
+  error can mislead and says the true thing: the plugin is older than the
+  repository — update the plugin.
+- The playbook's "five outputs" reference caught up with scouting's six.
+
 ## 1.27.0 - 2026-08-16
 
 The missing variant of the owner-input defect, named by the owner it cost: an

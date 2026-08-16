@@ -222,6 +222,7 @@ Fix structural/reference/coverage failures and failed configured tests. Do not o
 Report:
 
 - normalized intent/change class;
+- every material decision the flow met, with how it was resolved: `asked` (the interaction), `stated` (the invocation carried it), or `deferred` (the `QST-*` opened, with its `Blocked on` class) — a decision resolved any other way does not belong in a closed flow;
 - direct changed and full affected IDs, plus the ripple set with the decision recorded for each and any that remain unclassified;
 - created/updated/deprecated/retired artifacts;
 - old features pulled into regression through shared contracts;

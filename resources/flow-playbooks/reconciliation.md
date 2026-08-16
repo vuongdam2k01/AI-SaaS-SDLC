@@ -57,7 +57,7 @@ Authority is decided before repair. Active product behavior normally outranks co
 
 ## 5. One consolidated authority interaction
 
-Ask the user only when two sources are genuinely plausible authorities or repair would select new/breaking product behavior. Present exact interpretations, compatibility effect, scope and recommendation in one interaction.
+Ask the user only when two sources are genuinely plausible authorities or repair would select new/breaking product behavior. Present exact interpretations, compatibility effect, scope and recommendation in one interaction — through the host's interactive ask facility when one exists, never as prose the flow answers for the author; in a non-interactive run, record the choice as a `QST-*` with `Blocked on: owner-decision` and stop the repair rather than picking an authority silently.
 
 Do not ask for approval of mechanical fixes. If the answer chooses new product behavior, stop/cancel or complete the current record appropriately and hand the intent to Product Evolution rather than mixing flows.
 

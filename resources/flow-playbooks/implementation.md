@@ -52,7 +52,7 @@ If an implementation-intent flow for this same feature and segment is already op
 
 ## 4. Scout the delta
 
-Follow `resources/protocols/implementation-scouting.md`. Five outputs, stated before any edit: conventions to match (with `file:line`), the blast radius, the doc↔code delta keyed by artifact ID, existing partial implementations, and the seams present. Scouting here answers "what does the codebase already do about this spec", never "what should the product do" — the documents answer that, and doubting them routes to another flow.
+Follow `resources/protocols/implementation-scouting.md`. Six outputs, stated before any edit: conventions to match (with `file:line`), the blast radius, the doc↔code delta keyed by artifact ID, existing partial implementations, the seams present, and the solution ladder per commodity component with the rung taken. Scouting here answers "what does the codebase already do about this spec", never "what should the product do" — the documents answer that, and doubting them routes to another flow.
 
 ### Protocols, loaded by situation
 
@@ -142,6 +142,7 @@ Fix structural failures and failed configured tests. The standing warnings the s
 Report:
 
 - the feature, the segment as invoked, and the segment as actually delivered;
+- every material decision the segment met (substrate, solution-class rung, contract-preserving substitute), with how it was resolved: `asked`, `stated` in the invocation, or `deferred` as a classified `QST-*`;
 - spec-compliance table outcome (PASS/MISSING/EXTRA counts, with what happened to each MISSING and EXTRA);
 - files changed in configured sources, mappings added or updated;
 - execution and result IDs with verdicts — by ID, never by paraphrase;

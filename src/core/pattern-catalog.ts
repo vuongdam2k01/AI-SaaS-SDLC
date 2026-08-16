@@ -222,7 +222,34 @@ export async function loadPatternCatalog(catalogRoot: string, projectRoot?: stri
 export async function resolveCatalog(root: string, runtimeRoot: string): Promise<PatternCatalog> {
   const pinned = path.join(root, "00-system", "patterns");
   const hasPinned = await pathExists(path.join(pinned, "catalog.yaml")) || await pathExists(path.join(pinned, "catalog.yml"));
-  if (hasPinned) return loadPatternCatalog(pinned, root);
+  if (hasPinned) {
+    // A pinned generation the engine has never heard of is a version skew, not
+    // a broken repository — the observed failure mode is an older engine
+    // parsing a newer pin, dying on a shape it predates ("malformed required
+    // table contract") and sending the reader off to debug a healthy catalog.
+    // Diagnose the skew by version number before parsing can mislead.
+    try {
+      return await loadPatternCatalog(pinned, root);
+    } catch (error) {
+      const plugin = await loadPatternCatalog(path.join(runtimeRoot, "resources", "artifact-patterns")).catch(() => null);
+      const pinnedVersion = await readPinnedCatalogVersion(pinned);
+      if (plugin && pinnedVersion !== null && pinnedVersion > Number(plugin.version)) {
+        throw new SdlcError(`This repository pins pattern catalog generation ${pinnedVersion}, but this engine ships generation ${plugin.version} and cannot read it. The plugin is older than the repository — update the plugin, then retry. (Underlying parse error: ${error instanceof Error ? error.message : String(error)})`);
+      }
+      throw error;
+    }
+  }
   if (await pathExists(path.join(root, "sdlc.config.yaml"))) throw new SdlcError("Initialized repository is missing its pinned pattern catalog; run an explicit migration before creating artifacts.");
   return loadPatternCatalog(path.join(runtimeRoot, "resources", "artifact-patterns"));
+}
+
+/** The pinned catalog's version field alone, parsed leniently: the skew diagnosis must survive exactly the parse failure it explains. */
+async function readPinnedCatalogVersion(pinned: string): Promise<number | null> {
+  for (const name of ["catalog.yaml", "catalog.yml"]) {
+    const file = path.join(pinned, name);
+    if (!(await pathExists(file))) continue;
+    const match = /^version:\s*["']?(\d+)["']?\s*$/m.exec(await readFile(file, "utf8").catch(() => ""));
+    if (match?.[1]) return Number(match[1]);
+  }
+  return null;
 }

@@ -2,6 +2,14 @@
 
 See the root [CHANGELOG](../CHANGELOG.md) for the release summary. This contributor view records documentation-impact areas that must remain synchronized with implementation.
 
+## 1.28.0 - 2026-08-16
+
+| Area | Documentation impact |
+|---|---|
+| Method | `reconciliation.md` and `evidence-reassessment.md` bind their owner decisions to the host ask facility with the non-interactive `QST-*` fallback; genesis/evolution/implementation closing reports enumerate material decisions as `asked`/`stated`/`deferred`; implementation §4 says six scout outputs |
+| Engine | `pattern-catalog.ts` `resolveCatalog` diagnoses a pinned generation newer than the engine as version skew ("update the plugin") instead of surfacing the misleading parse error; new `tests/catalog-skew.test.ts` |
+| Compatibility | No catalog generation change; no migration |
+
 ## 1.27.0 - 2026-08-16
 
 | Area | Documentation impact |

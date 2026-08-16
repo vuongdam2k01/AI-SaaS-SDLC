@@ -97,7 +97,7 @@ Do not copy pattern files manually.
 
 ## 7. Conditional interaction
 
-Usually no user interaction is necessary: evidence is not a preference. Use at most one consolidated interaction if scope/geography/time applicability is genuinely ambiguous and alternatives would produce materially different conclusions. Do not ask the user to approve every source or wording change.
+Usually no user interaction is necessary: evidence is not a preference. Use at most one consolidated interaction if scope/geography/time applicability is genuinely ambiguous and alternatives would produce materially different conclusions — through the host's interactive ask facility when one exists. Closing a question **by decision** is always the owner's act, never the flow's: present it through the same facility, and in a non-interactive run leave the question open with `Blocked on: owner-decision` rather than deciding on the owner's behalf. Do not ask the user to approve every source or wording change.
 
 If the user chooses a product response to the evidence, record that as the next proposed Product Evolution intent; do not execute it inside Reassessment.
 
