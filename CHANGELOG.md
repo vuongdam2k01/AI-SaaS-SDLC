@@ -1,5 +1,77 @@
 # Changelog
 
+## 1.22.0 - 2026-08-16
+
+The same defect as 1.21.0, on its second surface. A pipeline with no channel
+for owner input loses more than taste: it loses the configuration the product
+cannot run without. Grepping the plugin for the concept — an input the owner
+supplies, a credential, a key — returned nothing at all. The observed
+repository showed both halves of the consequence. `INT-CREATION-001` states
+the credential rule correctly and, per the pattern's own instruction, is
+forbidden from naming a credential, so no document anywhere holds a key name;
+`QUALITY-REQUIREMENTS` names "Config audit" as a verification method with no
+artifact listing the configuration to audit; and five environment variables
+the implementation actually reads are declared by nobody — one of them,
+`CREATION_GATE_OPEN`, gating the product's own access requirement, so setting
+it closes the product and `ACCESS-CONTROL` does not know the switch exists.
+
+The owner's question was the practical one: *how do I know what to supply?*
+Answering it by asking them to describe their configuration first inverts the
+dependency — the key names live only in the code, which is precisely why no
+document could name them. So the engine reads the code. `config requirements`
+scans the configured implementation sources for environment reads in nine
+forms across the common languages, joins them to an optional declaration
+list, and reports four groups: what the owner still supplies, what is held,
+what the code reads that no artifact owns, and which commands this machine
+cannot run. It needs no prior declaration to be useful — a repository that has
+never thought about configuration still learns its own surface — and the
+declaration becomes a response to what the code does rather than a guess about
+it.
+
+The secret boundary an `INT-*` artifact declares is the boundary the engine
+keeps. It reads key *names*: the identifier left of the first `=` in an
+environment file, and nothing after it. No value reaches a state, a finding, a
+projection or a log, a test asserts it against a planted credential, and the
+`configuration` list refuses an entry carrying a `value` key outright, because
+that file is committed and must never become somewhere a credential can live.
+
+No projection ships. Supply state is machine-local, and a generated file
+carrying it would differ between machines and raise `GENERATED_DRIFT`, which
+is an error — so the joined view is the command and the findings, neither of
+which is a committed file.
+
+### Added
+
+- `config requirements` — read-only, permitted inside Inspect State. Four
+  groups, key names only. `--json` for the structured form.
+- `CONFIG_KEY_UNDECLARED` — an environment key a configured source reads that
+  no `configuration` entry declares. Fires with zero declarations, which is
+  the point: this is the finding that answers "what does this product need
+  from me" before the owner has described anything.
+- `CONFIG_REQUIREMENT_UNSUPPLIED` — a declared, non-optional key this machine
+  supplies no value for. The durable record that a real path cannot run here.
+- `CONFIG_DECLARATION_UNKNOWN` — a declaration no source reads, or whose
+  `required_by` names no live artifact: a requirement that outlived the code
+  or the design that imposed it. The `PLATFORM_DECLARATION_UNKNOWN` mirror.
+- `src/core/runtime-config.ts` — `observedConfigKeys` (the scan),
+  `suppliedConfigKeys` (presence only), `configKeyStates` as the single shared
+  joined view so a report and a warning can never disagree, and
+  `unrunnableCommands`.
+- Two optional configuration keys: a top-level `configuration` list of
+  `{key, required_by, optional}` entries, and per-command `requires_config`,
+  so a command missing a key is reported unrunnable instead of executed into a
+  confusing failure — the `platforms` shape applied to the environment.
+
+### Changed
+
+- All three warnings follow the platform-evidence doctrine and never block a
+  baseline. A machine without production credentials must still close a flow,
+  which is exactly the mock-first arrangement a quality requirement may
+  deliberately mandate.
+- Inspect State reports the configuration surface and is instructed never to
+  print, request or infer a value.
+- The warning table reaches thirty-five.
+
 ## 1.21.0 - 2026-08-16
 
 A pipeline that governs everything it can derive will silently drop what only

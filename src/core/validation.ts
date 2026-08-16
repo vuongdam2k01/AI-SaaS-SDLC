@@ -18,6 +18,7 @@ import { ruleCoverageEntries } from "./coverage-derivation.js";
 import { foundationCoverageFindings } from "./foundation-coverage.js";
 import { screenCoverageFindings } from "./screen-coverage.js";
 import { designTokenFindings } from "./design-tokens.js";
+import { runtimeConfigFindings } from "./runtime-config.js";
 import { systemDocumentFindings } from "./system-documents.js";
 import { MAX_CASES_PER_SPEC, specSizeEntries } from "./spec-size.js";
 import { brokenCaseReferences } from "./test-cases.js";
@@ -199,6 +200,15 @@ export async function validateProject(root: string, artifacts: Artifact[]): Prom
   // permanent ID cannot be renamed after baselining and a baseline must not
   // fail on a name.
   if (config) findings.push(...areaFindings(config, artifacts));
+  // The configuration surface is the one dependency no document can name on
+  // its own: an INT-* artifact states that a credential boundary exists and is
+  // forbidden from naming the key, so the concrete names live only in code.
+  // Scanning the sources therefore answers "what does this product need from
+  // me" with no prior declaration, which is the point — an owner learns their
+  // own surface instead of having to describe it first. Warnings throughout,
+  // the platform-evidence doctrine applied to the environment: a machine
+  // without production credentials must still be able to close a baseline.
+  if (config) findings.push(...await runtimeConfigFindings(root, config, artifacts));
   const graph = buildGraph(artifacts);
   // With implementation sources configured, a feature nothing maps and a
   // specified level nothing implements are standing records, not gates: a

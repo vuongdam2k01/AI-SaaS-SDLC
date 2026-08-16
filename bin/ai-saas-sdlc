@@ -1202,7 +1202,7 @@ var require_command = __commonJS({
   "node_modules/commander/lib/command.js"(exports) {
     var EventEmitter = __require("node:events").EventEmitter;
     var childProcess = __require("node:child_process");
-    var path32 = __require("node:path");
+    var path33 = __require("node:path");
     var fs = __require("node:fs");
     var process2 = __require("node:process");
     var { Argument: Argument2, humanReadableArgName } = require_argument();
@@ -2215,9 +2215,9 @@ Expecting one of '${allowedValues.join("', '")}'`);
         let launchWithNode = false;
         const sourceExt = [".js", ".ts", ".tsx", ".mjs", ".cjs"];
         function findFile(baseDir, baseName) {
-          const localBin = path32.resolve(baseDir, baseName);
+          const localBin = path33.resolve(baseDir, baseName);
           if (fs.existsSync(localBin)) return localBin;
-          if (sourceExt.includes(path32.extname(baseName))) return void 0;
+          if (sourceExt.includes(path33.extname(baseName))) return void 0;
           const foundExt = sourceExt.find(
             (ext) => fs.existsSync(`${localBin}${ext}`)
           );
@@ -2235,17 +2235,17 @@ Expecting one of '${allowedValues.join("', '")}'`);
           } catch {
             resolvedScriptPath = this._scriptPath;
           }
-          executableDir = path32.resolve(
-            path32.dirname(resolvedScriptPath),
+          executableDir = path33.resolve(
+            path33.dirname(resolvedScriptPath),
             executableDir
           );
         }
         if (executableDir) {
           let localFile = findFile(executableDir, executableFile);
           if (!localFile && !subcommand._executableFile && this._scriptPath) {
-            const legacyName = path32.basename(
+            const legacyName = path33.basename(
               this._scriptPath,
-              path32.extname(this._scriptPath)
+              path33.extname(this._scriptPath)
             );
             if (legacyName !== this._name) {
               localFile = findFile(
@@ -2256,7 +2256,7 @@ Expecting one of '${allowedValues.join("', '")}'`);
           }
           executableFile = localFile || executableFile;
         }
-        launchWithNode = sourceExt.includes(path32.extname(executableFile));
+        launchWithNode = sourceExt.includes(path33.extname(executableFile));
         let proc;
         if (process2.platform !== "win32") {
           if (launchWithNode) {
@@ -3171,7 +3171,7 @@ Expecting one of '${allowedValues.join("', '")}'`);
        * @return {Command}
        */
       nameFromFilename(filename) {
-        this._name = path32.basename(filename, path32.extname(filename));
+        this._name = path33.basename(filename, path33.extname(filename));
         return this;
       }
       /**
@@ -3185,9 +3185,9 @@ Expecting one of '${allowedValues.join("', '")}'`);
        * @param {string} [path]
        * @return {(string|null|Command)}
        */
-      executableDir(path33) {
-        if (path33 === void 0) return this._executableDir;
-        this._executableDir = path33;
+      executableDir(path34) {
+        if (path34 === void 0) return this._executableDir;
+        this._executableDir = path34;
         return this;
       }
       /**
@@ -3537,7 +3537,7 @@ var require_path = __commonJS({
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.convertPosixPathToPattern = exports.convertWindowsPathToPattern = exports.convertPathToPattern = exports.escapePosixPath = exports.escapeWindowsPath = exports.escape = exports.removeLeadingDotSegment = exports.makeAbsolute = exports.unixify = void 0;
     var os2 = __require("os");
-    var path32 = __require("path");
+    var path33 = __require("path");
     var IS_WINDOWS_PLATFORM = os2.platform() === "win32";
     var LEADING_DOT_SEGMENT_CHARACTERS_COUNT = 2;
     var POSIX_UNESCAPED_GLOB_SYMBOLS_RE = /(\\?)([()*?[\]{|}]|^!|[!+@](?=\()|\\(?![!()*+?@[\]{|}]))/g;
@@ -3549,7 +3549,7 @@ var require_path = __commonJS({
     }
     exports.unixify = unixify;
     function makeAbsolute(cwd, filepath) {
-      return path32.resolve(cwd, filepath);
+      return path33.resolve(cwd, filepath);
     }
     exports.makeAbsolute = makeAbsolute;
     function removeLeadingDotSegment(entry) {
@@ -4846,7 +4846,7 @@ var require_braces = __commonJS({
 var require_constants2 = __commonJS({
   "node_modules/picomatch/lib/constants.js"(exports, module) {
     "use strict";
-    var path32 = __require("path");
+    var path33 = __require("path");
     var WIN_SLASH = "\\\\/";
     var WIN_NO_SLASH = `[^${WIN_SLASH}]`;
     var DEFAULT_MAX_EXTGLOB_RECURSION = 0;
@@ -5020,7 +5020,7 @@ var require_constants2 = __commonJS({
       /* | */
       CHAR_ZERO_WIDTH_NOBREAK_SPACE: 65279,
       /* \uFEFF */
-      SEP: path32.sep,
+      SEP: path33.sep,
       /**
        * Create EXTGLOB_CHARS
        */
@@ -5047,7 +5047,7 @@ var require_constants2 = __commonJS({
 var require_utils2 = __commonJS({
   "node_modules/picomatch/lib/utils.js"(exports) {
     "use strict";
-    var path32 = __require("path");
+    var path33 = __require("path");
     var win32 = process.platform === "win32";
     var {
       REGEX_BACKSLASH,
@@ -5076,7 +5076,7 @@ var require_utils2 = __commonJS({
       if (options && typeof options.windows === "boolean") {
         return options.windows;
       }
-      return win32 === true || path32.sep === "\\";
+      return win32 === true || path33.sep === "\\";
     };
     exports.escapeLast = (input, char, lastIdx) => {
       const idx = input.lastIndexOf(char, lastIdx);
@@ -6440,7 +6440,7 @@ var require_parse2 = __commonJS({
 var require_picomatch = __commonJS({
   "node_modules/picomatch/lib/picomatch.js"(exports, module) {
     "use strict";
-    var path32 = __require("path");
+    var path33 = __require("path");
     var scan = require_scan();
     var parse = require_parse2();
     var utils = require_utils2();
@@ -6525,7 +6525,7 @@ var require_picomatch = __commonJS({
     };
     picomatch.matchBase = (input, glob, options, posix = utils.isWindows(options)) => {
       const regex = glob instanceof RegExp ? glob : picomatch.makeRe(glob, options);
-      return regex.test(path32.basename(input));
+      return regex.test(path33.basename(input));
     };
     picomatch.isMatch = (str, patterns2, options) => picomatch(patterns2, options)(str);
     picomatch.parse = (pattern, options) => {
@@ -6752,7 +6752,7 @@ var require_pattern = __commonJS({
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.isAbsolute = exports.partitionAbsoluteAndRelative = exports.removeDuplicateSlashes = exports.matchAny = exports.convertPatternsToRe = exports.makeRe = exports.getPatternParts = exports.expandBraceExpansion = exports.expandPatternsWithBraceExpansion = exports.isAffectDepthOfReadingPattern = exports.endsWithSlashGlobStar = exports.hasGlobStar = exports.getBaseDirectory = exports.isPatternRelatedToParentDirectory = exports.getPatternsOutsideCurrentDirectory = exports.getPatternsInsideCurrentDirectory = exports.getPositivePatterns = exports.getNegativePatterns = exports.isPositivePattern = exports.isNegativePattern = exports.convertToNegativePattern = exports.convertToPositivePattern = exports.isDynamicPattern = exports.isStaticPattern = void 0;
-    var path32 = __require("path");
+    var path33 = __require("path");
     var globParent = require_glob_parent();
     var micromatch = require_micromatch();
     var GLOBSTAR = "**";
@@ -6847,7 +6847,7 @@ var require_pattern = __commonJS({
     }
     exports.endsWithSlashGlobStar = endsWithSlashGlobStar;
     function isAffectDepthOfReadingPattern(pattern) {
-      const basename = path32.basename(pattern);
+      const basename = path33.basename(pattern);
       return endsWithSlashGlobStar(pattern) || isStaticPattern(basename);
     }
     exports.isAffectDepthOfReadingPattern = isAffectDepthOfReadingPattern;
@@ -6905,7 +6905,7 @@ var require_pattern = __commonJS({
     }
     exports.partitionAbsoluteAndRelative = partitionAbsoluteAndRelative;
     function isAbsolute(pattern) {
-      return path32.isAbsolute(pattern);
+      return path33.isAbsolute(pattern);
     }
     exports.isAbsolute = isAbsolute;
   }
@@ -7082,8 +7082,8 @@ var require_utils3 = __commonJS({
     exports.errno = errno;
     var fs = require_fs();
     exports.fs = fs;
-    var path32 = require_path();
-    exports.path = path32;
+    var path33 = require_path();
+    exports.path = path33;
     var pattern = require_pattern();
     exports.pattern = pattern;
     var stream = require_stream();
@@ -7195,8 +7195,8 @@ var require_async = __commonJS({
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.read = void 0;
-    function read(path32, settings, callback) {
-      settings.fs.lstat(path32, (lstatError, lstat5) => {
+    function read(path33, settings, callback) {
+      settings.fs.lstat(path33, (lstatError, lstat5) => {
         if (lstatError !== null) {
           callFailureCallback(callback, lstatError);
           return;
@@ -7205,7 +7205,7 @@ var require_async = __commonJS({
           callSuccessCallback(callback, lstat5);
           return;
         }
-        settings.fs.stat(path32, (statError, stat2) => {
+        settings.fs.stat(path33, (statError, stat2) => {
           if (statError !== null) {
             if (settings.throwErrorOnBrokenSymbolicLink) {
               callFailureCallback(callback, statError);
@@ -7237,13 +7237,13 @@ var require_sync = __commonJS({
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.read = void 0;
-    function read(path32, settings) {
-      const lstat5 = settings.fs.lstatSync(path32);
+    function read(path33, settings) {
+      const lstat5 = settings.fs.lstatSync(path33);
       if (!lstat5.isSymbolicLink() || !settings.followSymbolicLink) {
         return lstat5;
       }
       try {
-        const stat2 = settings.fs.statSync(path32);
+        const stat2 = settings.fs.statSync(path33);
         if (settings.markSymbolicLink) {
           stat2.isSymbolicLink = () => true;
         }
@@ -7314,17 +7314,17 @@ var require_out = __commonJS({
     var sync = require_sync();
     var settings_1 = require_settings();
     exports.Settings = settings_1.default;
-    function stat2(path32, optionsOrSettingsOrCallback, callback) {
+    function stat2(path33, optionsOrSettingsOrCallback, callback) {
       if (typeof optionsOrSettingsOrCallback === "function") {
-        async.read(path32, getSettings(), optionsOrSettingsOrCallback);
+        async.read(path33, getSettings(), optionsOrSettingsOrCallback);
         return;
       }
-      async.read(path32, getSettings(optionsOrSettingsOrCallback), callback);
+      async.read(path33, getSettings(optionsOrSettingsOrCallback), callback);
     }
     exports.stat = stat2;
-    function statSync(path32, optionsOrSettings) {
+    function statSync(path33, optionsOrSettings) {
       const settings = getSettings(optionsOrSettings);
-      return sync.read(path32, settings);
+      return sync.read(path33, settings);
     }
     exports.statSync = statSync;
     function getSettings(settingsOrOptions = {}) {
@@ -7540,16 +7540,16 @@ var require_async2 = __commonJS({
           return;
         }
         const tasks = names.map((name) => {
-          const path32 = common.joinPathSegments(directory, name, settings.pathSegmentSeparator);
+          const path33 = common.joinPathSegments(directory, name, settings.pathSegmentSeparator);
           return (done) => {
-            fsStat.stat(path32, settings.fsStatSettings, (error, stats) => {
+            fsStat.stat(path33, settings.fsStatSettings, (error, stats) => {
               if (error !== null) {
                 done(error);
                 return;
               }
               const entry = {
                 name,
-                path: path32,
+                path: path33,
                 dirent: utils.fs.createDirentFromStats(name, stats)
               };
               if (settings.stats) {
@@ -7667,7 +7667,7 @@ var require_settings2 = __commonJS({
   "node_modules/@nodelib/fs.scandir/out/settings.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    var path32 = __require("path");
+    var path33 = __require("path");
     var fsStat = require_out();
     var fs = require_fs4();
     var Settings = class {
@@ -7675,7 +7675,7 @@ var require_settings2 = __commonJS({
         this._options = _options;
         this.followSymbolicLinks = this._getValue(this._options.followSymbolicLinks, false);
         this.fs = fs.createFileSystemAdapter(this._options.fs);
-        this.pathSegmentSeparator = this._getValue(this._options.pathSegmentSeparator, path32.sep);
+        this.pathSegmentSeparator = this._getValue(this._options.pathSegmentSeparator, path33.sep);
         this.stats = this._getValue(this._options.stats, false);
         this.throwErrorOnBrokenSymbolicLink = this._getValue(this._options.throwErrorOnBrokenSymbolicLink, true);
         this.fsStatSettings = new fsStat.Settings({
@@ -7702,17 +7702,17 @@ var require_out2 = __commonJS({
     var sync = require_sync2();
     var settings_1 = require_settings2();
     exports.Settings = settings_1.default;
-    function scandir(path32, optionsOrSettingsOrCallback, callback) {
+    function scandir(path33, optionsOrSettingsOrCallback, callback) {
       if (typeof optionsOrSettingsOrCallback === "function") {
-        async.read(path32, getSettings(), optionsOrSettingsOrCallback);
+        async.read(path33, getSettings(), optionsOrSettingsOrCallback);
         return;
       }
-      async.read(path32, getSettings(optionsOrSettingsOrCallback), callback);
+      async.read(path33, getSettings(optionsOrSettingsOrCallback), callback);
     }
     exports.scandir = scandir;
-    function scandirSync(path32, optionsOrSettings) {
+    function scandirSync(path33, optionsOrSettings) {
       const settings = getSettings(optionsOrSettings);
-      return sync.read(path32, settings);
+      return sync.read(path33, settings);
     }
     exports.scandirSync = scandirSync;
     function getSettings(settingsOrOptions = {}) {
@@ -8359,7 +8359,7 @@ var require_settings3 = __commonJS({
   "node_modules/@nodelib/fs.walk/out/settings.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    var path32 = __require("path");
+    var path33 = __require("path");
     var fsScandir = require_out2();
     var Settings = class {
       constructor(_options = {}) {
@@ -8369,7 +8369,7 @@ var require_settings3 = __commonJS({
         this.deepFilter = this._getValue(this._options.deepFilter, null);
         this.entryFilter = this._getValue(this._options.entryFilter, null);
         this.errorFilter = this._getValue(this._options.errorFilter, null);
-        this.pathSegmentSeparator = this._getValue(this._options.pathSegmentSeparator, path32.sep);
+        this.pathSegmentSeparator = this._getValue(this._options.pathSegmentSeparator, path33.sep);
         this.fsScandirSettings = new fsScandir.Settings({
           followSymbolicLinks: this._options.followSymbolicLinks,
           fs: this._options.fs,
@@ -8431,7 +8431,7 @@ var require_reader2 = __commonJS({
   "node_modules/fast-glob/out/readers/reader.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    var path32 = __require("path");
+    var path33 = __require("path");
     var fsStat = require_out();
     var utils = require_utils3();
     var Reader = class {
@@ -8444,7 +8444,7 @@ var require_reader2 = __commonJS({
         });
       }
       _getFullEntryPath(filepath) {
-        return path32.resolve(this._settings.cwd, filepath);
+        return path33.resolve(this._settings.cwd, filepath);
       }
       _makeEntry(stats, pattern) {
         const entry = {
@@ -8860,7 +8860,7 @@ var require_provider = __commonJS({
   "node_modules/fast-glob/out/providers/provider.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    var path32 = __require("path");
+    var path33 = __require("path");
     var deep_1 = require_deep();
     var entry_1 = require_entry();
     var error_1 = require_error2();
@@ -8874,7 +8874,7 @@ var require_provider = __commonJS({
         this.entryTransformer = new entry_2.default(this._settings);
       }
       _getRootDirectory(task) {
-        return path32.resolve(this._settings.cwd, task.base);
+        return path33.resolve(this._settings.cwd, task.base);
       }
       _getReaderOptions(task) {
         const basePath = task.base === "." ? "" : task.base;
@@ -9544,17 +9544,17 @@ var require_visit = __commonJS({
     visit.BREAK = BREAK;
     visit.SKIP = SKIP;
     visit.REMOVE = REMOVE;
-    function visit_(key, node, visitor, path32) {
-      const ctrl = callVisitor(key, node, visitor, path32);
+    function visit_(key, node, visitor, path33) {
+      const ctrl = callVisitor(key, node, visitor, path33);
       if (identity.isNode(ctrl) || identity.isPair(ctrl)) {
-        replaceNode(key, path32, ctrl);
-        return visit_(key, ctrl, visitor, path32);
+        replaceNode(key, path33, ctrl);
+        return visit_(key, ctrl, visitor, path33);
       }
       if (typeof ctrl !== "symbol") {
         if (identity.isCollection(node)) {
-          path32 = Object.freeze(path32.concat(node));
+          path33 = Object.freeze(path33.concat(node));
           for (let i = 0; i < node.items.length; ++i) {
-            const ci = visit_(i, node.items[i], visitor, path32);
+            const ci = visit_(i, node.items[i], visitor, path33);
             if (typeof ci === "number")
               i = ci - 1;
             else if (ci === BREAK)
@@ -9565,13 +9565,13 @@ var require_visit = __commonJS({
             }
           }
         } else if (identity.isPair(node)) {
-          path32 = Object.freeze(path32.concat(node));
-          const ck = visit_("key", node.key, visitor, path32);
+          path33 = Object.freeze(path33.concat(node));
+          const ck = visit_("key", node.key, visitor, path33);
           if (ck === BREAK)
             return BREAK;
           else if (ck === REMOVE)
             node.key = null;
-          const cv = visit_("value", node.value, visitor, path32);
+          const cv = visit_("value", node.value, visitor, path33);
           if (cv === BREAK)
             return BREAK;
           else if (cv === REMOVE)
@@ -9592,17 +9592,17 @@ var require_visit = __commonJS({
     visitAsync.BREAK = BREAK;
     visitAsync.SKIP = SKIP;
     visitAsync.REMOVE = REMOVE;
-    async function visitAsync_(key, node, visitor, path32) {
-      const ctrl = await callVisitor(key, node, visitor, path32);
+    async function visitAsync_(key, node, visitor, path33) {
+      const ctrl = await callVisitor(key, node, visitor, path33);
       if (identity.isNode(ctrl) || identity.isPair(ctrl)) {
-        replaceNode(key, path32, ctrl);
-        return visitAsync_(key, ctrl, visitor, path32);
+        replaceNode(key, path33, ctrl);
+        return visitAsync_(key, ctrl, visitor, path33);
       }
       if (typeof ctrl !== "symbol") {
         if (identity.isCollection(node)) {
-          path32 = Object.freeze(path32.concat(node));
+          path33 = Object.freeze(path33.concat(node));
           for (let i = 0; i < node.items.length; ++i) {
-            const ci = await visitAsync_(i, node.items[i], visitor, path32);
+            const ci = await visitAsync_(i, node.items[i], visitor, path33);
             if (typeof ci === "number")
               i = ci - 1;
             else if (ci === BREAK)
@@ -9613,13 +9613,13 @@ var require_visit = __commonJS({
             }
           }
         } else if (identity.isPair(node)) {
-          path32 = Object.freeze(path32.concat(node));
-          const ck = await visitAsync_("key", node.key, visitor, path32);
+          path33 = Object.freeze(path33.concat(node));
+          const ck = await visitAsync_("key", node.key, visitor, path33);
           if (ck === BREAK)
             return BREAK;
           else if (ck === REMOVE)
             node.key = null;
-          const cv = await visitAsync_("value", node.value, visitor, path32);
+          const cv = await visitAsync_("value", node.value, visitor, path33);
           if (cv === BREAK)
             return BREAK;
           else if (cv === REMOVE)
@@ -9646,23 +9646,23 @@ var require_visit = __commonJS({
       }
       return visitor;
     }
-    function callVisitor(key, node, visitor, path32) {
+    function callVisitor(key, node, visitor, path33) {
       if (typeof visitor === "function")
-        return visitor(key, node, path32);
+        return visitor(key, node, path33);
       if (identity.isMap(node))
-        return visitor.Map?.(key, node, path32);
+        return visitor.Map?.(key, node, path33);
       if (identity.isSeq(node))
-        return visitor.Seq?.(key, node, path32);
+        return visitor.Seq?.(key, node, path33);
       if (identity.isPair(node))
-        return visitor.Pair?.(key, node, path32);
+        return visitor.Pair?.(key, node, path33);
       if (identity.isScalar(node))
-        return visitor.Scalar?.(key, node, path32);
+        return visitor.Scalar?.(key, node, path33);
       if (identity.isAlias(node))
-        return visitor.Alias?.(key, node, path32);
+        return visitor.Alias?.(key, node, path33);
       return void 0;
     }
-    function replaceNode(key, path32, node) {
-      const parent = path32[path32.length - 1];
+    function replaceNode(key, path33, node) {
+      const parent = path33[path33.length - 1];
       if (identity.isCollection(parent)) {
         parent.items[key] = node;
       } else if (identity.isPair(parent)) {
@@ -10272,10 +10272,10 @@ var require_Collection = __commonJS({
     var createNode = require_createNode();
     var identity = require_identity();
     var Node = require_Node();
-    function collectionFromPath(schema, path32, value) {
+    function collectionFromPath(schema, path33, value) {
       let v2 = value;
-      for (let i = path32.length - 1; i >= 0; --i) {
-        const k2 = path32[i];
+      for (let i = path33.length - 1; i >= 0; --i) {
+        const k2 = path33[i];
         if (typeof k2 === "number" && Number.isInteger(k2) && k2 >= 0) {
           const a = [];
           a[k2] = v2;
@@ -10294,7 +10294,7 @@ var require_Collection = __commonJS({
         sourceObjects: /* @__PURE__ */ new Map()
       });
     }
-    var isEmptyPath = (path32) => path32 == null || typeof path32 === "object" && !!path32[Symbol.iterator]().next().done;
+    var isEmptyPath = (path33) => path33 == null || typeof path33 === "object" && !!path33[Symbol.iterator]().next().done;
     var Collection = class extends Node.NodeBase {
       constructor(type, schema) {
         super(type);
@@ -10324,11 +10324,11 @@ var require_Collection = __commonJS({
        * be a Pair instance or a `{ key, value }` object, which may not have a key
        * that already exists in the map.
        */
-      addIn(path32, value) {
-        if (isEmptyPath(path32))
+      addIn(path33, value) {
+        if (isEmptyPath(path33))
           this.add(value);
         else {
-          const [key, ...rest] = path32;
+          const [key, ...rest] = path33;
           const node = this.get(key, true);
           if (identity.isCollection(node))
             node.addIn(rest, value);
@@ -10342,8 +10342,8 @@ var require_Collection = __commonJS({
        * Removes a value from the collection.
        * @returns `true` if the item was found and removed.
        */
-      deleteIn(path32) {
-        const [key, ...rest] = path32;
+      deleteIn(path33) {
+        const [key, ...rest] = path33;
         if (rest.length === 0)
           return this.delete(key);
         const node = this.get(key, true);
@@ -10357,8 +10357,8 @@ var require_Collection = __commonJS({
        * scalar values from their surrounding node; to disable set `keepScalar` to
        * `true` (collections are always returned intact).
        */
-      getIn(path32, keepScalar) {
-        const [key, ...rest] = path32;
+      getIn(path33, keepScalar) {
+        const [key, ...rest] = path33;
         const node = this.get(key, true);
         if (rest.length === 0)
           return !keepScalar && identity.isScalar(node) ? node.value : node;
@@ -10376,8 +10376,8 @@ var require_Collection = __commonJS({
       /**
        * Checks if the collection includes a value with the key `key`.
        */
-      hasIn(path32) {
-        const [key, ...rest] = path32;
+      hasIn(path33) {
+        const [key, ...rest] = path33;
         if (rest.length === 0)
           return this.has(key);
         const node = this.get(key, true);
@@ -10387,8 +10387,8 @@ var require_Collection = __commonJS({
        * Sets a value in this collection. For `!!set`, `value` needs to be a
        * boolean to add/remove the item from the set.
        */
-      setIn(path32, value) {
-        const [key, ...rest] = path32;
+      setIn(path33, value) {
+        const [key, ...rest] = path33;
         if (rest.length === 0) {
           this.set(key, value);
         } else {
@@ -12903,9 +12903,9 @@ var require_Document = __commonJS({
           this.contents.add(value);
       }
       /** Adds a value to the document. */
-      addIn(path32, value) {
+      addIn(path33, value) {
         if (assertCollection(this.contents))
-          this.contents.addIn(path32, value);
+          this.contents.addIn(path33, value);
       }
       /**
        * Create a new `Alias` node, ensuring that the target `node` has the required anchor.
@@ -12980,14 +12980,14 @@ var require_Document = __commonJS({
        * Removes a value from the document.
        * @returns `true` if the item was found and removed.
        */
-      deleteIn(path32) {
-        if (Collection.isEmptyPath(path32)) {
+      deleteIn(path33) {
+        if (Collection.isEmptyPath(path33)) {
           if (this.contents == null)
             return false;
           this.contents = null;
           return true;
         }
-        return assertCollection(this.contents) ? this.contents.deleteIn(path32) : false;
+        return assertCollection(this.contents) ? this.contents.deleteIn(path33) : false;
       }
       /**
        * Returns item at `key`, or `undefined` if not found. By default unwraps
@@ -13002,10 +13002,10 @@ var require_Document = __commonJS({
        * scalar values from their surrounding node; to disable set `keepScalar` to
        * `true` (collections are always returned intact).
        */
-      getIn(path32, keepScalar) {
-        if (Collection.isEmptyPath(path32))
+      getIn(path33, keepScalar) {
+        if (Collection.isEmptyPath(path33))
           return !keepScalar && identity.isScalar(this.contents) ? this.contents.value : this.contents;
-        return identity.isCollection(this.contents) ? this.contents.getIn(path32, keepScalar) : void 0;
+        return identity.isCollection(this.contents) ? this.contents.getIn(path33, keepScalar) : void 0;
       }
       /**
        * Checks if the document includes a value with the key `key`.
@@ -13016,10 +13016,10 @@ var require_Document = __commonJS({
       /**
        * Checks if the document includes a value at `path`.
        */
-      hasIn(path32) {
-        if (Collection.isEmptyPath(path32))
+      hasIn(path33) {
+        if (Collection.isEmptyPath(path33))
           return this.contents !== void 0;
-        return identity.isCollection(this.contents) ? this.contents.hasIn(path32) : false;
+        return identity.isCollection(this.contents) ? this.contents.hasIn(path33) : false;
       }
       /**
        * Sets a value in this document. For `!!set`, `value` needs to be a
@@ -13036,13 +13036,13 @@ var require_Document = __commonJS({
        * Sets a value in this document. For `!!set`, `value` needs to be a
        * boolean to add/remove the item from the set.
        */
-      setIn(path32, value) {
-        if (Collection.isEmptyPath(path32)) {
+      setIn(path33, value) {
+        if (Collection.isEmptyPath(path33)) {
           this.contents = value;
         } else if (this.contents == null) {
-          this.contents = Collection.collectionFromPath(this.schema, Array.from(path32), value);
+          this.contents = Collection.collectionFromPath(this.schema, Array.from(path33), value);
         } else if (assertCollection(this.contents)) {
-          this.contents.setIn(path32, value);
+          this.contents.setIn(path33, value);
         }
       }
       /**
@@ -15002,9 +15002,9 @@ var require_cst_visit = __commonJS({
     visit.BREAK = BREAK;
     visit.SKIP = SKIP;
     visit.REMOVE = REMOVE;
-    visit.itemAtPath = (cst, path32) => {
+    visit.itemAtPath = (cst, path33) => {
       let item = cst;
-      for (const [field, index] of path32) {
+      for (const [field, index] of path33) {
         const tok = item?.[field];
         if (tok && "items" in tok) {
           item = tok.items[index];
@@ -15013,23 +15013,23 @@ var require_cst_visit = __commonJS({
       }
       return item;
     };
-    visit.parentCollection = (cst, path32) => {
-      const parent = visit.itemAtPath(cst, path32.slice(0, -1));
-      const field = path32[path32.length - 1][0];
+    visit.parentCollection = (cst, path33) => {
+      const parent = visit.itemAtPath(cst, path33.slice(0, -1));
+      const field = path33[path33.length - 1][0];
       const coll = parent?.[field];
       if (coll && "items" in coll)
         return coll;
       throw new Error("Parent collection not found");
     };
-    function _visit(path32, item, visitor) {
-      let ctrl = visitor(item, path32);
+    function _visit(path33, item, visitor) {
+      let ctrl = visitor(item, path33);
       if (typeof ctrl === "symbol")
         return ctrl;
       for (const field of ["key", "value"]) {
         const token = item[field];
         if (token && "items" in token) {
           for (let i = 0; i < token.items.length; ++i) {
-            const ci = _visit(Object.freeze(path32.concat([[field, i]])), token.items[i], visitor);
+            const ci = _visit(Object.freeze(path33.concat([[field, i]])), token.items[i], visitor);
             if (typeof ci === "number")
               i = ci - 1;
             else if (ci === BREAK)
@@ -15040,10 +15040,10 @@ var require_cst_visit = __commonJS({
             }
           }
           if (typeof ctrl === "function" && field === "key")
-            ctrl = ctrl(item, path32);
+            ctrl = ctrl(item, path33);
         }
       }
-      return typeof ctrl === "function" ? ctrl(item, path32) : ctrl;
+      return typeof ctrl === "function" ? ctrl(item, path33) : ctrl;
     }
     exports.visit = visit;
   }
@@ -17139,6 +17139,19 @@ function validAreas(value) {
   if (value === void 0) return true;
   return Array.isArray(value) && value.length > 0 && value.every((item) => typeof item === "string" && /^[A-Z][A-Z0-9]*(?:-[A-Z0-9]+)*$/.test(item)) && new Set(value).size === value.length;
 }
+function envKey(value) {
+  return typeof value === "string" && /^[A-Z][A-Z0-9_]*$/.test(value);
+}
+function validRequiresConfig(value) {
+  if (value === void 0) return true;
+  return Array.isArray(value) && value.length > 0 && value.every(envKey) && new Set(value).size === value.length;
+}
+function validConfiguration(value) {
+  if (value === void 0) return true;
+  if (!Array.isArray(value) || value.length === 0) return false;
+  if (new Set(value.map((entry) => isRecord(entry) ? entry.key : void 0)).size !== value.length) return false;
+  return value.every((entry) => isRecord(entry) && exactKeys2(entry, ["key", "required_by", "optional"]) && envKey(entry.key) && typeof entry.required_by === "string" && /^[A-Z][A-Z0-9-]*$/.test(entry.required_by) && (entry.optional === void 0 || typeof entry.optional === "boolean"));
+}
 function validReport(value) {
   if (value === void 0) return true;
   if (!isRecord(value) || !exactKeys2(value, ["path", "format"])) return false;
@@ -17150,12 +17163,13 @@ function validTimeout(value) {
   return typeof value === "number" && Number.isInteger(value) && value >= 1;
 }
 function validCommand(value) {
-  return isRecord(value) && exactKeys2(value, ["id", "cwd", "command", "platforms", "report", "timeout_ms"]) && safeId(value.id) && [value.cwd, value.command].every((item) => typeof item === "string" && item.length > 0) && validPlatforms(value.platforms) && validReport(value.report) && validTimeout(value.timeout_ms);
+  return isRecord(value) && exactKeys2(value, ["id", "cwd", "command", "platforms", "report", "timeout_ms", "requires_config"]) && safeId(value.id) && [value.cwd, value.command].every((item) => typeof item === "string" && item.length > 0) && validPlatforms(value.platforms) && validReport(value.report) && validTimeout(value.timeout_ms) && validRequiresConfig(value.requires_config);
 }
 function validConfig(value) {
-  if (!isRecord(value) || !exactKeys2(value, ["schema_version", "project_id", "research_mode", "implementation_sources", "verification", "areas"])) return false;
+  if (!isRecord(value) || !exactKeys2(value, ["schema_version", "project_id", "research_mode", "implementation_sources", "verification", "areas", "configuration"])) return false;
   if (value.schema_version !== 1 || value.research_mode !== "public-web-only" || typeof value.project_id !== "string" || !/^[a-z0-9][a-z0-9-]*$/.test(value.project_id)) return false;
   if (!validAreas(value.areas)) return false;
+  if (!validConfiguration(value.configuration)) return false;
   if (!Array.isArray(value.implementation_sources) || !value.implementation_sources.every((source) => isRecord(source) && exactKeys2(source, ["id", "path"]) && safeId(source.id) && typeof source.path === "string" && source.path.length > 0)) return false;
   if (new Set(value.implementation_sources.map((source) => source.id)).size !== value.implementation_sources.length) return false;
   if (!isRecord(value.verification) || !exactKeys2(value.verification, ["unit", "integration", "system"])) return false;
@@ -17174,7 +17188,7 @@ async function loadConfig(root2) {
   } catch (error) {
     throw new SdlcError(`Cannot read ${file}: ${String(error)}`);
   }
-  if (!validConfig(parsed)) throw new SdlcError("Invalid sdlc.config.yaml: expected schema_version 1, kebab-case project/source/command IDs, public-web-only research, implementation_sources, unit/integration/system command arrays, optional non-empty artifact-ID platforms lists, optional per-command report declarations ({path, format: junit|tap}), optional positive-integer per-command timeout_ms overrides, and an optional non-empty uppercase areas registry.");
+  if (!validConfig(parsed)) throw new SdlcError("Invalid sdlc.config.yaml: expected schema_version 1, kebab-case project/source/command IDs, public-web-only research, implementation_sources, unit/integration/system command arrays, optional non-empty artifact-ID platforms lists, optional per-command report declarations ({path, format: junit|tap}), optional positive-integer per-command timeout_ms overrides, optional non-empty uppercase requires_config key lists, an optional non-empty uppercase areas registry, and an optional configuration list of {key, required_by, optional} entries carrying key names only \u2014 never a value.");
   return parsed;
 }
 var import_yaml2;
@@ -19736,8 +19750,8 @@ init_paths();
 init_paths();
 init_utils();
 init_record_validation();
-import { readFile as readFile18 } from "node:fs/promises";
-import path25 from "node:path";
+import { readFile as readFile19 } from "node:fs/promises";
+import path26 from "node:path";
 
 // src/core/internal-validation.ts
 var import_fast_glob10 = __toESM(require_out4(), 1);
@@ -20586,10 +20600,159 @@ function designTokenFindings(artifacts) {
   }];
 }
 
-// src/core/system-documents.ts
-init_markdown();
+// src/core/runtime-config.ts
+var import_fast_glob12 = __toESM(require_out4(), 1);
+init_types();
+init_paths();
 import { readFile as readFile17 } from "node:fs/promises";
 import path24 from "node:path";
+var READ_FORMS = [
+  /\bprocess\.env\.([A-Z][A-Z0-9_]*)\b/g,
+  /\bprocess\.env\[\s*["'`]([A-Z][A-Z0-9_]*)["'`]\s*\]/g,
+  /\bimport\.meta\.env\.([A-Z][A-Z0-9_]*)\b/g,
+  /\bos\.environ(?:\.get)?[[(]\s*["']([A-Z][A-Z0-9_]*)["']/g,
+  /\bos\.[Gg]etenv\(\s*["']([A-Z][A-Z0-9_]*)["']/g,
+  /\bSystem\.getenv\(\s*["']([A-Z][A-Z0-9_]*)["']/g,
+  /\benv::var(?:_os)?\(\s*["']([A-Z][A-Z0-9_]*)["']/g,
+  /\bgetenv\(\s*["']([A-Z][A-Z0-9_]*)["']/g,
+  /\bENV\[\s*["']([A-Z][A-Z0-9_]*)["']\s*\]/g
+];
+var SOURCE_GLOB = "**/*.{ts,tsx,js,jsx,mjs,cjs,mts,cts,py,go,rb,rs,java,kt,kts,php,cs,swift,sh,bash}";
+var SCAN_EXCLUSIONS = [
+  "**/node_modules/**",
+  "**/.git/**",
+  "**/dist/**",
+  "**/build/**",
+  "**/out/**",
+  "**/.next/**",
+  "**/.nuxt/**",
+  "**/coverage/**",
+  "**/vendor/**",
+  "**/target/**",
+  "**/.venv/**",
+  "**/__pycache__/**",
+  "**/.data/**",
+  "**/test-results/**",
+  "**/reports/**"
+];
+var ENV_FILES = [".env", ".env.local"];
+var ENV_KEY_LINE = /^\s*(?:export\s+)?([A-Za-z_][A-Za-z0-9_]*)\s*=/;
+async function observedConfigKeys(root2, config) {
+  const observed = /* @__PURE__ */ new Map();
+  for (const source of [...config.implementation_sources].sort((a, b2) => a.id.localeCompare(b2.id))) {
+    const base = path24.resolve(root2, source.path);
+    const files = await (0, import_fast_glob12.default)(SOURCE_GLOB, { cwd: base, dot: false, onlyFiles: true, followSymbolicLinks: false, ignore: SCAN_EXCLUSIONS, suppressErrors: true });
+    for (const relative of files.sort()) {
+      const file = path24.resolve(base, relative);
+      if (!isWithin(base, file)) continue;
+      const content = await readFile17(file, "utf8").catch(() => "");
+      if (!content) continue;
+      const lines = content.split("\n");
+      lines.forEach((line, index) => {
+        for (const form of READ_FORMS) {
+          form.lastIndex = 0;
+          for (const match of line.matchAll(form)) {
+            const key = match[1];
+            if (!key) continue;
+            const site = `${source.id}:${relative}:${index + 1}`;
+            const sites = observed.get(key) ?? [];
+            if (!sites.includes(site)) sites.push(site);
+            observed.set(key, sites);
+          }
+        }
+      });
+    }
+  }
+  return observed;
+}
+async function suppliedConfigKeys(root2, config) {
+  const supplied = /* @__PURE__ */ new Map();
+  for (const source of [...config.implementation_sources].sort((a, b2) => a.id.localeCompare(b2.id))) {
+    const base = path24.resolve(root2, source.path);
+    for (const name of ENV_FILES) {
+      const file = path24.resolve(base, name);
+      if (!isWithin(base, file)) continue;
+      const content = await readFile17(file, "utf8").catch(() => "");
+      if (!content) continue;
+      for (const line of content.split("\n")) {
+        if (line.trimStart().startsWith("#")) continue;
+        const key = ENV_KEY_LINE.exec(line)?.[1];
+        if (key && !supplied.has(key)) supplied.set(key, `${source.path}/${name}`);
+      }
+    }
+  }
+  for (const key of Object.keys(process.env)) {
+    if (!supplied.has(key) && process.env[key] !== void 0 && process.env[key] !== "") supplied.set(key, "environment");
+  }
+  return supplied;
+}
+function declaredRequirements(config) {
+  return [...config?.configuration ?? []].sort((a, b2) => a.key.localeCompare(b2.key));
+}
+async function configKeyStates(root2, config) {
+  const observed = await observedConfigKeys(root2, config);
+  const supplied = await suppliedConfigKeys(root2, config);
+  const declarations = new Map(declaredRequirements(config).map((requirement) => [requirement.key, requirement]));
+  const keys = [.../* @__PURE__ */ new Set([...declarations.keys(), ...observed.keys()])].sort();
+  return keys.map((key) => ({
+    key,
+    declaration: declarations.get(key) ?? null,
+    read_at: observed.get(key) ?? [],
+    supplied: supplied.has(key),
+    supplied_from: supplied.get(key) ?? null
+  }));
+}
+async function runtimeConfigFindings(root2, config, artifacts) {
+  const findings = [];
+  const states = await configKeyStates(root2, config);
+  const liveIds = new Set(artifacts.filter((artifact2) => isLiveStatus(artifact2.status)).map((artifact2) => artifact2.id));
+  for (const state of states) {
+    if (!state.declaration) {
+      findings.push({
+        severity: "warning",
+        code: "CONFIG_KEY_UNDECLARED",
+        message: `${state.key} is read by the implementation (${state.read_at[0]}${state.read_at.length > 1 ? ` and ${state.read_at.length - 1} other site(s)` : ""}) and no configuration entry declares it; add it to the configuration list of sdlc.config.yaml naming the artifact that imposes it, or remove the read.`,
+        file: "sdlc.config.yaml"
+      });
+      continue;
+    }
+    const { key, declaration } = state;
+    if (state.read_at.length === 0) {
+      findings.push({
+        severity: "warning",
+        code: "CONFIG_DECLARATION_UNKNOWN",
+        message: `${key} is declared as configuration required by ${declaration.required_by}, and no configured implementation source reads it; the requirement outlived the code that consumed it, or the code that will consume it does not exist yet.`,
+        file: "sdlc.config.yaml"
+      });
+    } else if (!liveIds.has(declaration.required_by)) {
+      findings.push({
+        severity: "warning",
+        code: "CONFIG_DECLARATION_UNKNOWN",
+        message: `${key} declares required_by ${declaration.required_by}, which matches no live artifact; name the artifact whose contract imposes the key.`,
+        file: "sdlc.config.yaml"
+      });
+    }
+    if (!declaration.optional && !state.supplied) {
+      findings.push({
+        severity: "warning",
+        code: "CONFIG_REQUIREMENT_UNSUPPLIED",
+        message: `${key} is required by ${declaration.required_by} and this machine supplies no value for it; write the key into an environment file of the source that reads it, or mark the requirement optional when a working default exists. The engine checks the key name only and never reads its value.`,
+        file: "sdlc.config.yaml"
+      });
+    }
+  }
+  return findings;
+}
+async function unrunnableCommands(root2, config) {
+  const supplied = await suppliedConfigKeys(root2, config);
+  const levels = ["unit", "integration", "system"];
+  return levels.flatMap((level) => config.verification[level].filter((command) => (command.requires_config ?? []).some((key) => !supplied.has(key))).map((command) => ({ level, id: command.id, missing: (command.requires_config ?? []).filter((key) => !supplied.has(key)).sort() })));
+}
+
+// src/core/system-documents.ts
+init_markdown();
+import { readFile as readFile18 } from "node:fs/promises";
+import path25 from "node:path";
 init_paths();
 init_state();
 function tableMatches2(columns, required) {
@@ -20623,8 +20786,8 @@ function checkDocument(relative, body, contract) {
   return problems.map((problem) => `${relative} ${problem}`);
 }
 async function systemDocumentFindings(root2) {
-  const catalogRoot = path24.join(root2, "00-system", "patterns");
-  if (!await pathExists(path24.join(catalogRoot, "catalog.yaml")) && !await pathExists(path24.join(catalogRoot, "catalog.yml"))) return [];
+  const catalogRoot = path25.join(root2, "00-system", "patterns");
+  if (!await pathExists(path25.join(catalogRoot, "catalog.yaml")) && !await pathExists(path25.join(catalogRoot, "catalog.yml"))) return [];
   let documents;
   try {
     documents = (await loadPatternCatalog(catalogRoot, root2)).system_documents;
@@ -20634,13 +20797,13 @@ async function systemDocumentFindings(root2) {
   const findings = [];
   for (const document of documents) {
     const relative = document.path.replaceAll("\\", "/");
-    const file = path24.join(root2, relative);
+    const file = path25.join(root2, relative);
     if (!await pathExists(file)) {
       findings.push({ severity: "warning", code: "SYSTEM_DOCUMENT_INCOMPLETE", message: `${relative} is declared by the pinned catalog and absent from this repository; restore it from the project template.`, file: relative });
       continue;
     }
     await assertSafeManagedPath(root2, file);
-    const problems = checkDocument(relative, await readFile17(file, "utf8"), document.content);
+    const problems = checkDocument(relative, await readFile18(file, "utf8"), document.content);
     for (const problem of problems) {
       findings.push({ severity: "warning", code: "SYSTEM_DOCUMENT_INCOMPLETE", message: `${problem}; this repository's own rules are stated here, so a gap here is a gap in every rule downstream work is graded against.`, file: relative });
     }
@@ -20927,11 +21090,11 @@ async function validateProject(root2, artifacts) {
     findings.push({ severity: "error", code: "CONFIG_INVALID", message: String(error) });
   }
   for (const file of requiredFiles) {
-    if (!await pathExists(path25.join(root2, file))) findings.push({ severity: "error", code: "REQUIRED_FILE_MISSING", message: `Required file is missing: ${file}`, file });
+    if (!await pathExists(path26.join(root2, file))) findings.push({ severity: "error", code: "REQUIRED_FILE_MISSING", message: `Required file is missing: ${file}`, file });
   }
   if (config) {
     for (const source of config.implementation_sources) {
-      const sourceRoot = path25.resolve(root2, source.path);
+      const sourceRoot = path26.resolve(root2, source.path);
       if (!await pathExists(sourceRoot)) findings.push({ severity: "error", code: "IMPLEMENTATION_SOURCE_MISSING", message: `Configured implementation source is missing: ${source.id} (${source.path})` });
     }
   }
@@ -20951,7 +21114,7 @@ async function validateProject(root2, artifacts) {
     if (canonical && (artifact2.id !== canonical[0] || artifact2.artifact_type !== canonical[1])) findings.push({ severity: "error", code: "CANONICAL_IDENTITY_INVALID", message: `${artifact2.file} must be ${canonical[0]} with type ${canonical[1]}`, file: artifact2.file });
     else if (!canonical && CANONICAL_TYPES.has(artifact2.artifact_type)) findings.push({ severity: "error", code: "CANONICAL_LOCATION_INVALID", message: `${artifact2.artifact_type} is a singleton canonical type and cannot appear at ${artifact2.file}`, file: artifact2.file });
     else if (SCALABLE_LOCATIONS[artifact2.artifact_type] && !SCALABLE_LOCATIONS[artifact2.artifact_type].test(artifact2.file)) findings.push({ severity: "error", code: "ARTIFACT_LOCATION_INVALID", message: `${artifact2.artifact_type} cannot appear at ${artifact2.file}`, file: artifact2.file });
-    else if (SCALABLE_LOCATIONS[artifact2.artifact_type] && path25.basename(artifact2.file, ".md") !== artifact2.id) findings.push({ severity: "error", code: "ARTIFACT_FILENAME_MISMATCH", message: `${artifact2.id} must use the matching filename ${artifact2.id}.md`, file: artifact2.file });
+    else if (SCALABLE_LOCATIONS[artifact2.artifact_type] && path26.basename(artifact2.file, ".md") !== artifact2.id) findings.push({ severity: "error", code: "ARTIFACT_FILENAME_MISMATCH", message: `${artifact2.id} must use the matching filename ${artifact2.id}.md`, file: artifact2.file });
     else if (FIXED_TYPES.has(artifact2.artifact_type)) {
       const expected = expectedContractIdentity(artifact2.artifact_type, artifact2.file);
       if (!expected || artifact2.id !== expected) findings.push({ severity: "error", code: "FIXED_IDENTITY_INVALID", message: `${artifact2.artifact_type} has an invalid fixed identity`, file: artifact2.file });
@@ -20994,8 +21157,8 @@ async function validateProject(root2, artifacts) {
           findings.push({ severity: "error", code: "IMPLEMENTATION_MAPPING_INVALID", message: `${artifact2.id} implementation mapping must be <source-id>:<relative-path>: ${mapping}`, file: artifact2.file });
           continue;
         }
-        const sourceRoot = path25.resolve(root2, source.path);
-        const target = path25.resolve(sourceRoot, relative);
+        const sourceRoot = path26.resolve(root2, source.path);
+        const target = path26.resolve(sourceRoot, relative);
         if (!isWithin(sourceRoot, target)) findings.push({ severity: "error", code: "IMPLEMENTATION_MAPPING_ESCAPE", message: `${artifact2.id} implementation mapping escapes source ${sourceId}: ${mapping}`, file: artifact2.file });
         else if (!await pathExists(target)) findings.push({ severity: "error", code: "IMPLEMENTATION_TARGET_MISSING", message: `${artifact2.id} implementation target does not exist: ${mapping}`, file: artifact2.file });
         else {
@@ -21029,6 +21192,7 @@ async function validateProject(root2, artifacts) {
   findings.push(...retrievalEvidenceFindings(artifacts, await loadRetrievalRecords(root2), await loadQueryRecords(root2)));
   findings.push(...contractAuthorityFindings(artifacts));
   if (config) findings.push(...areaFindings(config, artifacts));
+  if (config) findings.push(...await runtimeConfigFindings(root2, config, artifacts));
   const graph = buildGraph(artifacts);
   if (config) {
     findings.push(...implementationMappingFindings(config, artifacts, graph));
@@ -21053,7 +21217,7 @@ async function validateProject(root2, artifacts) {
     }
   }
   try {
-    const openapi = import_yaml4.default.parse(await readFile18(path25.join(root2, "03-design/interfaces/openapi.yaml"), "utf8"));
+    const openapi = import_yaml4.default.parse(await readFile19(path26.join(root2, "03-design/interfaces/openapi.yaml"), "utf8"));
     if (openapi.openapi !== "3.1.0") findings.push({ severity: "error", code: "OPENAPI_VERSION", message: "openapi.yaml must use OpenAPI 3.1.0" });
   } catch (error) {
     findings.push({ severity: "error", code: "OPENAPI_INVALID", message: `Invalid openapi.yaml: ${String(error)}` });
@@ -21125,9 +21289,9 @@ init_config();
 // src/core/verification.ts
 import { spawn } from "node:child_process";
 import { StringDecoder } from "node:string_decoder";
-import { readFile as readFile19, readdir as readdir7, writeFile as writeFile7 } from "node:fs/promises";
+import { readFile as readFile20, readdir as readdir7, writeFile as writeFile7 } from "node:fs/promises";
 import os from "node:os";
-import path26 from "node:path";
+import path27 from "node:path";
 
 // src/core/git.ts
 import { execFileSync as execFileSync2 } from "node:child_process";
@@ -21178,7 +21342,7 @@ async function loadVerificationPolicy(root2) {
   return { ...DEFAULT_VERIFICATION_POLICY, ...candidate };
 }
 function allowedRoots(root2, config) {
-  return [root2, ...config.implementation_sources.map((source) => path26.resolve(root2, source.path))];
+  return [root2, ...config.implementation_sources.map((source) => path27.resolve(root2, source.path))];
 }
 async function executionsForFlow(root2, flowId) {
   const directory = projectPaths(root2).executions;
@@ -21187,7 +21351,7 @@ async function executionsForFlow(root2, flowId) {
   const records = [];
   for (const name of files) {
     try {
-      const candidate = await readJson(path26.join(directory, name));
+      const candidate = await readJson(path27.join(directory, name));
       if (isExecutionRecord(candidate) && candidate.flow_id === flowId) records.push(candidate);
     } catch {
     }
@@ -21246,7 +21410,7 @@ ${String(error)}`, started, ended: (/* @__PURE__ */ new Date()).toISOString(), s
 }
 async function ingestReport(definition, cwd, roots, artifacts, level) {
   if (!definition.report) return {};
-  const target = path26.resolve(cwd, definition.report.path);
+  const target = path27.resolve(cwd, definition.report.path);
   try {
     const confined = await Promise.all(roots.map(async (allowed) => {
       try {
@@ -21256,7 +21420,7 @@ async function ingestReport(definition, cwd, roots, artifacts, level) {
       }
     }));
     if (!confined.some(Boolean)) throw new SdlcError(`report path resolves outside configured sources: ${definition.report.path}`);
-    const content = await readFile19(target, "utf8");
+    const content = await readFile20(target, "utf8");
     const parsed = definition.report.format === "junit" ? parseJunit(content) : parseTap(content);
     const specs = artifacts.filter((artifact2) => LEVEL_SPEC_TYPES[level].includes(artifact2.artifact_type) && artifact2.status === "active");
     return {
@@ -21284,7 +21448,7 @@ async function executeVerificationUnlocked(root2, config, levels) {
   const planned = [];
   for (const level of levels) {
     for (const definition of config.verification[level]) {
-      const cwd = path26.resolve(root2, definition.cwd);
+      const cwd = path27.resolve(root2, definition.cwd);
       const checks = await Promise.all(roots.map(async (allowed) => {
         try {
           return await isRealPathWithin(allowed, cwd);
@@ -21307,9 +21471,9 @@ async function executeVerificationUnlocked(root2, config, levels) {
       continue;
     }
     const id2 = formatId("EXEC", state.next_execution);
-    const logFile = path26.join(projectPaths(root2).executions, `${id2}.log`);
-    const recordFile = path26.join(projectPaths(root2).executions, `${id2}.json`);
-    const resultFile = path26.join(root2, "04-verification", "results", `RESULT-${id2}.md`);
+    const logFile = path27.join(projectPaths(root2).executions, `${id2}.log`);
+    const recordFile = path27.join(projectPaths(root2).executions, `${id2}.json`);
+    const resultFile = path27.join(root2, "04-verification", "results", `RESULT-${id2}.md`);
     if (await pathExists(logFile) || await pathExists(recordFile) || await pathExists(resultFile)) throw new SdlcError(`Execution ID ${id2} is already reserved; repair state without overwriting provenance.`);
     await prepareSafeManagedPath(root2, logFile);
     await prepareSafeManagedPath(root2, recordFile);
@@ -21366,11 +21530,11 @@ async function executeVerification(root2, config, levels) {
 }
 
 // src/core/baseline.ts
-var import_fast_glob12 = __toESM(require_out4(), 1);
+var import_fast_glob13 = __toESM(require_out4(), 1);
 init_artifacts();
 init_graph();
 init_impact();
-import path27 from "node:path";
+import path28 from "node:path";
 import { readdir as readdir8 } from "node:fs/promises";
 init_config();
 init_state();
@@ -21486,9 +21650,9 @@ function nextBaselineId(current) {
 async function flowExecutions(root2, flowId) {
   const executionsDirectory = projectPaths(root2).executions;
   if (!await pathExists(executionsDirectory)) return [];
-  await assertSafeManagedPath(root2, path27.join(executionsDirectory, ".managed-probe"));
+  await assertSafeManagedPath(root2, path28.join(executionsDirectory, ".managed-probe"));
   for (const entry of await readdir8(executionsDirectory, { withFileTypes: true })) if (entry.isSymbolicLink() && /^EXEC-.*\.json$/.test(entry.name)) throw new SdlcError(`Execution record cannot be a symlink: ${entry.name}`);
-  const files = await (0, import_fast_glob12.default)("EXEC-*.json", { cwd: executionsDirectory, absolute: true, followSymbolicLinks: false });
+  const files = await (0, import_fast_glob13.default)("EXEC-*.json", { cwd: executionsDirectory, absolute: true, followSymbolicLinks: false });
   const records = [];
   for (const file of files) {
     await assertSafeManagedPath(root2, file);
@@ -21606,7 +21770,7 @@ ${tests2.missing.map((item) => `- ${item}`).join("\n")}`);
   await prepareSafeManagedPath(root2, projectPaths(root2).activeFlow);
   await writeJsonAtomic(projectPaths(root2).activeFlow, flow2);
   if (flow2.change_id) {
-    const file = path27.join(projectPaths(root2).changes, `${flow2.change_id}.json`);
+    const file = path28.join(projectPaths(root2).changes, `${flow2.change_id}.json`);
     await assertSafeManagedPath(root2, file);
     const change = await readJson(file);
     if (!isChangeRecord(change)) throw new SdlcError(`Invalid change record schema: ${file}`);
@@ -21666,11 +21830,11 @@ init_errors();
 init_project_lock();
 
 // src/core/pattern-migration.ts
-var import_fast_glob13 = __toESM(require_out4(), 1);
+var import_fast_glob14 = __toESM(require_out4(), 1);
 init_errors();
 init_paths();
-import { mkdir as mkdir6, readFile as readFile20, rm as rm4, writeFile as writeFile8 } from "node:fs/promises";
-import path28 from "node:path";
+import { mkdir as mkdir6, readFile as readFile21, rm as rm4, writeFile as writeFile8 } from "node:fs/promises";
+import path29 from "node:path";
 init_project_lock();
 init_state();
 function shapeOf(content) {
@@ -21724,18 +21888,18 @@ async function migratePatternCatalog(root2, sourcePatternRoot, check = false) {
   return withProjectLock(root2, () => migrateUnlocked(root2, sourcePatternRoot, check));
 }
 async function migrateUnlocked(root2, sourcePatternRoot, check) {
-  const pinnedRoot = path28.join(root2, "00-system", "patterns");
-  if (!await pathExists(path28.join(pinnedRoot, "catalog.yaml")) && !await pathExists(path28.join(pinnedRoot, "catalog.yml"))) {
+  const pinnedRoot = path29.join(root2, "00-system", "patterns");
+  if (!await pathExists(path29.join(pinnedRoot, "catalog.yaml")) && !await pathExists(path29.join(pinnedRoot, "catalog.yml"))) {
     throw new SdlcError("This repository has no pinned pattern catalog to migrate; initialize it first.");
   }
-  if (!await pathExists(path28.join(sourcePatternRoot, "catalog.yaml")) && !await pathExists(path28.join(sourcePatternRoot, "catalog.yml"))) {
+  if (!await pathExists(path29.join(sourcePatternRoot, "catalog.yaml")) && !await pathExists(path29.join(sourcePatternRoot, "catalog.yml"))) {
     throw new SdlcError(`Pattern catalog is missing from ${sourcePatternRoot}.`);
   }
   await verifyPatternSnapshot(root2, pinnedRoot);
   const before = await loadPatternCatalog(pinnedRoot, root2);
   const after = await loadPatternCatalog(sourcePatternRoot);
-  const sourceFiles = (await (0, import_fast_glob13.default)("**/*", { cwd: sourcePatternRoot, onlyFiles: true, dot: true, followSymbolicLinks: false })).sort();
-  const pinnedFiles = (await (0, import_fast_glob13.default)("**/*", { cwd: pinnedRoot, onlyFiles: true, dot: true, followSymbolicLinks: false, ignore: ["snapshot.json"] })).sort();
+  const sourceFiles = (await (0, import_fast_glob14.default)("**/*", { cwd: sourcePatternRoot, onlyFiles: true, dot: true, followSymbolicLinks: false })).sort();
+  const pinnedFiles = (await (0, import_fast_glob14.default)("**/*", { cwd: pinnedRoot, onlyFiles: true, dot: true, followSymbolicLinks: false, ignore: ["snapshot.json"] })).sort();
   const stale = pinnedFiles.filter((relative) => !sourceFiles.includes(relative));
   const report = {
     from_version: before.version,
@@ -21749,14 +21913,14 @@ async function migrateUnlocked(root2, sourcePatternRoot, check) {
   };
   if (check) return report;
   for (const relative of sourceFiles) {
-    const target = path28.join(pinnedRoot, relative);
+    const target = path29.join(pinnedRoot, relative);
     if (!isWithin(pinnedRoot, target)) throw new SdlcError(`Pattern migration path escapes the pinned catalog: ${relative}`);
-    await assertSafeManagedPath(root2, path28.dirname(target));
-    await mkdir6(path28.dirname(target), { recursive: true });
-    await writeFile8(target, await readFile20(path28.join(sourcePatternRoot, relative), "utf8"), "utf8");
+    await assertSafeManagedPath(root2, path29.dirname(target));
+    await mkdir6(path29.dirname(target), { recursive: true });
+    await writeFile8(target, await readFile21(path29.join(sourcePatternRoot, relative), "utf8"), "utf8");
   }
   for (const relative of stale) {
-    const target = path28.join(pinnedRoot, relative);
+    const target = path29.join(pinnedRoot, relative);
     if (!isWithin(pinnedRoot, target)) continue;
     await rm4(target, { force: true });
   }
@@ -21795,8 +21959,8 @@ function formatMigrationReport(report) {
 }
 
 // src/core/artifact-instantiation.ts
-import { mkdir as mkdir7, readFile as readFile21, writeFile as writeFile9 } from "node:fs/promises";
-import path29 from "node:path";
+import { mkdir as mkdir7, readFile as readFile22, writeFile as writeFile9 } from "node:fs/promises";
+import path30 from "node:path";
 init_errors();
 init_paths();
 init_state();
@@ -21837,12 +22001,12 @@ function render(template, values) {
 }
 function resolveTarget(root2, pattern, id2) {
   const relative = pattern.target.replaceAll("{{ID}}", id2).replaceAll("{id}", id2);
-  if (relative.includes("{{") || path29.isAbsolute(relative)) throw new SdlcError(`Pattern target is not instantiable: ${pattern.target}`);
-  const target = path29.resolve(root2, relative);
+  if (relative.includes("{{") || path30.isAbsolute(relative)) throw new SdlcError(`Pattern target is not instantiable: ${pattern.target}`);
+  const target = path30.resolve(root2, relative);
   if (!isWithin(root2, target)) throw new SdlcError(`Artifact target escapes project root: ${relative}`);
-  const normalized = path29.relative(root2, target).replaceAll("\\", "/");
+  const normalized = path30.relative(root2, target).replaceAll("\\", "/");
   const location = SCALABLE_LOCATIONS[pattern.artifact_type];
-  if (!location || !location.test(normalized) || path29.basename(normalized, ".md") !== id2) throw new SdlcError(`Catalog target violates the approved location for ${pattern.artifact_type}: ${normalized}`);
+  if (!location || !location.test(normalized) || path30.basename(normalized, ".md") !== id2) throw new SdlcError(`Catalog target violates the approved location for ${pattern.artifact_type}: ${normalized}`);
   return target;
 }
 async function createUnlocked(root2, catalog, artifactType, id2, title) {
@@ -21856,14 +22020,14 @@ async function createUnlocked(root2, catalog, artifactType, id2, title) {
   if (title.trim() === "" || /[\r\n\0]/.test(title) || title.includes("{{")) throw new SdlcError("Artifact title must be one non-empty line without template tokens.");
   const target = resolveTarget(root2, pattern, id2);
   await prepareSafeManagedPath(root2, target);
-  if (await pathExists(target)) throw new SdlcError(`Artifact already exists: ${path29.relative(root2, target)}`);
-  const source = path29.resolve(catalog.root, pattern.template);
+  if (await pathExists(target)) throw new SdlcError(`Artifact already exists: ${path30.relative(root2, target)}`);
+  const source = path30.resolve(catalog.root, pattern.template);
   if (!isWithin(catalog.root, source)) throw new SdlcError(`Pattern source escapes catalog root: ${pattern.template}`);
   const createdBy = flow2.change_id ?? flow2.id;
-  const content = render(await readFile21(source, "utf8"), tokenValues(id2, title.trim(), createdBy));
-  await mkdir7(path29.dirname(target), { recursive: true });
+  const content = render(await readFile22(source, "utf8"), tokenValues(id2, title.trim(), createdBy));
+  await mkdir7(path30.dirname(target), { recursive: true });
   await writeFile9(target, content, { encoding: "utf8", flag: "wx" });
-  return { id: id2, artifact_type: artifactType, file: path29.relative(root2, target).replaceAll("\\", "/") };
+  return { id: id2, artifact_type: artifactType, file: path30.relative(root2, target).replaceAll("\\", "/") };
 }
 async function createArtifactFromPattern(root2, catalog, artifactType, id2, title) {
   return withProjectLock(root2, async () => {
@@ -21873,10 +22037,10 @@ async function createArtifactFromPattern(root2, catalog, artifactType, id2, titl
 }
 
 // src/core/docs-site.ts
-var import_fast_glob14 = __toESM(require_out4(), 1);
+var import_fast_glob15 = __toESM(require_out4(), 1);
 var import_yaml5 = __toESM(require_dist(), 1);
-import path30 from "node:path";
-import { mkdir as mkdir8, readFile as readFile22, rm as rm5, writeFile as writeFile10 } from "node:fs/promises";
+import path31 from "node:path";
+import { mkdir as mkdir8, readFile as readFile23, rm as rm5, writeFile as writeFile10 } from "node:fs/promises";
 
 // node_modules/marked/lib/marked.esm.js
 function L() {
@@ -23051,9 +23215,9 @@ function routeFor(file) {
   return posix.endsWith(".md") ? `${posix.slice(0, -3)}.html` : `${posix}.html`;
 }
 function relativeHref(fromRoute, toRoute) {
-  const fromDir = path30.posix.dirname(fromRoute);
-  const relative = path30.posix.relative(fromDir === "." ? "" : fromDir, toRoute);
-  return relative === "" ? path30.posix.basename(toRoute) : relative;
+  const fromDir = path31.posix.dirname(fromRoute);
+  const relative = path31.posix.relative(fromDir === "." ? "" : fromDir, toRoute);
+  return relative === "" ? path31.posix.basename(toRoute) : relative;
 }
 function escapeHtml(value) {
   return value.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;");
@@ -23438,12 +23602,12 @@ function sourceView(page, mermaidAvailable) {
 }
 async function collectSystemPages(root2) {
   const pages = [];
-  const files = await (0, import_fast_glob14.default)(["00-system/**/*.{md,yaml,json}"], { cwd: root2, onlyFiles: true, dot: false, followSymbolicLinks: false });
+  const files = await (0, import_fast_glob15.default)(["00-system/**/*.{md,yaml,json}"], { cwd: root2, onlyFiles: true, dot: false, followSymbolicLinks: false });
   for (const relative of files.sort((a, b2) => a.localeCompare(b2))) {
-    const raw = await readFile22(path30.join(root2, relative), "utf8");
+    const raw = await readFile23(path31.join(root2, relative), "utf8");
     const posix = toPosix(relative);
     if (posix.startsWith("00-system/patterns/") && posix !== "00-system/patterns/README.md") {
-      pages.push({ route: routeFor(posix), sourceFile: posix, title: path30.posix.basename(posix), kind: "source", raw });
+      pages.push({ route: routeFor(posix), sourceFile: posix, title: path31.posix.basename(posix), kind: "source", raw });
       continue;
     }
     if (posix.endsWith(".md")) {
@@ -23453,27 +23617,27 @@ async function collectSystemPages(root2) {
         pages.push({
           route: routeFor(posix),
           sourceFile: posix,
-          title: meta.title || path30.posix.basename(posix),
+          title: meta.title || path31.posix.basename(posix),
           kind: "system",
           markdown: parsed.body,
           artifact: { ...meta, file: posix, body: parsed.body, hash: "", metadata_issues: [] }
         });
       } catch {
-        pages.push({ route: routeFor(posix), sourceFile: posix, title: path30.posix.basename(posix), kind: "system", markdown: raw });
+        pages.push({ route: routeFor(posix), sourceFile: posix, title: path31.posix.basename(posix), kind: "system", markdown: raw });
       }
       continue;
     }
-    pages.push({ route: routeFor(posix), sourceFile: posix, title: path30.posix.basename(posix), kind: "source", raw });
+    pages.push({ route: routeFor(posix), sourceFile: posix, title: path31.posix.basename(posix), kind: "source", raw });
   }
   return pages;
 }
 async function collectReportPages(root2) {
   const pages = [];
-  const files = await (0, import_fast_glob14.default)(["generated/**/*.{md,json}"], { cwd: root2, onlyFiles: true, dot: false, followSymbolicLinks: false });
+  const files = await (0, import_fast_glob15.default)(["generated/**/*.{md,json}"], { cwd: root2, onlyFiles: true, dot: false, followSymbolicLinks: false });
   for (const relative of files.sort((a, b2) => a.localeCompare(b2))) {
-    const raw = await readFile22(path30.join(root2, relative), "utf8");
+    const raw = await readFile23(path31.join(root2, relative), "utf8");
     const posix = toPosix(relative);
-    const title = path30.posix.basename(posix).replace(/\.(md|json)$/, "");
+    const title = path31.posix.basename(posix).replace(/\.(md|json)$/, "");
     if (posix.endsWith(".md")) pages.push({ route: routeFor(posix), sourceFile: posix, title, kind: "report", markdown: raw });
     else pages.push({ route: routeFor(posix), sourceFile: posix, title, kind: "source", raw });
   }
@@ -23535,7 +23699,7 @@ function graphSvg(graph, idRoutes) {
   return parts.join("\n");
 }
 function groupOf(file) {
-  const dir = path30.posix.dirname(toPosix(file));
+  const dir = path31.posix.dirname(toPosix(file));
   return dir === "." ? "root" : dir;
 }
 function graphPage(graph, idRoutes, titles) {
@@ -23608,7 +23772,7 @@ function indexPage(pages, graph, projectLabel) {
   const sections2 = [...byLayer.keys()].sort().map((layer) => {
     const byGroup = /* @__PURE__ */ new Map();
     for (const page of byLayer.get(layer) ?? []) {
-      const group = path30.posix.dirname(page.sourceFile).split("/").slice(1).join("/");
+      const group = path31.posix.dirname(page.sourceFile).split("/").slice(1).join("/");
       const list = byGroup.get(group) ?? [];
       list.push(page);
       byGroup.set(group, list);
@@ -24380,10 +24544,10 @@ var SITE_JS = `(function () {
 })();
 `;
 function resolveOutDir(root2, out) {
-  const resolved = path30.resolve(root2, out ?? path30.join(projectPaths(root2).cache, "site"));
-  if (path30.resolve(resolved) === path30.resolve(root2)) throw new SdlcError("Docs site output cannot be the project root.");
+  const resolved = path31.resolve(root2, out ?? path31.join(projectPaths(root2).cache, "site"));
+  if (path31.resolve(resolved) === path31.resolve(root2)) throw new SdlcError("Docs site output cannot be the project root.");
   if (isWithin(root2, resolved)) {
-    const relative = toPosix(path30.relative(root2, resolved));
+    const relative = toPosix(path31.relative(root2, resolved));
     const managed = /^(0[0-5]-[a-z-]+|generated)(\/|$)/.test(relative);
     if (managed) throw new SdlcError(`Docs site output cannot live inside managed content: ${relative}`);
   }
@@ -24392,7 +24556,7 @@ function resolveOutDir(root2, out) {
 async function buildDocsSite(root2, options = {}) {
   const outDir = resolveOutDir(root2, options.out);
   if (!await pathExists(projectPaths(root2).config)) {
-    throw new SdlcError(`Not an initialized documentation repository (missing ${path30.basename(projectPaths(root2).config)}): ${root2}`);
+    throw new SdlcError(`Not an initialized documentation repository (missing ${path31.basename(projectPaths(root2).config)}): ${root2}`);
   }
   const artifacts = await scanArtifacts(root2);
   const graph = buildGraph(artifacts);
@@ -24416,7 +24580,7 @@ async function buildDocsSite(root2, options = {}) {
   for (const page of pages) if (page.artifact?.id) idRoutes.set(page.artifact.id, page.route);
   const matcher = buildIdMatcher([...idRoutes.keys()]);
   const projectLabel = await projectLabelFor(root2);
-  const mermaidSource = options.mermaidAsset && await pathExists(options.mermaidAsset) ? await readFile22(options.mermaidAsset, "utf8") : null;
+  const mermaidSource = options.mermaidAsset && await pathExists(options.mermaidAsset) ? await readFile23(options.mermaidAsset, "utf8") : null;
   let linkedTotal = 0;
   const rendered = /* @__PURE__ */ new Map();
   for (const page of pages) {
@@ -24461,31 +24625,31 @@ function supersededBanner(artifact2, backlinks, idRoutes, route) {
 }
 async function projectLabelFor(root2) {
   try {
-    const raw = await readFile22(projectPaths(root2).config, "utf8");
+    const raw = await readFile23(projectPaths(root2).config, "utf8");
     const parsed = import_yaml5.default.parse(raw);
     if (parsed?.project_id) return parsed.project_id;
   } catch {
   }
-  return path30.basename(root2);
+  return path31.basename(root2);
 }
 async function writeSite(root2, outDir, rendered) {
-  const manifestPath = path30.join(outDir, MANIFEST_FILE);
+  const manifestPath = path31.join(outDir, MANIFEST_FILE);
   if (await pathExists(outDir)) {
     if (await pathExists(manifestPath)) {
-      const previous = JSON.parse(await readFile22(manifestPath, "utf8"));
+      const previous = JSON.parse(await readFile23(manifestPath, "utf8"));
       for (const file of previous.files ?? []) {
-        const target = path30.join(outDir, file);
+        const target = path31.join(outDir, file);
         if (isWithin(outDir, target)) await rm5(target, { force: true });
       }
     } else {
-      const existing = await (0, import_fast_glob14.default)(["**/*"], { cwd: outDir, onlyFiles: true, dot: true });
+      const existing = await (0, import_fast_glob15.default)(["**/*"], { cwd: outDir, onlyFiles: true, dot: true });
       if (existing.length > 0) throw new SdlcError(`Docs site output directory is not empty and was not produced by docs build: ${outDir}`);
     }
   }
   const files = [...rendered.keys()].sort((a, b2) => a.localeCompare(b2));
   for (const file of files) {
-    const target = path30.join(outDir, file);
-    await mkdir8(path30.dirname(target), { recursive: true });
+    const target = path31.join(outDir, file);
+    await mkdir8(path31.dirname(target), { recursive: true });
     await writeFile10(target, rendered.get(file) ?? "", "utf8");
   }
   await writeFile10(manifestPath, `${JSON.stringify({ schema_version: 1, files }, null, 2)}
@@ -24493,7 +24657,7 @@ async function writeSite(root2, outDir, rendered) {
   const cacheDir = projectPaths(root2).cache;
   if (isWithin(cacheDir, outDir)) {
     await mkdir8(cacheDir, { recursive: true });
-    await writeFile10(path30.join(cacheDir, ".gitignore"), "*\n", "utf8");
+    await writeFile10(path31.join(cacheDir, ".gitignore"), "*\n", "utf8");
   }
 }
 
@@ -24643,8 +24807,8 @@ async function searxngSearch(config, query, timeoutMs) {
 
 // src/core/research.ts
 init_errors();
-import { readFile as readFile23 } from "node:fs/promises";
-import path31 from "node:path";
+import { readFile as readFile24 } from "node:fs/promises";
+import path32 from "node:path";
 init_state();
 init_utils();
 init_project();
@@ -25003,10 +25167,10 @@ async function researchCrawl(root2, opts) {
   return { records, pages_returned: records.filter((record2) => record2.ok).length, page_cap: pageCap };
 }
 async function retrievalBody(root2, record2) {
-  const file = path31.resolve(root2, retrievalBodyFile(record2.id));
+  const file = path32.resolve(root2, retrievalBodyFile(record2.id));
   let text;
   try {
-    text = await readFile23(file, "utf8");
+    text = await readFile24(file, "utf8");
   } catch {
     throw new SdlcError(`Retrieval body for ${record2.id} is missing; validate reports broken provenance.`);
   }
@@ -25071,7 +25235,7 @@ function print(value, json = false) {
   if (json || typeof value !== "string") console.log(JSON.stringify(value, null, 2));
   else console.log(value);
 }
-program2.name("ai-saas-sdlc").description("Deterministic engine for AI SaaS SDLC documentation flows.").version("1.21.0");
+program2.name("ai-saas-sdlc").description("Deterministic engine for AI SaaS SDLC documentation flows.").version("1.22.0");
 program2.command("init").description("Initialize a centralized documentation repository.").option("--project-id <id>", "Stable project identifier").option("--idea <text>", "Raw idea preserved verbatim", "").option("--force", "Initialize even though the directory contains a code-project marker").action(async (options) => {
   const projectId = options.projectId ?? root.split(/[\\/]/).at(-1)?.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") ?? "saas-project";
   await withProjectLock(root, async () => {
@@ -25121,6 +25285,32 @@ program2.command("state").description("Show current baseline and active flow.").
     stale: (baselinesOpen(current.question_first_baseline?.[question.id], current.active_baseline) ?? 0) >= STALE_AFTER_BASELINES
   })).sort((a, b2) => (b2.baselines_open ?? -1) - (a.baselines_open ?? -1) || a.id.localeCompare(b2.id));
   print({ current, active_flow: flow2, open_questions: questions }, Boolean(options.json));
+});
+var configCommand = program2.command("config").description("Report the runtime configuration the implementation depends on and what this machine supplies.");
+configCommand.command("requirements").description("List every configuration key the sources read or the repository declares, what imposes it, and whether this machine supplies it. Key names only \u2014 never a value.").option("--json", "Emit JSON").action(async (options) => {
+  const config = await loadConfig(root);
+  const states = await configKeyStates(root, config);
+  const unrunnable = await unrunnableCommands(root, config);
+  if (options.json) {
+    print({ keys: states, unrunnable_commands: unrunnable }, true);
+    return;
+  }
+  const missing = states.filter((state) => state.declaration && !state.declaration.optional && !state.supplied);
+  const undeclared = states.filter((state) => !state.declaration);
+  const held = states.filter((state) => state.declaration && (state.supplied || state.declaration.optional));
+  const section = (title, lines) => `${title}
+${lines.length ? lines.join("\n") : "  none"}
+`;
+  print([
+    `Configuration requirements \u2014 ${config.project_id}`,
+    "",
+    section("YOU SUPPLY THESE", missing.map((state) => `  ${state.key}
+    required by ${state.declaration?.required_by}
+    read at     ${state.read_at[0] ?? "no source reads it yet"}`)),
+    section("HELD", held.map((state) => `  ${state.key}  ${state.supplied ? `supplied from ${state.supplied_from}` : "optional, running on its default"}`)),
+    section("READ BY CODE, DECLARED BY NOBODY", undeclared.map((state) => `  ${state.key}  ${state.read_at[0]}${state.read_at.length > 1 ? ` (+${state.read_at.length - 1})` : ""}`)),
+    section("COMMANDS THIS MACHINE CANNOT RUN", unrunnable.map((command) => `  ${command.level}:${command.id}  missing ${command.missing.join(", ")}`))
+  ].join("\n"), false);
 });
 var docs = program2.command("docs").description("Generate read-only projections of the documentation repository.");
 docs.command("build").description("Build a static, dependency-free HTML site from the current artifacts. A projection, never authority.").option("--out <dir>", "Output directory (default: .ai-saas-sdlc/cache/site)").option("--json", "Emit JSON").action(async (options) => {

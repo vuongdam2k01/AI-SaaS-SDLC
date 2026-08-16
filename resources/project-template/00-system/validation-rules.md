@@ -48,7 +48,7 @@ Validation evaluates project artifacts as contracts. It detects structural absen
 
 Validation reports two severities and they mean different things. An **error** is a broken structure — a bad ID, an unresolved reference, a lifecycle or supersession violation, a mutated immutable record, a coverage gap, generated projections out of sync. Errors block a baseline and must be repaired.
 
-A **warning** names a judgement or a debt rather than a broken structure, never blocks a baseline, and is itself the durable record of what is owed. Thirty-two exist:
+A **warning** names a judgement or a debt rather than a broken structure, never blocks a baseline, and is itself the durable record of what is owed. Thirty-five exist:
 
 | Warning | Means |
 |---|---|
@@ -70,6 +70,9 @@ A **warning** names a judgement or a debt rather than a broken structure, never 
 | `PLATFORM_EVIDENCE_MISSING` | A live platform target no verification command declares evidence for. |
 | `PLATFORM_DECLARATION_UNKNOWN` | A `platforms:` declaration naming no live platform target. |
 | `PLATFORM_EVIDENCE_CONTRADICTED` | A declared `host_os` token no recorded execution declaring that target has observed. |
+| `CONFIG_KEY_UNDECLARED` | An environment key a configured implementation source reads that no `configuration` entry declares. |
+| `CONFIG_REQUIREMENT_UNSUPPLIED` | A declared, non-optional configuration key this machine supplies no value for. |
+| `CONFIG_DECLARATION_UNKNOWN` | A `configuration` entry no source reads, or whose `required_by` names no live artifact. |
 | `WIRE_AUTHORITY_UNDECLARED` | A live operation naming no owning interface file while siblings exist. |
 | `SCHEMA_AUTHORITY_UNDECLARED` | A live entity naming no owning schema file while siblings exist. |
 | `TRANSITION_AUTHORITY_UNDECLARED` | A live screen naming no owning transition graph while siblings exist. |
@@ -90,6 +93,8 @@ Closing a warning by weakening the artifact that raised it is not a repair — d
 The six closure warnings above — one per declared-rule family, plus screen behavior — share one purpose: every identifier a live artifact declares must reach a verification case, a handoff, or an open question. A declared rule reaching none of the three is a commitment no execution can ever fail on. `generated/rule-coverage.md`, `generated/foundation-coverage.md` and `generated/screen-coverage.md` show the current placement per identifier.
 
 `DESIGN_TOKENS_UNCOMMITTED` covers a commitment rather than an identifier: a live screen renders in *some* visual system, and with no `DT-*` row committed the system it renders in is the host default, recorded nowhere as a choice. It closes when a Product Evolution flow commits the tokens, or stands as the durable record while an open question citing `UX-RULES#design-tokens` defers the decision.
+
+The three configuration warnings cover the dependency no document can name on its own. An `INT-*` artifact states that a credential boundary exists and is forbidden from naming the credential, so the concrete key names live only in the code — which is why `CONFIG_KEY_UNDECLARED` scans the configured sources and needs no prior declaration to fire: a repository that has never described its configuration still learns its own surface, and a key gating a product decision that reaches no artifact is the configuration form of an unowned obligation. `CONFIG_REQUIREMENT_UNSUPPLIED` is the machine-local half — the durable record that a declared key this machine lacks keeps some path unrunnable — and `CONFIG_DECLARATION_UNKNOWN` is its mirror, a requirement that outlived the code or the design that imposed it. The engine reads key *names* only, never a value, in the sources and in any environment file it consults. All three are warnings for the platform-evidence reason: a machine without production credentials must still be able to close a baseline.
 
 The four consequence warnings — `IMPACT_UNCLASSIFIED`, `SPEC_EXECUTION_UNATTRIBUTED`, `DOCUMENTATION_DRIFT` and `CLAIM_WITHOUT_DEPENDENCY` — cover the other direction: not what a document promises, but what changing it put at risk. A change computes the artifacts it put in question, and each one takes a recorded decision through `impact classify` — `modify`, `verify-only`, `deprecate`, `stale-question` or `not-affected` with a concrete reason. What is reached only as a prerequisite of something the change created is not a decision and is never asked about. The remainder survives the baseline that left it: an artifact reached, undecided and untouched keeps its warning until a later change decides it or somebody edits it. `generated/change-impact/<CHG-ID>.md` shows the decision per artifact.
 

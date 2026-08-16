@@ -2,6 +2,17 @@
 
 See the root [CHANGELOG](../CHANGELOG.md) for the release summary. This contributor view records documentation-impact areas that must remain synchronized with implementation.
 
+## 1.22.0 - 2026-08-16
+
+| Area | Documentation impact |
+|---|---|
+| Method | `inspect-state.md` gains `config requirements` in its mandatory read-only actions when implementation sources are configured, a report line for the configuration surface, and the standing instruction to state key names only — never report, request or infer a value |
+| Engine | New `runtime-config.ts` (`observedConfigKeys` nine-form multi-language scan, `suppliedConfigKeys` presence-only check, `configKeyStates` shared joined view, `unrunnableCommands`); `config.ts` and `project-config.schema.json` accept the top-level `configuration` list and per-command `requires_config`; `types.ts` gains `ConfigRequirement`; `validation.ts` pushes the findings beside the areas registry |
+| Validation | Three new warnings — `CONFIG_KEY_UNDECLARED`, `CONFIG_REQUIREMENT_UNSUPPLIED`, `CONFIG_DECLARATION_UNKNOWN`; warning table reaches thirty-five; no new projection files, because supply state is machine-local and a generated file carrying it would raise `GENERATED_DRIFT` |
+| Config | `sdlc.config.yaml` template documents both new keys and states the workflow explicitly: run `config requirements` first, declare in response to what the code already reads. Six optional keys now exist, not four |
+| Docs | `command-reference.md` gains the `config requirements` row |
+| Compatibility | Both new config keys are optional and every finding is a warning, so an existing repository upgrades without a schema edit and without losing the ability to close a baseline. No catalog generation change: the configuration surface is engine-derived, not an artifact contract |
+
 ## 1.21.0 - 2026-08-16
 
 | Area | Documentation impact |

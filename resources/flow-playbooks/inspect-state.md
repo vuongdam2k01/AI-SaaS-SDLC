@@ -25,6 +25,14 @@ ENGINE impact --json
 ENGINE tests select --json
 ```
 
+When implementation sources are configured, additionally run:
+
+```text
+ENGINE config requirements --json
+```
+
+It reads key *names* from the sources and from any environment file it consults, never a value, so it is safe in a read-only inspection of a repository whose environment holds real credentials. Never print, infer or ask for a value.
+
 Read, as applicable:
 
 - `generated/baseline-manifest.json`;
@@ -86,6 +94,7 @@ Report compactly:
 - business rules declared by live features that no specification claims, taken from `generated/rule-coverage.md` and the `RULE_UNVERIFIED` warnings, reported as unverified commitments rather than as passing coverage;
 - the same reading for the rules the foundations own and the behavior each screen declares, from `generated/foundation-coverage.md`, `generated/screen-coverage.md` and the `ACCESS_UNVERIFIED`, `INVARIANT_UNVERIFIED`, `ERROR_UNVERIFIED`, `UX_UNVERIFIED` and `SCREEN_BEHAVIOR_UNCLAIMED` warnings; a screen behavior counts as closed when a case proves it, an exclusion hands it on, or a question records that it is undefined;
 - any `DESIGN_TOKENS_UNCOMMITTED` warning, reported as a commitment the product owes itself rather than a defect: live screens are rendering with no committed `DT-*` design token, and the closure is a Product Evolution flow that commits the tokens or an open question citing `UX-RULES#design-tokens` that defers them deliberately;
+- the runtime configuration surface, when implementation sources are configured: keys the engine reports as `CONFIG_REQUIREMENT_UNSUPPLIED`, reported as what the owner supplies before the paths depending on them can run; keys it reports as `CONFIG_KEY_UNDECLARED`, reported as a surface the code owns and no artifact does — name the artifact whose contract each one belongs to rather than treating them as defects; `CONFIG_DECLARATION_UNKNOWN` entries as requirements that outlived their code or their design; and any command reported unrunnable on this machine, so a suite that cannot execute says why instead of appearing to have passed. State key names only; never report, request or infer a value;
 - the oldest open questions with their age in baselines and what each still blocks, taken from `open_questions` in `ENGINE state --json` and the `QUESTION_STALE` warnings — a count of open questions without their ages hides exactly the ones worth reporting;
 - verification specifications the engine reports as `SPEC_OVERSIZED`, with their case counts, reported as maintenance owed rather than as a defect;
 - qualified case references the engine reports as `CASE_REFERENCE_BROKEN`, naming both the citing artifact and the specification that does not declare the case;

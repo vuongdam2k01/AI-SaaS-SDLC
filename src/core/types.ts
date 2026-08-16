@@ -51,6 +51,27 @@ export interface CommandDefinition {
    * per-case results; undeclared, case counts honestly stay unreported.
    */
   report?: { path: string; format: "junit" | "tap" };
+  /**
+   * Configuration keys this command cannot run without. Declared, a machine
+   * missing one reports the command as unrunnable instead of executing it into
+   * a confusing failure — the same shape as `platforms`, applied to the
+   * environment rather than to the host.
+   */
+  requires_config?: string[];
+}
+
+/**
+ * One runtime configuration key the product depends on, and the artifact whose
+ * contract imposes it. The value is never recorded here or anywhere else in
+ * the repository: an INT-* artifact states the credential rule and forbids the
+ * credential, and this declaration names only the key the rule is satisfied
+ * through. `optional` marks a key the code reads behind a working default, so
+ * its absence degrades behaviour rather than blocking it.
+ */
+export interface ConfigRequirement {
+  key: string;
+  required_by: string;
+  optional?: boolean;
 }
 
 export interface ProjectConfig {
@@ -65,6 +86,12 @@ export interface ProjectConfig {
   };
   /** Optional registered AREA segments; live IDs outside it warn AREA_UNREGISTERED. */
   areas?: string[];
+  /**
+   * Optional declared runtime configuration surface. Absent, the engine still
+   * reports the keys the codebase reads — an owner learns their configuration
+   * surface without having to describe it first.
+   */
+  configuration?: ConfigRequirement[];
 }
 
 export interface ArtifactMeta {

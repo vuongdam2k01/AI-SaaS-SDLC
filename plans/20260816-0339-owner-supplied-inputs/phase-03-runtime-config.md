@@ -1,6 +1,8 @@
 # Phase 3 — Runtime configuration coverage
 
-Status: draft
+Status: implemented, unreleased
+
+Two decisions changed against the draft during implementation. The `generated/config-coverage.md` projection was dropped: supply state is machine-local, and a projection carrying it would differ between machines and raise `GENERATED_DRIFT`, which is an error — so the joined view is served by the `config requirements` command and the findings, neither of which is a committed file. A third finding, `CONFIG_DECLARATION_UNKNOWN`, was added to mirror `PLATFORM_DECLARATION_UNKNOWN`, catching a requirement that outlived the code or the design that imposed it.
 
 ## Outcome
 

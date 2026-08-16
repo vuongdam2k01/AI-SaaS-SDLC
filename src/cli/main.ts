@@ -22,6 +22,7 @@ import { formatMigrationReport, migratePatternCatalog } from "../core/pattern-mi
 import { createArtifactFromPattern } from "../core/artifact-instantiation.js";
 import { STALE_AFTER_BASELINES, baselinesOpen, openQuestions } from "../core/question-ledger.js";
 import { buildDocsSite } from "../core/docs-site.js";
+import { configKeyStates, unrunnableCommands } from "../core/runtime-config.js";
 import { probeResearchTools } from "../core/research-capability.js";
 import { SEARCH_PASSES, type SearchPass } from "../core/searxng.js";
 import { researchCrawl, researchDiff, researchFetch, researchMap, researchSearch } from "../core/research.js";
@@ -43,7 +44,7 @@ function print(value: unknown, json = false): void {
   else console.log(value);
 }
 
-program.name("ai-saas-sdlc").description("Deterministic engine for AI SaaS SDLC documentation flows.").version("1.21.0");
+program.name("ai-saas-sdlc").description("Deterministic engine for AI SaaS SDLC documentation flows.").version("1.22.0");
 
 program.command("init")
   .description("Initialize a centralized documentation repository.")
@@ -120,6 +121,32 @@ program.command("state")
       stale: (baselinesOpen(current.question_first_baseline?.[question.id], current.active_baseline) ?? 0) >= STALE_AFTER_BASELINES
     })).sort((a, b) => (b.baselines_open ?? -1) - (a.baselines_open ?? -1) || a.id.localeCompare(b.id));
     print({ current, active_flow: flow, open_questions: questions }, Boolean(options.json));
+  });
+
+const configCommand = program.command("config").description("Report the runtime configuration the implementation depends on and what this machine supplies.");
+configCommand.command("requirements")
+  .description("List every configuration key the sources read or the repository declares, what imposes it, and whether this machine supplies it. Key names only — never a value.")
+  .option("--json", "Emit JSON")
+  .action(async (options: { json?: boolean }) => {
+    const config = await loadConfig(root);
+    const states = await configKeyStates(root, config);
+    const unrunnable = await unrunnableCommands(root, config);
+    if (options.json) {
+      print({ keys: states, unrunnable_commands: unrunnable }, true);
+      return;
+    }
+    const missing = states.filter((state) => state.declaration && !state.declaration.optional && !state.supplied);
+    const undeclared = states.filter((state) => !state.declaration);
+    const held = states.filter((state) => state.declaration && (state.supplied || state.declaration.optional));
+    const section = (title: string, lines: string[]): string => `${title}\n${lines.length ? lines.join("\n") : "  none"}\n`;
+    print([
+      `Configuration requirements — ${config.project_id}`,
+      "",
+      section("YOU SUPPLY THESE", missing.map((state) => `  ${state.key}\n    required by ${state.declaration?.required_by}\n    read at     ${state.read_at[0] ?? "no source reads it yet"}`)),
+      section("HELD", held.map((state) => `  ${state.key}  ${state.supplied ? `supplied from ${state.supplied_from}` : "optional, running on its default"}`)),
+      section("READ BY CODE, DECLARED BY NOBODY", undeclared.map((state) => `  ${state.key}  ${state.read_at[0]}${state.read_at.length > 1 ? ` (+${state.read_at.length - 1})` : ""}`)),
+      section("COMMANDS THIS MACHINE CANNOT RUN", unrunnable.map((command) => `  ${command.level}:${command.id}  missing ${command.missing.join(", ")}`))
+    ].join("\n"), false);
   });
 
 const docs = program.command("docs").description("Generate read-only projections of the documentation repository.");

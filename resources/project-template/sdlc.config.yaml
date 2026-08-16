@@ -7,8 +7,9 @@ verification:
   integration: []
   system: []
 
-# Four optional keys exist beyond the ones above, and no others are accepted:
-# per command, `platforms`, `report` and `timeout_ms`; at the top level, `areas`.
+# Six optional keys exist beyond the ones above, and no others are accepted:
+# per command, `platforms`, `report`, `timeout_ms` and `requires_config`; at the
+# top level, `areas` and `configuration`.
 #
 # A command may declare where it writes a machine-readable test report. Declared,
 # the engine parses it after every run and records per-case results joined to the
@@ -39,3 +40,30 @@ verification:
 # Register areas before the IDs are baselined — a permanent ID cannot be renamed:
 #
 #   areas: [BILLING, DISPATCH, REPORTING]
+#
+# A top-level `configuration` list declares the runtime keys the product depends
+# on and the artifact whose contract imposes each one. It never holds a value:
+# an INT-* artifact states the credential rule and is forbidden from naming the
+# credential, and this list names only the key that rule is satisfied through.
+# `optional: true` marks a key the code reads behind a working default, so its
+# absence degrades behaviour instead of blocking it.
+#
+# You do not have to write this list from imagination. Run
+# `config requirements` first: the engine scans the configured sources for
+# environment reads and reports every key nothing declares, so the declaration
+# is a response to what the code already does, not a guess about it.
+#
+#   configuration:
+#     - { key: ANTHROPIC_API_KEY, required_by: INT-CREATION-001 }
+#     - { key: PORT, required_by: ARCHITECTURE-OVERVIEW, optional: true }
+#
+# A command may name the keys it cannot run without. A machine missing one gets
+# the command reported as unrunnable rather than executed into a confusing
+# failure — the `platforms` shape, applied to the environment:
+#
+#   verification:
+#     integration:
+#       - id: provider-spike
+#         cwd: ../app
+#         command: npm run test:provider-real
+#         requires_config: [ANTHROPIC_API_KEY]

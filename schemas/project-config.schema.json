@@ -28,7 +28,21 @@
         "system": { "$ref": "#/$defs/commands" }
       }
     },
-    "areas": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "type": "string", "pattern": "^[A-Z][A-Z0-9]*(?:-[A-Z0-9]+)*$" } }
+    "areas": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "type": "string", "pattern": "^[A-Z][A-Z0-9]*(?:-[A-Z0-9]+)*$" } },
+    "configuration": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["key", "required_by"],
+        "properties": {
+          "key": { "type": "string", "pattern": "^[A-Z][A-Z0-9_]*$" },
+          "required_by": { "type": "string", "pattern": "^[A-Z][A-Z0-9-]*$" },
+          "optional": { "type": "boolean" }
+        }
+      }
+    }
   },
   "$defs": {
     "commands": {
@@ -42,6 +56,7 @@
           "cwd": { "type": "string", "minLength": 1 },
           "command": { "type": "string", "minLength": 1 },
           "platforms": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "type": "string", "pattern": "^[A-Z][A-Z0-9-]*$" } },
+          "requires_config": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "type": "string", "pattern": "^[A-Z][A-Z0-9_]*$" } },
           "timeout_ms": { "type": "integer", "minimum": 1 },
           "report": {
             "type": "object",
