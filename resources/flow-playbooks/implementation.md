@@ -20,7 +20,10 @@ Route away, never absorb:
 
 - behavior change discovered mid-segment that the author must decide → record it and route to `evolve-product`;
 - a defect or contract contradiction in baselined truth → `reconcile`;
-- wording-only edits → `refresh --editorial`.
+- wording-only edits → `refresh --editorial`;
+- infrastructure this machine lacks → the owner, never a substitution.
+
+**A missing tool is an owner-environment blocker, never a design input.** When the declared substrate or a contract the segment implements requires infrastructure this machine does not have — a container runtime, a database server the schema names as physical authority, a browser, a device — the machine's lack changes nothing about the design. Present it through the host's interactive ask facility, provisioning first: (a) the owner installs or points at the real infrastructure (a Docker daemon, a `DATABASE_URL`, a device) — the recommended option, because the declared substrate is a baselined commitment; (b) a contract-preserving substitute (TP-12: it must honor the same wire, schema and transaction semantics), taken only on the owner's explicit choice and recorded as a deviation — an Engineering profile row naming the declared substrate as the target, a `ceiling:` marker at the seam, and the revisit condition; (c) stop the segment. In a non-interactive run, record a `QST-*` with `Blocked on: owner-environment` (or a `configuration` requirement when the gap is a key) and take option (b) only if the contract genuinely survives — silently reshaping the substrate around the dev machine is how a product ends up architected by whatever happened to be installed.
 
 The segment is a contract between author and model carried by the invocation. The engine does not parse it; the engine tolerates and records partiality, and the closing report is judged against the segment as stated.
 

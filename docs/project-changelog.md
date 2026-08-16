@@ -2,6 +2,13 @@
 
 See the root [CHANGELOG](../CHANGELOG.md) for the release summary. This contributor view records documentation-impact areas that must remain synchronized with implementation.
 
+## 1.27.0 - 2026-08-16
+
+| Area | Documentation impact |
+|---|---|
+| Method | `implementation.md` gains the missing-infrastructure rule: route to the owner via the ask facility (provision → recorded contract-preserving substitute → stop); non-interactive runs record `QST-*` with `Blocked on: owner-environment`; a machine's lack is never a design input |
+| Compatibility | Method-layer only; no engine, finding, catalog or migration change |
+
 ## 1.26.0 - 2026-08-16
 
 | Area | Documentation impact |

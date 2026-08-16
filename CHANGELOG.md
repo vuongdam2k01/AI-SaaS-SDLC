@@ -1,5 +1,30 @@
 # Changelog
 
+## 1.27.0 - 2026-08-16
+
+The missing variant of the owner-input defect, named by the owner it cost: an
+environment gap swallowed instead of routed. The reference repository's schema
+declares PostgreSQL as the physical authority; the implementing machine had no
+Docker daemon; the implementer silently reshaped the substrate to an
+in-process database and recorded a revisit row. Traceable — and still wrong:
+the machine's lack was treated as a design input, when the design had already
+committed. The owner was never asked to install Docker or supply a
+DATABASE_URL, which is a one-line ask and the whole point of the
+owner-environment class shipped in 1.26.0.
+
+The implementation playbook gains the rule: **a missing tool is an
+owner-environment blocker, never a design input.** Infrastructure the segment
+needs and the machine lacks routes to the owner through the ask facility,
+provisioning first (install it / point at the real thing — recommended,
+because the declared substrate is a baselined commitment), a
+contract-preserving substitute second (owner's explicit choice, recorded as a
+deviation with profile row, ceiling marker and revisit condition), stopping
+third. Non-interactive runs record a QST-* with Blocked on: owner-environment
+— never a silent substitution. A product must not end up architected by
+whatever happened to be installed on the dev machine.
+
+Method-layer only: no engine, finding, catalog or migration change.
+
 ## 1.26.0 - 2026-08-16
 
 The audit release, run before a rebuild so the rebuild does not inherit the
