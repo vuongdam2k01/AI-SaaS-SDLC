@@ -2,6 +2,13 @@
 
 See the root [CHANGELOG](../CHANGELOG.md) for the release summary. This contributor view records documentation-impact areas that must remain synchronized with implementation.
 
+## 1.25.0 - 2026-08-16
+
+| Area | Documentation impact |
+|---|---|
+| Method | `implementation-review-checklists.md` base gains the over-build hunt (deletable-abstraction inventory + shrink check, one line per finding); `implementation-scouting.md` fixes the ceiling-marker syntax (`// ceiling: <limit>; upgrade: <trigger>`); `inspect-state.md` output contract gains the ceiling ledger (greps configured sources, flags `no-trigger` markers, empty ledger reported clean) |
+| Compatibility | Method-layer only; no engine, finding, catalog or migration change |
+
 ## 1.24.0 - 2026-08-16
 
 | Area | Documentation impact |

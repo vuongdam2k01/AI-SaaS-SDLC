@@ -12,9 +12,11 @@ The checklist library the quality pass of `spec-compliance-review.md` loads by s
 **Critical (solution-class):**
 - A segment hand-rolls a concern whose Engineering profile row names an adopted library — that is drift against the recorded substrate, same class as contradicting any other profile convention.
 
-**Informational:**
+**Informational (over-build hunt — one line per finding: location, what to cut, what replaces it):**
 - A commodity solution-class component (HTTP routing, validation, forms, styling plumbing, animation, state, data fetching, jobs/scheduling, auth mechanics) written where a lower ladder rung was available and unexamined — an existing helper, the stdlib, a native platform feature, an installed dependency — or hand-rolled at subsystem size with no Engineering profile row recording the decision. Reported as an unrecorded decision, naming the rung that was skipped.
-- A deliberate simplification with a known ceiling (global lock, O(n²) scan, non-redelivering queue) missing its code-site marker naming the ceiling and the upgrade path.
+- Unrequested flexibility: an interface or abstract base with one implementation, a factory with one product, a wrapper that only delegates, a layer with one caller, config for a value that never changes, dead flags. The replacement is deletion or inlining until a second consumer exists.
+- Same logic achievable in materially fewer lines with a stdlib or platform form — report the shorter form, not just the complaint.
+- A deliberate simplification with a known ceiling (global lock, O(n²) scan, non-redelivering queue) missing its code-site `ceiling:` marker — or carrying one that names no upgrade trigger, the variant that silently rots.
 - A branch that skips its side effect (status set, dependent data forgotten); logs claiming actions that were conditionally skipped.
 - Bare literals shared across files; error strings doubling as query filters.
 - Dead assignments, stale comments, unused imports.

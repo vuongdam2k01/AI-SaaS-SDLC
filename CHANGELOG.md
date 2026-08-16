@@ -1,5 +1,29 @@
 # Changelog
 
+## 1.25.0 - 2026-08-16
+
+Completes the ponytail distillation that 1.24.0 started — the three mechanisms
+its unread skills carried.
+
+From `ponytail-review`/`ponytail-audit`: over-building is a hunted defect
+class, not a style remark. The base review checklist gains the deletable-
+abstraction inventory — an interface with one implementation, a factory with
+one product, a wrapper that only delegates, a layer with one caller, config
+for a value that never changes, dead flags — and the shrink check (same logic,
+materially fewer lines in a stdlib or platform form, reported with the shorter
+form, not just the complaint). One line per finding: location, what to cut,
+what replaces it.
+
+From `ponytail-debt`: a marker nobody harvests rots. The ceiling marker gains
+a fixed, greppable syntax — `// ceiling: <the limit>; upgrade: <the trigger to
+revisit>` — and Inspect State harvests the whole set from configured sources
+into a ceiling ledger, flagging `no-trigger` markers, the variant whose
+deferral silently becomes permanent. Review flags a known-ceiling
+simplification missing its marker or its trigger.
+
+Method-layer only, third in a row: no engine change, no new finding, no
+catalog generation change, no migration needed.
+
 ## 1.24.0 - 2026-08-16
 
 1.23.0 fixed the right defect with the wrong doctrine. It made the pipeline

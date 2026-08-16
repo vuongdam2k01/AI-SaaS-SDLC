@@ -201,7 +201,7 @@ describe("the shipped surface states what the code does", () => {
   it("carries one identical version in all five places that carry it", async () => {
     const read = async (relative: string) => JSON.parse(await readFile(path.join(pluginRoot, relative), "utf8"));
     const expected = (await read("package.json")).version;
-    expect(expected).toBe("1.24.0");
+    expect(expected).toBe("1.25.0");
     expect((await read(".claude-plugin/plugin.json")).version).toBe(expected);
     expect((await read(".codex-plugin/plugin.json")).version).toBe(expected);
     const marketplace = await read(".claude-plugin/marketplace.json");
