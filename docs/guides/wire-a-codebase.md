@@ -51,7 +51,7 @@ Wiring changes what `validate` reports, deliberately: every active feature now c
 
 ### 3. Record the engineering profile — one evolution
 
-The stack you chose is now a fact of the product, and facts of the product live in documents. Run one Product Evolution to fill the `Engineering profile` section of `ARCHITECTURE-OVERVIEW` (language/runtime, framework, package manager, repository layout map, test framework per level, migration tool, build entry points), commit `sdlc.config.yaml`'s new content in the same flow, and baseline. From here on an implementer reads the substrate there instead of inferring it per segment.
+The stack you chose is now a fact of the product, and facts of the product live in documents. Run one Product Evolution to fill the `Engineering profile` section of `ARCHITECTURE-OVERVIEW` (language/runtime, framework, package manager, repository layout map, test framework per level, migration tool, build entry points, and a solution-class row per commodity concern the code touches — HTTP serving and routing, validation, forms, styling plumbing, animation, state, data fetching, jobs/scheduling, auth mechanics — each either an adopted library or an explicit "none — hand-rolled because X; revisit when Y"), commit `sdlc.config.yaml`'s new content in the same flow, and baseline. From here on an implementer reads the substrate there instead of inferring it per segment.
 
 ```text
 /ai-saas-sdlc:evolve-product wire the codebase: record the engineering profile and verification commands

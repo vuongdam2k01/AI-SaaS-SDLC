@@ -2,6 +2,15 @@
 
 See the root [CHANGELOG](../CHANGELOG.md) for the release summary. This contributor view records documentation-impact areas that must remain synchronized with implementation.
 
+## 1.23.0 - 2026-08-16
+
+| Area | Documentation impact |
+|---|---|
+| Method | `implementation-scouting.md` gains the sixth mandatory output (solution-class check: profile row → use it; no row → adopt the ecosystem standard or record the refusal before the first hand-rolled line); `spec-compliance-review.md` states EXTRA judges behavior, never dependency surface; `implementation-review-checklists.md` base gains the two solution-class findings; `implementation.md` mandatory reads include the solution-class rows and the profile-silent rule routes to the scouting check instead of silent invention |
+| Template | `architecture-overview.md` Engineering profile contract gains one row per commodity solution class, adopted library or explicit reasoned refusal |
+| Docs | `wire-a-codebase.md` profile fill-in enumerates the solution-class rows |
+| Compatibility | Method-layer only: no engine change, no new finding, no catalog generation change, no migration needed. Existing repositories pick the behavior up on their next implement segment |
+
 ## 1.22.0 - 2026-08-16
 
 | Area | Documentation impact |

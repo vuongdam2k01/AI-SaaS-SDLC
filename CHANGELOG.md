@@ -1,5 +1,40 @@
 # Changelog
 
+## 1.23.0 - 2026-08-16
+
+The third surface of the same defect. The reference repository adopted a
+library wherever the Engineering profile had a slot — React, Zod, PGlite,
+Vitest, Playwright, Vite — and hand-rolled wherever it did not: an HTTP router
+over `node:http`, an in-process job queue, plain CSS. Each hand-rolled
+instance carried an after-the-fact rationale; none carried a before-the-fact
+question, because no step in the pipeline asks one. That inverts the
+professional default, which is fixed: commodity infrastructure is adopted, and
+only the product's own domain — the behavior no library ships — is written by
+hand.
+
+Four mechanisms produced the bias, and each gets its patch. Nothing asked, so
+scouting gains a sixth mandatory output — the solution-class check: every
+commodity component a segment will write names its Engineering profile row
+first; with no row, the segment adopts the ecosystem standard or records the
+reasoned refusal as a row before the first hand-rolled line. The profile had
+no slots, so its contract gains one row per commodity solution class (HTTP
+serving and routing, validation, forms, styling plumbing, animation, state,
+data fetching, jobs/scheduling, auth mechanics), each either an adopted
+library or an explicit "none — hand-rolled because X; revisit when Y". The
+minimal-scope rule read as pressure to hand-roll, so `spec-compliance-review`
+now states that EXTRA judges behavior, never dependency surface — a router
+with middleware nobody registered is not EXTRA, and the hand-rolled
+reimplementation is itself the reviewable event. And no finding existed, so
+the base checklist gains two: critical when code hand-rolls against a profile
+row that names a library, informational when a hand-rolled commodity concern
+has no row at all.
+
+No engine change and no catalog generation change. "Is this commodity?" is a
+judgment call, and deterministic validation must not enforce taste — the
+enforcement point is the model-side scout output and review checklist. The
+burden of proof sits on hand-rolling, never on adoption; inventing silently
+is no longer one of the options.
+
 ## 1.22.0 - 2026-08-16
 
 The same defect as 1.21.0, on its second surface. A pipeline with no channel

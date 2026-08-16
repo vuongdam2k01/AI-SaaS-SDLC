@@ -17,6 +17,8 @@ Compliance review runs **first and blocks quality review**: well-written code th
 
 A row the segment deliberately defers (a `code` segment does not implement `TC-*` rows) is out of scope, not MISSING: the standing `IMPLEMENTATION_LEVEL_UNPROVEN` warning carries deferred levels, and this review only judges the segment as invoked.
 
+EXTRA judges **behavior**, never dependency surface. Adopting a library whose capabilities exceed what the specification asks — a router with middleware nobody registered, a form library with validators nobody enabled — is not EXTRA; that is what adopting commodity infrastructure looks like, and the scouting protocol's solution-class check makes it the default. EXTRA is *wired-up behavior* the documents never asked for. Reading the minimal-scope rule as pressure to hand-roll instead of adopt inverts its purpose: a hand-rolled reimplementation of a commodity concern is itself the reviewable event (see the base checklist), not the compliant baseline.
+
 ## Quality pass, after compliance passes
 
 Adversarial posture: assume the implementation may have been produced by a model and look for its habits — phantom tests that execute code without proving behavior, parallel reimplementations of existing utilities, caught-and-swallowed errors, type suppressions, scope drift beyond the segment. Findings carry `file:line` or are void, same filter.

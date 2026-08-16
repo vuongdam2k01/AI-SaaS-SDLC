@@ -34,6 +34,7 @@ The pipeline governs everything it can derive from evidence, decisions and contr
 2. [Owner-supplied input channel](phase-02-owner-input-channel.md) — the missing rule and the ledger classification
 3. [Runtime configuration coverage](phase-03-runtime-config.md) — environment facts, derived not authored
 4. [Migration, tests and documentation](phase-04-migration-and-release.md) — catalog generation, existing repositories, release
+5. [Solution-class selection](phase-05-solution-selection.md) — the hand-rolling bias: commodity infrastructure is adopted, and the question gets asked before the first line
 
 ## Dependencies
 

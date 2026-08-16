@@ -9,7 +9,11 @@ The checklist library the quality pass of `spec-compliance-review.md` loads by s
 - Races: check-then-write without atomicity; find-or-create without a unique constraint; status transitions without a guarded update; shared mutable state unsynchronized.
 - Boundaries: new endpoints/operations missing authentication or per-resource authorization (IDOR); secrets in logs, errors or client code; model/AI output used in queries unvalidated; secret equality not constant-time.
 
+**Critical (solution-class):**
+- A segment hand-rolls a concern whose Engineering profile row names an adopted library — that is drift against the recorded substrate, same class as contradicting any other profile convention.
+
 **Informational:**
+- A hand-rolled implementation of a commodity solution class (HTTP routing, validation, forms, styling plumbing, animation, state, data fetching, jobs/scheduling, auth mechanics) with no Engineering profile row recording the refusal — reported as an unrecorded decision, naming the ecosystem-standard candidate the scouting check should have surfaced.
 - A branch that skips its side effect (status set, dependent data forgotten); logs claiming actions that were conditionally skipped.
 - Bare literals shared across files; error strings doubling as query filters.
 - Dead assignments, stale comments, unused imports.
