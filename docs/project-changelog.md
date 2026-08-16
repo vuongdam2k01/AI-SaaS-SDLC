@@ -2,6 +2,16 @@
 
 See the root [CHANGELOG](../CHANGELOG.md) for the release summary. This contributor view records documentation-impact areas that must remain synchronized with implementation.
 
+## 1.26.0 - 2026-08-16
+
+| Area | Documentation impact |
+|---|---|
+| Method | Genesis §8, Evolution §6 and Implementation mandatory-read 4 bind material interactions to the host's interactive ask facility (non-interactive runs record `QST-*` with `Blocked on: owner-decision`); Evolution §7 gains the generalized deferral rule (commitment → artifact → classified question; silence not an option); Inspect State leads questions with the owner-blocked subset and harvests Engineering-profile deferral/revisit rows |
+| Engine | `question-ledger.ts` gains the `Blocked on` closed domain, `normalizeBlockedOn`, class-aware `questionIsStale`; `validation.ts` emits `QUESTION_AWAITING_OWNER` and class-aware `QUESTION_STALE`; `state` includes `blocked_on` per open question |
+| Patterns | Catalog generation 7: `question_ledger` Open-questions table gains the `Blocked on` column; template ledger documents the value domain and class-aware aging |
+| Validation | Warning table reaches thirty-six with `QUESTION_AWAITING_OWNER`; `QUESTION_STALE` exempts `post-launch`/`external-evidence` |
+| Compatibility | Existing repositories keep generation 6 until `patterns migrate`; unclassified ledger rows parse and age exactly as before, so migration is additive |
+
 ## 1.25.0 - 2026-08-16
 
 | Area | Documentation impact |

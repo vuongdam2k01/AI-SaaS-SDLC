@@ -28,10 +28,10 @@ Questions record material unknowns until evidence or an authoritative artifact r
 
 ## Open questions
 
-| Question ID | Question | Why it matters | Affected artifacts | Evidence needed | Resolution artifact | Status |
-|---|---|---|---|---|---|---|
-| QST-001 | Do agencies accept one approver per request? | A second approver changes the decision contract. | FTR-APPROVAL-001 | Agency interviews or comparable product behavior | EVIDENCE-LEDGER | open |
-| QST-002 | Is decision history retained beyond one year? | Retention changes storage and export obligations. | ENT-APPROVAL-001 | Stated retention policy of comparable products | EVIDENCE-LEDGER | open |
+| Question ID | Question | Why it matters | Affected artifacts | Evidence needed | Blocked on | Resolution artifact | Status |
+|---|---|---|---|---|---|---|---|
+| QST-001 | Do agencies accept one approver per request? | A second approver changes the decision contract. | FTR-APPROVAL-001 | Agency interviews or comparable product behavior | measurement | EVIDENCE-LEDGER | open |
+| QST-002 | Is decision history retained beyond one year? | Retention changes storage and export obligations. | ENT-APPROVAL-001 | Stated retention policy of comparable products | measurement | EVIDENCE-LEDGER | open |
 
 ## Resolution recording
 
@@ -185,7 +185,7 @@ describe("open question aging", () => {
   it("reads a ledger whose rows continue past the header block", () => {
     const continued = LEDGER_BODY.replace(
       "| QST-002 |",
-      "\n| QST-003 | Should a decision be exportable? | Export changes the storage boundary. | REQ-004 | Comparable product behavior | EVIDENCE-LEDGER | open |\n| QST-002 |"
+      "\n| QST-003 | Should a decision be exportable? | Export changes the storage boundary. | REQ-004 | Comparable product behavior | measurement | EVIDENCE-LEDGER | open |\n| QST-002 |"
     );
     expect(openQuestions([artifact({ id: "QUESTIONS", artifact_type: "question_ledger", body: continued })])
       .map((question) => question.id)).toEqual(["QST-001", "QST-003", "QST-002"]);
@@ -194,8 +194,8 @@ describe("open question aging", () => {
   it("reads open rows and skips resolved ones", () => {
     const ledger = artifact({
       id: "QUESTIONS", artifact_type: "question_ledger",
-      body: LEDGER_BODY.replace("| QST-002 | Is decision history retained beyond one year? | Retention changes storage and export obligations. | ENT-APPROVAL-001 | Stated retention policy of comparable products | EVIDENCE-LEDGER | open |",
-        "| QST-002 | Is decision history retained beyond one year? | Retention changes storage and export obligations. | ENT-APPROVAL-001 | Stated retention policy of comparable products | EVD-FIXTURE-001 | resolved |")
+      body: LEDGER_BODY.replace("| QST-002 | Is decision history retained beyond one year? | Retention changes storage and export obligations. | ENT-APPROVAL-001 | Stated retention policy of comparable products | measurement | EVIDENCE-LEDGER | open |",
+        "| QST-002 | Is decision history retained beyond one year? | Retention changes storage and export obligations. | ENT-APPROVAL-001 | Stated retention policy of comparable products | measurement | EVD-FIXTURE-001 | resolved |")
     });
     const open = openQuestions([ledger]);
     expect(open.map((question) => question.id)).toEqual(["QST-001"]);
@@ -253,8 +253,8 @@ describe("open question aging", () => {
     // Closing one by decision is a real closure: it stops being reported at once,
     // and the next baseline forgets it so a reopening ages from its reopening.
     await writeLedger(root, LEDGER_BODY.replace(
-      "| QST-002 | Is decision history retained beyond one year? | Retention changes storage and export obligations. | ENT-APPROVAL-001 | Stated retention policy of comparable products | EVIDENCE-LEDGER | open |",
-      "| QST-002 | Is decision history retained beyond one year? | Retention changes storage and export obligations. | ENT-APPROVAL-001 | Stated retention policy of comparable products | ADR-APPROVAL-001 | resolved |"
+      "| QST-002 | Is decision history retained beyond one year? | Retention changes storage and export obligations. | ENT-APPROVAL-001 | Stated retention policy of comparable products | measurement | EVIDENCE-LEDGER | open |",
+      "| QST-002 | Is decision history retained beyond one year? | Retention changes storage and export obligations. | ENT-APPROVAL-001 | Stated retention policy of comparable products | measurement | ADR-APPROVAL-001 | resolved |"
     ));
     const afterClosure = (await validateProject(root, await scanArtifacts(root))).findings.filter((item) => item.code === "QUESTION_STALE");
     expect(afterClosure.map((item) => item.message.slice(0, 7))).toEqual(["QST-001"]);

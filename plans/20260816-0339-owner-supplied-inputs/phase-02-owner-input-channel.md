@@ -1,6 +1,8 @@
 # Phase 2 — Owner-supplied input channel
 
-Status: draft
+Status: complete (released as 1.26.0)
+
+Implemented with two deltas against this draft: `COMMITMENT_DEFERRED_UNOWNED` ships as the generalized deferral rule in the evolution playbook rather than a deterministic finding ("a commitment the flow reached and did not make" is a judgment no engine predicate can decide), and the material-interaction checkpoints are now explicitly bound to the host's interactive ask facility — the observed failure was never that the checkpoint text was missing, but that a session could scroll past it as prose and then implement; a non-interactive run records the choice as a `QST-*` with `Blocked on: owner-decision` instead of deciding.
 
 ## Outcome
 

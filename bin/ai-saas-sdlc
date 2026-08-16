@@ -20525,6 +20525,17 @@ init_markdown();
 // src/core/question-ledger.ts
 init_markdown();
 var STALE_AFTER_BASELINES = 3;
+var QUESTION_BLOCKED_ON = ["owner-decision", "owner-environment", "measurement", "post-launch", "external-evidence"];
+var OWNER_BLOCKED = /* @__PURE__ */ new Set(["owner-decision", "owner-environment"]);
+function normalizeBlockedOn(value) {
+  const cleaned = (value ?? "").replace(/[`*]/g, "").trim().toLowerCase();
+  return QUESTION_BLOCKED_ON.includes(cleaned) ? cleaned : null;
+}
+function questionIsStale(blockedOn, age) {
+  if (age === null) return false;
+  if (blockedOn === "post-launch" || blockedOn === "external-evidence") return false;
+  return age >= STALE_AFTER_BASELINES;
+}
 function column(columns, name) {
   return columns.map(headingKey).indexOf(headingKey(name));
 }
@@ -20540,6 +20551,7 @@ function openQuestions(artifacts) {
   const statusIndex = column(header, "Status");
   const questionIndex = column(header, "Question");
   const affectedIndex = column(header, "Affected artifacts");
+  const blockedOnIndex = column(header, "Blocked on");
   const questions = /* @__PURE__ */ new Map();
   for (const row of rows) {
     if (!completedRow(row)) continue;
@@ -20550,6 +20562,7 @@ function openQuestions(artifacts) {
       id: id2,
       question: (row[questionIndex] ?? "").trim(),
       affected: (row[affectedIndex] ?? "").trim(),
+      blocked_on: blockedOnIndex >= 0 ? normalizeBlockedOn(row[blockedOnIndex]) : null,
       file: ledger.file
     });
   }
@@ -21241,11 +21254,21 @@ async function validateProject(root2, artifacts) {
       const registered = state.id_registry[artifact2.id];
       if (registered && registered !== artifact2.file) findings.push({ severity: "error", code: "ID_REUSED", message: `${artifact2.id} was first registered at ${registered}, not ${artifact2.file}`, file: artifact2.file });
     }
-    for (const question of openQuestions(artifacts)) {
+    const open2 = openQuestions(artifacts);
+    for (const question of open2) {
       const age = baselinesOpen(state.question_first_baseline?.[question.id], state.active_baseline);
-      if (age === null || age < STALE_AFTER_BASELINES) continue;
+      if (!questionIsStale(question.blocked_on, age)) continue;
       const blocks = question.affected ? ` It still blocks: ${question.affected}.` : "";
       findings.push({ severity: "warning", code: "QUESTION_STALE", message: `${question.id} has been open for ${age} baselines since ${state.question_first_baseline?.[question.id]}; close it with evidence, close it with a decision that makes it moot, or record why it stays open.${blocks}`, file: question.file });
+    }
+    const ownerBlocked = open2.filter((question) => question.blocked_on !== null && OWNER_BLOCKED.has(question.blocked_on));
+    if (ownerBlocked.length > 0) {
+      findings.push({
+        severity: "warning",
+        code: "QUESTION_AWAITING_OWNER",
+        message: `${ownerBlocked.length} open question(s) wait on the owner and are answerable today: ${ownerBlocked.map((question) => `${question.id} (${question.blocked_on})`).join(", ")}. Each closes through a flow \u2014 a decision lands as an ADR via Product Evolution, an environment fact lands as configuration or evidence.`,
+        file: ownerBlocked[0]?.file ?? "05-control/questions.md"
+      });
     }
   } catch {
     findings.push({ severity: "error", code: "STATE_INVALID", message: `Missing or invalid ${projectPaths(root2).current}` });
@@ -25235,7 +25258,7 @@ function print(value, json = false) {
   if (json || typeof value !== "string") console.log(JSON.stringify(value, null, 2));
   else console.log(value);
 }
-program2.name("ai-saas-sdlc").description("Deterministic engine for AI SaaS SDLC documentation flows.").version("1.25.0");
+program2.name("ai-saas-sdlc").description("Deterministic engine for AI SaaS SDLC documentation flows.").version("1.26.0");
 program2.command("init").description("Initialize a centralized documentation repository.").option("--project-id <id>", "Stable project identifier").option("--idea <text>", "Raw idea preserved verbatim", "").option("--force", "Initialize even though the directory contains a code-project marker").action(async (options) => {
   const projectId = options.projectId ?? root.split(/[\\/]/).at(-1)?.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") ?? "saas-project";
   await withProjectLock(root, async () => {
@@ -25280,9 +25303,10 @@ program2.command("state").description("Show current baseline and active flow.").
   const flow2 = await loadActiveFlow(root);
   const questions = openQuestions(await scanArtifacts(root)).map((question) => ({
     id: question.id,
+    blocked_on: question.blocked_on,
     first_baseline: current.question_first_baseline?.[question.id] ?? null,
     baselines_open: baselinesOpen(current.question_first_baseline?.[question.id], current.active_baseline),
-    stale: (baselinesOpen(current.question_first_baseline?.[question.id], current.active_baseline) ?? 0) >= STALE_AFTER_BASELINES
+    stale: questionIsStale(question.blocked_on, baselinesOpen(current.question_first_baseline?.[question.id], current.active_baseline))
   })).sort((a, b2) => (b2.baselines_open ?? -1) - (a.baselines_open ?? -1) || a.id.localeCompare(b2.id));
   print({ current, active_flow: flow2, open_questions: questions }, Boolean(options.json));
 });

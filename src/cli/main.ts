@@ -20,7 +20,7 @@ import { resolveRuntimeRoot } from "../core/runtime-root.js";
 import { resolveCatalog } from "../core/pattern-catalog.js";
 import { formatMigrationReport, migratePatternCatalog } from "../core/pattern-migration.js";
 import { createArtifactFromPattern } from "../core/artifact-instantiation.js";
-import { STALE_AFTER_BASELINES, baselinesOpen, openQuestions } from "../core/question-ledger.js";
+import { baselinesOpen, openQuestions, questionIsStale } from "../core/question-ledger.js";
 import { buildDocsSite } from "../core/docs-site.js";
 import { configKeyStates, unrunnableCommands } from "../core/runtime-config.js";
 import { probeResearchTools } from "../core/research-capability.js";
@@ -44,7 +44,7 @@ function print(value: unknown, json = false): void {
   else console.log(value);
 }
 
-program.name("ai-saas-sdlc").description("Deterministic engine for AI SaaS SDLC documentation flows.").version("1.25.0");
+program.name("ai-saas-sdlc").description("Deterministic engine for AI SaaS SDLC documentation flows.").version("1.26.0");
 
 program.command("init")
   .description("Initialize a centralized documentation repository.")
@@ -116,9 +116,10 @@ program.command("state")
     // moved on without.
     const questions = openQuestions(await scanArtifacts(root)).map((question) => ({
       id: question.id,
+      blocked_on: question.blocked_on,
       first_baseline: current.question_first_baseline?.[question.id] ?? null,
       baselines_open: baselinesOpen(current.question_first_baseline?.[question.id], current.active_baseline),
-      stale: (baselinesOpen(current.question_first_baseline?.[question.id], current.active_baseline) ?? 0) >= STALE_AFTER_BASELINES
+      stale: questionIsStale(question.blocked_on, baselinesOpen(current.question_first_baseline?.[question.id], current.active_baseline))
     })).sort((a, b) => (b.baselines_open ?? -1) - (a.baselines_open ?? -1) || a.id.localeCompare(b.id));
     print({ current, active_flow: flow, open_questions: questions }, Boolean(options.json));
   });

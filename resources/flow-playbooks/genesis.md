@@ -121,6 +121,8 @@ For each question provide:
 
 When the evidence still supports two or more framings of the opportunity or beachhead — different segments, different problem boundaries, different commercial directions — each framing is presented as an explicit alternative with its own evidence cost inside this same interaction, per the divergence rule in `resources/protocols/solution-formation.md`: this is the pipeline's most leveraged decision, and converging on the first framing that fits is exactly the anchoring that rule prohibits.
 
+Present these through the host's interactive ask facility when one exists — a checkpoint that scrolls past as prose is not an interaction, and an owner decision resolved by assumption is the defect this section exists to prevent. In a non-interactive run, record each unresolved choice as a `QST-*` with `Blocked on: owner-decision` and proceed only where a documented default exists.
+
 If evidence and explicit input determine the answer, do not manufacture a checkpoint. Record non-blocking unknowns in `QUESTIONS`.
 
 ## 9. Form product foundations

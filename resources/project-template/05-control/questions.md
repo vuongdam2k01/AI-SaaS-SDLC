@@ -21,9 +21,9 @@ supersedes:
 
 ## Open questions
 
-| Question ID | Question | Why it matters | Affected artifacts | Evidence needed | Resolution artifact | Status |
-|---|---|---|---|---|---|---|
-<!-- Status is open/resolved. An active ledger requires at least one concrete row; if no questions exist, retain draft with an explicit empty-state comment. -->
+| Question ID | Question | Why it matters | Affected artifacts | Evidence needed | Blocked on | Resolution artifact | Status |
+|---|---|---|---|---|---|---|---|
+<!-- Status is open/resolved. An active ledger requires at least one concrete row; if no questions exist, retain draft with an explicit empty-state comment. Blocked on is the closed set naming who or what the answer waits for: owner-decision (a judgment only the owner can make), owner-environment (a credential, account or device only the owner can supply), measurement (an instrumented run that has not happened), post-launch (real usage that does not exist yet), external-evidence (a source outside the product). The first two are the only classes the owner can act on today — QUESTION_AWAITING_OWNER surfaces them — and post-launch/external-evidence rows are exempt from staleness, because they wait on the world, not on anyone here. -->
 
 ## Resolution recording
 
@@ -35,7 +35,7 @@ supersedes:
 ## Aging and impact
 
 - Review signal: a referenced source ages, an affected artifact changes, or the question blocks a concrete authority.
-- The engine measures age in baselines and reports `QUESTION_STALE` once a question has outlived the work that raised it; Evidence Reassessment must then resolve it, close it by decision, or state why it stays open.
+- The engine measures age in baselines and reports `QUESTION_STALE` once a question has outlived the work that raised it; Evidence Reassessment must then resolve it, close it by decision, or state why it stays open. Staleness is class-aware: `post-launch` and `external-evidence` rows never go stale (they wait on the world), while `owner-decision`, `owner-environment` and `measurement` rows do — and the owner-blocked classes additionally stand as `QUESTION_AWAITING_OWNER` from the day they open.
 - Impact classification: identify which facts remain unsafe to assert while open.
 - Stale questions remain visible until resolved or explicitly superseded; never delete unresolved history.
 - Open questions cannot be treated as evidence, assumptions, requirements, or accepted decisions.

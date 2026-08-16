@@ -117,7 +117,7 @@ Editing an artifact in this flow is the `modify` decision and needs no classific
 
 ## 6. One consolidated material interaction
 
-Resolve behavior from explicit intent/current contracts first. After the initial behavior and impact picture, ask once for unresolved choices that materially alter scope, acceptance, compatibility, actor access, conflict behavior, external promise or expensive-to-reverse design.
+Resolve behavior from explicit intent/current contracts first. After the initial behavior and impact picture, ask once for unresolved choices that materially alter scope, acceptance, compatibility, actor access, conflict behavior, external promise or expensive-to-reverse design. Ask through the host's interactive ask facility when one exists — options with their principal consequence and a marked recommendation — never by resolving the owner's choice silently; in a non-interactive run, record the choice as a `QST-*` with `Blocked on: owner-decision` instead of deciding.
 
 Present options, consequences and recommendation. Do not ask separately per artifact or ask about routine implementation choices. Put unresolved non-blocking items in `QUESTIONS`.
 
@@ -146,6 +146,8 @@ Once a repository's IDs carry stable area segments — `SUB-DISPATCH-001`, `SCR-
 An ADR marked `accepted` is immutable once baselined, so do not cite verification case IDs it cannot yet see. Name the specification, the acceptance criterion or the rule; name individual `TC-*` only after the cases exist. `ENGINE validate` reports `CASE_REFERENCE_BROKEN` for a qualified case reference that no specification declares, and inside an accepted ADR that finding can never be repaired.
 
 When the semantic intent names a boundary of one of these kinds and you do not allocate an artifact for it, say so explicitly in the closing report: name the boundary, name the artifact type you did not create, and state why the boundary does not exist yet. Silently omitting a named boundary is not an allocation decision, it is an unrecorded one.
+
+The same rule generalizes past the artifact-type list: **any commitment this flow reached and did not make leaves a debtor.** Three outcomes are legal — make the commitment, allocate the artifact that owns it, or open a `QST-*` naming what is blocked with its `Blocked on` class. Closing a flow having done none of the three is the silence that produced screens with no visual system; it is not an option.
 
 A client obligation that no artifact owns is an allocation gap, not a detail. If a contract you write or change requires the caller to supply something it cannot derive — an idempotency key, a correlation identifier, the identity of a record it is superseding, a chosen version — then either allocate the artifact that owns the surface producing it, or record the gap in `QUESTIONS` with the exact obligation, the artifacts that impose it, and the claim it blocks until it is closed. Leaving the obligation unowned and unrecorded is not permitted.
 

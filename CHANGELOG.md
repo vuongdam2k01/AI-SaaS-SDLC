@@ -1,5 +1,48 @@
 # Changelog
 
+## 1.26.0 - 2026-08-16
+
+The audit release, run before a rebuild so the rebuild does not inherit the
+defect class this whole line of work has been closing: a decision with no
+owner and nobody asking. Three remaining instances, all patched.
+
+**The checkpoint that scrolls past.** Every flow carried a "material
+interaction" section, and every one of them could be satisfied by prose the
+session wrote past on its way to implementing. That is the mechanism behind
+every silent decision this plugin has shipped: the checkpoint existed, the
+*stop* did not. Genesis, Product Evolution and Implementation now bind their
+material interactions to the host's interactive ask facility — options,
+consequences, a marked recommendation — and a non-interactive run records the
+choice as a `QST-*` with `Blocked on: owner-decision` instead of deciding. A
+first implementation on a fresh scaffold gets the same treatment: substrate
+choices are the author's material decisions, presented per solution class,
+never defaulted silently.
+
+**The ledger that cannot say who is blocked** (the plan's Phase 2, finally
+built). Catalog generation 7 adds the `Blocked on` column to the question
+ledger with a closed domain — `owner-decision`, `owner-environment`,
+`measurement`, `post-launch`, `external-evidence`. Staleness is class-aware:
+world-blocked classes never go stale, person-blocked classes do. A new
+standing warning, `QUESTION_AWAITING_OWNER`, names the questions the owner
+could answer today, from the day they open — on the reference repository
+seven of eight stale warnings were noise and the one actionable question sat
+unmarked for eight baselines. `state --json` carries `blocked_on` per open
+question, and Inspect State leads its question report with the owner-blocked
+subset. The generalized deferral rule lands in Product Evolution: any
+commitment a flow reached and did not make either becomes the commitment, an
+owning artifact, or a classified question — closing with none of the three is
+the silence that produced unstyled screens, and it is not an option.
+
+**The revisit conditions nobody harvests.** Engineering-profile deferral rows
+("none — hand-rolled because X; revisit when Y") rot exactly like unharvested
+ceiling markers. Inspect State now reports every profile row carrying a
+refusal or revisit condition, and names a condition that has visibly arrived
+as due.
+
+Catalog 6 → 7; existing repositories migrate with `patterns migrate` as
+usual. A repository initialized after this release starts on generation 7
+with the classified ledger from its first question.
+
 ## 1.25.0 - 2026-08-16
 
 Completes the ponytail distillation that 1.24.0 started — the three mechanisms

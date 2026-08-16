@@ -120,7 +120,7 @@ describe("closure warnings across a whole flow", () => {
     const ledgerFile = path.join(root, "05-control", "questions.md");
     const ledger = (await readFile(ledgerFile, "utf8")).replace(/\r\n/g, "\n");
     const rowAt = ledger.lastIndexOf("\n", ledger.indexOf("## Resolution recording"));
-    await writeFile(ledgerFile, `${ledger.slice(0, rowAt)}\n| QST-900 | What does SCR-APPROVAL-001#E-03 do when the request is already terminal? | Withdrawal after a decision is undefined. | SCR-APPROVAL-001 | Product decision | ACCESS-CONTROL | open |${ledger.slice(rowAt)}`, "utf8");
+    await writeFile(ledgerFile, `${ledger.slice(0, rowAt)}\n| QST-900 | What does SCR-APPROVAL-001#E-03 do when the request is already terminal? | Withdrawal after a decision is undefined. | SCR-APPROVAL-001 | Product decision | owner-decision | ACCESS-CONTROL | open |${ledger.slice(rowAt)}`, "utf8");
     cli(root, ["refresh", "--json"]);
     expect(findings(root).filter((f) => f.code === "SCREEN_BEHAVIOR_UNCLAIMED")).toEqual([]);
   });
@@ -187,21 +187,21 @@ describe("the shipped surface states what the code does", () => {
   it("matches the warning table to the codes the engine actually emits", async () => {
     const table = await readFile(path.join(pluginRoot, "resources", "project-template", "00-system", "validation-rules.md"), "utf8");
     const documented = new Set([...table.matchAll(/^\| `([A-Z_]+)` \|/gm)].map((match) => match[1]!));
-    expect(documented.size).toBe(35);
+    expect(documented.size).toBe(36);
     for (const code of [
       "ACCESS_UNVERIFIED", "INVARIANT_UNVERIFIED", "ERROR_UNVERIFIED", "UX_UNVERIFIED", "SCREEN_BEHAVIOR_UNCLAIMED", "SYSTEM_DOCUMENT_INCOMPLETE",
       "IMPACT_UNCLASSIFIED", "DOCUMENTATION_DRIFT", "SPEC_EXECUTION_UNATTRIBUTED", "CLAIM_WITHOUT_DEPENDENCY", "DESIGN_TOKENS_UNCOMMITTED",
-      "CONFIG_KEY_UNDECLARED", "CONFIG_REQUIREMENT_UNSUPPLIED", "CONFIG_DECLARATION_UNKNOWN"
+      "CONFIG_KEY_UNDECLARED", "CONFIG_REQUIREMENT_UNSUPPLIED", "CONFIG_DECLARATION_UNKNOWN", "QUESTION_AWAITING_OWNER"
     ]) {
       expect(documented.has(code), code).toBe(true);
     }
-    expect(table).toContain("Thirty-five exist");
+    expect(table).toContain("Thirty-six exist");
   });
 
   it("carries one identical version in all five places that carry it", async () => {
     const read = async (relative: string) => JSON.parse(await readFile(path.join(pluginRoot, relative), "utf8"));
     const expected = (await read("package.json")).version;
-    expect(expected).toBe("1.25.0");
+    expect(expected).toBe("1.26.0");
     expect((await read(".claude-plugin/plugin.json")).version).toBe(expected);
     expect((await read(".codex-plugin/plugin.json")).version).toBe(expected);
     const marketplace = await read(".claude-plugin/marketplace.json");

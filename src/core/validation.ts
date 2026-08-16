@@ -22,7 +22,7 @@ import { runtimeConfigFindings } from "./runtime-config.js";
 import { systemDocumentFindings } from "./system-documents.js";
 import { MAX_CASES_PER_SPEC, specSizeEntries } from "./spec-size.js";
 import { brokenCaseReferences } from "./test-cases.js";
-import { STALE_AFTER_BASELINES, baselinesOpen, openQuestions } from "./question-ledger.js";
+import { OWNER_BLOCKED, baselinesOpen, openQuestions, questionIsStale } from "./question-ledger.js";
 import { platformContradictionFindings, platformEvidenceFindings } from "./platform-evidence.js";
 import { documentationDriftFindings, implementationDriftFindings, implementationMappingFindings, implementationSymbolFindings } from "./implementation-evidence.js";
 import { impactClassificationFindings } from "./ripple-classification.js";
@@ -277,11 +277,25 @@ export async function validateProject(root: string, artifacts: Artifact[]): Prom
     // An open question is honest; an open question nobody ever returns to is a
     // debt the ledger records and never schedules. Age is measured in baselines
     // because that is the unit in which the product moved on without it.
-    for (const question of openQuestions(artifacts)) {
+    const open = openQuestions(artifacts);
+    for (const question of open) {
       const age = baselinesOpen(state.question_first_baseline?.[question.id], state.active_baseline);
-      if (age === null || age < STALE_AFTER_BASELINES) continue;
+      if (!questionIsStale(question.blocked_on, age)) continue;
       const blocks = question.affected ? ` It still blocks: ${question.affected}.` : "";
       findings.push({ severity: "warning", code: "QUESTION_STALE", message: `${question.id} has been open for ${age} baselines since ${state.question_first_baseline?.[question.id]}; close it with evidence, close it with a decision that makes it moot, or record why it stays open.${blocks}`, file: question.file });
+    }
+    // The one signal the mixed-class staleness count buried: which questions
+    // wait on a person who could answer today. Standing from the day the row
+    // opens, not after an age threshold — an owner cannot answer what nothing
+    // shows them. Warning, never error: answering remains the owner's schedule.
+    const ownerBlocked = open.filter((question) => question.blocked_on !== null && OWNER_BLOCKED.has(question.blocked_on));
+    if (ownerBlocked.length > 0) {
+      findings.push({
+        severity: "warning",
+        code: "QUESTION_AWAITING_OWNER",
+        message: `${ownerBlocked.length} open question(s) wait on the owner and are answerable today: ${ownerBlocked.map((question) => `${question.id} (${question.blocked_on})`).join(", ")}. Each closes through a flow — a decision lands as an ADR via Product Evolution, an environment fact lands as configuration or evidence.`,
+        file: ownerBlocked[0]?.file ?? "05-control/questions.md"
+      });
     }
   } catch {
     findings.push({ severity: "error", code: "STATE_INVALID", message: `Missing or invalid ${projectPaths(root).current}` });

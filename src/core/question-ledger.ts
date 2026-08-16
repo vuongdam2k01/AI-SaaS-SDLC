@@ -11,10 +11,43 @@ import { completedRow, dataRows, headingKey, sectionBody } from "./markdown.js";
  */
 export const STALE_AFTER_BASELINES = 3;
 
+/**
+ * The closed value domain of the ledger's `Blocked on` column: who or what a
+ * question is actually waiting for. The first two are the only classes the
+ * owner can act on today, which is exactly why they are worth separating —
+ * seven stale questions that all wait on the world hide the one that waits on
+ * a person.
+ */
+export const QUESTION_BLOCKED_ON = ["owner-decision", "owner-environment", "measurement", "post-launch", "external-evidence"] as const;
+export type QuestionBlockedOn = (typeof QUESTION_BLOCKED_ON)[number];
+
+/** Classes whose questions wait on the owner and are actionable today. */
+export const OWNER_BLOCKED: ReadonlySet<QuestionBlockedOn> = new Set(["owner-decision", "owner-environment"]);
+
+export function normalizeBlockedOn(value: string | undefined): QuestionBlockedOn | null {
+  const cleaned = (value ?? "").replace(/[`*]/g, "").trim().toLowerCase();
+  return (QUESTION_BLOCKED_ON as readonly string[]).includes(cleaned) ? (cleaned as QuestionBlockedOn) : null;
+}
+
+/**
+ * Staleness is class-aware. A question waiting on post-launch behavior or an
+ * external source that has outlived three baselines means nothing — it waits
+ * on the world, and the world is allowed to be slow. A question waiting on the
+ * owner or on a measurement this machine could run is the real debt the
+ * staleness signal exists to surface. Unclassified rows keep the historical
+ * threshold, so a ledger written before the column existed reads unchanged.
+ */
+export function questionIsStale(blockedOn: QuestionBlockedOn | null, age: number | null): boolean {
+  if (age === null) return false;
+  if (blockedOn === "post-launch" || blockedOn === "external-evidence") return false;
+  return age >= STALE_AFTER_BASELINES;
+}
+
 export interface OpenQuestion {
   id: string;
   question: string;
   affected: string;
+  blocked_on: QuestionBlockedOn | null;
   file: string;
 }
 
@@ -41,6 +74,7 @@ export function openQuestions(artifacts: Artifact[]): OpenQuestion[] {
   const statusIndex = column(header, "Status");
   const questionIndex = column(header, "Question");
   const affectedIndex = column(header, "Affected artifacts");
+  const blockedOnIndex = column(header, "Blocked on");
   const questions = new Map<string, OpenQuestion>();
   for (const row of rows) {
     if (!completedRow(row)) continue;
@@ -51,6 +85,7 @@ export function openQuestions(artifacts: Artifact[]): OpenQuestion[] {
       id,
       question: (row[questionIndex] ?? "").trim(),
       affected: (row[affectedIndex] ?? "").trim(),
+      blocked_on: blockedOnIndex >= 0 ? normalizeBlockedOn(row[blockedOnIndex]) : null,
       file: ledger.file
     });
   }

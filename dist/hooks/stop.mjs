@@ -15434,6 +15434,17 @@ init_markdown();
 // src/core/question-ledger.ts
 init_markdown();
 var STALE_AFTER_BASELINES = 3;
+var QUESTION_BLOCKED_ON = ["owner-decision", "owner-environment", "measurement", "post-launch", "external-evidence"];
+var OWNER_BLOCKED = /* @__PURE__ */ new Set(["owner-decision", "owner-environment"]);
+function normalizeBlockedOn(value) {
+  const cleaned = (value ?? "").replace(/[`*]/g, "").trim().toLowerCase();
+  return QUESTION_BLOCKED_ON.includes(cleaned) ? cleaned : null;
+}
+function questionIsStale(blockedOn, age) {
+  if (age === null) return false;
+  if (blockedOn === "post-launch" || blockedOn === "external-evidence") return false;
+  return age >= STALE_AFTER_BASELINES;
+}
 function column(columns, name) {
   return columns.map(headingKey).indexOf(headingKey(name));
 }
@@ -15449,6 +15460,7 @@ function openQuestions(artifacts) {
   const statusIndex = column(header, "Status");
   const questionIndex = column(header, "Question");
   const affectedIndex = column(header, "Affected artifacts");
+  const blockedOnIndex = column(header, "Blocked on");
   const questions = /* @__PURE__ */ new Map();
   for (const row of rows) {
     if (!completedRow(row)) continue;
@@ -15459,6 +15471,7 @@ function openQuestions(artifacts) {
       id: id2,
       question: (row[questionIndex] ?? "").trim(),
       affected: (row[affectedIndex] ?? "").trim(),
+      blocked_on: blockedOnIndex >= 0 ? normalizeBlockedOn(row[blockedOnIndex]) : null,
       file: ledger.file
     });
   }
@@ -16241,11 +16254,21 @@ async function validateProject(root2, artifacts) {
       const registered = state.id_registry[artifact.id];
       if (registered && registered !== artifact.file) findings.push({ severity: "error", code: "ID_REUSED", message: `${artifact.id} was first registered at ${registered}, not ${artifact.file}`, file: artifact.file });
     }
-    for (const question of openQuestions(artifacts)) {
+    const open2 = openQuestions(artifacts);
+    for (const question of open2) {
       const age = baselinesOpen(state.question_first_baseline?.[question.id], state.active_baseline);
-      if (age === null || age < STALE_AFTER_BASELINES) continue;
+      if (!questionIsStale(question.blocked_on, age)) continue;
       const blocks = question.affected ? ` It still blocks: ${question.affected}.` : "";
       findings.push({ severity: "warning", code: "QUESTION_STALE", message: `${question.id} has been open for ${age} baselines since ${state.question_first_baseline?.[question.id]}; close it with evidence, close it with a decision that makes it moot, or record why it stays open.${blocks}`, file: question.file });
+    }
+    const ownerBlocked = open2.filter((question) => question.blocked_on !== null && OWNER_BLOCKED.has(question.blocked_on));
+    if (ownerBlocked.length > 0) {
+      findings.push({
+        severity: "warning",
+        code: "QUESTION_AWAITING_OWNER",
+        message: `${ownerBlocked.length} open question(s) wait on the owner and are answerable today: ${ownerBlocked.map((question) => `${question.id} (${question.blocked_on})`).join(", ")}. Each closes through a flow \u2014 a decision lands as an ADR via Product Evolution, an environment fact lands as configuration or evidence.`,
+        file: ownerBlocked[0]?.file ?? "05-control/questions.md"
+      });
     }
   } catch {
     findings.push({ severity: "error", code: "STATE_INVALID", message: `Missing or invalid ${projectPaths(root2).current}` });

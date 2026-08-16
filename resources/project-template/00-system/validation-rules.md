@@ -48,7 +48,7 @@ Validation evaluates project artifacts as contracts. It detects structural absen
 
 Validation reports two severities and they mean different things. An **error** is a broken structure — a bad ID, an unresolved reference, a lifecycle or supersession violation, a mutated immutable record, a coverage gap, generated projections out of sync. Errors block a baseline and must be repaired.
 
-A **warning** names a judgement or a debt rather than a broken structure, never blocks a baseline, and is itself the durable record of what is owed. Thirty-five exist:
+A **warning** names a judgement or a debt rather than a broken structure, never blocks a baseline, and is itself the durable record of what is owed. Thirty-six exist:
 
 | Warning | Means |
 |---|---|
@@ -66,7 +66,8 @@ A **warning** names a judgement or a debt rather than a broken structure, never 
 | `SYSTEM_DOCUMENT_INCOMPLETE` | A `00-system` document missing a required section, table or rule ID its pinned contract declares. |
 | `SPEC_OVERSIZED` | A live IT/ST specification past the case threshold. |
 | `CASE_REFERENCE_BROKEN` | A qualified case reference naming a case its specification does not declare. |
-| `QUESTION_STALE` | An open question that has outlived three baselines. |
+| `QUESTION_STALE` | An open question that has outlived three baselines — except `post-launch` and `external-evidence` rows, which wait on the world and never go stale. |
+| `QUESTION_AWAITING_OWNER` | An open question whose `Blocked on` class is `owner-decision` or `owner-environment` — answerable by the owner today, standing from the day it opens. |
 | `PLATFORM_EVIDENCE_MISSING` | A live platform target no verification command declares evidence for. |
 | `PLATFORM_DECLARATION_UNKNOWN` | A `platforms:` declaration naming no live platform target. |
 | `PLATFORM_EVIDENCE_CONTRADICTED` | A declared `host_os` token no recorded execution declaring that target has observed. |

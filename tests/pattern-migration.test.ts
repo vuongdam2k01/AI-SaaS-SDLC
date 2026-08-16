@@ -22,7 +22,7 @@ async function pinOlderCatalog(root: string): Promise<void> {
   const pinned = path.join(root, "00-system", "patterns");
   const catalogFile = path.join(pinned, "catalog.yaml");
   const catalog = (await readFile(catalogFile, "utf8"))
-    .replace("version: 6", "version: 5")
+    .replace("version: 7", "version: 6")
     .replace("      - {heading: Accessibility, columns: [Local ID, Requirement, Applies to, Observable evidence, UX rule], min_rows: 1}\n", "")
     .replace("      - {namespace: accessibility, pattern: '\\bAX-[0-9]{2}\\b', minimum: 1}\n", "");
   await writeFile(catalogFile, catalog, "utf8");
@@ -38,8 +38,8 @@ describe("pinned pattern migration", () => {
     await pinOlderCatalog(root);
 
     const report = await migratePatternCatalog(root, SOURCE_PATTERNS);
-    expect(report.from_version).toBe("5");
-    expect(report.to_version).toBe("6");
+    expect(report.from_version).toBe("6");
+    expect(report.to_version).toBe("7");
     expect(report.files_removed).toEqual(["00-system/patterns/design/retired-shape.pattern.md"]);
 
     const screen = report.patterns.find((entry) => entry.subject === "screen");
@@ -51,7 +51,7 @@ describe("pinned pattern migration", () => {
     // catalog reads back as the plugin's current generation.
     await verifyPatternSnapshot(root, path.join(root, "00-system", "patterns"));
     const pinnedCatalog = await loadPatternCatalog(path.join(root, "00-system", "patterns"), root);
-    expect(pinnedCatalog.version).toBe("6");
+    expect(pinnedCatalog.version).toBe("7");
     expect(await fg("**/retired-shape.pattern.md", { cwd: path.join(root, "00-system", "patterns") })).toEqual([]);
   });
 
@@ -63,7 +63,7 @@ describe("pinned pattern migration", () => {
 
     const report = await migratePatternCatalog(root, SOURCE_PATTERNS, true);
     expect(report.checked_only).toBe(true);
-    expect(report.to_version).toBe("6");
+    expect(report.to_version).toBe("7");
     expect(await readFile(path.join(root, "00-system", "patterns", "catalog.yaml"), "utf8")).toBe(before);
     expect(formatMigrationReport(report)).toContain("check only, nothing written");
   });
