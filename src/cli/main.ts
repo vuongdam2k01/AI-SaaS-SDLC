@@ -4,7 +4,7 @@ import { initializeProject } from "../core/template.js";
 import { loadCurrentState, loadActiveFlow, startFlow, closeFlow, checkpointFlow } from "../core/state.js";
 import { flowGuidance } from "../core/flow-guidance.js";
 import { CLASSIFICATION_LABELS, FLOW_STAGES, type FlowStage } from "../core/types.js";
-import { classifyImpact } from "../core/ripple-classification.js";
+import { classifyImpacts } from "../core/ripple-classification.js";
 import { projectSnapshot, refreshProject } from "../core/project.js";
 import { ensureEnginePointerIgnored, ensureResearchPolicyIgnored, ensureVerificationPolicyIgnored, recordEnginePointer } from "../core/engine-pointer.js";
 import { scanArtifacts } from "../core/artifacts.js";
@@ -15,7 +15,7 @@ import { loadConfig } from "../core/config.js";
 import { executeVerification } from "../core/verification.js";
 import { createBaseline, syncRepresentationChanges } from "../core/baseline.js";
 import { SdlcError } from "../core/errors.js";
-import { withProjectLock } from "../core/project-lock.js";
+import { releaseStaleLock, withProjectLock } from "../core/project-lock.js";
 import { resolveRuntimeRoot } from "../core/runtime-root.js";
 import { resolveCatalog } from "../core/pattern-catalog.js";
 import { formatMigrationReport, migratePatternCatalog } from "../core/pattern-migration.js";
@@ -44,7 +44,7 @@ function print(value: unknown, json = false): void {
   else console.log(value);
 }
 
-program.name("ai-saas-sdlc").description("Deterministic engine for AI SaaS SDLC documentation flows.").version("1.28.0");
+program.name("ai-saas-sdlc").description("Deterministic engine for AI SaaS SDLC documentation flows.").version("1.29.0");
 
 program.command("init")
   .description("Initialize a centralized documentation repository.")
@@ -198,14 +198,24 @@ const impact = program.command("impact")
   .action(async (options: { json?: boolean }) => print((await projectSnapshot(root)).impact, Boolean(options.json)));
 
 impact.command("classify")
-  .description("Record one affected artifact's ripple decision on the active change.")
-  .requiredOption("--id <artifact-id>", "Affected artifact to classify")
+  .description("Record one or more affected artifacts' ripple decision on the active change.")
+  .requiredOption("--id <artifact-ids>", "Affected artifact to classify; comma-separated for a batch sharing one label")
   .requiredOption("--as <label>", CLASSIFICATION_LABELS.join("|"))
   .option("--reason <text>", "Concrete reason; required with --as not-affected")
   .option("--json", "Emit JSON")
   .action(async (options: { id: string; as: string; reason?: string; json?: boolean }) => {
-    const change = await classifyImpact(root, options.id, options.as, options.reason);
-    print({ change: change.id, classification: change.classification ?? {} }, Boolean(options.json));
+    const ids = options.id.split(",").map((value) => value.trim()).filter(Boolean);
+    const change = await classifyImpacts(root, ids, options.as, options.reason);
+    print({ change: change.id, classified: ids, classification: change.classification ?? {} }, Boolean(options.json));
+  });
+
+program.command("unlock")
+  .description("Clear an engine lock left by a crashed operation, after confirming its owning process is gone.")
+  .option("--json", "Emit JSON")
+  .action(async (options: { json?: boolean }) => {
+    const report = await releaseStaleLock(root);
+    print(report, Boolean(options.json));
+    if (report.state === "held") process.exitCode = 1;
   });
 
 program.command("validate")

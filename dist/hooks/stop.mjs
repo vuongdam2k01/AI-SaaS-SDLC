@@ -13803,11 +13803,23 @@ function processExists(pid) {
     return error.code !== "ESRCH";
   }
 }
-async function inactiveLock(file) {
+async function readLock(file) {
   try {
     await assertSafeManagedPath(path5.dirname(path5.dirname(path5.dirname(file))), file);
-    const value = JSON.parse(await readFile4(file, "utf8"));
-    return typeof value.pid === "number" && !processExists(value.pid);
+    return JSON.parse(await readFile4(file, "utf8"));
+  } catch {
+    return null;
+  }
+}
+async function inactiveLock(file) {
+  const value = await readLock(file);
+  return typeof value?.pid === "number" && !processExists(value.pid);
+}
+async function reclaimInactiveLock(file) {
+  if (!await inactiveLock(file)) return false;
+  try {
+    await rm(file, { force: true });
+    return true;
   } catch {
     return false;
   }
@@ -13816,6 +13828,7 @@ async function acquire(root2) {
   const file = path5.join(root2, ".ai-saas-sdlc", "state", "engine.lock");
   await prepareSafeManagedPath(root2, file);
   const token = randomUUID();
+  let reclaimed = false;
   for (let attempt = 0; attempt <= 100; attempt += 1) {
     try {
       const handle = await open(file, "wx");
@@ -13837,9 +13850,13 @@ async function acquire(root2) {
       };
     } catch (error) {
       if (error.code !== "EEXIST") throw error;
+      if (!reclaimed && await reclaimInactiveLock(file)) {
+        reclaimed = true;
+        continue;
+      }
       if (attempt === 100) {
         const inactive = await inactiveLock(file);
-        throw new SdlcError(inactive ? `A crashed AI SaaS SDLC operation left ${file}; confirm no engine process is running, then remove that one lock file.` : "Another AI SaaS SDLC engine operation is still active.");
+        throw new SdlcError(inactive ? `A crashed AI SaaS SDLC operation left a lock this run could not reclaim; run \`unlock\` to clear it.` : "Another AI SaaS SDLC engine operation is still active.");
       }
       await delay(25);
     }

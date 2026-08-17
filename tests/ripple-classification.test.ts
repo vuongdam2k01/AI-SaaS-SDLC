@@ -3,7 +3,7 @@ import { readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { artifact, cleanup, establishGenesis, tempProject } from "./helpers.js";
 import { buildGraph } from "../src/core/graph.js";
-import { classifyImpact, unclassifiedImpactEntries } from "../src/core/ripple-classification.js";
+import { classifyImpact, classifyImpacts, unclassifiedImpactEntries } from "../src/core/ripple-classification.js";
 import { isChangeRecord } from "../src/core/record-validation.js";
 import { scanArtifacts } from "../src/core/artifacts.js";
 import { validateProject } from "../src/core/validation.js";
@@ -194,7 +194,11 @@ describe("classification through a real evolution", () => {
     await expect(classifyImpact(root, "FTR-APPROVAL-001", "not-affected")).rejects.toThrow(/requires --reason/);
     await expect(classifyImpact(root, "FTR-APPROVAL-001", "revisit")).rejects.toThrow(/Unsupported classification/);
 
-    for (const id of impact.ripple) await classifyImpact(root, id, "verify-only");
+    // One invocation services the whole ripple set: a per-artifact loop is what
+    // turned a few hundred decisions into a fragile chain of process spawns.
+    const batched = await classifyImpacts(root, impact.ripple, "verify-only");
+    for (const id of impact.ripple) expect(batched.classification?.[id]?.label).toBe("verify-only");
+    await expect(classifyImpacts(root, [], "verify-only")).rejects.toThrow(/at least one artifact ID/);
     expect(await codes()).toEqual([]);
     // The ledger rides the projection, so classifying leaves no generated drift.
     expect(await refreshProject(root, true)).toEqual([]);

@@ -17051,11 +17051,23 @@ function processExists(pid) {
     return error.code !== "ESRCH";
   }
 }
-async function inactiveLock(file) {
+async function readLock(file) {
   try {
     await assertSafeManagedPath(path5.dirname(path5.dirname(path5.dirname(file))), file);
-    const value = JSON.parse(await readFile3(file, "utf8"));
-    return typeof value.pid === "number" && !processExists(value.pid);
+    return JSON.parse(await readFile3(file, "utf8"));
+  } catch {
+    return null;
+  }
+}
+async function inactiveLock(file) {
+  const value = await readLock(file);
+  return typeof value?.pid === "number" && !processExists(value.pid);
+}
+async function reclaimInactiveLock(file) {
+  if (!await inactiveLock(file)) return false;
+  try {
+    await rm(file, { force: true });
+    return true;
   } catch {
     return false;
   }
@@ -17064,6 +17076,7 @@ async function acquire(root2) {
   const file = path5.join(root2, ".ai-saas-sdlc", "state", "engine.lock");
   await prepareSafeManagedPath(root2, file);
   const token = randomUUID();
+  let reclaimed = false;
   for (let attempt = 0; attempt <= 100; attempt += 1) {
     try {
       const handle = await open(file, "wx");
@@ -17085,14 +17098,30 @@ async function acquire(root2) {
       };
     } catch (error) {
       if (error.code !== "EEXIST") throw error;
+      if (!reclaimed && await reclaimInactiveLock(file)) {
+        reclaimed = true;
+        continue;
+      }
       if (attempt === 100) {
         const inactive = await inactiveLock(file);
-        throw new SdlcError(inactive ? `A crashed AI SaaS SDLC operation left ${file}; confirm no engine process is running, then remove that one lock file.` : "Another AI SaaS SDLC engine operation is still active.");
+        throw new SdlcError(inactive ? `A crashed AI SaaS SDLC operation left a lock this run could not reclaim; run \`unlock\` to clear it.` : "Another AI SaaS SDLC engine operation is still active.");
       }
       await delay(25);
     }
   }
   throw new SdlcError("Could not acquire the AI SaaS SDLC engine lock.");
+}
+async function releaseStaleLock(root2) {
+  const file = path5.join(path5.resolve(root2), ".ai-saas-sdlc", "state", "engine.lock");
+  const value = await readLock(file);
+  if (!value) return { state: "absent", pid: null, created_at: null, detail: "No engine lock is present; nothing to clear." };
+  const pid = typeof value.pid === "number" ? value.pid : null;
+  const created_at = typeof value.created_at === "string" ? value.created_at : null;
+  if (pid !== null && processExists(pid)) {
+    return { state: "held", pid, created_at, detail: `Process ${pid} still exists, so the lock is live and was left untouched. Wait for that operation, or stop it first.` };
+  }
+  await rm(file, { force: true });
+  return { state: "reclaimed", pid, created_at, detail: `Cleared a lock owned by process ${pid ?? "unknown"}, which no longer exists.` };
 }
 async function withProjectLock(root2, task) {
   const key = path5.resolve(root2);
@@ -19699,7 +19728,8 @@ async function impactClassificationFindings(root2, artifacts, graph) {
     file: item.file
   }));
 }
-async function classifyImpact(root2, id2, label, reason) {
+async function classifyImpacts(root2, ids, label, reason) {
+  if (ids.length === 0) throw new SdlcError("Classification needs at least one artifact ID.");
   return withProjectLock(root2, async () => {
     if (!CLASSIFICATION_LABELS.includes(label)) {
       throw new SdlcError(`Unsupported classification: ${label}. Expected ${CLASSIFICATION_LABELS.join("|")}.`);
@@ -19714,15 +19744,18 @@ async function classifyImpact(root2, id2, label, reason) {
     if (change.status !== "active" && change.status !== "baselined") throw new SdlcError(`${change.id} is ${change.status}; a closed change cannot take new classifications.`);
     const artifacts = await scanArtifacts(root2);
     const scope = change.status === "active" ? calculateImpact(artifacts, buildGraph(artifacts), await loadBaseline(root2)) : change.impact ?? { direct: [], affected: [], stale: [], ripple: [] };
-    if (scope.direct.includes(id2)) {
-      throw new SdlcError(`${id2} is a direct change of ${change.id} and counts as modify by definition; classification records decisions about artifacts the closure reached but the change did not edit.`);
+    for (const id2 of ids) {
+      if (scope.direct.includes(id2)) {
+        throw new SdlcError(`${id2} is a direct change of ${change.id} and counts as modify by definition; classification records decisions about artifacts the closure reached but the change did not edit.`);
+      }
+      if (!(scope.ripple ?? []).includes(id2)) {
+        throw new SdlcError(`${id2} is not in ${change.id}'s ripple set \u2014 nothing this change revised reaches it; run \`impact --json\` to see what this change put in question.`);
+      }
     }
-    if (!(scope.ripple ?? []).includes(id2)) {
-      throw new SdlcError(`${id2} is not in ${change.id}'s ripple set \u2014 nothing this change revised reaches it; run \`impact --json\` to see what this change put in question.`);
-    }
+    const entry = { label, ...reason?.trim() ? { reason: reason.trim() } : {} };
     const updated = {
       ...change,
-      classification: { ...change.classification ?? {}, [id2]: { label, ...reason?.trim() ? { reason: reason.trim() } : {} } }
+      classification: { ...change.classification ?? {}, ...Object.fromEntries(ids.map((id2) => [id2, entry])) }
     };
     const file = path17.join(projectPaths(root2).changes, `${change.id}.json`);
     await assertSafeManagedPath(root2, file);
@@ -25278,7 +25311,7 @@ function print(value, json = false) {
   if (json || typeof value !== "string") console.log(JSON.stringify(value, null, 2));
   else console.log(value);
 }
-program2.name("ai-saas-sdlc").description("Deterministic engine for AI SaaS SDLC documentation flows.").version("1.28.0");
+program2.name("ai-saas-sdlc").description("Deterministic engine for AI SaaS SDLC documentation flows.").version("1.29.0");
 program2.command("init").description("Initialize a centralized documentation repository.").option("--project-id <id>", "Stable project identifier").option("--idea <text>", "Raw idea preserved verbatim", "").option("--force", "Initialize even though the directory contains a code-project marker").action(async (options) => {
   const projectId = options.projectId ?? root.split(/[\\/]/).at(-1)?.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") ?? "saas-project";
   await withProjectLock(root, async () => {
@@ -25375,9 +25408,15 @@ flow.command("checkpoint").description("Record the checkpoint an open flow has r
 flow.command("next").description("Report the open flow's progress and the exact command to run next.").option("--json", "Emit JSON").action(async (options) => print(await flowGuidance(root), Boolean(options.json)));
 flow.command("close").option("--json", "Emit JSON").action(async (options) => print(await closeFlow(root), Boolean(options.json)));
 var impact = program2.command("impact").description("Compute direct changes and reverse dependency closure.").option("--json", "Emit JSON").action(async (options) => print((await projectSnapshot(root)).impact, Boolean(options.json)));
-impact.command("classify").description("Record one affected artifact's ripple decision on the active change.").requiredOption("--id <artifact-id>", "Affected artifact to classify").requiredOption("--as <label>", CLASSIFICATION_LABELS.join("|")).option("--reason <text>", "Concrete reason; required with --as not-affected").option("--json", "Emit JSON").action(async (options) => {
-  const change = await classifyImpact(root, options.id, options.as, options.reason);
-  print({ change: change.id, classification: change.classification ?? {} }, Boolean(options.json));
+impact.command("classify").description("Record one or more affected artifacts' ripple decision on the active change.").requiredOption("--id <artifact-ids>", "Affected artifact to classify; comma-separated for a batch sharing one label").requiredOption("--as <label>", CLASSIFICATION_LABELS.join("|")).option("--reason <text>", "Concrete reason; required with --as not-affected").option("--json", "Emit JSON").action(async (options) => {
+  const ids = options.id.split(",").map((value) => value.trim()).filter(Boolean);
+  const change = await classifyImpacts(root, ids, options.as, options.reason);
+  print({ change: change.id, classified: ids, classification: change.classification ?? {} }, Boolean(options.json));
+});
+program2.command("unlock").description("Clear an engine lock left by a crashed operation, after confirming its owning process is gone.").option("--json", "Emit JSON").action(async (options) => {
+  const report = await releaseStaleLock(root);
+  print(report, Boolean(options.json));
+  if (report.state === "held") process.exitCode = 1;
 });
 program2.command("validate").description("Validate schemas, IDs, lifecycle, references, immutable artifacts and results.").option("--active", "Validate during the active flow").option("--all", "Validate the full repository").option("--json", "Emit JSON").action(async (options) => {
   const artifacts = await scanArtifacts(root);

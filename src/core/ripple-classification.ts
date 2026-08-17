@@ -135,6 +135,15 @@ export async function impactClassificationFindings(root: string, artifacts: Arti
  * after the successor baseline still describes that change's closure.
  */
 export async function classifyImpact(root: string, id: string, label: string, reason?: string): Promise<ChangeRecord> {
+  return classifyImpacts(root, [id], label, reason);
+}
+
+// A ripple set is sized by the change, not by the author's patience: servicing
+// one of a few hundred per process spawn turned classification into a long
+// serial loop, and a loop that dies mid-call is what leaves a lock behind. One
+// invocation now takes the whole batch under a single lock and one refresh.
+export async function classifyImpacts(root: string, ids: string[], label: string, reason?: string): Promise<ChangeRecord> {
+  if (ids.length === 0) throw new SdlcError("Classification needs at least one artifact ID.");
   return withProjectLock(root, async () => {
     if (!CLASSIFICATION_LABELS.includes(label as ClassificationLabel)) {
       throw new SdlcError(`Unsupported classification: ${label}. Expected ${CLASSIFICATION_LABELS.join("|")}.`);
@@ -151,15 +160,20 @@ export async function classifyImpact(root: string, id: string, label: string, re
     const scope = change.status === "active"
       ? calculateImpact(artifacts, buildGraph(artifacts), await loadBaseline(root))
       : change.impact ?? { direct: [], affected: [], stale: [], ripple: [] };
-    if (scope.direct.includes(id)) {
-      throw new SdlcError(`${id} is a direct change of ${change.id} and counts as modify by definition; classification records decisions about artifacts the closure reached but the change did not edit.`);
+    // Every ID is checked before any is written: a batch that failed halfway
+    // would record a decision the invocation did not finish making.
+    for (const id of ids) {
+      if (scope.direct.includes(id)) {
+        throw new SdlcError(`${id} is a direct change of ${change.id} and counts as modify by definition; classification records decisions about artifacts the closure reached but the change did not edit.`);
+      }
+      if (!(scope.ripple ?? []).includes(id)) {
+        throw new SdlcError(`${id} is not in ${change.id}'s ripple set — nothing this change revised reaches it; run \`impact --json\` to see what this change put in question.`);
+      }
     }
-    if (!(scope.ripple ?? []).includes(id)) {
-      throw new SdlcError(`${id} is not in ${change.id}'s ripple set — nothing this change revised reaches it; run \`impact --json\` to see what this change put in question.`);
-    }
+    const entry = { label: label as ClassificationLabel, ...(reason?.trim() ? { reason: reason.trim() } : {}) };
     const updated: ChangeRecord = {
       ...change,
-      classification: { ...(change.classification ?? {}), [id]: { label: label as ClassificationLabel, ...(reason?.trim() ? { reason: reason.trim() } : {}) } }
+      classification: { ...(change.classification ?? {}), ...Object.fromEntries(ids.map((id) => [id, entry])) }
     };
     const file = path.join(projectPaths(root).changes, `${change.id}.json`);
     await assertSafeManagedPath(root, file);

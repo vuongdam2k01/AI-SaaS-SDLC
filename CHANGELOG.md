@@ -1,5 +1,31 @@
 # Changelog
 
+## 1.29.0 - 2026-08-17
+
+A crashed operation must not cost an author their repository. Three faults,
+all observed in one field failure: a bulk ripple classification killed by a
+timeout left a lock nothing could clear, and no agent beside the author was
+allowed to clear it either.
+
+- The engine now reclaims a lock whose owning process is gone. Staleness was
+  already detected — `inactiveLock` checks the recorded PID for liveness — but
+  the result only chose an error string, so the engine knew the lock was debris
+  and still refused to act on it. Liveness stays the only criterion, because a
+  recycled PID reading as alive keeps the engine waiting, which is the safe
+  direction to err.
+- `unlock` is a first-class command. Recovery pointed at a file under
+  engine-owned state that the safety hooks deny to every tool, so the error
+  prescribed a fix the agent beside the author was forbidden to apply — the
+  engine told you the answer and then blocked its own hands. Clearing a dead
+  lock now goes through the engine, which checks liveness itself and refuses a
+  live one.
+- `impact classify` takes a batch. A ripple set is sized by the change, not by
+  the author's patience, and servicing a few hundred artifacts one process
+  spawn at a time is what made the fragile serial loop that died mid-call in
+  the first place. One invocation now takes comma-separated IDs sharing a
+  label, under a single lock and one refresh, validating every ID before it
+  writes any.
+
 ## 1.28.0 - 2026-08-16
 
 The self-run sweep, before the owner has to point again. Four holes, found by

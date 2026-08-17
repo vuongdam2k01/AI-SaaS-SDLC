@@ -2,6 +2,16 @@
 
 See the root [CHANGELOG](../CHANGELOG.md) for the release summary. This contributor view records documentation-impact areas that must remain synchronized with implementation.
 
+## 1.29.0 - 2026-08-17
+
+| Area | Documentation impact |
+|---|---|
+| Engine | `project-lock.ts` reclaims a lock whose recorded PID no longer exists instead of only choosing an error string; new `releaseStaleLock` backs the `unlock` command; `ripple-classification.ts` gains `classifyImpacts` for a batch under one lock and one refresh, with `classifyImpact` delegating to it |
+| CLI | New `unlock` command; `impact classify --id` accepts a comma-separated batch sharing one label |
+| Docs | `command-reference.md` adds the `unlock` row and restates the `impact classify` row for batches; README synopsis updated |
+| Tests | New `tests/project-lock.test.ts` covers reclaim, live-lock refusal, absent and reclaimed reports; `ripple-classification.test.ts` classifies the ripple set in one batched call |
+| Compatibility | No catalog generation change; no migration. `classifyImpact`'s signature is unchanged |
+
 ## 1.28.0 - 2026-08-16
 
 | Area | Documentation impact |
